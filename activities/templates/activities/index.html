@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+<h1> Activities List </h1>
+{%if Activities%}
+{%for activity in Activities%}
+    <li> {{activity}} date:{{activity.date}} </li>
+{%endfor%}
+{%else%}
+    <p> No Activity Available at the moment. </p>
+{%endif%}
+<html>
