@@ -25,6 +25,14 @@ class ActivityDetailView(generic.DetailView):
     model = models.Activity
     template_name = "activities/detail.html"
 
+    def get_queryset(self):
+        """ 
+        Return Queryset of activities that is not took place yet.
+        
+        Queryset is order by date that the activity took place.(ealier to later)
+        """
+        return models.Activity.objects.filter(date__gte=timezone.now())
+
 
 
 def join(request, activity_id):
