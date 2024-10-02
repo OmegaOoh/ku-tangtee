@@ -4,7 +4,7 @@ import datetime
 
 class Activity(models.Model):
     """Activity model to store data of activity detail."""
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
     detail = models.CharField(max_length=1024)
     date = models.DateTimeField(default=timezone.now)
     max_people = models.IntegerField(null=True, blank=True)
@@ -16,9 +16,12 @@ class Activity(models.Model):
     
     def can_join(self):
         """Return True if max_people doesn't reached and date doesn't past, Otherwise false."""
-        return self.date < datetime.now() and self.people <= self.people
+        if self.max_people:
+            return self.date >= timezone.now() and self.people < self.max_people
+        else:
+            return self.date >= timezone.now()
     
     def is_incoming(self):
         """Return True if activities took place on incoming weeks, Otherwise false."""
-        return self.date +timezone.timedelta(weeks=1) >= datetime.now()
+        return self.date + timezone.timedelta(weeks=1) >= timezone.now()
     

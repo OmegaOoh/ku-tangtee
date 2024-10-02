@@ -2,9 +2,13 @@
 <html>
 <h1> Activities List </h1>
 {%if activities%}
-{%for activity in activities%}
-    <li> {{activity}}&emsp;&emsp;Start at : {{activity.date}} </li>
-{%endfor%}
+    {%for activity in activities%}
+        <li> <a href="{%url 'activities:detail' activity.id%}">{{activity}}</a>&emsp;&emsp;
+            Start at : {{activity.date}} <form action="{% url 'activities:join' activity.id %}" method="post">
+                {% csrf_token %}
+                <input type="submit" value="Join Us">
+            </form>
+    {%endfor%}
 {%else%}
     <p> No Activity Available at the moment. </p>
 {%endif%}
