@@ -1,0 +1,32 @@
+name: Lint JavaScript with JSHint
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  jshint-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install JSHint
+        run: |
+          cd frontend
+          npm install jshint 
+
+      - name: Run JSHint
+        run: |
+          cd frontend 
+          npx jshint # Apply config from .jshintrc and lint files in the directory

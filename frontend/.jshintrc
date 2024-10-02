@@ -1,0 +1,14 @@
+{
+    "esversion": 6,
+    "undef": true,
+    "unused": true,
+    "globals": {
+      "MY_GLOBAL": true,
+      "console": true
+    },
+    "curly": true,
+    "eqeqeq": true,
+    "maxlen": 100,
+    "maxdepth": 3,
+    "node": true
+  }
