@@ -8,6 +8,7 @@ from django.contrib import messages
 from . import models
 from django.views import generic
 
+
 class IndexView(generic.ListView):
     """View class to show all upcoming activities."""
 
