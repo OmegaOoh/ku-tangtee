@@ -1,10 +1,11 @@
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django import urls
 from django.utils import timezone
 from django import db
 from django.contrib import messages
 from . import models
 from django.views import generic
+
 
 class IndexView(generic.ListView):
     """View class to show all upcoming activities"""
@@ -15,10 +16,11 @@ class IndexView(generic.ListView):
     def get_queryset(self):
         """ 
         Return Queryset of activities that is not took place yet.
-        
+
         Queryset is order by date that the activity took place.(ealier to later)
         """
         return models.Activity.objects.filter(date__gte=timezone.now()).order_by("date")
+
 
 class ActivityDetailView(generic.DetailView):
     """View class to show activity information"""
@@ -26,13 +28,12 @@ class ActivityDetailView(generic.DetailView):
     template_name = "activities/detail.html"
 
     def get_queryset(self):
-        """ 
+        """
         Return Queryset of activities that is not took place yet.
-        
+
         Queryset is order by date that the activity took place.(ealier to later)
         """
         return models.Activity.objects.filter(date__gte=timezone.now())
-
 
 
 def join(request, activity_id):

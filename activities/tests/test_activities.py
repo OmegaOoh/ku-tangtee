@@ -22,7 +22,3 @@ class TestActivityModel(django.test.TestCase):
         """can_join return True when date is in the future"""
         activity = create_activity("Past", 1)
         self.assertTrue(activity.can_join())
-    
-
-
-        
