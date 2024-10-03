@@ -12,6 +12,8 @@ env:
   DATABASE_HOST: 127.0.0.1
   DATABASE_PASSWORD: mju7MJU&
   DJANGO_SETTINGS_MODULE: mysite.settings
+  SECRET_KEY: some_sercret_key
+  DEBUG: True
 
 jobs:
   test:
