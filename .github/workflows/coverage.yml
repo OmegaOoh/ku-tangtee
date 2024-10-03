@@ -10,6 +10,7 @@ on:
 
 env:
   DATABASE_HOST: 127.0.0.1
+  DJANGO_SETTINGS_MODULE: mysite.settings
 
 jobs:
   test:
@@ -35,9 +36,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest pytest-cov
-
-      - name: Set up Django settings
-        run: echo "DJANGO_SETTINGS_MODULE=mysite.settings" >> $GITHUB_ENV
       
       - name: Run Migrations
         run: python manage.py migrate
