@@ -9,13 +9,14 @@ from django.views import generic
 
 
 class IndexView(generic.ListView):
-    """View class to show all upcoming activities"""
+    """View class to show all upcoming activities."""
+
     model = models.Activity
     template_name = "activities/index.html"
     context_object_name = "activities"
 
     def get_queryset(self):
-        """ 
+        """
         Return Queryset of activities that is not took place yet.
 
         Queryset is order by date that the activity took place.(ealier to later)
@@ -24,7 +25,8 @@ class IndexView(generic.ListView):
 
 
 class ActivityDetailView(generic.DetailView):
-    """View class to show activity information"""
+    """View class to show activity information."""
+
     model = models.Activity
     template_name = "activities/detail.html"
 
@@ -38,7 +40,8 @@ class ActivityDetailView(generic.DetailView):
 
 
 def join(request, activity_id):
-    """Increase number of people when user join an activity"""
+    """Increase number of people when user join an activity."""
+
     activity = get_object_or_404(models.Activity, pk=activity_id)
     if activity.can_join():
         activity.people = db.models.F('people') + 1

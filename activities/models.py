@@ -12,7 +12,7 @@ class Activity(models.Model):
     people = models.IntegerField(default=0)
 
     def __str__(self):
-        """Return Activity Name as string representative"""
+        """Return Activity Name as string representative."""
         return self.name
 
     def can_join(self):

@@ -5,7 +5,8 @@ from .shortcuts import create_activity
 
 
 class DetailTest(django.test.TestCase):
-    """Test Cases for Detail View"""
+    """Test Cases for Detail View."""
+    
     def test_past_question(self):
         activity = create_activity("past", -1)
         response = self.client.get(urls.reverse("activities:detail", args=[activity.id]))

@@ -1,3 +1,4 @@
+"""Config of activities app."""
 from django.apps import AppConfig
 
 

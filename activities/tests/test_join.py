@@ -5,7 +5,8 @@ from .shortcuts import create_activity
 
 
 class JoinTest(django.test.TestCase):
-    """Test Cases for join function"""
+    """Test Cases for join function."""
+    
     def test_join_redirection(self):
         """Join redirect user to activity detail page."""
         activity = create_activity("Joinable", 1)

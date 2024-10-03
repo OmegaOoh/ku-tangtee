@@ -4,7 +4,7 @@ from .shortcuts import create_activity
 
 
 class TestActivityModel(django.test.TestCase):
-    """TestCase Class for Activity model"""
+    """TestCase Class for Activity model."""
     def test_can_join_equal_max(self):
         """can_join() return False as Number of people is equal to max_people."""
         activity = create_activity("Exceed", 1, 10, 10)

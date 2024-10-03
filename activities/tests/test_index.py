@@ -5,7 +5,8 @@ from .shortcuts import create_activity
 
 
 class IndexTest(django.test.TestCase):
-    """Test Cases for Index view"""
+    """Test Cases for Index view."""
+    
     def test_no_activity(self):
         """If no activities available, an appropiate messages is displayed."""
         response = self.client.get(urls.reverse("activities:index"))
