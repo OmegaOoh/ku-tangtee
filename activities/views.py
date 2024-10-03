@@ -1,4 +1,5 @@
 """Views for activities app, handle html request."""
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django import urls
 from django.utils import timezone
@@ -7,7 +8,6 @@ from django.contrib import messages
 from . import models
 from django.views import generic
 
-
 class IndexView(generic.ListView):
     """View class to show all upcoming activities."""
 
@@ -15,7 +15,7 @@ class IndexView(generic.ListView):
     template_name = "activities/index.html"
     context_object_name = "activities"
 
-    def get_queryset(self):
+    def get_queryset(self) -> db.models.QuerySet:
         """
         Return Queryset of activities that is not took place yet.
 
@@ -30,7 +30,7 @@ class ActivityDetailView(generic.DetailView):
     model = models.Activity
     template_name = "activities/detail.html"
 
-    def get_queryset(self):
+    def get_queryset(self) -> db.models.QuerySet:
         """
         Return Queryset of activities that is not took place yet.
 
@@ -39,7 +39,7 @@ class ActivityDetailView(generic.DetailView):
         return models.Activity.objects.filter(date__gte=timezone.now())
 
 
-def join(request, activity_id):
+def join(request: HttpRequest, activity_id: int) -> HttpResponse:
     """Increase number of people when user join an activity."""
     activity = get_object_or_404(models.Activity, pk=activity_id)
     if activity.can_join():

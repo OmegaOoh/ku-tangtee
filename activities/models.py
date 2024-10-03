@@ -1,27 +1,29 @@
 """Database Model for activities app."""
+from typing import Any
 from django.db import models
 from django.utils import timezone
 
 
 class Activity(models.Model):
     """Activity model to store data of activity detail."""
+
     name = models.CharField(max_length=255)
     detail = models.CharField(max_length=1024)
     date = models.DateTimeField(default=timezone.now)
     max_people = models.IntegerField(null=True, blank=True)
     people = models.IntegerField(default=0)
 
-    def __str__(self):
+    def __str__(self) -> Any:
         """Return Activity Name as string representative."""
         return self.name
 
-    def can_join(self):
+    def can_join(self) -> Any:
         """Return True if max_people doesn't reached and date doesn't past, Otherwise false."""
         if self.max_people:
             return self.date >= timezone.now() and self.people < self.max_people
         else:
             return self.date >= timezone.now()
 
-    def is_incoming(self):
+    def is_incoming(self) -> Any:
         """Return True if activities took place on incoming weeks, Otherwise false."""
         return self.date + timezone.timedelta(weeks=1) >= timezone.now()
