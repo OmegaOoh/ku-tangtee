@@ -41,6 +41,10 @@ jobs:
       - name: Run Migrations
         run: python manage.py migrate
 
+      - name: Initialize Django app registry
+        run: |
+          python manage.py check
+
       - name: Run tests with coverage
         run: |
           pytest --cov=ku-tangtee --cov-report=xml  # Already use .coveragerc
