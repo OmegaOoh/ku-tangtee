@@ -11,7 +11,13 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: myDB
+        ports: ['3306:3306']
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -26,6 +32,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest pytest-cov
+
+      - name: Run Migrations
+        run: python manage.py migrate
+        env: 
+          DBENGINE: django.db.backends.mysql
+          DBNAME: myDB
+          DBUSER: root
+          DBPASSWORD: password
+          DBHOST: 127.0.0.1
+          DBPORT: $
 
       - name: Run tests with coverage
         run: |
