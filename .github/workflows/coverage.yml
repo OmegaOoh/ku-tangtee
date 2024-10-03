@@ -11,9 +11,6 @@ on:
 env:
   DATABASE_HOST: 127.0.0.1
   DATABASE_PASSWORD: mju7MJU&
-  DJANGO_SETTINGS_MODULE: mysite.settings
-  SECRET_KEY: some_sercret_key
-  DEBUG: True
 
 jobs:
   test:
@@ -39,14 +36,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest pytest-cov
+          pip install pytest pytest-cov pytest-django
       
       - name: Run Migrations
         run: python manage.py migrate
-
-      - name: Initialize Django app registry
-        run: |
-          python manage.py check
 
       - name: Run tests with coverage
         run: |
