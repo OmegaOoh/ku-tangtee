@@ -41,6 +41,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
+          DJANGO_SETTINGS_MODULE="ku-tangtee.settings"  # Set project settings module
           pytest --cov=your_project --cov-report=xml  # Already use .coveragerc
       
       - name: Upload coverage to Codecov
