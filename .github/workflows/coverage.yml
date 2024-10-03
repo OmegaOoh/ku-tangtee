@@ -40,9 +40,20 @@ jobs:
       - name: Run Migrations
         run: python manage.py migrate
 
+      - name: Wait for MySQL to be ready
+        run: |
+          for i in {1..30}; do
+            if mysqladmin ping -h root --silent; then
+              echo "MySQL is up!"
+              break
+            fi
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+
       - name: Run tests with coverage
         run: |
-          pytest --cov=your_project --cov-report=xml  # Already use .coveragerc
+          pytest --cov=ku-tangtee --cov-report=xml  # Already use .coveragerc
       
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
