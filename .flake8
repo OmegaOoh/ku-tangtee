@@ -11,6 +11,8 @@ exclude =
     env,        # Ignore virtual environment
     venv,       # Ignore virtual environment
     .github,    # Ignore github directory
+    */settings.py # Ignore Django settings
+    */__init__.py # Ignore __init__ file
 
 # Show the source code line for the error/warning
 show-source = True
