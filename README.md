@@ -6,6 +6,7 @@ web application for gathering people for events or activities powered by Django
    ``` pip install -r requirement.txt ```
 2. Install nodejs follows [instruction](https://nodejs.org/en/download/package-manager)
 3. Install vue ```npm install -g @vue/cli```
+4. Follow MySQL [installation & set up guide](./database_guide.md)
 
 ## How to run
 TO BE MODIFIED
