@@ -10,6 +10,7 @@ on:
 
 env:
   DATABASE_HOST: 127.0.0.1
+  DATABASE_PASSWORD: mju7MJU&
   DJANGO_SETTINGS_MODULE: mysite.settings
 
 jobs:
@@ -19,7 +20,7 @@ jobs:
       mysql:
         image: mysql:9.0
         env:
-          MYSQL_ROOT_PASSWORD: password
+          MYSQL_ROOT_PASSWORD: mju7MJU&
           MYSQL_DATABASE: myDB
           
         ports: ['3306:3306']
