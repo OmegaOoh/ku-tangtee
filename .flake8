@@ -1,0 +1,18 @@
+[flake8]
+# Specify the max line length allowed (We extend the max length because Django may not satisfy PEP8 max length)
+max-line-length = 100
+
+# Exclude certain files and directories
+exclude = 
+    frontend,   # Exclude the frontend folder
+    .git,       # Ignore git directory
+    __pycache__,# Ignore Python cache
+    migrations, # Ignore Django migrations
+    env,        # Ignore virtual environment
+    venv,       # Ignore virtual environment
+    .github,    # Ignore github directory
+    */settings.py # Ignore Django settings
+    */__init__.py # Ignore __init__ file
+
+# Show the source code line for the error/warning
+show-source = True
