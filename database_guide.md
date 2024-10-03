@@ -9,13 +9,21 @@
 6. Enter a password for root user when installer prompt.
 
 ## Set up a database
-1. Login to MySQL terminal as a root user.
+1. ### **MacOS/Linux**
+
+    Login to MySQL terminal as a root user.
 
     ```
     mysql -u root -p
     ```
 
     After execute command, enter root password that you've set before in installer. 
+
+
+    ### **Window**
+
+    Run MySQL Command Line Client application
+
 
 2. Inside MySQL terminal, create a database for storing a data.
 
