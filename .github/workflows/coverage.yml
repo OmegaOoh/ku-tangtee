@@ -8,10 +8,22 @@ on:
     branches:
       - main
 
+env:
+  DATABASE_HOST: 127.0.0.1
+  DATABASE_PASSWORD: mju7MJU&
+  DJANGO_SETTINGS_MODULE: mysite.settings
+
 jobs:
   test:
     runs-on: ubuntu-latest
-
+    services:
+      mysql:
+        image: mysql:9.0
+        env:
+          MYSQL_ROOT_PASSWORD: mju7MJU&
+          MYSQL_DATABASE: myDB
+          
+        ports: ['3306:3306']
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -25,11 +37,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest pytest-cov
+          pip install pytest pytest-cov pytest-django
+      
+      - name: Run Migrations
+        run: python manage.py migrate
 
       - name: Run tests with coverage
         run: |
           pytest --cov --cov-report=xml  # Already use .coveragerc
+
       
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4

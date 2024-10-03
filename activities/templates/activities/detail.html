@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+
+<html>
+{%if messages%}
+    {%for message in messages%} <p><strong> {{message}} </strong></p>
+    {%endfor%}
+{%endif%}
+<h1> {{activity.name}} </h1>
+<h2> {{activity.date}} </h2>
+<h3> Current Participants: {{activity.people}} {%if activity.max_people%} / {{activity.max_people}} {%endif%}
+<form action="{% url 'activities:join' activity.id %}" method="post">
+    {% csrf_token %}
+    <input type="submit" value="Join Us">
+</form>
+
+<p> {{activity.detail}} </p>
+
+<a href="{%url "activities:index"%}"> back to index </a>
+<html>
