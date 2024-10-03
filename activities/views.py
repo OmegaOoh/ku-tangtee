@@ -41,11 +41,10 @@ class ActivityDetailView(generic.DetailView):
 
 def join(request, activity_id):
     """Increase number of people when user join an activity."""
-
     activity = get_object_or_404(models.Activity, pk=activity_id)
     if activity.can_join():
         activity.people = db.models.F('people') + 1
-        activity.save()
+        activity.save(update_fields=['people'])
         messages.success(request, f"you successfully join {activity.name}")
     else:
         messages.error(request, f"{activity_id} is not joinable")
