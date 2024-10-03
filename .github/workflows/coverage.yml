@@ -17,10 +17,11 @@ jobs:
     runs-on: ubuntu-latest
     services:
       mysql:
-        image: mysql:9.0.1
+        image: mysql:9.0
         env:
           MYSQL_ROOT_PASSWORD: password
           MYSQL_DATABASE: myDB
+          
         ports: ['3306:3306']
     steps:
       - name: Checkout code
@@ -39,17 +40,6 @@ jobs:
       
       - name: Run Migrations
         run: python manage.py migrate
-
-      - name: Wait for MySQL to be ready
-        run: |
-          for i in {1..30}; do
-            if mysqladmin ping -h root --silent; then
-              echo "MySQL is up!"
-              break
-            fi
-            echo "Waiting for MySQL..."
-            sleep 2
-          done
 
       - name: Run tests with coverage
         run: |
