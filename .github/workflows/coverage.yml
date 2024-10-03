@@ -37,7 +37,7 @@ jobs:
           pip install pytest pytest-cov
 
       - name: Set up Django settings
-        run: echo "DJANGO_SETTINGS_MODULE=myproject.settings" >> $GITHUB_ENV
+        run: echo "DJANGO_SETTINGS_MODULE=mysite.settings" >> $GITHUB_ENV
       
       - name: Run Migrations
         run: python manage.py migrate
