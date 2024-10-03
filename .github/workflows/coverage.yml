@@ -21,6 +21,7 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: mju7MJU&
           MYSQL_DATABASE: myDB
+          DJANGO_SETTINGS_MODULE: mysite.settings
           
         ports: ['3306:3306']
     steps:
