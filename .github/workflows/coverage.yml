@@ -35,13 +35,6 @@ jobs:
 
       - name: Run Migrations
         run: python manage.py migrate
-        env: 
-          DBENGINE: django.db.backends.mysql
-          DBNAME: myDB
-          DBUSER: root
-          DBPASSWORD: password
-          DBHOST: 127.0.0.1
-          DBPORT: 3306
 
       - name: Run tests with coverage
         run: |
@@ -55,9 +48,3 @@ jobs:
           name: codecov-umbrella
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-          DBENGINE: django.db.backends.mysql
-          DBNAME: myDB
-          DBUSER: root
-          DBPASSWORD: password
-          DBHOST: 127.0.0.1
-          DBPORT: 3306
