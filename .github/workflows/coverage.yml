@@ -36,12 +36,14 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-cov
 
+      - name: Set up Django settings
+        run: echo "DJANGO_SETTINGS_MODULE=myproject.settings" >> $GITHUB_ENV
+      
       - name: Run Migrations
         run: python manage.py migrate
 
       - name: Run tests with coverage
         run: |
-          DJANGO_SETTINGS_MODULE="ku-tangtee.settings"  # Set project settings module
           pytest --cov=your_project --cov-report=xml  # Already use .coveragerc
       
       - name: Upload coverage to Codecov
