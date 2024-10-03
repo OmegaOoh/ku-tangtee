@@ -1,4 +1,6 @@
 # KU TangTee, Activities Hub for KU Student
+[![codecov](https://codecov.io/gh/OmegaOoh/ku-tangtee/graph/badge.svg?token=3JS2AG5IFC)](https://codecov.io/gh/OmegaOoh/ku-tangtee) [![Lint with flake8](https://github.com/OmegaOoh/ku-tangtee/actions/workflows/flake8.yml/badge.svg)](https://github.com/OmegaOoh/ku-tangtee/actions/workflows/flake8.yml) [![Type check with mypy](https://github.com/OmegaOoh/ku-tangtee/actions/workflows/mypy.yml/badge.svg)](https://github.com/OmegaOoh/ku-tangtee/actions/workflows/mypy.yml) [![Lint JavaScript with JSHint](https://github.com/OmegaOoh/ku-tangtee/actions/workflows/jshint.yml/badge.svg)](https://github.com/OmegaOoh/ku-tangtee/actions/workflows/jshint.yml)
+
 web application for gathering people for events or activities powered by Django
 
 ## How to install
