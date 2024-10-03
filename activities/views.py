@@ -1,3 +1,4 @@
+"""Views for activities app, handle html request."""
 from django.shortcuts import get_object_or_404, redirect
 from django import urls
 from django.utils import timezone

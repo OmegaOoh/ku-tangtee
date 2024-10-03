@@ -1,7 +1,8 @@
-"""Module to test on index page of activities app"""
+"""Module to test on index page of activities app."""
 import django.test
 from django import urls
 from .shortcuts import create_activity
+
 
 class IndexTest(django.test.TestCase):
     """Test Cases for Index view"""
@@ -23,7 +24,7 @@ class IndexTest(django.test.TestCase):
         create_activity("past", -1)
         response = self.client.get(urls.reverse("activities:index"))
         self.assertQuerySetEqual(response.context["activities"], [])
-    
+
     def test_future_and_past_activity(self):
         """Only activities take place in the future is showed on index page."""
         activity = create_activity("future", 1)
@@ -37,4 +38,3 @@ class IndexTest(django.test.TestCase):
         activity2 = create_activity("future2", 2)
         response = self.client.get(urls.reverse("activities:index"))
         self.assertQuerySetEqual(response.context["activities"], [activity, activity2])
-    

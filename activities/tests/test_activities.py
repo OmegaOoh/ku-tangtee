@@ -1,5 +1,7 @@
+"""Test for activity model of activities app."""
 import django.test
 from .shortcuts import create_activity
+
 
 class TestActivityModel(django.test.TestCase):
     """TestCase Class for Activity model"""
