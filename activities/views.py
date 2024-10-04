@@ -1,5 +1,5 @@
 """Views for activities app, handle html request."""
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django import urls
 from django.utils import timezone
@@ -24,6 +24,12 @@ class IndexView(generic.ListView):
         """
         return models.Activity.objects.filter(date__gte=timezone.now()).order_by("date")
 
+    def render_to_response(self, context, **response_kwargs) -> JsonResponse:
+        """Send out JSON response to Vue"""
+        activities = list(self.get_queryset().values(
+            "id", "name", "detail", "date", "max_people", "people"))
+        return JsonResponse(activities, safe=False)
+
 
 class ActivityDetailView(generic.DetailView):
     """View class to show activity information."""
@@ -39,6 +45,19 @@ class ActivityDetailView(generic.DetailView):
         """
         return models.Activity.objects.filter(date__gte=timezone.now())
 
+    def render_to_response(self, context, **response_kwargs) -> JsonResponse:
+        activity = self.get_object()
+        data = {
+            "id": activity.id,
+            "name": activity.name,
+            "detail": activity.detail,
+            "date": activity.date,
+            "max_people": activity.max_people,
+            "people": activity.people,
+            "can_join": activity.can_join(),
+        }
+        return JsonResponse(data)
+
 
 def join(request: HttpRequest, activity_id: int) -> HttpResponse:
     """Increase number of people when user join an activity."""
@@ -46,7 +65,8 @@ def join(request: HttpRequest, activity_id: int) -> HttpResponse:
     if activity.can_join():
         activity.people = db.models.F('people') + 1
         activity.save(update_fields=['people'])
-        messages.success(request, f"you successfully join {activity.name}")
+        return JsonResponse({"message": f"You successfully joined {activity.name}"})
     else:
-        messages.error(request, f"{activity_id} is not joinable")
-    return redirect(urls.reverse("activities:detail", args=[activity_id]))
+        return JsonResponse({"error": f"{activity.name} is not joinable"}, status=400)
+    # return redirect(urls.reverse("activities:detail", args=[activity_id]))
+    # Implement redirection in Vue methods
