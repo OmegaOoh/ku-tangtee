@@ -7,6 +7,8 @@ from django import db
 from django.contrib import messages
 from . import models
 from django.views import generic
+from django.middleware.csrf import get_token
+from django.views.decorators.csrf import csrf_exempt
 
 
 class IndexView(generic.ListView):
@@ -59,7 +61,8 @@ class ActivityDetailView(generic.DetailView):
         return JsonResponse(data)
 
 
-def join(request: HttpRequest, activity_id: int) -> HttpResponse:
+@csrf_exempt
+def join(request: HttpRequest, activity_id: int) -> JsonResponse:
     """Increase number of people when user join an activity."""
     activity = get_object_or_404(models.Activity, pk=activity_id)
     if activity.can_join():
@@ -70,3 +73,9 @@ def join(request: HttpRequest, activity_id: int) -> HttpResponse:
         return JsonResponse({"error": f"{activity.name} is not joinable"}, status=400)
     # return redirect(urls.reverse("activities:detail", args=[activity_id]))
     # Implement redirection in Vue methods
+
+
+def csrf_token_view(request: HttpRequest) -> JsonResponse:
+    """Return csrf token"""
+    csrf_token = get_token(request)
+    return JsonResponse({'csrfToken': csrf_token})
