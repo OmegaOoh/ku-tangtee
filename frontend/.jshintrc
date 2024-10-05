@@ -2,6 +2,7 @@
     "esversion": 6,
     "undef": true,
     "unused": true,
+    "browser": true,
     "globals": {
       "MY_GLOBAL": true,
       "console": true
