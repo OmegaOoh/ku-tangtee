@@ -1,15 +1,15 @@
 <template>
   <div>
-    <h1>Activities List</h1>
+    <h1 class="title">Activities List</h1>
     <ul v-if="activities.length">
-      <li v-for="activity in activities" :key="activity.id">
-        <h2>
+      <li v-for="activity in activities" :key="activity.id" class="activity-detail">
+        <h2 class="activity-title">
           {{ activity.name }}
         </h2>
-        <p>{{ activity.detail }}</p>
-        <p>Start date: {{ new Date(activity.date).toLocaleString() }}</p>
+        <p class="activity-detail-text">{{ activity.detail }}</p>
+        <p class="activity-date">Start date: {{ new Date(activity.date).toLocaleString() }}</p>
         <router-link :to="{ path: `/activities/${activity.id}` }">
-            <button @click="viewActivity(activity.id)">View</button>
+            <button @click="viewActivity(activity.id)" class="view-button">View</button>
         </router-link>
       </li>
     </ul>
@@ -19,6 +19,7 @@
 
 <script>
 import apiClient from '@/api'; // Get API
+import '@/styles/ActivityIndex.css'
 
 export default {
   data() {

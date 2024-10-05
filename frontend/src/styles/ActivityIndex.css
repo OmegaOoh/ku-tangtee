@@ -3,10 +3,19 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
+.title {
+    padding: 20px;
+    font-size: 48px;
+    color: green;
+    font: 'arial';
+}
+
 .activity-detail {
     padding: 20px;
     background-color: limegreen;
     border-radius: 8px;
+    margin: 20px;
+    list-style-type: none;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -36,24 +45,11 @@ body {
     color: white;
 }
 
-.join-button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.join-button:hover {
-    background-color: #45a049;
-}
-
 .cannot-join {
     color: #d9534f; 
 }
 
-.back-button {
+.view-button {
     display: inline-block;
     margin-top: 20px;
     margin-left: 20px;
@@ -65,6 +61,6 @@ body {
     color: white;
 }
 
-.back-button:hover {
+.view-button:hover {
     background-color: #034994;
 }
