@@ -78,7 +78,7 @@ DATABASES = {
         'HOST': config('DATABASE_HOST', default='localhost', cast=str),
         'PORT': config('DATABASE_PORT', default='3306', cast=str),
         'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES', innodb_strict_mode=1;",
+            'init_command': "SET GLOBAL connect_timeout=28800",
         }
     }
 }
