@@ -25,3 +25,10 @@ class TestActivityModel(django.test.TestCase):
         """can_join return True when date is in the future."""
         activity = create_activity("Past", 1)
         self.assertTrue(activity.can_join())
+
+    def test_upcoming(self):
+        """Return True when activities took place in upcoming weeks."""
+        activity = create_activity("upcoming", 7)
+        self.assertTrue(activity.is_upcoming())
+        activity = create_activity("not really upcoming", 8)
+        self.assertFalse(activity.is_upcoming())

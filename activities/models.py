@@ -24,6 +24,6 @@ class Activity(models.Model):
         else:
             return self.date >= timezone.now()
 
-    def is_incoming(self) -> Any:
+    def is_upcoming(self) -> Any:
         """Return True if activities took place on incoming weeks, Otherwise false."""
-        return self.date + timezone.timedelta(weeks=1) >= timezone.now()
+        return timezone.now() + timezone.timedelta(weeks=1) >=  self.date and self.can_join()
