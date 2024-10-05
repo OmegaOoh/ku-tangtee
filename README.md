@@ -11,12 +11,16 @@ web application for gathering people for events or activities powered by Django
    pip install -r requirements.txt
    ```
 3. Install nodejs follows [instruction](https://nodejs.org/en/download/package-manager)
-4. Install vue 
+4. Get into frontend directory
    ```bash
-   npm install -g @vue/cli
+   cd frontend
    ```
-5. Follow MySQL [installation & set up guide](./database_guide.md)
-6. Migrate Django database
+5. install js package
+   ``` bash
+   npm install
+   ```
+6. Follow MySQL [installation & set up guide](./database_guide.md)
+7. Migrate Django database
    ```bash
    python manage.py migrate
    ```
