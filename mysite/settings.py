@@ -74,7 +74,10 @@ DATABASES = {
         'USER': config('DATABASE_USER', default='root', cast=str),
         'PASSWORD': config('DATABASE_PASSWORD', default='password', cast=str),
         'HOST': config('DATABASE_HOST', default='localhost', cast=str),
-        'PORT': config('DATABASE_PORT', default='3306', cast=str)
+        'PORT': config('DATABASE_PORT', default='3306', cast=str),
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES', innodb_strict_mode=1;",
+        }
     }
 }
 
