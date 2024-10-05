@@ -19,6 +19,14 @@
 
     After execute command, enter root password that you've set before in installer. 
 
+    If mysql command not found run this command to add mysql to PATH.
+
+    ```
+    export PATH=/usr/local/mysql/bin:$PATH
+    ```
+
+    Then try to login into mysql with root user again.
+
 
     ### **Window**
 
@@ -45,8 +53,11 @@
 2. Grant necessary privileges to user on database.
 
     ```sql
-    GRANT ALL PRIVILEGES ON myDB TO 'user'@'localhost';
-    GRANT CREATE ON myDB TO 'user'@'localhost';
+    GRANT ALL PRIVILEGES ON *.* TO 'user'@'localhost';
+    ```
+
+    ```sql
+    FLUSH PRIVILEGES;
     ```
 
 ## Configure environments.
@@ -63,6 +74,6 @@
 
     Replace root with username if you have created a new user.
 
-    Replace password with root password or user password if you have created a new user.
+    Replace password with root password, or user password if you have created a new user.
 
 
