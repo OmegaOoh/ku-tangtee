@@ -75,7 +75,7 @@ def join(request: HttpRequest, activity_id: int) -> JsonResponse:
     # Implement redirection in Vue methods
 
 
-def csrf_token_view(request: HttpRequest) -> JsonResponse:
+def csrf_token_view(request: HttpRequest) -> JsonResponse:  # pragma: no cover
     """Return csrf token"""
     csrf_token = get_token(request)
     return JsonResponse({'csrfToken': csrf_token})
