@@ -27,7 +27,9 @@ class IndexView(generic.ListView):
         return models.Activity.objects.filter(date__gte=timezone.now()).order_by("date")
 
     def render_to_response(self, context, **response_kwargs) -> JsonResponse:
-        """Send out JSON response to Vue"""
+        """
+        Send out JSON response to Vue for Activity Index.
+        """
         activities = list(self.get_queryset().values(
             "id", "name", "detail", "date", "max_people", "people"))
         return JsonResponse(activities, safe=False)
@@ -48,6 +50,9 @@ class ActivityDetailView(generic.DetailView):
         return models.Activity.objects.filter(date__gte=timezone.now())
 
     def render_to_response(self, context, **response_kwargs) -> JsonResponse:
+        """
+        Send out JSON Response to Vue for Activity Detail.
+        """
         activity = self.get_object()
         data = {
             "id": activity.id,
@@ -76,6 +81,8 @@ def join(request: HttpRequest, activity_id: int) -> JsonResponse:
 
 
 def csrf_token_view(request: HttpRequest) -> JsonResponse:  # pragma: no cover
-    """Return csrf token"""
+    """
+    Return csrf token.
+    """
     csrf_token = get_token(request)
     return JsonResponse({'csrfToken': csrf_token})
