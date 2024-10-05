@@ -22,7 +22,7 @@ class IndexView(generic.ListView):
         """
         Return Queryset of activities that is not took place yet.
 
-        Queryset is order by date that the activity took place.(ealier to later)
+        Queryset is order by date that the activity took place.(earlier to later)
         """
         return models.Activity.objects.filter(date__gte=timezone.now()).order_by("date")
 

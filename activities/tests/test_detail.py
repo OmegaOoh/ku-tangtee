@@ -1,7 +1,8 @@
 """Module to test on detail page of activities app."""
+import json
 import django.test
 from django import urls
-from .shortcuts import create_activity
+from .shortcuts import create_activity, activity_to_json
 
 
 class DetailTest(django.test.TestCase):
@@ -17,10 +18,10 @@ class DetailTest(django.test.TestCase):
         """Future/Upcoming activity should be accessible."""
         activity = create_activity("past", 1)
         response = self.client.get(urls.reverse("activities:detail", args=[activity.id]))
-        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(response.content, activity_to_json(activity, True))
 
     def test_with_max(self):
         """Maximum number of participant should be shown in detail page if it has been set."""
         activity = create_activity("test1", 1, 1, 10)
         response = self.client.get(urls.reverse("activities:detail", args=[activity.id]))
-        self.assertContains(response, f"/ {activity.max_people}")
+        self.assertJSONEqual(response.content, activity_to_json(activity, True))
