@@ -1,12 +1,13 @@
 """Views for activities app, handle html request."""
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, redirect
-from django import urls
+from django.http import HttpRequest, JsonResponse
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django import db
-from django.contrib import messages
 from . import models
 from django.views import generic
+from django.middleware.csrf import get_token
+from django.views.decorators.csrf import csrf_exempt
+from typing import Dict, Any
 
 
 class IndexView(generic.ListView):
@@ -20,9 +21,15 @@ class IndexView(generic.ListView):
         """
         Return Queryset of activities that is not took place yet.
 
-        Queryset is order by date that the activity took place.(ealier to later)
+        Queryset is order by date that the activity took place.(earlier to later)
         """
         return models.Activity.objects.filter(date__gte=timezone.now()).order_by("date")
+
+    def render_to_response(self, context: Dict[str, Any], **response_kwargs: Any) -> JsonResponse:
+        """Send out JSON response to Vue for Activity Index."""
+        activities = list(self.get_queryset().values(
+            "id", "name", "detail", "date", "max_people", "people"))
+        return JsonResponse(activities, safe=False)
 
 
 class ActivityDetailView(generic.DetailView):
@@ -39,14 +46,36 @@ class ActivityDetailView(generic.DetailView):
         """
         return models.Activity.objects.filter(date__gte=timezone.now())
 
+    def render_to_response(self, context: Dict[str, Any], **response_kwargs: Any) -> JsonResponse:
+        """Send out JSON Response to Vue for Activity Detail."""
+        activity = self.get_object()
+        data = {
+            "id": activity.id,
+            "name": activity.name,
+            "detail": activity.detail,
+            "date": activity.date,
+            "max_people": activity.max_people,
+            "people": activity.people,
+            "can_join": activity.can_join(),
+        }
+        return JsonResponse(data)
 
-def join(request: HttpRequest, activity_id: int) -> HttpResponse:
+
+@csrf_exempt
+def join(request: HttpRequest, activity_id: int) -> JsonResponse:
     """Increase number of people when user join an activity."""
     activity = get_object_or_404(models.Activity, pk=activity_id)
     if activity.can_join():
         activity.people = db.models.F('people') + 1
         activity.save(update_fields=['people'])
-        messages.success(request, f"you successfully join {activity.name}")
+        return JsonResponse({"message": f"You successfully joined {activity.name}"})
     else:
-        messages.error(request, f"{activity_id} is not joinable")
-    return redirect(urls.reverse("activities:detail", args=[activity_id]))
+        return JsonResponse({"error": f"{activity.name} is not joinable"}, status=400)
+    # return redirect(urls.reverse("activities:detail", args=[activity_id]))
+    # Implement redirection in Vue methods
+
+
+def csrf_token_view(request: HttpRequest) -> JsonResponse:  # pragma: no cover
+    """Return csrf token."""
+    csrf_token = get_token(request)
+    return JsonResponse({'csrfToken': csrf_token})
