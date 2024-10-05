@@ -13,7 +13,7 @@ class Activity(models.Model):
     max_people = models.IntegerField(null=True, blank=True)
     people = models.IntegerField(default=0)
 
-    def __str__(self) -> Any:
+    def __str__(self) -> models.CharField:
         """Return Activity Name as string representative."""
         return self.name
 
@@ -24,6 +24,6 @@ class Activity(models.Model):
         else:
             return self.date >= timezone.now()
 
-    def is_incoming(self) -> Any:
+    def is_upcoming(self) -> Any:
         """Return True if activities took place on incoming weeks, Otherwise false."""
-        return self.date + timezone.timedelta(weeks=1) >= timezone.now()
+        return timezone.now() + timezone.timedelta(weeks=1) >= self.date and self.can_join()
