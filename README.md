@@ -9,9 +9,20 @@ web application for gathering people for events or activities powered by Django
    python -m venv .venv
    ```
 2. Install python package
+
+   For MacOS run these command before follow below instruction
+
+   Install [brew](https://brew.sh) then
+
+   ```bash
+   brew install mysql-client pkg-config
+   ```
+
+   For window / Linux user run just this command
    ```bash
    pip install -r requirements.txt
    ```
+
 3. Install nodejs follows [instruction](https://nodejs.org/en/download/package-manager)
 4. Get into frontend directory
    ```bash
