@@ -82,7 +82,7 @@ def create(request: HttpRequest) -> JsonResponse:
 
     # Check request type
     if request.method == "GET":
-        return JsonResponse({"error": "Forbidden access"})
+        return JsonResponse({"error": "Forbidden access"}, status=400)
 
     # Get activity data from POST request
     name = request.POST.get("name")
