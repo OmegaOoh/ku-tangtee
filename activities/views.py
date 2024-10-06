@@ -1,4 +1,5 @@
 """Views for activities app, handle html request."""
+from datetime import datetime
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -73,6 +74,52 @@ def join(request: HttpRequest, activity_id: int) -> JsonResponse:
         return JsonResponse({"error": f"{activity.name} is not joinable"}, status=400)
     # return redirect(urls.reverse("activities:detail", args=[activity_id]))
     # Implement redirection in Vue methods
+
+
+@csrf_exempt
+def create(request: HttpRequest) -> JsonResponse:
+    """Handle request to create an activity."""
+
+    # Check request type
+    if request.method == "GET":
+        return JsonResponse({"error": "Forbidden access"})
+
+    # Get activity data from POST request
+    name = request.POST.get("name")
+    detail = request.POST.get("detail")
+    date_string = request.POST.get("date")
+    max_people = request.POST.get("people")
+
+    try:
+
+        # Create new activities with provide name and detail
+        new_act = models.Activity.objects.create(
+            name=name,
+            detail=detail,
+        )
+
+        date = timezone.make_aware(datetime.strftime(date_string, "%Y-%m-%dT%H:%M"))
+
+        # If user has set the date use, set activity date.
+        if datetime:
+            new_act.date = date
+
+        # If user has set the max people, set activity max_people.
+        if max_people:
+            new_act.max_people = max_people
+
+        # Return successful message
+        return JsonResponse(
+            {"message": f"Your have successfully create activity {new_act.name}"}
+        )
+
+    except (models.DataError, ValueError, TypeError) as e:
+
+        # If any error occur, return an error message.
+        return JsonResponse(
+            {"error": f"Error occur : {e}"},
+            status=400
+        )
 
 
 def csrf_token_view(request: HttpRequest) -> JsonResponse:  # pragma: no cover
