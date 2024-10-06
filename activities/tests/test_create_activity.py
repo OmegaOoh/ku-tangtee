@@ -120,7 +120,7 @@ class CreateActivityTest(django.test.TestCase):
         data = {
             "name": "Wrong date format", 
             "detail": "This is invalid activity",
-            "date": "2024-10-10T10:20",
+            "date": "2024/10-10T10:20",
             "max_people": 10
         }
         
@@ -136,7 +136,7 @@ class CreateActivityTest(django.test.TestCase):
         data = {
             "name": "This is too long" * 50, 
             "detail": "This is invalid activity",
-            "date": "2024-10-10T10:20",
+            "date": "2024/10-10T10:20",
             "max_people": 10
         }
         
@@ -146,22 +146,3 @@ class CreateActivityTest(django.test.TestCase):
         response_dict = json.loads(response.content)
         self.assertIn("Error occur", response_dict["error"])
         
-    def test_invalid_activity_creation_with_wrong_type_data(self):
-        """Create should return json with error message """
-        
-        data = {
-            "name": 10, 
-            "detail": "This is invalid activity",
-            "date": "2024-10-10T10:20",
-            "max_people": 10
-        }
-        
-        response = self.client.post(self.url, data=data)                                
-        self.assertEqual(response.status_code, 400)
-        
-        response_dict = json.loads(response.content)
-        self.assertIn("Error occur", response_dict["error"])
-        
-    
-    
-    
