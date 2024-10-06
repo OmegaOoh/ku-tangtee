@@ -13,6 +13,7 @@ exclude =
     migrations, # Ignore Django migrations
     env,        # Ignore virtual environment
     venv,       # Ignore virtual environment
+    .venv       # ignore virtual environment
     .github,    # Ignore github directory
     */settings.py # Ignore Django settings
     */__init__.py # Ignore __init__ file
