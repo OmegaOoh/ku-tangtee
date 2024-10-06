@@ -106,20 +106,19 @@ def create(request: HttpRequest) -> JsonResponse:
         # If user has set the max people, set activity max_people.
         if max_people:
             new_act.max_people = max_people
-            
+
         new_act.people = 1
-        
+
         new_act.save()
 
         # Return successful message
         # TODO Log warning when logging already setup
         return JsonResponse(
-                {
-                    "message": f"Your have successfully create activity {new_act.name}",
-                    "id": new_act.id
-                }
-            )
-        
+            {
+                "message": f"Your have successfully create activity {new_act.name}",
+                "id": new_act.id
+            }
+        )
 
     except (db.utils.DataError, db.utils.IntegrityError, ValueError, TypeError) as e:
 
