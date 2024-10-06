@@ -76,7 +76,7 @@ DATABASES = {
         'USER': config('DATABASE_USER', default='root', cast=str),
         'PASSWORD': config('DATABASE_PASSWORD', default='password', cast=str),
         'HOST': config('DATABASE_HOST', default='localhost', cast=str),
-        'PORT': config('DATABASE_PORT', default='3306', cast=str)
+        'PORT': config('DATABASE_PORT', default='3306', cast=str),
     }
 }
 
