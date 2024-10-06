@@ -79,7 +79,6 @@ def join(request: HttpRequest, activity_id: int) -> JsonResponse:
 @csrf_exempt
 def create(request: HttpRequest) -> JsonResponse:
     """Handle request to create an activity."""
-
     # Check request type
     if request.method == "GET":
         return JsonResponse({"error": "Forbidden access"}, status=400)
