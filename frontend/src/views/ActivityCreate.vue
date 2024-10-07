@@ -1,14 +1,14 @@
 <template>
 <div class="flex items-center justify-center min-h-screen">
-    <div class="card bg-neutral card-primary w-96 shadow-xl items-center">
-        <div class="card-body">
-            <h2 class="class-title">Create Activity</h2>
+    <div class="card bg-neutral card-primary size-1/3 shadow-xl items-center">
+        <div class="card-body size-3/4">
+            <h2 class="card-title ">Create Activity</h2>
             <label>Activity Name
             <input 
                 v-model="activityName"
                 type="text" 
                 placeholder="Activity Name" 
-                class="input input-bordered input-primary w-full max-w-xs mb-4" 
+                class="input input-bordered input-primary w-full mb-4" 
                 :maxlength="255"
                 required
             />
@@ -16,7 +16,7 @@
             <label>Activity Detail
             <textarea 
                 v-model="activityDetail"
-                class="textarea textarea-primary w-full max-w-xs mb-4" 
+                class="textarea textarea-primary w-full mb-4" 
                 placeholder="Activity Detail"
                 :maxlength="1024"
             >
@@ -36,12 +36,12 @@
                 v-model.number="maxPeople"
                 type="number" 
                 placeholder="Enter Max People (Optional)" 
-                class="input input-bordered input-primary w-full max-w-xs mb-4"
+                class="input input-bordered input-primary w-full mb-4"
                 :min="0"
             />
             </label>
-            <button class="btn btn-primary" @click="postCreateActivity">Create Activity</button>
-            <button class="btn btn-secondary" @click="goBack">Back to List</button>
+            <button class="btn btn-accent" @click="postCreateActivity">Create Activity</button>
+            <button class="btn btn-primary" @click="goBack">Back to List</button>
         </div>
     </div>
 </div>
