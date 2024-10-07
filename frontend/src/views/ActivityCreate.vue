@@ -9,13 +9,17 @@
                 type="text" 
                 placeholder="Activity Name" 
                 class="input input-bordered input-primary w-full max-w-xs mb-4" 
+                :maxlength="255"
+                required
             />
             </label>
             <label>Activity Detail
             <textarea 
                 v-model="activityDetail"
                 class="textarea textarea-primary w-full max-w-xs mb-4" 
-                placeholder="Activity Detail">
+                placeholder="Activity Detail"
+                :maxlength="1024"
+            >
             </textarea>
             </label>
             <label>Date and Time
@@ -35,7 +39,7 @@
                 :min="0"
             />
             </label>
-            <button class="btn btn-primary" @click="logData">Create Activity</button>
+            <button class="btn btn-primary" @click="postCreateActivity">Create Activity</button>
             <button class="btn btn-secondary" @click="goBack">Back to List</button>
         </div>
     </div>
@@ -44,6 +48,7 @@
 
 
 <script>
+import apiClient from "@/api";
 export default {
     data() {
         return {
@@ -61,15 +66,51 @@ export default {
              */
             this.$router.push("/");
         },
-        logData() {
-            if (this.max_people < 0) {
-                this.max_people = 0;
+        async postCreateActivity() {
+            /*
+             * Attempt to create activity.
+             * This function does not return anything.
+             */
+            // Validate numeric input
+            if (this.maxPeople < 0) {
+                this.maxPeople = 0;
             }
-                console.log('Activity Name:', this.activityName);
-                console.log('Activity Detail:', this.activityDetail);
-                console.log('Selected Date:', this.date);
-                console.log('Max People:', this.maxPeople);
+            const csrfResponse = await apiClient.get(`/activities/get-csrf-token`); // Ensure this points to the correct endpoint
+            const csrfToken = csrfResponse.data.csrfToken;
+            try {
+                // Construct data to create POST request
+                const data = {
+                    'name': this.activityName,
+                    'detail': this.activityDetail,
+                    'date': this.date,
+                    'max_people': this.maxPeople || null,
+                };
+                const response = await apiClient.post(
+                    `/activities/create`,
+                    data,
+                    { // HTTP headers
+                        headers: { "X-CSRFToken": csrfToken },
+                        withCredentials: true,
+                    }
+                );
+                alert(response.data.message);
+                this.$router.push(`/activities/${response.data.id}`);
+            } catch (error) {
+                console.error(
+                    "Error details:",
+                    error.response ? error.response.data : error
+                );
+                if (error.response && error.response.data) {
+                    alert(error.response.data.error); // Show error message from backend
+                } else {
+                    alert(
+                        "An unexpected error occurred. Please try again later."
+                    );
+                }
+            }
         },
-    }
+    
+    },
 }
+
 </script>
