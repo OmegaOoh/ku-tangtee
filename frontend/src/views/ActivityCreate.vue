@@ -3,7 +3,7 @@
     <div class="card bg-neutral card-primary size-1/3 shadow-xl items-center">
         <div class="card-body size-3/4">
             <h2 class="card-title ">Create Activity</h2>
-            <label>Activity Name
+            <label>Activity Name </label>
             <input 
                 v-model="activityName"
                 type="text" 
@@ -12,8 +12,7 @@
                 :maxlength="255"
                 required
             />
-            </label>
-            <label>Activity Detail
+            <label>Activity Detail </label>
             <textarea 
                 v-model="activityDetail"
                 class="textarea textarea-primary w-full mb-4" 
@@ -21,8 +20,8 @@
                 :maxlength="1024"
             >
             </textarea>
-            </label>
-            <label>Date and Time
+
+            <label>Date and Time </label>
             <VueDatePicker 
                 v-model="date"
                 type="text"
@@ -30,16 +29,15 @@
                 :min-date="new Date()"
                 :dark = "isDarkTheme"
             />
-            </label>
-            <label>Max People
-            <input 
+            <label>Max People </label>
+            <input type="checkbox" class="toggle" @change="setMaxPeople"/>
+            <input v-if="showMaxPeople"
                 v-model.number="maxPeople"
                 type="number" 
                 placeholder="Enter Max People (Optional)" 
                 class="input input-bordered input-primary w-full mb-4"
                 :min="0"
             />
-            </label>
             <button class="btn btn-accent" @click="postCreateActivity">Create Activity</button>
             <button class="btn btn-primary" @click="goBack">Back to List</button>
         </div>
@@ -57,6 +55,8 @@ export default {
             activityDetail: '',
             date: '',
             maxPeople: 0,
+            showMaxPeople: false,
+            isDarkTheme: false,
         };
     },
     methods: {
@@ -110,11 +110,15 @@ export default {
                 }
             }
         },
+        setMaxPeople()
+        {
+            this.showMaxPeople = !this.showMaxPeople;
+        }
     },
-    computed: {
-        isDarkTheme() {
-                return window.matchMedia('(prefers-color-scheme: dark)').matches;
-            },
-    }
+    mounted() {
+        this.isDarkTheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        window.matchMedia('(prefers-color-scheme: dark)')
+            .addEventListener('change', (e) => { this.isDarkTheme = e.matches; });
+    },
 }
 </script>
