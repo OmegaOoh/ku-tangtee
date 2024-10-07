@@ -28,6 +28,7 @@
                 type="text"
                 placeholder="Select Date" 
                 :min-date="new Date()"
+                :dark = "isDarkTheme"
             />
             </label>
             <label>Max People
@@ -61,16 +62,16 @@ export default {
     methods: {
         goBack() {
             /*
-             * Navigate back to Activity Index page.
-             * This function does not return anything.
-             */
+                * Navigate back to Activity Index page.
+                * This function does not return anything.
+                */
             this.$router.push("/");
         },
         async postCreateActivity() {
             /*
-             * Attempt to create activity.
-             * This function does not return anything.
-             */
+                * Attempt to create activity.
+                * This function does not return anything.
+                */
             // Validate numeric input
             if (this.maxPeople < 0) {
                 this.maxPeople = 0;
@@ -109,8 +110,11 @@ export default {
                 }
             }
         },
-    
     },
+    computed: {
+        isDarkTheme() {
+                return window.matchMedia('(prefers-color-scheme: dark)').matches;
+            },
+    }
 }
-
 </script>
