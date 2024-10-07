@@ -157,5 +157,6 @@ AUTHENTICATION_BACKENDS = (
     "allauth.account.auth_backends.AuthenticationBackend"
 )
 
-LOGIN_DIRECT_URL = "/some_fake/"
-LOGOUT_DIRECT_URL = "/"
+LOGIN_URL = "/accounts/google/login"
+LOGIN_REDIRECT_URL = "/is_authen"
+LOGOUT_REDIRECT_URL = "/"
