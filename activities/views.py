@@ -9,6 +9,7 @@ from django.views import generic
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt
 from typing import Dict, Any
+import json
 
 
 class IndexView(generic.ListView):
@@ -80,14 +81,15 @@ def join(request: HttpRequest, activity_id: int) -> JsonResponse:
 def create(request: HttpRequest) -> JsonResponse:
     """Handle request to create an activity."""
     # Check request type
-    if request.method == "GET":
-        return JsonResponse({"error": "Forbidden access"}, status=400)
-
+    if request.method != "POST":
+        return JsonResponse({"error": "Forbidden access"}, status=403)
     # Get activity data from POST request
-    name = request.POST.get("name")
-    detail = request.POST.get("detail")
-    date_string = request.POST.get("date")
-    max_people = request.POST.get("max_people")
+    data = json.loads(request.body.decode('utf-8'))
+    print(data)
+    name = data.get("name")
+    detail = data.get("detail")
+    date_string = data.get("date")
+    max_people = data.get("max_people")
 
     try:
 
@@ -99,7 +101,7 @@ def create(request: HttpRequest) -> JsonResponse:
 
         # If user has set the date use, set activity date.
         if date_string:
-            date = timezone.make_aware(datetime.strptime(date_string, "%Y-%m-%dT%H:%M"))
+            date = timezone.make_aware(datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S.%fZ"))
             new_act.date = date
 
         # If user has set the max people, set activity max_people.

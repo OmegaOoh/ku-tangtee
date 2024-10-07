@@ -18,7 +18,7 @@ class CreateActivityTest(django.test.TestCase):
         """Create should return error message when got a GET request."""
         response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 403)
         self.assertJSONEqual(response.content, {"error": "Forbidden access"})
 
     def test_valid_activity_creation_without_date_and_max_people(self):
