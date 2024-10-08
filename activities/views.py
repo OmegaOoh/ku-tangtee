@@ -132,7 +132,7 @@ def create(request: HttpRequest) -> JsonResponse:
 
 @csrf_exempt
 def edit_activity(request: HttpRequest, activity_id : int) -> JsonResponse:
-    """Handle request to create an activity."""
+    """Handle request to edit an activity."""
     # Check request type
     if request.method != "POST":
         return JsonResponse({"error": "Forbidden access"}, status=403)
