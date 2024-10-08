@@ -8,6 +8,7 @@ from . import models
 from django.views import generic
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 from typing import Dict, Any
 import json
 
@@ -63,7 +64,6 @@ class ActivityDetailView(generic.DetailView):
         return JsonResponse(data)
 
 
-@csrf_exempt
 def join(request: HttpRequest, activity_id: int) -> JsonResponse:
     """Increase number of people when user join an activity."""
     activity = get_object_or_404(models.Activity, pk=activity_id)
@@ -77,7 +77,6 @@ def join(request: HttpRequest, activity_id: int) -> JsonResponse:
     # Implement redirection in Vue methods
 
 
-@csrf_exempt
 def create(request: HttpRequest) -> JsonResponse:
     """Handle request to create an activity."""
     # Check request type
