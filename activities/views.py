@@ -128,6 +128,56 @@ def create(request: HttpRequest) -> JsonResponse:
             {"error": f"Error occur : {e}"},
             status=400
         )
+    
+
+@csrf_exempt
+def edit_activity(request: HttpRequest, activity_id : int) -> JsonResponse:
+    """Handle request to create an activity."""
+    # Check request type
+    if request.method != "POST":
+        return JsonResponse({"error": "Forbidden access"}, status=403)
+    # Get activity data from POST request
+    data = json.loads(request.body.decode('utf-8'))
+    print(data)
+    name = data.get("name")
+    detail = data.get("detail")
+    date_string = data.get("date")
+    max_people = data.get("max_people")
+    people = data.get("people")
+
+    try:
+
+        # Create new activities with provide name and detail
+        modified_activity = models.Activity.objects.get(
+            id = activity_id
+        )
+
+        # If user has set the date use, set activity date.
+        if date_string:
+            date = timezone.make_aware(datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S.%fZ"))
+            modified_activity.date = date
+        modified_activity.name = name
+        modified_activity.detail = detail
+        modified_activity.max_people = max_people
+        modified_activity.people = people
+        modified_activity.save()
+
+        # Return successful message
+        # TODO Log warning when logging already setup
+        return JsonResponse(
+            {
+                "message": f"Your have successfully edit activity {modified_activity.name}",
+                "id": modified_activity.id
+            }
+        )
+
+    except (db.utils.DataError, db.utils.IntegrityError, ValueError, TypeError) as e:
+
+        # If any error occur, return an error message.
+        return JsonResponse(
+            {"error": f"Error occur : {e}"},
+            status=400
+        )
 
 
 def csrf_token_view(request: HttpRequest) -> JsonResponse:  # pragma: no cover
