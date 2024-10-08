@@ -20,6 +20,8 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=str, default="").replace(' ', '').s
 
 # Application definition
 
+SITE_ID = 2
+
 INSTALLED_APPS = [
     'activities.apps.ActivitiesConfig',
     'django.contrib.admin',
@@ -30,7 +32,23 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google'
 ]
+
+# Google oauth setup
+SOCIALACCOUNT_PROVIDERS = {
+    "google":{
+        "SCOPE": [
+            "profile",
+            "email"
+        ],
+        "AUTH_PARAMS": {"access_type": "online"}
+    }
+}
 
 MIDDLEWARE = [
 
@@ -43,6 +61,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'allauth.account.middleware.AccountMiddleware'
 ]
 
 ROOT_URLCONF = 'mysite.urls'
@@ -147,3 +166,12 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = "None"
 SESSION_COOKIE_SAMESITE = "None"
 
+# Google authentication setup
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend"
+)
+
+LOGIN_URL = "/accounts/google/login"
+LOGIN_REDIRECT_URL = "/is_authen"
+LOGOUT_REDIRECT_URL = "/"

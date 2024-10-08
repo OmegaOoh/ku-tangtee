@@ -39,3 +39,6 @@ venv.bak/
 !.vscode/launch.json 
 !.vscode/extensions.json 
 .history
+
+# Google credentials
+client_secret*.json
