@@ -141,7 +141,7 @@ CORS_ALLOW_HEADERS = [
     "x-xsrf-token"]
 
 # CSRF Config
-CSRF_TRUSTED_ORIGINS = ['http://192.168.1.146:8080', 'http://localhost:8080', 'http://127.0.0.1:8080',]
+CSRF_TRUSTED_ORIGINS = config('ALLOWED_CSRF', cast=lambda v: [s.strip() for s in v.split(',')])
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = "None"
