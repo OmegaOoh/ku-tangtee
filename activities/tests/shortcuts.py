@@ -36,7 +36,7 @@ def activity_to_json(activity: models.Activity, use_can_join: bool = False):
     return output
 
 
-def post_request_json_data(path: str,client: django.test.Client, data: dict) -> HttpResponse:
+def post_request_json_data(path: str, client: django.test.Client, data: dict) -> HttpResponse:
     """Create POST request with provided data and Return response."""
     # Suppress print statement
     stdout = sys.stdout

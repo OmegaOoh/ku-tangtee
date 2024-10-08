@@ -18,7 +18,7 @@ class CreateActivityTest(django.test.TestCase):
     def test_get_request(self):
         """Create should return error message when got a GET request."""
         response = self.client.get(self.url)
-        
+
         self.assertEqual(response.status_code, 403)
         self.assertJSONEqual(response.content, {"error": "Forbidden access"})
 
