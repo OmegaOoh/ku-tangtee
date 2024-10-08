@@ -23,3 +23,6 @@ exclude_lines =
 
     # No cover statement
     pragma: no cover
+
+    # Ignore __str__  method
+    def __str__\(.*\):

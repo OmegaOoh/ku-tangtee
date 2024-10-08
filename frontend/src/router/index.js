@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import ActivityIndex from "../views/ActivityIndex.vue";
 import ActivityDetail from "../views/ActivityDetail.vue";
+import ActivityCreate from "../views/ActivityCreate.vue";
 
 // Just like  urls.py
 const routes = [
@@ -13,6 +14,11 @@ const routes = [
         path: "/activities/:id",
         name: "ActivityDetailPage",
         component: ActivityDetail,
+    },
+    {
+        path: "/create",
+        name: "ActivityCreationPage",
+        component: ActivityCreate,
     },
 ];
 
