@@ -1,5 +1,9 @@
-"""Shotcuts function for testing activities app."""
+"""Shortcuts function for testing activities app."""
+import io
+import sys
 import json
+from django.http import HttpResponse
+import django.test
 from django.utils import timezone
 from activities import models
 
@@ -30,3 +34,17 @@ def activity_to_json(activity: models.Activity, use_can_join: bool = False):
     if (use_can_join):
         output['can_join'] = activity.can_join()
     return output
+
+
+def post_request_json_data(path: str,client: django.test.Client, data: dict) -> HttpResponse:
+    """Create POST request with provided data and Return response."""
+    # Suppress print statement
+    stdout = sys.stdout
+    sys.stdout = io.StringIO()
+    json_data = json.dumps(data)
+    response = client.post(path, data=json_data, content_type='application/json')
+
+    # Restore original std out
+    sys.stdout = stdout
+
+    return response
