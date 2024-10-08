@@ -145,7 +145,7 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Javascript Frontend
-CORS_ALLOWED_ORIGINS = config('ALLOWED_CSRF', cast=lambda v: [s.strip() for s in v.split(',')])
+CORS_ALLOWED_ORIGINS = config('ALLOWED_CSRF', cast=lambda v: [s.strip() for s in v.split(',')], default=['http://127.0.0.1:8080', 'http://localhost:8080'])
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
@@ -160,7 +160,7 @@ CORS_ALLOW_HEADERS = [
     "x-xsrf-token"]
 
 # CSRF Config
-CSRF_TRUSTED_ORIGINS = config('ALLOWED_CSRF', cast=lambda v: [s.strip() for s in v.split(',')])
+CSRF_TRUSTED_ORIGINS = config('ALLOWED_CSRF', cast=lambda v: [s.strip() for s in v.split(',')], default=['http://127.0.0.1:8080', 'http://localhost:8080'])
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = "None"
