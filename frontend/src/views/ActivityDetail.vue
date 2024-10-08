@@ -19,7 +19,7 @@
             Join Activity
         </button>
         <p v-else class="cannot-join">This activity cannot be joined.</p>
-
+        <button @click="goToEdit" class="edit-button">Edit</button>
         <button @click="goBack" class="back-button">Back to Activities</button>
     </div>
 </template>
@@ -43,6 +43,13 @@ export default {
              * This function does not return anything.
              */
             this.$router.push("/");
+        },
+        goToEdit() {
+            /*
+             * Navigagte to Activity Edit page.
+             * This function does not return anything.
+             */
+            this.$router.push(`/activities/${this.activityId}/edit`);
         },
         async getCsrfToken() {
             /*
