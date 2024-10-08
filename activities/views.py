@@ -8,6 +8,7 @@ from . import models
 from django.views import generic
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 from typing import Dict, Any
 import json
 

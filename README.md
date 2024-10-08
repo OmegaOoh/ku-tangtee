@@ -38,6 +38,8 @@ web application for gathering people for events or activities powered by Django
    python manage.py migrate
    ```
 
+8. Setup google oauth by follow [Google oauth guide](./google_credentials_guide.md)
+
 ## How to run
 1. go in frontend directory 
    ```bash
