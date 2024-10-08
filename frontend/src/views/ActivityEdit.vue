@@ -79,7 +79,7 @@ export default {
              * Navigate back to Activity Detail page.
              * This function does not return anything.
              */
-            this.$router.push(`/activities/this.activityId`);
+            this.$router.push(`/`);
         },
         async fetchActivity() {
             /*

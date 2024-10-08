@@ -147,19 +147,23 @@ def edit_activity(request: HttpRequest, activity_id : int) -> JsonResponse:
 
     try:
 
-        # Create new activities with provide name and detail
-        modified_activity = models.Activity.objects.get(
-            id = activity_id
-        )
+        # Get activity with provided id
+        modified_activity = get_object_or_404(models.Activity, pk=activity_id)
 
         # If user has set the date use, set activity date.
         if date_string:
             date = timezone.make_aware(datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S.%fZ"))
             modified_activity.date = date
+        # Verify number of people suppose to be less than or equal to max_people.
+        if people <= max_people:
+            modified_activity.people = people
+        else:
+            return JsonResponse({"error": "Number of people exceeds max capacity."}, status=400)
+
         modified_activity.name = name
         modified_activity.detail = detail
         modified_activity.max_people = max_people
-        modified_activity.people = people
+
         modified_activity.save()
 
         # Return successful message
@@ -167,7 +171,7 @@ def edit_activity(request: HttpRequest, activity_id : int) -> JsonResponse:
         return JsonResponse(
             {
                 "message": f"Your have successfully edit activity {modified_activity.name}",
-                "id": modified_activity.id
+                "id": modified_activity.id,
             }
         )
 
