@@ -1,6 +1,8 @@
 <script setup>
 import { googleTokenLogin } from "vue3-google-login"
 import apiClient from "./api";
+
+
 const login = async() => {
     const logInResponse = await googleTokenLogin()
     console.log("Google Response: ", logInResponse)

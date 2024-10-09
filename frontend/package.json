@@ -11,6 +11,8 @@
         "@vuepic/vue-datepicker": "^9.0.3",
         "axios": "^1.7.7",
         "core-js": "^3.8.3",
+        "dotenv": "^16.4.5",
+        "path": "^0.12.7",
         "vue": "^3.5.11",
         "vue-router": "^4.4.5",
         "vue3-google-login": "^2.0.33"
