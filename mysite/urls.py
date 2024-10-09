@@ -6,6 +6,6 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("activities/", include("activities.urls")),
-    path("accounts/", include("allauth.urls")),
-    path('is_authen', views.is_authen, name='is_authen')
+    path("rest-auth/", include("dj_rest_auth.urls")),
+    path("auth/", include('auth.urls')),
 ]

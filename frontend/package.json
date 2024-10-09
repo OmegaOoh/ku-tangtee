@@ -12,7 +12,8 @@
         "axios": "^1.7.7",
         "core-js": "^3.8.3",
         "vue": "^3.5.11",
-        "vue-router": "^4.4.5"
+        "vue-router": "^4.4.5",
+        "vue3-google-login": "^2.0.33"
     },
     "devDependencies": {
         "@babel/core": "^7.25.7",
