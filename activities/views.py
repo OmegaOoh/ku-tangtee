@@ -1,4 +1,6 @@
 """Views for activities app, handle html request."""
+import json
+from typing import Dict, Any
 from datetime import datetime
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import get_object_or_404
@@ -7,10 +9,8 @@ from django import db
 from . import models
 from django.views import generic
 from django.middleware.csrf import get_token
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.decorators import login_required
-from typing import Dict, Any
-import json
+from django.views.decorators.http import require_http_methods
+from decorator import login_required
 
 
 class IndexView(generic.ListView):
@@ -64,24 +64,28 @@ class ActivityDetailView(generic.DetailView):
         return JsonResponse(data)
 
 
+@require_http_methods(["POST"])
+@login_required
 def join(request: HttpRequest, activity_id: int) -> JsonResponse:
-    """Increase number of people when user join an activity."""
+    """Add record to attend table and return success message when action success."""
     activity = get_object_or_404(models.Activity, pk=activity_id)
+
     if activity.can_join():
-        activity.people = db.models.F('people') + 1
-        activity.save(update_fields=['people'])
+        attend = activity.attend_set.create(
+            user=request.user,
+        )
+        attend.save()
         return JsonResponse({"message": f"You successfully joined {activity.name}"})
     else:
         return JsonResponse({"error": f"{activity.name} is not joinable"}, status=400)
-    # return redirect(urls.reverse("activities:detail", args=[activity_id]))
+
     # Implement redirection in Vue methods
 
 
+@require_http_methods(["POST"])
+@login_required
 def create(request: HttpRequest) -> JsonResponse:
     """Handle request to create an activity."""
-    # Check request type
-    if request.method != "POST":
-        return JsonResponse({"error": "Forbidden access"}, status=403)
     # Get activity data from POST request
     data = json.loads(request.body.decode('utf-8'))
     print(data)
@@ -107,9 +111,14 @@ def create(request: HttpRequest) -> JsonResponse:
         if max_people:
             new_act.max_people = max_people
 
-        new_act.people = 1
-
         new_act.save()
+
+        attend = new_act.attend_set.create(
+            user=request.user,
+            is_host=True
+        )
+
+        attend.save()
 
         # Return successful message
         # TODO Log warning when logging already setup
@@ -124,7 +133,9 @@ def create(request: HttpRequest) -> JsonResponse:
 
         # If any error occur, return an error message.
         return JsonResponse(
-            {"error": f"Error occur : {e}"},
+            {
+                "error": f"Error occur : {e}"
+            },
             status=400
         )
 
