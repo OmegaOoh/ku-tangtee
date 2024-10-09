@@ -1,95 +1,122 @@
 <template>
-<div class="flex items-center justify-center min-h-screen">
-    <div class="card bg-neutral card-primary size-1/3 shadow-xl items-center">
-        <div class="card-body size-3/4">
-            <h2 class="card-title ">Create Activity</h2>
-            <label>Activity Name </label>
-            <input 
-                v-model="activityName"
-                type="text" 
-                placeholder="Activity Name" 
-                class="input input-bordered input-primary w-full mb-4" 
-                :maxlength="255"
-                required
-            />
-            <label>Activity Detail </label>
-            <textarea 
-                v-model="activityDetail"
-                class="textarea textarea-primary w-full mb-4" 
-                placeholder="Activity Detail"
-                :maxlength="1024"
-            >
-            </textarea>
+    <div class="flex items-center justify-center min-h-screen">
+        <div
+            class="card bg-neutral card-primary size-1/3 shadow-xl items-center"
+        >
+            <div class="card-body size-3/4">
+                <h2 class="card-title">Create Activity</h2>
+                <label>Activity Name </label>
+                <input
+                    v-model="activityName"
+                    type="text"
+                    placeholder="Activity Name"
+                    class="input input-bordered input-primary w-full mb-4"
+                    :maxlength="255"
+                    required
+                />
+                <label>Activity Detail </label>
+                <textarea
+                    v-model="activityDetail"
+                    class="textarea textarea-primary w-full mb-4"
+                    placeholder="Activity Detail"
+                    :maxlength="1024"
+                >
+                </textarea>
 
-            <label>Date and Time </label>
-            <VueDatePicker 
-                v-model="date"
-                type="text"
-                placeholder="Select Date" 
-                :min-date="new Date()"
-                :dark = "isDarkTheme"
-            />
-            <label>Max People </label>
-            <input type="checkbox" class="toggle" @change="setMaxPeople"/>
-            <input v-if="showMaxPeople"
-                v-model.number="maxPeople"
-                type="number" 
-                placeholder="Enter Max People (Optional)" 
-                class="input input-bordered input-primary w-full mb-4"
-                :min="0"
-            />
-            <button class="btn btn-accent" @click="postCreateActivity">Create Activity</button>
-            <button class="btn btn-primary" @click="goBack">Back to List</button>
+                <label>Date and Time </label>
+                <VueDatePicker
+                    v-model="date"
+                    type="text"
+                    placeholder="Select Date"
+                    :min-date="new Date()"
+                    :dark="isDarkTheme"
+                />
+                <label>Max People </label>
+                <input type="checkbox" class="toggle" @change="setMaxPeople" />
+                <input
+                    v-if="showMaxPeople"
+                    v-model.number="maxPeople"
+                    type="number"
+                    placeholder="Enter Max People (Optional)"
+                    class="input input-bordered input-primary w-full mb-4"
+                    :min="0"
+                />
+                <button class="btn btn-accent" @click="postCreateActivity">
+                    Create Activity
+                </button>
+                <button class="btn btn-primary" @click="goBack">
+                    Back to List
+                </button>
+            </div>
         </div>
     </div>
-</div>
 </template>
-
 
 <script>
 import apiClient from "@/api";
 export default {
     data() {
         return {
-            activityName: '',
-            activityDetail: '',
-            date: '',
+            activityName: "",
+            activityDetail: "",
+            date: "",
             maxPeople: 0,
             showMaxPeople: false,
             isDarkTheme: false,
+            timeZoneOffset: 0,
         };
     },
     methods: {
         goBack() {
             /*
-                * Navigate back to Activity Index page.
-                * This function does not return anything.
-                */
+             * Navigate back to Activity Index page.
+             * This function does not return anything.
+             */
             this.$router.push("/");
+        },
+        async fetchTimeZoneOffset() {
+            try {
+                const response = await apiClient.get("/get-time-zone-offset/");
+                this.timeZoneOffset = response.data.offset; // Set the time zone offset
+            } catch (error) {
+                console.error("Error fetching time zone offset:", error);
+            }
+            console.log(this.timeZoneOffSet);
         },
         async postCreateActivity() {
             /*
-                * Attempt to create activity.
-                * This function does not return anything.
-                */
+             * Attempt to create activity.
+             * This function does not return anything.
+             */
             // Validate numeric input
             if (this.maxPeople < 0) {
                 this.maxPeople = 0;
             }
-            const csrfResponse = await apiClient.get(`/activities/get-csrf-token`); // Ensure this points to the correct endpoint
+            const csrfResponse = await apiClient.get(
+                `/activities/get-csrf-token`
+            ); // Ensure this points to the correct endpoint
             const csrfToken = csrfResponse.data.csrfToken;
             try {
                 // Construct data to create POST request
+                const dateObj = new Date(this.date);
+                // Calculate the offset in hours
+                const offsetMilliseconds = this.timeZoneOffset * 60 * 60 * 1000; // Convert hours to milliseconds
+                // Adjust the date to the specified timezone
+                const localDate = new Date(
+                    dateObj.getTime() + offsetMilliseconds
+                );
+                const formattedDate = localDate.toISOString();
                 const data = {
-                    'name': this.activityName,
-                    'detail': this.activityDetail,
-                    'date': this.date,
-                    'max_people': this.maxPeople || null,
+                    name: this.activityName,
+                    detail: this.activityDetail,
+                    date: formattedDate,
+                    max_people: this.maxPeople || null,
                 };
                 const response = await apiClient.post(
                     `/activities/create`,
                     data,
-                    { // HTTP headers
+                    {
+                        // HTTP headers
                         headers: { "X-CSRFToken": csrfToken },
                         withCredentials: true,
                     }
@@ -110,15 +137,20 @@ export default {
                 }
             }
         },
-        setMaxPeople()
-        {
+        setMaxPeople() {
             this.showMaxPeople = !this.showMaxPeople;
-        }
+        },
     },
     mounted() {
-        this.isDarkTheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        window.matchMedia('(prefers-color-scheme: dark)')
-            .addEventListener('change', (e) => { this.isDarkTheme = e.matches; });
+        this.isDarkTheme = window.matchMedia(
+            "(prefers-color-scheme: dark)"
+        ).matches;
+        window
+            .matchMedia("(prefers-color-scheme: dark)")
+            .addEventListener("change", (e) => {
+                this.isDarkTheme = e.matches;
+            });
+        this.fetchTimeZoneOffset();
     },
-}
+};
 </script>
