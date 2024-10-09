@@ -10,7 +10,7 @@ from . import models
 from django.views import generic
 from django.middleware.csrf import get_token
 from django.views.decorators.http import require_http_methods
-from decorator import login_required
+from activities.decorator import login_required
 
 
 class IndexView(generic.ListView):
