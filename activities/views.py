@@ -127,9 +127,9 @@ def create(request: HttpRequest) -> JsonResponse:
             {"error": f"Error occur : {e}"},
             status=400
         )
-    
 
-def edit_activity(request: HttpRequest, activity_id : int) -> JsonResponse:
+
+def edit_activity(request: HttpRequest, activity_id: int) -> JsonResponse:
     """Handle request to edit an activity."""
     # Check request type
     if request.method != "POST":
@@ -191,7 +191,8 @@ def csrf_token_view(request: HttpRequest) -> JsonResponse:  # pragma: no cover
     csrf_token = get_token(request)
     return JsonResponse({'csrfToken': csrf_token})
 
-def get_timezone(request: HttpRequest) -> JsonResponse: # pragma: no cover
+
+def get_timezone(request: HttpRequest) -> JsonResponse:  # pragma: no cover
     """Return time zone offset to vue."""
     tzo = utils.get_time_zone_offset()
-    return JsonResponse({'offset':tzo})
+    return JsonResponse({'offset': tzo})

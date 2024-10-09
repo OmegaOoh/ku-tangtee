@@ -49,7 +49,6 @@ class EditActivityTest(django.test.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_dict["message"], f"Your have successfully edit activity {data.get('name')}")
 
-
     def test_valid_activity_editing_date(self):
         """Edit should return a success message with the updated activity date."""
         data = {
@@ -70,7 +69,6 @@ class EditActivityTest(django.test.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_dict["message"], f"Your have successfully edit activity {data.get('name')}")
 
-
     def test_invalid_number_of_people(self):
         """Test case when number of participants exceed the capacity."""
         data = {
@@ -82,7 +80,6 @@ class EditActivityTest(django.test.TestCase):
         # Send POST request with new activity data
         response = post_request_json_data(self.url, self.client, data)
         self.assertEqual(response.status_code, 400)
-
 
     def test_invalid_activity_editing_with_too_long_activity_name(self):
         """Editing should return json with error message."""

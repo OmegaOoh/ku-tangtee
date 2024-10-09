@@ -7,3 +7,5 @@ django-allauth >= 65.0.2
 requests >= 2.32.3
 PyJWT >= 2.9.0
 cryptography >= 43.0.1
+pytz >= 2022.7.1
+types-pytz >= 2024.2.0.20241003
