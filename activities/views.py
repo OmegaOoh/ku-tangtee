@@ -9,8 +9,8 @@ from django import db
 from . import models
 from django.views import generic
 from django.middleware.csrf import get_token
-from django.views.decorators.http import require_http_methods
 from activities.decorator import login_required
+from django.views.decorators.http import require_POST
 
 
 class IndexView(generic.ListView):
@@ -64,7 +64,7 @@ class ActivityDetailView(generic.DetailView):
         return JsonResponse(data)
 
 
-@require_http_methods(["POST"])
+@require_POST
 @login_required
 def join(request: HttpRequest, activity_id: int) -> JsonResponse:
     """Add record to attend table and return success message when action success."""
@@ -82,7 +82,7 @@ def join(request: HttpRequest, activity_id: int) -> JsonResponse:
     # Implement redirection in Vue methods
 
 
-@require_http_methods(["POST"])
+@require_POST
 @login_required
 def create(request: HttpRequest) -> JsonResponse:
     """Handle request to create an activity."""

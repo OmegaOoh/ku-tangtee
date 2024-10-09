@@ -47,7 +47,7 @@ class Attend(models.Model):
 
     def __str__(self) -> str:
         """Return user's first name and which activity they join."""
-        return f"user {self.user.first_name} attend {self.activity.name}"
+        return f"user {self.user.username} attend {self.activity.name}"
 
     def __repr__(self) -> str:
         """Return user's first name and which activity they join."""

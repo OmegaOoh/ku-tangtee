@@ -6,18 +6,27 @@ from django.http import HttpResponse
 import django.test
 from django.utils import timezone
 from activities import models
+from django.contrib.auth.models import User
+from django import urls
 
 
-def create_activity(activity_name: str, days_delta: int, people: int = 0, max_people: int = None):
+def create_activity(client: django.test.Client, host: User, data: dict, days_delta: int = 1):
     """Return created activity with given parameters."""
-    activity = models.Activity.objects.create()
-    activity.name = activity_name
-    activity.date = timezone.now() + timezone.timedelta(days=days_delta)
-    if (max_people is not None):
-        activity.max_people = max_people
-    activity.people = people
-    activity.save()
-    return activity
+    data_with_date = data | {
+        "date": (timezone.now() + timezone.timedelta(days=days_delta)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    }
+    client.force_login(host)
+    url = urls.reverse("activities:create")
+    res = post_request_json_data(url, client, data_with_date)
+    return res
+
+
+def create_test_user(username: str = "test_user") -> User:
+    """Return a test user."""
+    return User.objects.create_user(
+        username=username,
+        password="password"
+    )
 
 
 def activity_to_json(activity: models.Activity, use_can_join: bool = False):

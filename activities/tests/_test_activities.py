@@ -1,6 +1,6 @@
 """Test for activity model of activities app."""
 import django.test
-from .shortcuts import create_activity
+from .shortcuts import create_activity, create_test_user
 
 
 class TestActivityModel(django.test.TestCase):
@@ -8,7 +8,7 @@ class TestActivityModel(django.test.TestCase):
 
     def test_can_join_equal_max(self):
         """can_join() return False as Number of people is equal to max_people."""
-        activity = create_activity("Exceed", 1, 10, 10)
+        activity = create_activity("Exceed", 1, 2)
         self.assertFalse(activity.can_join())
 
     def test_can_join_less(self):
