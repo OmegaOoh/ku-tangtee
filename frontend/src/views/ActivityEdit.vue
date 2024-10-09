@@ -107,12 +107,13 @@ export default {
              * This function does not return anything.
              */
             // Validate numeric input
+
             if (this.maxPeople < 0) {
                 this.maxPeople = 0;
             }
             const csrfResponse = await apiClient.get(
                 `/activities/get-csrf-token`
-            ); // Ensure this points to the correct endpoint
+            );
             const csrfToken = csrfResponse.data.csrfToken;
             try {
                 // Construct data to create POST request
@@ -126,7 +127,6 @@ export default {
                 const response = await apiClient.post(
                     `/activities/${this.activityId}/edit`,
                     data,
-                    this.activityId,
                     {
                         // HTTP headers
                         headers: { "X-CSRFToken": csrfToken },
