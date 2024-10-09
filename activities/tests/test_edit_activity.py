@@ -1,10 +1,10 @@
 """Module on test activity editing."""
 import json
 import django.test
+from datetime import datetime
 from django import urls
 from activities import models
-from datetime import datetime
-from .shortcuts import post_request_json_data, activity_to_json
+from .shortcuts import post_request_json_data, activity_to_json, time_formatter
 from django.utils import timezone
 
 
@@ -33,25 +33,56 @@ class EditActivityTest(django.test.TestCase):
         data = {
             "name": "Updated Activity",
             "detail": "This is an updated activity",
-            "date": "2024-10-10T10:20:00.000Z",
             "max_people": 50,
             "people": 5
         }
         # Send POST request with new activity data
-        response = self.client.post(self.url, json.dumps(data), content_type='application/json')
+        response = post_request_json_data(self.url, self.client, data)
         response_dict = json.loads(response.content)
-        print(response.content)
         updated_act = models.Activity.objects.get(pk=self.activity.id)
         updated_act_json = activity_to_json(updated_act)
-        data['date'] = "2024-10-10T03:20:00.000Z" # Problem with timezone
         # Compare the serialized activity with the expected data
         self.assertEqual(updated_act_json['name'], data['name'])
         self.assertEqual(updated_act_json['detail'], data['detail'])
         self.assertEqual(updated_act_json['max_people'], data['max_people'])
         self.assertEqual(updated_act_json['people'], data['people'])
-        self.assertEqual(updated_act_json['date'], data['date'])
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_dict["message"], f"Your have successfully edit activity {data.get('name')}")
+
+
+    def test_valid_activity_editing_date(self):
+        """Edit should return a success message with the updated activity date."""
+        data = {
+            "name": "Updated Activity",
+            "detail": "Detail of updated activity",
+            "date": "2024-10-10T10:20:00.000Z",
+            "max_people": 200,
+            "people": 20,
+        }
+        # Send POST request with new activity data
+        response = post_request_json_data(self.url, self.client, data)
+        response_dict = json.loads(response.content)
+        updated_act = models.Activity.objects.get(pk=self.activity.id)
+        updated_act_json = activity_to_json(updated_act)
+        activity_date = time_formatter(data['date'])
+        # Compare the serialized activity with the expected data
+        self.assertEqual(updated_act_json['date'], activity_date)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_dict["message"], f"Your have successfully edit activity {data.get('name')}")
+
+
+    def test_invalid_number_of_people(self):
+        """Test case when number of participants exceed the capacity."""
+        data = {
+            "name": "Invalid Activity",
+            "detail": "This is an invalid activity",
+            "max_people": 50,
+            "people": 500
+        }
+        # Send POST request with new activity data
+        response = post_request_json_data(self.url, self.client, data)
+        self.assertEqual(response.status_code, 400)
+
 
     def test_invalid_activity_editing_with_too_long_activity_name(self):
         """Editing should return json with error message."""
