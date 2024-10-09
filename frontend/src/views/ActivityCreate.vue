@@ -75,6 +75,10 @@ export default {
             this.$router.push("/");
         },
         async fetchTimeZoneOffset() {
+            /*
+             * Attempt to get timezone offset.
+             * This function does not return anything.
+             */
             try {
                 const response = await apiClient.get(
                     "activities/get-timezone/"
