@@ -41,8 +41,7 @@ def activity_to_json(activity: models.Activity, use_can_join: bool = False):
 def time_formatter(date_string: str) -> str:
     """Format time into expected format"""
     received_date = timezone.make_aware(datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%S.%fZ'))
-    utc_date = received_date.astimezone(pytz.UTC)
-    formatted_date = utc_date.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+    formatted_date = received_date.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
     return formatted_date
 
 

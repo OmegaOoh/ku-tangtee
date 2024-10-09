@@ -4,7 +4,7 @@ from django.http import HttpRequest, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django import db
-from . import models
+from . import models, utils
 from django.views import generic
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt
@@ -150,8 +150,12 @@ def edit_activity(request: HttpRequest, activity_id : int) -> JsonResponse:
 
         # If user has set the date use, set activity date.
         if date_string:
-            date = timezone.make_aware(datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S.%fZ"))
-            modified_activity.date = date
+            date = datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S.%fZ")
+            # Get the timezone offset
+            offset_hours = utils.get_time_zone_offset()
+            date_with_offset = date + timezone.timedelta(hours=offset_hours)
+            aware_date = timezone.make_aware(date_with_offset)
+            modified_activity.date = aware_date
         # Verify number of people suppose to be less than or equal to max_people.
         if people <= max_people:
             modified_activity.people = people
@@ -186,3 +190,8 @@ def csrf_token_view(request: HttpRequest) -> JsonResponse:  # pragma: no cover
     """Return csrf token."""
     csrf_token = get_token(request)
     return JsonResponse({'csrfToken': csrf_token})
+
+def get_timezone(request: HttpRequest) -> JsonResponse: # pragma: no cover
+    """Return time zone offset to vue."""
+    tzo = utils.get_time_zone_offset()
+    return JsonResponse({'offset':tzo})
