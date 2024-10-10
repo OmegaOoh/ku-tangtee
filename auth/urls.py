@@ -1,3 +1,5 @@
+"""Module for mapping authentication URL."""
+
 from django.urls import path
 
 from . import views
