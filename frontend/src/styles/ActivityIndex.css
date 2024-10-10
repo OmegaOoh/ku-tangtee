@@ -6,14 +6,14 @@ body {
     padding: 20px;
     font-size: 48px;
     color: green;
-    font: 'arial';
+    font: "arial";
 }
 
 .activity-detail {
     padding: 20px;
-    background-color: limegreen;
-    border-radius: 8px;
-    margin: 20px;
+    background-color: rgb(50, 150, 50);
+    border-radius: 2px;
+    margin: 10px;
     list-style-type: none;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -45,7 +45,7 @@ body {
 }
 
 .cannot-join {
-    color: #d9534f; 
+    color: #d9534f;
 }
 
 .view-button {
