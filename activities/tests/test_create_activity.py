@@ -22,6 +22,12 @@ class CreateActivityTest(django.test.TestCase):
 
         self.assertEqual(response.status_code, 405)
 
+    def test_default_activity_creation(self):
+        """Create should not return error message for default creation."""
+        response, default = create_activity(host=self.host_user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(default.people, 1)
+
     def test_valid_activity_creation_without_max_people(self):
         """Create should return message with successful message and activity name."""
         data = {
