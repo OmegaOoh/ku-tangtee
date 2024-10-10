@@ -21,37 +21,31 @@ class JoinTest(django.test.TestCase):
             "detail": "This act can join",
             "max_people": 2
         }
-        response = create_activity(
+        response, new_act = create_activity(
             client=self.client,
             host=self.host_user,
             days_delta=3,
             data=data
         )
         self.assertEqual(response.status_code, 200)
-        response_dict = json.loads(response.content)
-
-        new_act = models.Activity.objects.get(pk=int(response_dict["id"]))
 
         response = self.client.get(urls.reverse("activities:join", args=[new_act.id]))
         self.assertEqual(response.status_code, 405)
 
     def test_logout_join(self):
-        """Jpin should respond with error if user are not authenticated."""
+        """Join should respond with error if user are not authenticated."""
         data = {
             "name": "Can join",
             "detail": "This act can join",
             "max_people": 2
         }
-        response = create_activity(
+        response, new_act = create_activity(
             client=self.client,
             host=self.host_user,
             days_delta=3,
             data=data
         )
         self.assertEqual(response.status_code, 200)
-        response_dict = json.loads(response.content)
-
-        new_act = models.Activity.objects.get(pk=int(response_dict["id"]))
 
         self.client.logout()
         response = self.client.post(urls.reverse("activities:join", args=[new_act.id]))
@@ -64,23 +58,19 @@ class JoinTest(django.test.TestCase):
             "detail": "This act can join",
             "max_people": 2
         }
-        response = create_activity(
+        response, new_act = create_activity(
             client=self.client,
             host=self.host_user,
             days_delta=3,
             data=data
         )
         self.assertEqual(response.status_code, 200)
-        response_dict = json.loads(response.content)
-
-        new_act = models.Activity.objects.get(pk=int(response_dict["id"]))
 
         self.client.logout
 
         attender = create_test_user("Attend")
         self.client.force_login(attender)
 
-        # activity = create_activity("Joinable", 2, 1)
         response = self.client.post(urls.reverse("activities:join", args=[new_act.id]))
         new_act.refresh_from_db()
         self.assertEqual(new_act.people, 2)
@@ -93,23 +83,19 @@ class JoinTest(django.test.TestCase):
             "detail": "This act is unjoinable",
             "max_people": 1
         }
-        response = create_activity(
+        response, new_act = create_activity(
             client=self.client,
             host=self.host_user,
             days_delta=3,
             data=data
         )
         self.assertEqual(response.status_code, 200)
-        response_dict = json.loads(response.content)
-
-        new_act = models.Activity.objects.get(pk=int(response_dict["id"]))
 
         self.client.logout
 
         attender = create_test_user("Attend")
         self.client.force_login(attender)
 
-        # activity = create_activity("Joinable", 2, 1)
         response = self.client.post(urls.reverse("activities:join", args=[new_act.id]))
         new_act.refresh_from_db()
         self.assertEqual(new_act.people, 1)
@@ -122,18 +108,16 @@ class JoinTest(django.test.TestCase):
             "detail": "This act can join",
             "max_people": 2
         }
-        response = create_activity(
+        response, new_act = create_activity(
             client=self.client,
             host=self.host_user,
             days_delta=3,
             data=data
         )
-        response_dict = json.loads(response.content)
-        new_act = models.Activity.objects.get(pk=int(response_dict["id"]))
 
         self.client.logout
 
-        attender = create_test_user("Attend")
+        attender = create_test_user("Attender")
         self.client.force_login(attender)
 
         # First time joined, number of people increase.

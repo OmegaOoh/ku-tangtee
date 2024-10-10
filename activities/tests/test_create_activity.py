@@ -28,7 +28,7 @@ class CreateActivityTest(django.test.TestCase):
             "name": "Valid Activity",
             "detail": "This is valid activity",
         }
-        response = create_activity(
+        response, new_act = create_activity(
             client=self.client,
             host=self.host_user,
             days_delta=3,
@@ -36,8 +36,6 @@ class CreateActivityTest(django.test.TestCase):
         )
         response_dict = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
-
-        new_act = models.Activity.objects.get(pk=int(response_dict["id"]))
 
         self.assertEqual(response_dict["message"], f"Your have successfully create activity {data.get('name')}")
         self.assertEqual(new_act.name, data.get('name'))
@@ -51,14 +49,12 @@ class CreateActivityTest(django.test.TestCase):
             "max_people": 10
         }
 
-        response = create_activity(
+        response, new_act = create_activity(
             client=self.client,
             host=self.host_user,
             data=data
         )
         response_dict = json.loads(response.content)
-
-        new_act = models.Activity.objects.get(pk=int(response_dict["id"]))
 
         # Check Response
         self.assertEqual(response.status_code, 200)
@@ -75,7 +71,7 @@ class CreateActivityTest(django.test.TestCase):
             "max_people": 10
         }
 
-        response = create_activity(
+        response, activity = create_activity(
             client=self.client,
             host=self.host_user,
             data=data
@@ -108,7 +104,7 @@ class CreateActivityTest(django.test.TestCase):
             "detail": "This is invalid activity",
             "max_people": 10
         }
-        response = create_activity(
+        response, activity = create_activity(
             client=self.client,
             host=self.host_user,
             data=data

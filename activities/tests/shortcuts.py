@@ -10,17 +10,6 @@ from django.contrib.auth.models import User
 from django import urls
 
 
-def create_activity(client: django.test.Client, host: User, data: dict, days_delta: int = 1):
-    """Return created activity with given parameters."""
-    data_with_date = data | {
-        "date": (timezone.now() + timezone.timedelta(days=days_delta)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-    }
-    client.force_login(host)
-    url = urls.reverse("activities:create")
-    res = post_request_json_data(url, client, data_with_date)
-    return res
-
-
 def create_test_user(username: str = "test_user") -> User:
     """Return a test user."""
     return User.objects.create_user(
@@ -29,8 +18,33 @@ def create_test_user(username: str = "test_user") -> User:
     )
 
 
+def create_activity(client: django.test.Client = None, host: User = None, data: dict = None, days_delta: int = 1):
+    """Return response and created activity with given parameters."""
+    if not client:
+        client = django.test.Client()
+    if not host:
+        host = create_test_user("host")
+    if not data:
+        data = {"name": "test_activity", "detail": ""}
+
+    data_with_date = data | {
+        "date": (timezone.now() + timezone.timedelta(days=days_delta)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    }
+    client.force_login(host)
+    url = urls.reverse("activities:create")
+    res = post_request_json_data(url, client, data_with_date)
+
+    response_dict = json.loads(res.content)
+    try:
+        act = models.Activity.objects.get(pk=int(response_dict["id"]))
+    except KeyError:
+        act = None
+
+    return res, act
+
+
 def activity_to_json(activity: models.Activity, use_can_join: bool = False):
-    """Return dict that replicates json thats contain activity data."""
+    """Return dict that replicates json that's contain activity data."""
     formatted_date = activity.date.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
     output = {
         "id": activity.id,
@@ -40,7 +54,7 @@ def activity_to_json(activity: models.Activity, use_can_join: bool = False):
         "max_people": activity.max_people,
         "people": activity.people
     }
-    if (use_can_join):
+    if use_can_join:
         output['can_join'] = activity.can_join()
     return output
 
