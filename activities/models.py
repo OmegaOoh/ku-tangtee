@@ -29,8 +29,8 @@ class Activity(models.Model):
         return timezone.now() + timezone.timedelta(weeks=1) >= self.date and self.can_join()
 
     def host(self) -> User:
-        """Return host of an activity."""
-        return self.attend_set.filter(is_host=True)
+        """Return user that is host of that activity."""
+        return self.attend_set.filter(is_host=True).first().user
 
     @property
     def people(self) -> int:
