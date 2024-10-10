@@ -16,8 +16,9 @@ from typing import Callable
 
 
 def get_number_of_people(activity_id: int) -> int:
-    """return number of people in an activity."""
+    """Return number of people in an activity."""
     return int(models.Activity.objects.get(pk=activity_id).people)
+
 
 class IndexView(generic.ListView):
     """View class to show all upcoming activities."""
@@ -33,17 +34,15 @@ class IndexView(generic.ListView):
         Queryset is order by date that the activity took place.(earlier to later)
         """
         query = models.Activity.objects.filter(date__gte=timezone.now()).order_by("date")
-                            
+
         return query
 
-        
     def render_to_response(self, context: Dict[str, Any], **response_kwargs: Any) -> JsonResponse:
         """Send out JSON response to Vue for Activity Index."""
-                
         activities = list(self.get_queryset().values(
-                "id", "name", "detail", "date", "max_people"
-            ))
-        
+            "id", "name", "detail", "date", "max_people"
+        ))
+
         activities = [act | {"people": get_number_of_people(act["id"])} for act in activities]
         return JsonResponse(activities, safe=False)
 
@@ -182,7 +181,7 @@ def edit_activity(request: HttpRequest, activity_id: int) -> JsonResponse:
             date_with_offset = date + timezone.timedelta(hours=offset_hours)
             aware_date = timezone.make_aware(date_with_offset)
             modified_activity.date = aware_date
-    
+
         modified_activity.name = name
         modified_activity.detail = detail
         modified_activity.max_people = max_people

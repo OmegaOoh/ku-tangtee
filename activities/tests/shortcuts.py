@@ -21,13 +21,12 @@ def create_test_user(username: str = "test_user") -> User:
 
 
 def create_activity(
-        host: User = None, 
-        client: django.test.Client = django.test.Client(), 
-        data: dict = {"name": "test_activity", "detail": ""}, 
-        days_delta: int = 1
-    ):
+    host: User = None,
+    client: django.test.Client = django.test.Client(),
+    data: dict = {"name": "test_activity", "detail": ""},
+    days_delta: int = 1
+):
     """Return response and created activity with given parameters."""
-   
     if not host:
         host = create_test_user("host")
 
