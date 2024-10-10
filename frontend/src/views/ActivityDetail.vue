@@ -1,26 +1,46 @@
 <template>
-    <div class="activity-detail">
-        <h1 class="activity-title">{{ activity.name }}</h1>
-        <p class="activity-detail-text">
-            <strong>Details:</strong> {{ activity.detail }}
-        </p>
-        <p class="activity-date">
-            <strong>Date:</strong>
-            {{ new Date(activity.date).toLocaleString() }}
-        </p>
-        <p class="activity-max-people">
-            <strong>Max People:</strong> {{ activity.max_people }}
-        </p>
-        <p class="activity-joined-people">
-            <strong>Joined People:</strong> {{ activity.people }}
-        </p>
+    <div class="p-6 bg-base-100 shadow-md rounded-lg">
+        <div class="bg-primary card-body p-4" style="border-radius: 8px">
+            <h1 class="text-4xl font-bold mb-4 ml-2">
+                {{ activity.name }}
+            </h1>
+            <p class="mb-2 ml-3">
+                <strong class="text-lg">Details:</strong> {{ activity.detail }}
+            </p>
+            <p class="mb-2 ml-3">
+                <strong class="text-lg">Date:</strong>
+                {{ new Date(activity.date).toLocaleString() }}
+            </p>
+            <p class="mb-2 ml-3">
+                <strong class="text-lg">Max People:</strong>
+                {{ activity.max_people }}
+            </p>
+            <p class="mb-4 ml-3">
+                <strong class="text-lg">Joined People:</strong>
+                {{ activity.people }}
+            </p>
 
-        <button v-if="canJoin" @click="joinActivity" class="join-button">
-            Join Activity
-        </button>
-        <p v-else class="cannot-join">This activity cannot be joined.</p>
-        <button @click="goToEdit" class="edit-button">Edit</button>
-        <button @click="goBack" class="back-button">Back to Activities</button>
+            <div class="flex justify-between items-center">
+                <div class="flex space-x-4">
+                    <button @click="goToEdit" class="btn btn-warning ml-2 mr-2">
+                        Edit
+                    </button>
+                    <button @click="goBack" class="btn btn-info ml-2 mr-2">
+                        Back to Activities
+                    </button>
+                </div>
+                <button
+                    v-if="canJoin"
+                    @click="joinActivity"
+                    class="btn btn-success ml-2 mr-2"
+                >
+                    Join Activity
+                </button>
+                <p v-else class="text-red-500 mt-4 ml-2 mr-2">
+                    This activity cannot be joined.
+                </p>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -34,6 +54,7 @@ export default {
             canJoin: true,
             csrfToken: "",
             activityId: null,
+            isDarkTheme: false,
         };
     },
     methods: {
@@ -110,6 +131,14 @@ export default {
     mounted() {
         this.activityId = this.$route.params.id;
         this.fetchActivity();
+        this.isDarkTheme = window.matchMedia(
+            "(prefers-color-scheme: dark)"
+        ).matches;
+        window
+            .matchMedia("(prefers-color-scheme: dark)")
+            .addEventListener("change", (e) => {
+                this.isDarkTheme = e.matches;
+            });
     },
 };
 </script>
