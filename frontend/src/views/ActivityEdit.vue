@@ -4,12 +4,12 @@
             class="card bg-neutral card-primary size-1/3 shadow-xl items-center"
         >
             <div class="card-body size-3/4">
-                <h2 class="card-title">Create Activity</h2>
+                <h2 class="card-title">Edit Activity</h2>
                 <label>Activity Name </label>
                 <input
                     v-model="activityName"
                     type="text"
-                    placeholder="Activity Name"
+                    placeholder="Enter activity name"
                     class="input input-bordered input-primary w-full mb-4"
                     :maxlength="255"
                     required
@@ -18,10 +18,9 @@
                 <textarea
                     v-model="activityDetail"
                     class="textarea textarea-primary w-full mb-4"
-                    placeholder="Activity Detail"
+                    placeholder="Enter activity detail"
                     :maxlength="1024"
-                >
-                </textarea>
+                ></textarea>
 
                 <label>Date and Time </label>
                 <VueDatePicker
@@ -32,17 +31,23 @@
                     :dark="isDarkTheme"
                 />
                 <label>Max People </label>
-                <input type="checkbox" class="toggle" @change="setMaxPeople" />
                 <input
-                    v-if="showMaxPeople"
                     v-model.number="maxPeople"
                     type="number"
                     placeholder="Enter Max People (Optional)"
                     class="input input-bordered input-primary w-full mb-4"
                     :min="0"
                 />
-                <button class="btn btn-accent" @click="postCreateActivity">
-                    Create Activity
+                <label>Number of participants </label>
+                <input
+                    v-model.number="people"
+                    type="number"
+                    placeholder="Enter People"
+                    class="input input-bordered input-primary w-full mb-4"
+                    :min="0"
+                />
+                <button class="btn btn-accent" @click="postUpdateActivity">
+                    Update Activity
                 </button>
                 <button class="btn btn-primary" @click="goBack">
                     Back to List
@@ -57,66 +62,70 @@ import apiClient from "@/api";
 export default {
     data() {
         return {
+            id: this.activityId,
             activityName: "",
             activityDetail: "",
             date: "",
             maxPeople: 0,
+            people: 0,
             showMaxPeople: false,
             isDarkTheme: false,
-            timeZoneOffset: 0,
+            activity: {},
         };
     },
     methods: {
         goBack() {
             /*
-             * Navigate back to Activity Index page.
+             * Navigate back to Activity Detail page.
              * This function does not return anything.
              */
-            this.$router.push("/");
+            this.$router.push(`/`);
         },
-        async fetchTimeZoneOffset() {
+        async fetchActivity() {
             /*
-             * Attempt to get timezone offset.
+             * Get data from specific activity.
              * This function does not return anything.
              */
             try {
                 const response = await apiClient.get(
-                    "activities/get-timezone/"
+                    `/activities/${this.activityId}`
                 );
-                this.timeZoneOffset = response.data.offset; // Set the time zone offset
+                this.activity = response.data;
+                this.activityName = this.activity.name;
+                this.activityDetail = this.activity.detail;
+                this.date = new Date(this.activity.date);
+                this.maxPeople = this.activity.max_people || 0;
+                this.showMaxPeople = this.maxPeople > 0;
+                this.people = this.activity.people;
             } catch (error) {
-                console.error("Error fetching time zone offset:", error);
+                console.error("Error fetching activity:", error);
             }
         },
-        async postCreateActivity() {
+        async postUpdateActivity() {
             /*
-             * Attempt to create activity.
+             * Attempt to update activity information.
              * This function does not return anything.
              */
             // Validate numeric input
+
             if (this.maxPeople < 0) {
                 this.maxPeople = 0;
             }
             const csrfResponse = await apiClient.get(
                 `/activities/get-csrf-token`
-            ); // Ensure this points to the correct endpoint
+            );
             const csrfToken = csrfResponse.data.csrfToken;
             try {
                 // Construct data to create POST request
-                const dateObj = new Date(this.date);
-                const offsetMilliseconds = this.timeZoneOffset * 60 * 60 * 1000;
-                const localDate = new Date(
-                    dateObj.getTime() + offsetMilliseconds
-                );
-                const formattedDate = localDate.toISOString();
                 const data = {
                     name: this.activityName,
                     detail: this.activityDetail,
-                    date: formattedDate,
+                    date: this.date,
                     max_people: this.maxPeople || null,
+                    people: this.people,
                 };
                 const response = await apiClient.post(
-                    `/activities/create`,
+                    `/activities/${this.activityId}/edit`,
                     data,
                     {
                         // HTTP headers
@@ -145,6 +154,7 @@ export default {
         },
     },
     mounted() {
+        this.activityId = this.$route.params.id;
         this.isDarkTheme = window.matchMedia(
             "(prefers-color-scheme: dark)"
         ).matches;
@@ -153,7 +163,7 @@ export default {
             .addEventListener("change", (e) => {
                 this.isDarkTheme = e.matches;
             });
-        this.fetchTimeZoneOffset();
+        this.fetchActivity();
     },
 };
 </script>

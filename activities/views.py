@@ -6,7 +6,7 @@ from django.http import HttpRequest, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django import db
-from . import models
+from . import models, utils
 from django.views import generic
 from django.middleware.csrf import get_token
 from activities.decorator import login_required
@@ -153,7 +153,70 @@ def create(request: HttpRequest) -> JsonResponse:
         )
 
 
+def edit_activity(request: HttpRequest, activity_id: int) -> JsonResponse:
+    """Handle request to edit an activity."""
+    # Check request type
+    if request.method != "POST":
+        return JsonResponse({"error": "Forbidden access"}, status=403)
+    # Get activity data from POST request
+    data = json.loads(request.body.decode('utf-8'))
+    print(data)
+    name = data.get("name")
+    detail = data.get("detail")
+    date_string = data.get("date")
+    max_people = data.get("max_people")
+    people = data.get("people")
+
+    try:
+
+        # Get activity with provided id
+        modified_activity = get_object_or_404(models.Activity, pk=activity_id)
+
+        # If user has set the date use, set activity date.
+        if date_string:
+            date = datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S.%fZ")
+            # Get the timezone offset
+            offset_hours = utils.get_time_zone_offset()
+            date_with_offset = date + timezone.timedelta(hours=offset_hours)
+            aware_date = timezone.make_aware(date_with_offset)
+            modified_activity.date = aware_date
+        # Verify number of people suppose to be less than or equal to max_people.
+        if people <= max_people:
+            modified_activity.people = people
+        else:
+            return JsonResponse({"error": "Number of people exceeds max capacity."}, status=400)
+
+        modified_activity.name = name
+        modified_activity.detail = detail
+        modified_activity.max_people = max_people
+
+        modified_activity.save()
+
+        # Return successful message
+        # TODO Log warning when logging already setup
+        return JsonResponse(
+            {
+                "message": f"Your have successfully edit activity {modified_activity.name}",
+                "id": modified_activity.id,
+            }
+        )
+
+    except (db.utils.DataError, db.utils.IntegrityError, ValueError, TypeError) as e:
+
+        # If any error occur, return an error message.
+        return JsonResponse(
+            {"error": f"Error occur : {e}"},
+            status=400
+        )
+
+
 def csrf_token_view(request: HttpRequest) -> JsonResponse:  # pragma: no cover
     """Return csrf token."""
     csrf_token = get_token(request)
     return JsonResponse({'csrfToken': csrf_token})
+
+
+def get_timezone(request: HttpRequest) -> JsonResponse:  # pragma: no cover
+    """Return time zone offset to vue."""
+    tzo = utils.get_time_zone_offset()
+    return JsonResponse({'offset': tzo})

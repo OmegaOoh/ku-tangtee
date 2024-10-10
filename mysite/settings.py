@@ -20,7 +20,9 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=str, default="").replace(' ', '').s
 
 # Application definition
 
-SITE_ID = 3
+SITE_ID = config('SITE',cast = int , default = 1)
+
+REST_USE_JWT = True
 
 INSTALLED_APPS = [
     'activities.apps.ActivitiesConfig',
@@ -30,13 +32,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'rest_framework',
     'corsheaders',
-    'django.contrib.sites',
+    'rest_framework.authtoken',
+    'dj_rest_auth',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'allauth.socialaccount.providers.google'
+    'allauth.socialaccount.providers.google',
 ]
 
 # Google oauth setup
@@ -44,7 +48,7 @@ SOCIALACCOUNT_PROVIDERS = {
     "google":{
         "SCOPE": [
             "profile",
-            "email"
+            "email",
         ],
         "AUTH_PARAMS": {"access_type": "online"}
     }
@@ -61,7 +65,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'allauth.account.middleware.AccountMiddleware'
+    'allauth.account.middleware.AccountMiddleware',
+
 ]
 
 ROOT_URLCONF = 'mysite.urls'
@@ -118,6 +123,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend"
+)
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -166,12 +176,18 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = "None"
 SESSION_COOKIE_SAMESITE = "None"
 
-# Google authentication setup
-AUTHENTICATION_BACKENDS = (
-    "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend"
-)
 
-LOGIN_URL = "/accounts/google/login"
-LOGIN_REDIRECT_URL = "/is_authen"
-LOGOUT_REDIRECT_URL = "/"
+# Rest Framework
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
+    ),
+}
+
+REST_AUTH = {
+    'USE_JWT': True,
+    'JWT_AUTH_COOKIE': 'jwt-auth',
+    'JWT_AUTH_REFRESH_COOKIE': 'jwt_reauth'
+}

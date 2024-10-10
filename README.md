@@ -32,13 +32,14 @@ web application for gathering people for events or activities powered by Django
    ``` bash
    npm install
    ```
-6. Follow MySQL [installation & set up guide](./database_guide.md)
-7. Migrate Django database
+6. setup [frontend variable](./frontend/README.md#setup-variable)
+7. Follow MySQL [installation & set up guide](./database_guide.md)
+8. Migrate Django database
    ```bash
    python manage.py migrate
    ```
 
-8. Setup google oauth by follow [Google oauth guide](./google_credentials_guide.md)
+9.  Setup google oauth by follow [Google oauth guide](./google_credentials_guide.md)
 
 ## How to run
 1. go in frontend directory 

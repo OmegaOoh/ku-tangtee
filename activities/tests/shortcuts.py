@@ -2,6 +2,8 @@
 import io
 import sys
 import json
+import pytz
+from datetime import datetime
 from django.http import HttpResponse
 import django.test
 from django.utils import timezone
@@ -59,6 +61,13 @@ def activity_to_json(activity: models.Activity, use_can_join: bool = False):
     if use_can_join:
         output['can_join'] = activity.can_join()
     return output
+
+
+def time_formatter(date_string: str) -> str:
+    """Format time into expected format."""
+    received_date = timezone.make_aware(datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%S.%fZ'))
+    formatted_date = received_date.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+    return formatted_date
 
 
 def post_request_json_data(path: str, client: django.test.Client, data: dict) -> HttpResponse:
