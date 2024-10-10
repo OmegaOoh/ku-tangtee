@@ -45,3 +45,9 @@ class TestActivityModel(django.test.TestCase):
         """Return False when activities don't take place in upcoming weeks."""
         response, not_up_activity = create_activity(days_delta=8)
         self.assertFalse(not_up_activity.is_upcoming())
+
+    def test_is_host(self):
+        """Return user that is host of that activity."""
+        host = create_test_user("My lovely host")
+        response, activity = create_activity(host=host)
+        self.assertEqual(activity.host(), host)
