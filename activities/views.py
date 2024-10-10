@@ -165,7 +165,6 @@ def edit_activity(request: HttpRequest, activity_id: int) -> JsonResponse:
     detail = data.get("detail")
     date_string = data.get("date")
     max_people = data.get("max_people")
-    people = data.get("people")
 
     try:
 
@@ -180,12 +179,7 @@ def edit_activity(request: HttpRequest, activity_id: int) -> JsonResponse:
             date_with_offset = date + timezone.timedelta(hours=offset_hours)
             aware_date = timezone.make_aware(date_with_offset)
             modified_activity.date = aware_date
-        # Verify number of people suppose to be less than or equal to max_people.
-        if people <= max_people:
-            modified_activity.people = people
-        else:
-            return JsonResponse({"error": "Number of people exceeds max capacity."}, status=400)
-
+    
         modified_activity.name = name
         modified_activity.detail = detail
         modified_activity.max_people = max_people
