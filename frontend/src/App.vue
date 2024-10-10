@@ -35,32 +35,40 @@ export default {
     },
     methods: {
         async login() {
-            const logInResponse = await googleTokenLogin()
-            const csrfToken = (await apiClient.get(`activities/get-csrf-token/`,{})).data.csrfToken;
-            if (this.isAuth) {            
-                await apiClient.post(
-                    `rest-auth/logout/`,
-                    {},
+            try
+            {
+                const logInResponse = await googleTokenLogin()
+                const csrfToken = (await apiClient.get(`activities/get-csrf-token/`,{})).data.csrfToken;
+                if (this.isAuth) {            
+                    await apiClient.post(
+                        `rest-auth/logout/`,
+                        {},
+                        {
+                            headers: { "X-CsrfToken": csrfToken},
+                            withCredentials: true,
+                        }
+                    )
+                }
+                const response = await apiClient.post(
+                    `auth/google-oauth2/`,
+                    {
+                        access_token: logInResponse.access_token,
+                    },
                     {
                         headers: { "X-CsrfToken": csrfToken},
                         withCredentials: true,
                     }
                 )
+                const accessToken = response.data.access;
+                sessionStorage.setItem('token', accessToken);
+                this.isAuth = true;
+                this.getUserData();
             }
-            const response = await apiClient.post(
-                `auth/google-oauth2/`,
-                {
-                    access_token: logInResponse.access_token,
-                },
-                {
-                    headers: { "X-CsrfToken": csrfToken},
-                    withCredentials: true,
-                }
-            )
-            const accessToken = response.data.access;
-            sessionStorage.setItem('token', accessToken);
-            this.isAuth = true;
-            this.getUserData();
+            catch (e)
+            {
+                console.log(e)
+            }
+            
         },
         async authStatus() {
             if (sessionStorage.getItem('token')) { 
