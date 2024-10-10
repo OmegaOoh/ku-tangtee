@@ -114,3 +114,35 @@ class JoinTest(django.test.TestCase):
         new_act.refresh_from_db()
         self.assertEqual(new_act.people, 1)
         self.assertJSONEqual(response.content, {"error": f"{new_act.name} is not joinable"})
+
+    def test_rejoin_joined_activity(self):
+        """Cannot join activity that already joined."""
+        data = {
+            "name": "Can join",
+            "detail": "This act can join",
+            "max_people": 2
+        }
+        response = create_activity(
+            client=self.client,
+            host=self.host_user,
+            days_delta=3,
+            data=data
+        )
+        response_dict = json.loads(response.content)
+        new_act = models.Activity.objects.get(pk=int(response_dict["id"]))
+
+        self.client.logout
+
+        attender = create_test_user("Attend")
+        self.client.force_login(attender)
+
+        # First time joined, number of people increase.
+        response = self.client.post(urls.reverse("activities:join", args=[new_act.id]))
+        new_act.refresh_from_db()
+        self.assertEqual(new_act.people, 2)
+
+        # Second time joined, get error and number of people stays the same.
+        response = self.client.post(urls.reverse("activities:join", args=[new_act.id]))
+        new_act.refresh_from_db()
+        self.assertEqual(new_act.people, 2)
+        self.assertJSONEqual(response.content, {"error": f"You've already joined {new_act.name}"})
