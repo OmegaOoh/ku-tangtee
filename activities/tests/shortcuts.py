@@ -18,14 +18,16 @@ def create_test_user(username: str = "test_user") -> User:
     )
 
 
-def create_activity(client: django.test.Client = None, host: User = None, data: dict = None, days_delta: int = 1):
+def create_activity(
+        host: User = None, 
+        client: django.test.Client = django.test.Client(), 
+        data: dict = {"name": "test_activity", "detail": ""}, 
+        days_delta: int = 1
+    ):
     """Return response and created activity with given parameters."""
-    if not client:
-        client = django.test.Client()
+   
     if not host:
         host = create_test_user("host")
-    if not data:
-        data = {"name": "test_activity", "detail": ""}
 
     data_with_date = data | {
         "date": (timezone.now() + timezone.timedelta(days=days_delta)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')

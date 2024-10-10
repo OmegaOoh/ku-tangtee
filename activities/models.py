@@ -3,6 +3,7 @@ from typing import Any
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+from queryable_properties.properties import queryable_property
 
 
 class Activity(models.Model):
@@ -32,7 +33,7 @@ class Activity(models.Model):
         """Return user that is host of that activity."""
         return self.attend_set.filter(is_host=True).first().user
 
-    @property
+    @queryable_property
     def people(self) -> int:
         """Return number of people attend this activity include host."""
         return self.attend_set.count()
