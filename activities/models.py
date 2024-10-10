@@ -35,7 +35,7 @@ class Activity(models.Model):
     @property
     def people(self) -> int:
         """Return number of people attend this activity include host."""
-        return self.attend_set.count()
+        return int(self.attend_set.count())
 
 
 class Attend(models.Model):
@@ -51,4 +51,4 @@ class Attend(models.Model):
 
     def __repr__(self) -> str:
         """Return user's first name and which activity they join."""
-        return str.__str__()
+        return self.__str__()

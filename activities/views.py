@@ -12,7 +12,12 @@ from django.middleware.csrf import get_token
 from activities.decorator import login_required
 from django.views.decorators.http import require_POST
 from django.db.models import F, ExpressionWrapper, IntegerField
+from typing import Callable
 
+
+def get_number_of_people(activity_id: int) -> int:
+    """return number of people in an activity."""
+    return int(models.Activity.objects.get(pk=activity_id).people)
 
 class IndexView(generic.ListView):
     """View class to show all upcoming activities."""
@@ -34,14 +39,12 @@ class IndexView(generic.ListView):
         
     def render_to_response(self, context: Dict[str, Any], **response_kwargs: Any) -> JsonResponse:
         """Send out JSON response to Vue for Activity Index."""
-        
-        get_people = lambda act_id: models.Activity.objects.get(pk=act_id).people 
-        
+                
         activities = list(self.get_queryset().values(
                 "id", "name", "detail", "date", "max_people"
             ))
         
-        activities = [act | {"people": get_people(act["id"])} for act in activities]
+        activities = [act | {"people": get_number_of_people(act["id"])} for act in activities]
         return JsonResponse(activities, safe=False)
 
 
