@@ -64,7 +64,6 @@ export default {
             maxPeople: 0,
             showMaxPeople: false,
             isDarkTheme: false,
-            timeZoneOffset: 0,
         };
     },
     methods: {
@@ -74,20 +73,6 @@ export default {
              * This function does not return anything.
              */
             this.$router.push("/");
-        },
-        async fetchTimeZoneOffset() {
-            /*
-             * Attempt to get timezone offset.
-             * This function does not return anything.
-             */
-            try {
-                const response = await apiClient.get(
-                    "activities/get-timezone/"
-                );
-                this.timeZoneOffset = response.data.offset; // Set the time zone offset
-            } catch (error) {
-                console.error("Error fetching time zone offset:", error);
-            }
         },
         async postCreateActivity() {
             /*
@@ -105,11 +90,7 @@ export default {
             try {
                 // Construct data to create POST request
                 const dateObj = new Date(this.date);
-                const offsetMilliseconds = this.timeZoneOffset * 60 * 60 * 1000;
-                const localDate = new Date(
-                    dateObj.getTime() + offsetMilliseconds
-                );
-                const formattedDate = localDate.toISOString();
+                const formattedDate = dateObj.toISOString();
                 const data = {
                     name: this.activityName,
                     detail: this.activityDetail,
@@ -154,7 +135,6 @@ export default {
             .addEventListener("change", (e) => {
                 this.isDarkTheme = e.matches;
             });
-        this.fetchTimeZoneOffset();
     },
 };
 </script>

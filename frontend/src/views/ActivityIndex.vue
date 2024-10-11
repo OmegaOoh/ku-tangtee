@@ -18,7 +18,7 @@
                         <p>{{ activity.detail }}</p>
                         <p>
                             Start date:
-                            {{ new Date(activity.date).toLocaleString() }}
+                            {{ formatActivityDate(activity.date) }}
                         </p>
                         <div class="card-actions justify-end">
                             <router-link
@@ -51,9 +51,11 @@ export default {
         return {
             activities: [],
             isDarkTheme: false,
+            timeZoneOffset: 0,
         };
     },
     mounted() {
+        this.fetchTimeZoneOffset();
         this.fetchActivities();
         this.isDarkTheme = window.matchMedia(
             "(prefers-color-scheme: dark)"
@@ -65,6 +67,20 @@ export default {
             });
     },
     methods: {
+        async fetchTimeZoneOffset() {
+            /*
+             * Attempt to get timezone offset.
+             * This function does not return anything.
+             */
+            try {
+                const response = await apiClient.get(
+                    "activities/get-timezone/"
+                );
+                this.timeZoneOffset = response.data.offset; // Set the time zone offset
+            } catch (error) {
+                console.error("Error fetching time zone offset:", error);
+            }
+        },
         async fetchActivities() {
             /*
              * Get data for all activities from API.
@@ -85,6 +101,16 @@ export default {
              * Navigate to specific activity detail page.
              */
             this.$router.push(`/activities/${activityId}`);
+        },
+        formatActivityDate(date) {
+            /*
+             * Adjust the activity date with the timezone offset.
+             * Return localized time.
+             */
+            const dateObj = new Date(date);
+            const offsetMilliseconds = this.timeZoneOffset * 60 * 60 * 1000;
+            const localDate = new Date(dateObj.getTime() + offsetMilliseconds);
+            return localDate.toLocaleString(); // Return the localized date string
         },
     },
 };

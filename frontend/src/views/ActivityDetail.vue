@@ -9,7 +9,7 @@
             </p>
             <p class="mb-2 ml-3">
                 <strong class="text-lg">Date:</strong>
-                {{ new Date(activity.date).toLocaleString() }}
+                {{ formatActivityDate(activity.date) }}
             </p>
             <p class="mb-2 ml-3">
                 <strong class="text-lg">Max People:</strong>
@@ -55,6 +55,7 @@ export default {
             csrfToken: "",
             activityId: null,
             isDarkTheme: false,
+            timeZoneOffset: 0,
         };
     },
     methods: {
@@ -71,6 +72,20 @@ export default {
              * This function does not return anything.
              */
             this.$router.push(`/activities/${this.activityId}/edit`);
+        },
+        async fetchTimeZoneOffset() {
+            /*
+             * Attempt to get timezone offset.
+             * This function does not return anything.
+             */
+            try {
+                const response = await apiClient.get(
+                    "activities/get-timezone/"
+                );
+                this.timeZoneOffset = response.data.offset; // Set the time zone offset
+            } catch (error) {
+                console.error("Error fetching time zone offset:", error);
+            }
         },
         async getCsrfToken() {
             /*
@@ -127,6 +142,16 @@ export default {
                 }
             }
         },
+        formatActivityDate(date) {
+            /*
+             * Adjust the activity date with the timezone offset.
+             * Return localized time.
+             */
+            const dateObj = new Date(date);
+            const offsetMilliseconds = this.timeZoneOffset * 60 * 60 * 1000;
+            const localDate = new Date(dateObj.getTime() + offsetMilliseconds);
+            return localDate.toLocaleString(); // Return the localized date string
+        },
     },
     mounted() {
         this.activityId = this.$route.params.id;
@@ -139,6 +164,7 @@ export default {
             .addEventListener("change", (e) => {
                 this.isDarkTheme = e.matches;
             });
+        this.fetchTimeZoneOffset();
     },
 };
 </script>
