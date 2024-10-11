@@ -35,6 +35,10 @@ export default {
     },
     methods: {
         async login() {
+            /**
+             * Log user in with Google authentication token and set user data.
+             * This function return nothing.
+             */
             try
             {
                 const logInResponse = await googleTokenLogin()
@@ -71,6 +75,10 @@ export default {
             
         },
         async authStatus() {
+            /**
+             * Check session authentication status
+             * This function does not return anything.
+             */
             try { 
                 const csrfToken = (await apiClient.get(`activities/get-csrf-token/`,{})).data.csrfToken;
                 await apiClient.post(`rest-auth/token/verify/`,
@@ -90,6 +98,10 @@ export default {
             }
         },
         async logout() {
+            /**
+            * Logout user from the system.
+            * this function return nothing.
+            */
             const csrfToken = (await apiClient.get(`activities/get-csrf-token/`,{})).data.csrfToken;
             if (this.isAuth) {            
                 await apiClient.post(
@@ -105,6 +117,10 @@ export default {
             sessionStorage.setItem('token', '');
         },
         async getUserData() {
+            /**
+             * Get user data from backend.
+             * this function return nothing.
+             */
             const response = await apiClient.get(`rest-auth/user/`)
             console.log(response)
             this.fName = response.data.first_name;
