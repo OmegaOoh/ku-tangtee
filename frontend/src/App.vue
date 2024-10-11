@@ -71,11 +71,21 @@ export default {
             
         },
         async authStatus() {
-            if (sessionStorage.getItem('token')) { 
+            try { 
+                const csrfToken = (await apiClient.get(`activities/get-csrf-token/`,{})).data.csrfToken;
+                await apiClient.post(`rest-auth/token/verify/`,
+                    {
+                        token: sessionStorage.getItem('token')
+                    }, 
+                    {
+                        headers: {"X-CsrfToken": csrfToken},
+                        withCredentials: true
+                    }
+                )
                 this.isAuth = true;
                 this.getUserData();
             }
-            else{
+            catch{
                 this.isAuth = false;
             }
         },
