@@ -75,12 +75,16 @@ export default {
     },
     methods: {
         async login() {
-            try {
-                const logInResponse = await googleTokenLogin();
-                const csrfToken = (
-                    await apiClient.get(`activities/get-csrf-token/`, {})
-                ).data.csrfToken;
-                if (this.isAuth) {
+            /**
+             * Log user in with Google authentication token and set user data.
+             * This function return nothing.
+             */
+            try
+            {
+                const logInResponse = await googleTokenLogin()
+                const csrfToken = (await apiClient.get(`activities/get-csrf-token/`,{})).data.csrfToken;
+                if (this.isAuth) {            
+
                     await apiClient.post(
                         `rest-auth/logout/`,
                         {},
@@ -109,16 +113,35 @@ export default {
             }
         },
         async authStatus() {
-            this.isAuth = !!sessionStorage.getItem("token");
-            if (this.isAuth) {
-                await this.getUserData(); // Fetch user data if authenticated
+            /**
+             * Check session authentication status
+             * This function does not return anything.
+             */
+            try { 
+                const csrfToken = (await apiClient.get(`activities/get-csrf-token/`,{})).data.csrfToken;
+                await apiClient.post(`rest-auth/token/verify/`,
+                    {
+                        token: sessionStorage.getItem('token')
+                    }, 
+                    {
+                        headers: {"X-CsrfToken": csrfToken},
+                        withCredentials: true
+                    }
+                )
+                this.isAuth = true;
+                this.getUserData();
+            }
+            catch{
+                this.isAuth = false;
             }
         },
         async logout() {
-            const csrfToken = (
-                await apiClient.get(`activities/get-csrf-token/`, {})
-            ).data.csrfToken;
-            if (this.isAuth) {
+            /**
+            * Logout user from the system.
+            * this function return nothing.
+            */
+            const csrfToken = (await apiClient.get(`activities/get-csrf-token/`,{})).data.csrfToken;
+            if (this.isAuth) {            
                 await apiClient.post(
                     `rest-auth/logout/`,
                     {},
@@ -132,8 +155,12 @@ export default {
             sessionStorage.setItem("token", "");
         },
         async getUserData() {
-            const response = await apiClient.get(`rest-auth/user/`);
-            console.log(response);
+            /**
+             * Get user data from backend.
+             * this function return nothing.
+             */
+            const response = await apiClient.get(`rest-auth/user/`)
+            console.log(response)
             this.fName = response.data.first_name;
             this.lName = response.data.last_name;
         },
