@@ -1,30 +1,44 @@
 <template>
-    <div>
-        <h1 class="title">Activities List</h1>
-        <ul v-if="activities.length">
-            <li
-                v-for="activity in activities"
-                :key="activity.id"
-                class="activity-detail"
-            >
-                <h2 class="activity-title">
-                    {{ activity.name }}
-                </h2>
-                <p class="activity-detail-text">{{ activity.detail }}</p>
-                <p class="activity-date">
-                    Start date: {{ new Date(activity.date).toLocaleString() }}
-                </p>
-                <router-link :to="{ path: `/activities/${activity.id}` }">
-                    <button
-                        @click="viewActivity(activity.id)"
-                        class="view-button"
+    <div class="container mx-auto p-4">
+        <h1 class="text-4xl font-bold mb-4">Activities List</h1>
+        <div v-if="activities.length">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div
+                    v-for="activity in activities"
+                    :key="activity.id"
+                    class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-200"
+                >
+                    <div
+                        class="bg-primary card-body p-4"
+                        style="border-radius: 8px"
                     >
-                        View
-                    </button>
-                </router-link>
-            </li>
-        </ul>
-        <p v-else>No upcoming activities found.</p>
+                        <h2 class="card-title text-2xl font-semibold">
+                            {{ activity.name }}
+                        </h2>
+                        <p>{{ activity.detail }}</p>
+                        <p>
+                            Start date:
+                            {{ formatActivityDate(activity.date) }}
+                        </p>
+                        <div class="card-actions justify-end">
+                            <router-link
+                                :to="{ path: `/activities/${activity.id}` }"
+                            >
+                                <button
+                                    class="btn btn-info"
+                                    @click="viewActivity(activity.id)"
+                                >
+                                    View
+                                </button>
+                            </router-link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p v-else class="text-center text-gray-500 mt-4">
+            No upcoming activities found.
+        </p>
     </div>
 </template>
 
@@ -36,12 +50,37 @@ export default {
     data() {
         return {
             activities: [],
+            isDarkTheme: false,
+            timeZoneOffset: 0,
         };
     },
     mounted() {
+        this.fetchTimeZoneOffset();
         this.fetchActivities();
+        this.isDarkTheme = window.matchMedia(
+            "(prefers-color-scheme: dark)"
+        ).matches;
+        window
+            .matchMedia("(prefers-color-scheme: dark)")
+            .addEventListener("change", (e) => {
+                this.isDarkTheme = e.matches;
+            });
     },
     methods: {
+        async fetchTimeZoneOffset() {
+            /*
+             * Attempt to get timezone offset.
+             * This function does not return anything.
+             */
+            try {
+                const response = await apiClient.get(
+                    "activities/get-timezone/"
+                );
+                this.timeZoneOffset = response.data.offset; // Set the time zone offset
+            } catch (error) {
+                console.error("Error fetching time zone offset:", error);
+            }
+        },
         async fetchActivities() {
             /*
              * Get data for all activities from API.
@@ -62,6 +101,16 @@ export default {
              * Navigate to specific activity detail page.
              */
             this.$router.push(`/activities/${activityId}`);
+        },
+        formatActivityDate(date) {
+            /*
+             * Adjust the activity date with the timezone offset.
+             * Return localized time.
+             */
+            const dateObj = new Date(date);
+            const offsetMilliseconds = this.timeZoneOffset * 60 * 60 * 1000;
+            const localDate = new Date(dateObj.getTime() + offsetMilliseconds);
+            return localDate.toLocaleString(); // Return the localized date string
         },
     },
 };
