@@ -73,6 +73,7 @@ export default {
         async authStatus() {
             if (sessionStorage.getItem('token')) { 
                 this.isAuth = true;
+                this.getUserData();
             }
             else{
                 this.isAuth = false;
