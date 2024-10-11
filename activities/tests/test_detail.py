@@ -10,13 +10,13 @@ class DetailTest(django.test.TestCase):
 
     def test_past_activity(self):
         """Past activities should not be accessible."""
-        response, activity = create_activity(days_delta=-1)
+        _, activity = create_activity(days_delta=-1)
         response = self.client.get(urls.reverse("activities:detail", args=[activity.id]))
         self.assertEqual(response.status_code, 404)
 
     def test_future_activity(self):
         """Future/Upcoming activity should be accessible."""
-        response, activity = create_activity(days_delta=1)
+        _, activity = create_activity(days_delta=1)
         response = self.client.get(urls.reverse("activities:detail", args=[activity.id]))
         self.assertJSONEqual(response.content, activity_to_json(activity, True))
 
@@ -27,6 +27,6 @@ class DetailTest(django.test.TestCase):
             "detail": "",
             "max_people": 10
         }
-        response, activity = create_activity(data=data)
+        _, activity = create_activity(data=data)
         response = self.client.get(urls.reverse("activities:detail", args=[activity.id]))
         self.assertJSONEqual(response.content, activity_to_json(activity, True))

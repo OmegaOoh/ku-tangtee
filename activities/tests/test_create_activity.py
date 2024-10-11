@@ -110,7 +110,7 @@ class CreateActivityTest(django.test.TestCase):
             "detail": "This is invalid activity",
             "max_people": 10
         }
-        response, activity = create_activity(
+        response, _ = create_activity(
             client=self.client,
             host=self.host_user,
             data=data

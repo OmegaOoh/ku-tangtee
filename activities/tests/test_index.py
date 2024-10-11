@@ -35,7 +35,7 @@ class IndexTest(django.test.TestCase):
 
     def test_future_and_past_activity(self):
         """Only activities take place in the future is showed on index page."""
-        response, activity = create_activity(host=self.host_user)
+        _, activity = create_activity(host=self.host_user)
         create_activity(host=self.host_user, days_delta=-1)
         response = self.client.get(urls.reverse("activities:index"))
         expected = [
@@ -45,8 +45,8 @@ class IndexTest(django.test.TestCase):
 
     def test_two_future_activity(self):
         """Both of activity is showed on index page."""
-        response1, activity1 = create_activity(host=self.host_user)
-        response2, activity2 = create_activity(host=self.host_user)
+        _, activity1 = create_activity(host=self.host_user)
+        _, activity2 = create_activity(host=self.host_user)
         response = self.client.get(urls.reverse("activities:index"))
         expected = [
             activity_to_json(activity1),

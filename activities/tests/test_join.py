@@ -16,14 +16,14 @@ class JoinTest(django.test.TestCase):
 
     def test_join_with_get(self):
         """Join should return an error if user doesn't log in."""
-        response, new_act = create_activity()
+        _, new_act = create_activity()
 
         response = self.client.get(urls.reverse("activities:join", args=[new_act.id]))
         self.assertEqual(response.status_code, 405)
 
     def test_logout_join(self):
         """Join should respond with error if user are not authenticated."""
-        response, new_act = create_activity()
+        _, new_act = create_activity()
 
         self.client.logout()
         response = self.client.post(urls.reverse("activities:join", args=[new_act.id]))
@@ -31,7 +31,7 @@ class JoinTest(django.test.TestCase):
 
     def test_join(self):
         """Join will increase number of people in activity."""
-        response, new_act = create_activity()
+        _, new_act = create_activity()
 
         attender = create_test_user("Attend")
         self.client.force_login(attender)
@@ -63,7 +63,7 @@ class JoinTest(django.test.TestCase):
 
     def test_rejoin_joined_activity(self):
         """Cannot join activity that already joined."""
-        response, new_act = create_activity()
+        _, new_act = create_activity()
 
         attender = create_test_user("Attend")
         self.client.force_login(attender)
