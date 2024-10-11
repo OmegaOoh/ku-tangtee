@@ -1,4 +1,6 @@
 """Views for activities app, handle html request."""
+import json
+from typing import Dict, Any
 from datetime import datetime
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import get_object_or_404
@@ -7,10 +9,15 @@ from django import db
 from . import models, utils
 from django.views import generic
 from django.middleware.csrf import get_token
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.decorators import login_required
-from typing import Dict, Any
-import json
+from activities.decorator import login_required
+from django.views.decorators.http import require_POST
+from django.db.models import F, ExpressionWrapper, IntegerField
+from typing import Callable
+
+
+def get_number_of_people(activity_id: int) -> int:
+    """Return number of people in an activity."""
+    return int(models.Activity.objects.get(pk=activity_id).people)
 
 
 class IndexView(generic.ListView):
@@ -26,12 +33,17 @@ class IndexView(generic.ListView):
 
         Queryset is order by date that the activity took place.(earlier to later)
         """
-        return models.Activity.objects.filter(date__gte=timezone.now()).order_by("date")
+        query = models.Activity.objects.filter(date__gte=timezone.now()).order_by("date")
+
+        return query
 
     def render_to_response(self, context: Dict[str, Any], **response_kwargs: Any) -> JsonResponse:
         """Send out JSON response to Vue for Activity Index."""
         activities = list(self.get_queryset().values(
-            "id", "name", "detail", "date", "max_people", "people"))
+            "id", "name", "detail", "date", "max_people"
+        ))
+
+        activities = [act | {"people": get_number_of_people(act["id"])} for act in activities]
         return JsonResponse(activities, safe=False)
 
 
@@ -64,24 +76,31 @@ class ActivityDetailView(generic.DetailView):
         return JsonResponse(data)
 
 
+@require_POST
+@login_required
 def join(request: HttpRequest, activity_id: int) -> JsonResponse:
-    """Increase number of people when user join an activity."""
+    """Add record to attend table and return success message when action success."""
     activity = get_object_or_404(models.Activity, pk=activity_id)
+
+    if activity.attend_set.filter(user=request.user, activity=activity).exists():
+        return JsonResponse({"error": f"You've already joined {activity.name}"}, status=400)
+
     if activity.can_join():
-        activity.people = db.models.F('people') + 1
-        activity.save(update_fields=['people'])
+        attend = activity.attend_set.create(
+            user=request.user,
+        )
+        attend.save()
         return JsonResponse({"message": f"You successfully joined {activity.name}"})
     else:
         return JsonResponse({"error": f"{activity.name} is not joinable"}, status=400)
-    # return redirect(urls.reverse("activities:detail", args=[activity_id]))
+
     # Implement redirection in Vue methods
 
 
+@require_POST
+@login_required
 def create(request: HttpRequest) -> JsonResponse:
     """Handle request to create an activity."""
-    # Check request type
-    if request.method != "POST":
-        return JsonResponse({"error": "Forbidden access"}, status=403)
     # Get activity data from POST request
     data = json.loads(request.body.decode('utf-8'))
     print(data)
@@ -107,9 +126,14 @@ def create(request: HttpRequest) -> JsonResponse:
         if max_people:
             new_act.max_people = max_people
 
-        new_act.people = 1
-
         new_act.save()
+
+        attend = new_act.attend_set.create(
+            user=request.user,
+            is_host=True
+        )
+
+        attend.save()
 
         # Return successful message
         # TODO Log warning when logging already setup
@@ -124,7 +148,9 @@ def create(request: HttpRequest) -> JsonResponse:
 
         # If any error occur, return an error message.
         return JsonResponse(
-            {"error": f"Error occur : {e}"},
+            {
+                "error": f"Error occur : {e}"
+            },
             status=400
         )
 
@@ -141,7 +167,6 @@ def edit_activity(request: HttpRequest, activity_id: int) -> JsonResponse:
     detail = data.get("detail")
     date_string = data.get("date")
     max_people = data.get("max_people")
-    people = data.get("people")
 
     try:
 
@@ -154,11 +179,6 @@ def edit_activity(request: HttpRequest, activity_id: int) -> JsonResponse:
             # Get the timezone offset
             aware_date = timezone.make_aware(date)
             modified_activity.date = aware_date
-        # Verify number of people suppose to be less than or equal to max_people.
-        if people <= max_people:
-            modified_activity.people = people
-        else:
-            return JsonResponse({"error": "Number of people exceeds max capacity."}, status=400)
 
         modified_activity.name = name
         modified_activity.detail = detail

@@ -4,7 +4,7 @@ import django.test
 from datetime import datetime
 from django import urls
 from activities import models
-from .shortcuts import post_request_json_data, activity_to_json, time_formatter
+from .shortcuts import post_request_json_data, activity_to_json, time_formatter, create_activity
 from django.utils import timezone
 
 
@@ -13,11 +13,12 @@ class EditActivityTest(django.test.TestCase):
 
     def setUp(self):
         """Set up the common URL and create an activity."""
-        self.activity = models.Activity.objects.create(
-            name="Test Activity",
-            detail="This is a test activity",
-            people=1
-        )
+        data = {
+            "name": "Test Activity",
+            "detail": "This is a test activity"
+        }
+        _, self.activity = create_activity(data=data)
+
         # Set the URL to the edit endpoint of the created activity
         self.url = urls.reverse("activities:edit_activity", args=[self.activity.id])
 
@@ -34,7 +35,6 @@ class EditActivityTest(django.test.TestCase):
             "name": "Updated Activity",
             "detail": "This is an updated activity",
             "max_people": 50,
-            "people": 5
         }
         # Send POST request with new activity data
         response = post_request_json_data(self.url, self.client, data)
@@ -45,7 +45,6 @@ class EditActivityTest(django.test.TestCase):
         self.assertEqual(updated_act_json['name'], data['name'])
         self.assertEqual(updated_act_json['detail'], data['detail'])
         self.assertEqual(updated_act_json['max_people'], data['max_people'])
-        self.assertEqual(updated_act_json['people'], data['people'])
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_dict["message"], f"Your have successfully edit activity {data.get('name')}")
 
@@ -69,18 +68,6 @@ class EditActivityTest(django.test.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_dict["message"], f"Your have successfully edit activity {data.get('name')}")
 
-    def test_invalid_number_of_people(self):
-        """Test case when number of participants exceed the capacity."""
-        data = {
-            "name": "Invalid Activity",
-            "detail": "This is an invalid activity",
-            "max_people": 50,
-            "people": 500
-        }
-        # Send POST request with new activity data
-        response = post_request_json_data(self.url, self.client, data)
-        self.assertEqual(response.status_code, 400)
-
     def test_invalid_activity_editing_with_too_long_activity_name(self):
         """Editing should return json with error message."""
         data = {
@@ -88,7 +75,6 @@ class EditActivityTest(django.test.TestCase):
             "detail": "This is invalid activity",
             "date": "2024/10-10T10:20:00.00Z",
             "max_people": 10,
-            "people": 1,
         }
         response = post_request_json_data(self.url, self.client, data)
         self.assertEqual(response.status_code, 400)

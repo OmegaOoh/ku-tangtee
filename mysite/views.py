@@ -4,7 +4,6 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
 
-@login_required
 def is_authen(request: HttpRequest) -> JsonResponse:
     """Return Json which inform that user is login right now."""
     print(request.user.is_authenticated)
