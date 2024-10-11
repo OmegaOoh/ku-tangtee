@@ -152,9 +152,7 @@ def edit_activity(request: HttpRequest, activity_id: int) -> JsonResponse:
         if date_string:
             date = datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S.%fZ")
             # Get the timezone offset
-            offset_hours = utils.get_time_zone_offset()
-            date_with_offset = date + timezone.timedelta(hours=offset_hours)
-            aware_date = timezone.make_aware(date_with_offset)
+            aware_date = timezone.make_aware(date)
             modified_activity.date = aware_date
         # Verify number of people suppose to be less than or equal to max_people.
         if people <= max_people:
