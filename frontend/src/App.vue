@@ -35,13 +35,13 @@
                         </div>
                         <div
                             v-if="isDropdown"
-                            class="absolute right-0 w-48 bg-warning rounded-full shadow-lg z-10"
+                            class="absolute right-0 w-48 bg-base-200 rounded-full shadow-lg z-10 justify-center"
                             @mouseenter="keepDropdownOpen"
                             @mouseleave="checkHideDropdown"
                         >
                             <ul>
                                 <li
-                                    class="block px-4 py-2 text-sm hover:bg-error cursor-pointer rounded-full"
+                                    class="block px-4 py-2 text-center hover:bg-base-300 cursor-pointer rounded-full"
                                     @click="logout"
                                 >
                                     Logout
