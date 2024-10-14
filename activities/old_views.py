@@ -13,38 +13,36 @@ from activities.decorator import login_required
 from django.views.decorators.http import require_POST
 from django.db.models import F, ExpressionWrapper, IntegerField
 from typing import Callable
+from rest_framework import mixins
+from rest_framework import generics
+from . import serializers
 
 
-def get_number_of_people(activity_id: int) -> int:
-    """Return number of people in an activity."""
-    return int(models.Activity.objects.get(pk=activity_id).people)
+# class IndexView(generic.ListView):
+#     """View class to show all upcoming activities."""
 
+#     model = models.Activity
+#     template_name = "activities/index.html"
+#     context_object_name = "activities"
 
-class IndexView(generic.ListView):
-    """View class to show all upcoming activities."""
+#     def get_queryset(self) -> db.models.QuerySet:
+#         """
+#         Return Queryset of activities that is not took place yet.
 
-    model = models.Activity
-    template_name = "activities/index.html"
-    context_object_name = "activities"
+#         Queryset is order by date that the activity took place.(earlier to later)
+#         """
+#         query = models.Activity.objects.filter(date__gte=timezone.now()).order_by("date")
 
-    def get_queryset(self) -> db.models.QuerySet:
-        """
-        Return Queryset of activities that is not took place yet.
+#         return query
 
-        Queryset is order by date that the activity took place.(earlier to later)
-        """
-        query = models.Activity.objects.filter(date__gte=timezone.now()).order_by("date")
+#     def render_to_response(self, context: Dict[str, Any], **response_kwargs: Any) -> JsonResponse:
+#         """Send out JSON response to Vue for Activity Index."""
+#         activities = list(self.get_queryset().values(
+#             "id", "name", "detail", "date", "max_people"
+#         ))
 
-        return query
-
-    def render_to_response(self, context: Dict[str, Any], **response_kwargs: Any) -> JsonResponse:
-        """Send out JSON response to Vue for Activity Index."""
-        activities = list(self.get_queryset().values(
-            "id", "name", "detail", "date", "max_people"
-        ))
-
-        activities = [act | {"people": get_number_of_people(act["id"])} for act in activities]
-        return JsonResponse(activities, safe=False)
+#         activities = [act | {"people": get_number_of_people(act["id"])} for act in activities]
+#         return JsonResponse(activities, safe=False)
 
 
 class ActivityDetailView(generic.DetailView):
@@ -97,62 +95,62 @@ def join(request: HttpRequest, activity_id: int) -> JsonResponse:
     # Implement redirection in Vue methods
 
 
-@require_POST
-@login_required
-def create(request: HttpRequest) -> JsonResponse:
-    """Handle request to create an activity."""
-    # Get activity data from POST request
-    data = json.loads(request.body.decode('utf-8'))
-    print(data)
-    name = data.get("name")
-    detail = data.get("detail")
-    date_string = data.get("date")
-    max_people = data.get("max_people")
+# @require_POST
+# @login_required
+# def create(request: HttpRequest) -> JsonResponse:
+#     """Handle request to create an activity."""
+#     # Get activity data from POST request
+#     data = json.loads(request.body.decode('utf-8'))
+#     print(data)
+#     name = data.get("name")
+#     detail = data.get("detail")
+#     date_string = data.get("date")
+#     max_people = data.get("max_people")
 
-    try:
+#     try:
 
-        # Create new activities with provide name and detail
-        new_act = models.Activity.objects.create(
-            name=name,
-            detail=detail,
-        )
+#         # Create new activities with provide name and detail
+#         new_act = models.Activity.objects.create(
+#             name=name,
+#             detail=detail,
+#         )
 
-        # If user has set the date use, set activity date.
-        if date_string:
-            date = timezone.make_aware(datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S.%fZ"))
-            new_act.date = date
+#         # If user has set the date use, set activity date.
+#         if date_string:
+#             date = timezone.make_aware(datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S.%fZ"))
+#             new_act.date = date
 
-        # If user has set the max people, set activity max_people.
-        if max_people:
-            new_act.max_people = max_people
+#         # If user has set the max people, set activity max_people.
+#         if max_people:
+#             new_act.max_people = max_people
 
-        new_act.save()
+#         new_act.save()
 
-        attend = new_act.attend_set.create(
-            user=request.user,
-            is_host=True
-        )
+#         attend = new_act.attend_set.create(
+#             user=request.user,
+#             is_host=True
+#         )
 
-        attend.save()
+#         attend.save()
 
-        # Return successful message
-        # TODO Log warning when logging already setup
-        return JsonResponse(
-            {
-                "message": f"Your have successfully create activity {new_act.name}",
-                "id": new_act.id
-            }
-        )
+#         # Return successful message
+#         # TODO Log warning when logging already setup
+#         return JsonResponse(
+#             {
+#                 "message": f"Your have successfully create activity {new_act.name}",
+#                 "id": new_act.id
+#             }
+#         )
 
-    except (db.utils.DataError, db.utils.IntegrityError, ValueError, TypeError) as e:
+#     except (db.utils.DataError, db.utils.IntegrityError, ValueError, TypeError) as e:
 
-        # If any error occur, return an error message.
-        return JsonResponse(
-            {
-                "error": f"Error occur : {e}"
-            },
-            status=400
-        )
+#         # If any error occur, return an error message.
+#         return JsonResponse(
+#             {
+#                 "error": f"Error occur : {e}"
+#             },
+#             status=400
+#         )
 
 
 def edit_activity(request: HttpRequest, activity_id: int) -> JsonResponse:
