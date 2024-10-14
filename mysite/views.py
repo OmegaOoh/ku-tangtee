@@ -9,6 +9,7 @@ def is_authen(request: HttpRequest) -> JsonResponse:  # pragma: no cover
     print(request.user.is_authenticated)
     return JsonResponse({"is_authen": request.user.is_authenticated})
 
+
 def profile_picture_view(request: HttpRequest) -> JsonResponse:  # pragma: no cover
     """Return profile picture url from Google account."""
     user = request.user
