@@ -10,6 +10,7 @@ from django.utils import timezone
 from activities import models
 from django.contrib.auth.models import User
 from django import urls
+from activities.serializers import ActivitiesSerializer
 
 
 def create_test_user(username: str = "test_user") -> User:
@@ -50,18 +51,21 @@ def create_activity(
 
 def activity_to_json(activity: models.Activity, use_can_join: bool = False):
     """Return dict that replicates json that's contain activity data."""
-    formatted_date = activity.date.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
-    output = {
-        "id": activity.id,
-        "name": activity.name,
-        "detail": activity.detail,
-        "date": formatted_date,
-        "max_people": activity.max_people,
-        "people": activity.people
-    }
-    if use_can_join:
-        output['can_join'] = activity.can_join()
-    return output
+    # formatted_date = activity.date.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+    # output = {
+    #     "id": activity.id,
+    #     "name": activity.name,
+    #     "detail": activity.detail,
+    #     "date": formatted_date,
+    #     "max_people": activity.max_people,
+    #     "people": activity.people
+    # }
+    # if use_can_join:
+    #     output['can_join'] = activity.can_join()
+    # return output
+    
+    serial = ActivitiesSerializer(activity)
+    return serial.data
 
 
 def time_formatter(date_string: str) -> str:
