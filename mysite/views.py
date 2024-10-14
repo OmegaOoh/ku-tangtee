@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from allauth.socialaccount.models import SocialAccount
 
+
 def is_authen(request: HttpRequest) -> JsonResponse:  # pragma: no cover
     """Return Json which inform that user is login right now."""
     print(request.user.is_authenticated)
