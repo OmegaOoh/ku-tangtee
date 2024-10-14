@@ -9,7 +9,7 @@ from django import db
 from . import models, utils
 from django.views import generic
 from django.middleware.csrf import get_token
-from activities.decorator import login_required
+from activities.decorator import login_required, host_restricted
 from django.views.decorators.http import require_POST
 from django.db.models import F, ExpressionWrapper, IntegerField
 from typing import Callable
@@ -155,6 +155,7 @@ def create(request: HttpRequest) -> JsonResponse:
         )
 
 
+@host_restricted
 def edit_activity(request: HttpRequest, activity_id: int) -> JsonResponse:
     """Handle request to edit an activity."""
     # Check request type
