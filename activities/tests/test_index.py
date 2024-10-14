@@ -2,6 +2,7 @@
 import django.test
 from django import urls
 from .shortcuts import create_activity, activity_to_json, create_test_user
+import json
 
 
 class IndexTest(django.test.TestCase):
@@ -41,6 +42,7 @@ class IndexTest(django.test.TestCase):
         expected = [
             activity_to_json(activity)
         ]
+        print(activity.date)
         self.assertJSONEqual(response.content, expected)
 
     def test_two_future_activity(self):
@@ -52,4 +54,5 @@ class IndexTest(django.test.TestCase):
             activity_to_json(activity1),
             activity_to_json(activity2)
         ]
+        print
         self.assertJSONEqual(response.content, expected)

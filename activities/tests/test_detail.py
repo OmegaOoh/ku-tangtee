@@ -24,7 +24,7 @@ class DetailTest(django.test.TestCase):
         """Maximum number of participant should be shown in detail page if it has been set."""
         data = {
             "name": "test_activity",
-            "detail": "",
+            "detail": "hello",
             "max_people": 10
         }
         _, activity = create_activity(data=data)

@@ -10,7 +10,7 @@ class TestActivityModel(django.test.TestCase):
         """can_join() return False as Number of people is equal to max_people."""
         data = {
             "name": "Exceed",
-            "detail": "",
+            "detail": "hello",
             "max_people": 1
         }
         _, activity = create_activity(data=data)
@@ -20,7 +20,7 @@ class TestActivityModel(django.test.TestCase):
         """can_join() return True as Number of people is less than max_people."""
         data = {
             "name": "Less",
-            "detail": "",
+            "detail": "hello",
             "max_people": 10
         }
         _, activity = create_activity(data=data)

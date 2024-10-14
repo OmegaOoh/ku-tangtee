@@ -6,16 +6,10 @@ from django.http import HttpRequest, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django import db
-from . import models, utils
 from django.views import generic
-from django.middleware.csrf import get_token
 from activities.decorator import login_required
 from django.views.decorators.http import require_POST
-from django.db.models import F, ExpressionWrapper, IntegerField
-from typing import Callable
-from rest_framework import mixins
-from rest_framework import generics
-from . import serializers
+from . import models
 
 
 # class IndexView(generic.ListView):
@@ -202,13 +196,13 @@ def edit_activity(request: HttpRequest, activity_id: int) -> JsonResponse:
         )
 
 
-def csrf_token_view(request: HttpRequest) -> JsonResponse:  # pragma: no cover
-    """Return csrf token."""
-    csrf_token = get_token(request)
-    return JsonResponse({'csrfToken': csrf_token})
+# def csrf_token_view(request: HttpRequest) -> JsonResponse:  # pragma: no cover
+#     """Return csrf token."""
+#     csrf_token = get_token(request)
+#     return JsonResponse({'csrfToken': csrf_token})
 
 
-def get_timezone(request: HttpRequest) -> JsonResponse:  # pragma: no cover
-    """Return time zone offset to vue."""
-    tzo = utils.get_time_zone_offset()
-    return JsonResponse({'offset': tzo})
+# def get_timezone(request: HttpRequest) -> JsonResponse:  # pragma: no cover
+#     """Return time zone offset to vue."""
+#     tzo = utils.get_time_zone_offset()
+#     return JsonResponse({'offset': tzo})

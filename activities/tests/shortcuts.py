@@ -23,7 +23,7 @@ def create_test_user(username: str = "test_user") -> User:
 def create_activity(
     host: User = None,
     client: django.test.Client = django.test.Client(),
-    data: dict = {"name": "test_activity", "detail": ""},
+    data: dict = {"name": "test_activity", "detail": "hello"},
     days_delta: int = 1
 ):
     """Return response and created activity with given parameters."""
@@ -34,14 +34,16 @@ def create_activity(
         "date": (timezone.now() + timezone.timedelta(days=days_delta)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
     }
     client.force_login(host)
-    url = urls.reverse("activities:create")
+    url = urls.reverse("activities:index")
     res = post_request_json_data(url, client, data_with_date)
-
+    
     response_dict = json.loads(res.content)
-    try:
-        act = models.Activity.objects.get(pk=int(response_dict["id"]))
-    except KeyError:
-        act = None
+    
+    act = models.Activity.objects.get(pk=int(response_dict["id"]))
+    # try:
+    #     act = models.Activity.objects.get(pk=int(response_dict["id"]))
+    # except KeyError:
+    #     act = None
 
     return res, act
 
@@ -77,7 +79,7 @@ def post_request_json_data(path: str, client: django.test.Client, data: dict) ->
     sys.stdout = io.StringIO()
     json_data = json.dumps(data)
     response = client.post(path, data=json_data, content_type='application/json')
-
+    
     # Restore original std out
     sys.stdout = stdout
 
