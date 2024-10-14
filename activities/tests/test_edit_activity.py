@@ -4,7 +4,7 @@ import django.test
 from datetime import datetime
 from django import urls
 from activities import models
-from .shortcuts import post_request_json_data, activity_to_json, time_formatter, create_activity
+from .shortcuts import post_request_json_data, activity_to_json, time_formatter, create_activity, create_test_user
 from django.utils import timezone
 
 
@@ -17,7 +17,9 @@ class EditActivityTest(django.test.TestCase):
             "name": "Test Activity",
             "detail": "This is a test activity"
         }
-        _, self.activity = create_activity(data=data)
+        self.host = create_test_user("host")
+        _, self.activity = create_activity(host=self.host, data=data)
+        self.client.force_login(self.host)
 
         # Set the URL to the edit endpoint of the created activity
         self.url = urls.reverse("activities:edit_activity", args=[self.activity.id])
@@ -78,3 +80,12 @@ class EditActivityTest(django.test.TestCase):
         }
         response = post_request_json_data(self.url, self.client, data)
         self.assertEqual(response.status_code, 400)
+
+    def test_non_host_edit_activity(self):
+        """Edit should return error message when the editor isn't host."""
+        hacker = create_test_user("not_host")
+        self.client.force_login(hacker)
+
+        response = post_request_json_data(self.url, self.client, {})
+        self.assertEqual(response.status_code, 401)
+        self.assertJSONEqual(response.content, {"error": "User must be the host to perform this action"})
