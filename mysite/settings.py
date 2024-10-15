@@ -26,6 +26,7 @@ REST_USE_JWT = True
 
 INSTALLED_APPS = [
     'activities.apps.ActivitiesConfig',
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'channels',
 ]
 
 # Google oauth setup
@@ -190,4 +192,12 @@ REST_AUTH = {
     'USE_JWT': True,
     'JWT_AUTH_COOKIE': 'jwt-auth',
     'JWT_AUTH_REFRESH_COOKIE': 'jwt_reauth'
+}
+
+# Django Channels
+ASGI_APPLICATION = 'mysite.asgi.application'
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"  # TODO Change this to redis before production
+    }
 }
