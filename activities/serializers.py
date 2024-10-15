@@ -2,32 +2,7 @@
 
 from rest_framework import serializers
 from . import models
-from mysite import settings
-import pytz
-from django.utils import timezone
 
-
-# class DateTimeFieldWithTZ(serializers.DateTimeField):
-#     """Custom DateTimeField to make output timezone aware."""
-    
-#     def to_representation(self, value):
-#         # Convert the value to local time before representation
-#         if value:
-#             # Assuming you want to convert to a specific timezone, e.g., 'America/New_York'
-#             local_tz = pytz.timezone(settings.TIME_ZONE)
-#             value = timezone.localtime(value, local_tz)
-#         return super().to_representation(value)
-
-
-# class HostFields(serializers.SlugRelatedField):
-    
-#     def __init__(self, slug_field=None, **kwargs):
-#         super().__init__(slug_field, **kwargs)
-    
-#     def get_queryset(self):
-#         q = models.Attend.objects.filter(is_host=True)
-#         print(q)
-#         return q
 
 class ActivitiesSerializer(serializers.ModelSerializer):
     """Serialized activity."""
