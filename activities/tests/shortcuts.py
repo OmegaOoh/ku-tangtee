@@ -38,10 +38,9 @@ def create_activity(
     url = urls.reverse("activities:index")
     res = post_request_json_data(url, client, data_with_date)
     
-    # act = models.Activity.objects.get(pk=int(response_dict["id"]))
     try:
         response_dict = json.loads(res.content)
-        print(response_dict)
+        # print(response_dict)
         act = models.Activity.objects.get(pk=int(response_dict["id"]))
     except KeyError:
         act = None
