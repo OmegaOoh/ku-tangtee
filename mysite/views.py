@@ -15,4 +15,3 @@ def profile_picture_view(request: HttpRequest) -> response.Response:  # pragma: 
         return response.Response({"profile_picture_url": profile_picture_url})
     except SocialAccount.DoesNotExist:
         return response.Response({"error": "Google account not found for user"}, status=404)
-    
