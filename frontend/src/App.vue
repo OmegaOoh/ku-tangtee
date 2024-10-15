@@ -238,11 +238,9 @@ export default {
              * this function return nothing.
              */
             const response = await apiClient.get(`rest-auth/user/`);
-            console.log(response);
             this.fName = response.data.first_name;
             this.lName = response.data.last_name;
             const profilePic = await apiClient.get(`profile-pic/`);
-            console.log(profilePic);
             this.pfp = profilePic.data.profile_picture_url;
         },
     },
