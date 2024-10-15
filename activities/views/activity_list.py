@@ -1,5 +1,4 @@
 
-import json
 from django.utils import timezone
 from rest_framework import generics, permissions, mixins, response
 from activities import models
