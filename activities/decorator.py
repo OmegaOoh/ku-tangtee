@@ -26,10 +26,10 @@ def login_required(func: Callable[..., None]) -> Callable[..., None]:
 def host_restricted(func: Callable[..., None]) -> Callable[..., None]:
     """Return a wrapper function that make function return error Json when user isn't host."""
 
-    def wrapper(request: HttpRequest, activity_id: int, *args: tuple[Any], **kwargs: Optional[str]) -> JsonResponse:
+    def wrapper(request: HttpRequest, activity_id: int, *args: tuple[Any], **kwargs: Optional[str]) -> JsonResponse | None:
         """If user is host, just invoke request handler func."""
         activity = get_object_or_404(models.Activity, pk=activity_id)
-        if request.user == activity.host():
+        if request.user.is_authenticated and request.user == activity.host():
             return func(request, activity_id, *args, **kwargs)
         return JsonResponse(
             {
