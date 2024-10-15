@@ -44,6 +44,8 @@ INSTALLED_APPS = [
 ]
 
 # Google oauth setup
+OAUTH_PROVIDER = config('OAUTH_PROVIDER', default='google', cast=str)
+
 SOCIALACCOUNT_PROVIDERS = {
     "google":{
         "SCOPE": [
