@@ -81,16 +81,52 @@
 
     ![Add site to social app](./google_oauth_guide_pic/Add%20site%20to%20social%20app.png)
 
-7. In your .env file, there is a row `OAUTH_PROVIDER`. Edit it to match with your provider name in the previous step.
+7. Get site_id from database
 
-8. In your .env file, there is a row `SITE`. Edit it to match with your SITE_ID.
+    - Access mysql shell
 
-```
-use myDB; // If your database name is myDB
-select * from django_site;
-```
+        - MacOS
 
-Look up for the ID of your 127.0.0.1:8000 and put into `SITE`.
+            run ```mysql -u root -p```
+
+            Then enter you root password.
+
+        - Window 
+
+            Run MySQL Command Line Client application
+
+    - Use database that you use for running the app
+    
+        ``` sql
+        USE myDB; -- If your database name is myDB
+        ```
+        ``` sql
+        SELECT * FROM django_site;
+        ```
+
+    - It's will show table with couple record. Look for 127.0.0.1:8000.
+
+        For an example
+
+        ```
+        mysql> SELECT * FROM django_site;
+        +----+-----------------------+-----------------------+
+        | id | domain                | name                  |
+        +----+-----------------------+-----------------------+
+        |  3 | example.com           | example.com           |
+        |  4 | http://127.0.0.1:8000 | http://127.0.0.1:8000 |
+        +----+-----------------------+-----------------------+
+        2 rows in set (0.00 sec)
+        ```
+
+        In this case SITE_ID is 4
+
+
+8. In your .env file, there is a row `SITE_ID`. Edit it to match with your SITE_ID.
+
+    ```
+    SITE_ID = 4 // According to previous step SITE_ID is 4
+    ```
 
 ## Test Google login
 
