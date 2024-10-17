@@ -13,24 +13,28 @@ class Activity(models.Model):
     date = models.DateTimeField(default=timezone.now)
     max_people = models.IntegerField(null=True, blank=True)
 
-    def __str__(self) -> models.CharField:
+    def __str__(self) -> str:
         """Return Activity Name as string representative."""
         return self.name
 
-    def can_join(self) -> Any:
-        """Return True if max_people doesn't reached and date doesn't past, Otherwise false."""
+    def can_join(self) -> bool:
+        """Return True if max_people doesn't reach and date doesn't past, Otherwise false."""
         if self.max_people:
             return self.date >= timezone.now() and self.people < self.max_people
         else:
             return self.date >= timezone.now()
 
-    def is_upcoming(self) -> Any:
+    def is_upcoming(self) -> bool:
         """Return True if activities took place on incoming weeks, Otherwise false."""
         return timezone.now() + timezone.timedelta(weeks=1) >= self.date and self.can_join()
 
     def host(self) -> User:
-        """Return user that is host of that activity."""
+        """Return user that is host of the activity."""
         return self.attend_set.filter(is_host=True).first().user
+
+    def participants(self) -> list[User]:
+        """Return participants user list of the activity."""
+        return [a.user for a in self.attend_set.filter(is_host=False)]
 
     @property
     def people(self) -> int:

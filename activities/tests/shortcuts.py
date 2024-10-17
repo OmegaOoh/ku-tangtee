@@ -82,3 +82,10 @@ def post_request_json_data(path: str, client: django.test.Client, data: dict) ->
     sys.stdout = stdout
 
     return response
+
+
+def client_join_activity(client: django.test.Client, user: User, activity: models.Activity) -> None:
+    """Client join specific activity with provided user."""
+    client.force_login(user)
+    client.post(urls.reverse("activities:join", args=[activity.id]))
+    activity.refresh_from_db()

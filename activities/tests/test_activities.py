@@ -1,6 +1,8 @@
 """Test for activity model of activities app."""
 import django.test
-from .shortcuts import create_activity, create_test_user
+from django.db.models import QuerySet
+
+from .shortcuts import create_activity, create_test_user, client_join_activity
 
 
 class TestActivityModel(django.test.TestCase):
@@ -51,3 +53,17 @@ class TestActivityModel(django.test.TestCase):
         host = create_test_user("My lovely host")
         _, activity = create_activity(host=host)
         self.assertEqual(activity.host(), host)
+
+    def test_participants(self):
+        """Return participants list of the activity."""
+        host = create_test_user("activity_host")
+        _, activity = create_activity(host=host)
+
+        user1 = create_test_user("Alexa")
+        user2 = create_test_user("Bruce")
+        user3 = create_test_user("Clark")
+        for user in (user1, user2, user3):
+            client_join_activity(self.client, user, activity)
+
+        participants = activity.participants()
+        self.assertEqual(participants, [user1, user2, user3])
