@@ -56,8 +56,8 @@ export default {
     },
     mounted() {
         this.fetchTimeZoneOffset();
-        this.fetchActivities();
-        setInterval(this.fetchActivities, 5000); // Check for activities update every 5000 ms
+        this.fetchActivities(); 
+        setInterval(this.fetchActivities, 45000); // fetch check for activities update every 45 secs
         this.isDarkTheme = window.matchMedia(
             "(prefers-color-scheme: dark)"
         ).matches;
