@@ -7,7 +7,7 @@ app_name = "activities"
 urlpatterns = [
     path("", views.ActivityList.as_view(), name="index"),
     path("<int:activity_id>/join", old_views.join, name="join"),
-    path("<int:pk>", old_views.ActivityDetailView.as_view(), name="detail"),
+    path("<int:pk>", views.ActivityDetail.as_view(), name="detail"),
     # path("create", views.create, name="create"),
     path("<int:activity_id>/edit", old_views.edit_activity, name="edit_activity"),
     

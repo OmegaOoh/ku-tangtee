@@ -21,13 +21,13 @@ class DetailTest(django.test.TestCase):
         
         self.assertJSONEqual(response.content, activity_to_json(activity))
 
-    # def test_with_max(self):
-    #     """Maximum number of participant should be shown in detail page if it has been set."""
-    #     data = {
-    #         "name": "test_activity",
-    #         "detail": "hello",
-    #         "max_people": 10
-    #     }
-    #     _, activity = create_activity(data=data)
-    #     response = self.client.get(urls.reverse("activities:detail", args=[activity.id]))
-    #     self.assertJSONEqual(response.content, ActivitiesSerializer(activity).data)
+    def test_with_max(self):
+        """Maximum number of participant should be shown in detail page if it has been set."""
+        data = {
+            "name": "test_activity",
+            "detail": "hello",
+            "max_people": 10
+        }
+        _, activity = create_activity(data=data)
+        response = self.client.get(urls.reverse("activities:detail", args=[activity.id]))
+        self.assertJSONEqual(response.content, ActivitiesSerializer(activity).data)
