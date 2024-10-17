@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'channels',
 ]
 
-# Google oauth setup
 SOCIALACCOUNT_PROVIDERS = {
     "google":{
         "SCOPE": [
