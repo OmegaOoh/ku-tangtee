@@ -1,7 +1,6 @@
 """Views for activities app, handle html request."""
 from django.http import HttpRequest
 from allauth.socialaccount.models import SocialAccount
-from .settings import OAUTH_PROVIDER
 from rest_framework import decorators, response
 
 
