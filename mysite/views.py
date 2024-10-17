@@ -10,7 +10,7 @@ def profile_picture_view(request: HttpRequest) -> response.Response:  # pragma: 
     """Return profile picture url from Google account."""
     user = request.user
     try:
-        social_account = SocialAccount.objects.get(user=user)
+        social_account = SocialAccount.objects.get(user=user, provider=OAUTH_PROVIDER)
         profile_picture_url = social_account.extra_data.get('picture', '')
         return response.Response({"profile_picture_url": profile_picture_url})
     except SocialAccount.DoesNotExist:
