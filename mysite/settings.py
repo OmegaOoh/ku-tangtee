@@ -20,7 +20,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=str, default="").replace(' ', '').s
 
 # Application definition
 
-SITE_ID = config('SITE',cast = int , default = 1)
+SITE_ID = config('SITE_ID',cast = int , default = 1)
 
 REST_USE_JWT = True
 
