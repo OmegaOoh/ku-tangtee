@@ -1,4 +1,5 @@
 """Database Model for activities app."""
+from typing import Any
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -12,18 +13,18 @@ class Activity(models.Model):
     date = models.DateTimeField(default=timezone.now)
     max_people = models.IntegerField(null=True, blank=True)
 
-    def __str__(self) -> str:
+    def __str__(self) -> Any:
         """Return Activity Name as string representative."""
         return self.name
 
-    def can_join(self) -> bool:
+    def can_join(self) -> Any:
         """Return True if max_people doesn't reach and date doesn't past, Otherwise false."""
         if self.max_people:
             return self.date >= timezone.now() and self.people < self.max_people
         else:
             return self.date >= timezone.now()
 
-    def is_upcoming(self) -> bool:
+    def is_upcoming(self) -> Any:
         """Return True if activities took place on incoming weeks, Otherwise false."""
         return timezone.now() + timezone.timedelta(weeks=1) >= self.date and self.can_join()
 

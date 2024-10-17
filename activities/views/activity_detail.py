@@ -10,6 +10,9 @@ TODO
     Class base API view https://www.django-rest-framework.org/tutorial/3-class-based-views/
     Permission class https://www.django-rest-framework.org/tutorial/4-authentication-and-permissions/
 """
+from typing import Any
+
+from django.http import HttpRequest
 from django.utils import timezone
 from rest_framework import generics, permissions, mixins, response, status
 from activities import models
@@ -32,10 +35,10 @@ class ActivityDetail(mixins.RetrieveModelMixin,
     serializer_class = serializers.ActivitiesSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsHostOrReadOnly]
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         return self.retrieve(request, *args, **kwargs)
 
-    def put(self, request, *args, **kwargs):
+    def put(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Edit an activity"""
         res = self.update(request, *args, **kwargs)
 
