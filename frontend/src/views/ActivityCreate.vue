@@ -98,7 +98,7 @@ export default {
                     max_people: this.maxPeople || null,
                 };
                 const response = await apiClient.post(
-                    `/activities/create`,
+                    `/activities/`,
                     data,
                     {
                         // HTTP headers

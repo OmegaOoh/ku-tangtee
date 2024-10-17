@@ -4,7 +4,7 @@ import django.test
 from datetime import datetime
 from django import urls
 from activities import models
-from .shortcuts import post_request_json_data, activity_to_json, time_formatter, create_activity
+from .shortcuts import post_request_json_data, activity_to_json, time_formatter, create_activity, create_test_user
 from django.utils import timezone
 
 
@@ -77,4 +77,12 @@ class EditActivityTest(django.test.TestCase):
             "max_people": 10,
         }
         response = post_request_json_data(self.url, self.client, data)
+        self.assertEqual(response.status_code, 400)
+
+    def test_non_host_edit_activity(self):
+        """Edit should return error message when the editor isn't host."""
+        hacker = create_test_user("not_host")
+        self.client.force_login(hacker)
+
+        response = post_request_json_data(self.url, self.client, {})
         self.assertEqual(response.status_code, 400)
