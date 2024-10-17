@@ -1,3 +1,4 @@
+"""Routing path for websocket."""
 from django.urls import path, include
 from chat.consumers import ChatConsumer
 

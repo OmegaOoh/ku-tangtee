@@ -1,7 +1,9 @@
+"""Module contains websocket consumers implementation."""
 import json
+from typing import Any, Dict
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels import exceptions
-from asgiref.sync import sync_to_async  # Correct import for sync_to_async
+from asgiref import sync
 from activities import models as act_models
 from . import models as chat_models
 
@@ -9,7 +11,7 @@ from . import models as chat_models
 class ChatConsumer(AsyncWebsocketConsumer):
     """Consumer app for Chat application."""
 
-    async def connect(self):
+    async def connect(self) -> None:
         """Connect user to websocket, verify user auth and activity_id."""
         activity_id = self.scope['url_route']['kwargs']['activity_id']
         self.room_group_name = f"activity{activity_id}"
@@ -17,7 +19,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         # Check the activity
         try:
-            self.activity = await sync_to_async(act_models.Activity.objects.get)(pk=activity_id)
+            self.activity = await sync.sync_to_async(act_models.Activity.objects.get)(pk=activity_id)
         except act_models.Activity.DoesNotExist:
             print("no activity")
             raise exceptions.DenyConnection("There is no activity with this id")
@@ -27,7 +29,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             print("not authenticate")
             raise exceptions.DenyConnection("Please Login before moving on.")
         try:
-            await sync_to_async(self.activity.attend_set.get)(user=self.user)
+            await sync.sync_to_async(self.activity.attend_set.get)(user=self.user)
         except act_models.Attend.DoesNotExist:
             print("not attend")
             raise exceptions.DenyConnection("You does not attend to this activity.")
@@ -35,15 +37,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
 
-    async def disconnect(self, close_code):
-        """Disconnect user from websocket"""
+    async def disconnect(self, close_code: int) -> None:
+        """Disconnect user from websocket."""
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name,
         )
 
-    async def receive(self, text_data):
-        """Handle message receive on server side"""
+    async def receive(self, text_data: bytes) -> None:
+        """Handle message receive on server side."""
         text_data_json = json.loads(text_data)
         message = text_data_json["message"]
 
@@ -56,12 +58,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
         # Verify user and activity
         if self.user != self.scope['user'] or self.activity.id != self.scope['url_route']['kwargs']['activity_id']:
-            raise self.disconnect(4000)  # User does not the same.
+            await self.disconnect(4000)  # User does not the same.
+            return
         new_message = chat_models.Message(message=message, sender=self.user, activity=self.activity)
-        await sync_to_async(new_message.save)()
+        await sync.sync_to_async(new_message.save)()
 
-    async def sendMessage(self, event):
-        """Sent message to websocket"""
+    async def sendMessage(self, event: Dict[str, Any]) -> None:
+        """Sent message to websocket."""
         await self.send(text_data=json.dumps({
             "message": event["message"],
         }))
