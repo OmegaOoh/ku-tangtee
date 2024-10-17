@@ -46,7 +46,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         """Handle message receive on server side"""
         text_data_json = json.loads(text_data)
         message = text_data_json["message"]
-        username = text_data_json["username"]
 
         # Send message to the group
         await self.channel_layer.group_send(
@@ -57,13 +56,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
         # Verify user and activity
         if self.user != self.scope['user'] or self.activity.id != self.scope['url_route']['kwargs']['activity_id']:
-            raise exceptions.DenyConnection("Something wrong, Please try again")
-        new_message = chat_models.Message(message=message, sender=username, activity=self.activity)
+            raise self.disconnect(4000)  # User does not the same.
+        new_message = chat_models.Message(message=message, sender=self.user, activity=self.activity)
         await sync_to_async(new_message.save)()
 
     async def sendMessage(self, event):
         """Sent message to websocket"""
         await self.send(text_data=json.dumps({
             "message": event["message"],
-            "username": self.user.username,
         }))

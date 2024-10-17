@@ -7,7 +7,7 @@ class Message(models.Model):
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    activity = models.ForeignKey(Activity, on_delete=models.PROTECT)
+    activity = models.ForeignKey(Activity, on_delete=models.RESTRICT)
 
     class Meta:
         ordering = ["timestamp"]
