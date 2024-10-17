@@ -10,8 +10,8 @@ urlpatterns = [
     path("<int:pk>", views.ActivityDetail.as_view(), name="detail"),
     # path("create", views.create, name="create"),
     path("<int:activity_id>/edit", old_views.edit_activity, name="edit_activity"),
-    
+
     # Utilities.
-    path('get-csrf-token/', views.util.csrf_token_view , name='get_csrf_token'),
+    path('get-csrf-token/', views.util.csrf_token_view, name='get_csrf_token'),
     path('get-timezone/', views.util.get_timezone, name='get_timezone')
 ]

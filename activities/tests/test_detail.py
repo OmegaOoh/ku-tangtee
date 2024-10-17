@@ -5,6 +5,7 @@ from django import urls
 from .shortcuts import create_activity, activity_to_json
 from activities.serializers import ActivitiesSerializer
 
+
 class DetailTest(django.test.TestCase):
     """Test Cases for Detail View."""
 
@@ -18,7 +19,7 @@ class DetailTest(django.test.TestCase):
         """Future/Upcoming activity should be accessible."""
         _, activity = create_activity(days_delta=1)
         response = self.client.get(urls.reverse("activities:detail", args=[activity.id]))
-        
+
         self.assertJSONEqual(response.content, activity_to_json(activity))
 
     def test_with_max(self):

@@ -37,7 +37,7 @@ def create_activity(
     client.force_login(host)
     url = urls.reverse("activities:index")
     res = post_request_json_data(url, client, data_with_date)
-    
+
     try:
         response_dict = json.loads(res.content)
         # print(response_dict)
@@ -62,7 +62,7 @@ def activity_to_json(activity: models.Activity, use_can_join: bool = False):
     # if use_can_join:
     #     output['can_join'] = activity.can_join()
     # return output
-    
+
     serial = ActivitiesSerializer(activity)
     return serial.data
 
@@ -82,11 +82,12 @@ def post_request_json_data(path: str, client: django.test.Client, data: dict) ->
     sys.stdout = io.StringIO()
     json_data = json.dumps(data)
     response = client.post(path, data=json_data, content_type='application/json')
-    
+
     # Restore original std out
     sys.stdout = stdout
 
     return response
+
 
 def client_join_activity(client: django.test.Client, user: User, activity: models.Activity) -> None:
     """Client join specific activity with provided user."""

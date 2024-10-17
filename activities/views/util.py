@@ -16,6 +16,7 @@ def get_timezone(request: HttpRequest) -> JsonResponse:  # pragma: no cover
     tzo = get_time_zone_offset()
     return JsonResponse({'offset': tzo})
 
+
 def get_time_zone_offset() -> int:  # type: ignore[no-untyped-def] ## pragma: no cover
     """Get the UTC offset for a given time zone."""
     try:
@@ -36,4 +37,3 @@ def get_time_zone_offset() -> int:  # type: ignore[no-untyped-def] ## pragma: no
     except Exception as e:
         print(f"Error getting offset for time zone {time_zone}: {e}")
         return 0  # Return 0 if there's an error
-
