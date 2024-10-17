@@ -38,16 +38,24 @@
 13. Select **Web Appplication** as a application type
     ![App type](./google_oauth_guide_pic/Select%20app%20typw.png)
 
-14. Scroll down and add 2 URI.
+14. Add authorized JavaScript origin.
 
-    First: `http://127.0.0.1:8000`
+    First: http://localhost:8080
 
-    Second: `http://127.0.0.1:8000/accounts/google/login/callback/`
+    (optional): http://127.0.0.1:8080
+
+    (Optional: if you want to login from backend add this too, but it's mostly unnecessary)
+
+    Scroll down and add 2 URI.
+
+    First: http://127.0.0.1:8000
+
+    Second: http://127.0.0.1:8000/accounts/google/login/callback/
 
     (optional) add 2 more URI by replace `127.0.0.1` with `localhost`
 
     ![add uri](./google_oauth_guide_pic/Add_uri.png)
-
+    
 15. oauth credentials already created. Save client ID and Client secret somewhere.
 
     ![Complete](./google_oauth_guide_pic/oauth%20created.png)
