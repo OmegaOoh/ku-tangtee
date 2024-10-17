@@ -15,7 +15,7 @@
                         <h2 class="card-title text-2xl font-semibold">
                             {{ activity.name }}
                         </h2>
-                        <p>{{ activity.detail }}</p>
+                        <p class="line-clamp-2">{{ activity.detail }}</p>
                         <p>
                             Start date:
                             {{ formatActivityDate(activity.date) }}
