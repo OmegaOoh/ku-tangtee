@@ -12,6 +12,7 @@ import os
 from django.core.asgi import get_asgi_application
 from channels import routing, auth
 from chat import routing as chat_routing
+from activities import routing as act_routing
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
 
@@ -19,7 +20,7 @@ application = routing.ProtocolTypeRouter({
     "http": get_asgi_application(),
     "websocket": auth.AuthMiddlewareStack(
         routing.URLRouter(
-            chat_routing.websocket_urlpatterns,
+            chat_routing.websocket_urlpatterns + act_routing.websocket_urlpatterns
         )
     )
 })
