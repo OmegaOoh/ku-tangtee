@@ -94,7 +94,7 @@ export default {
             try {
                 const response = await apiClient.get("/activities/"); // Trying to get data from API
                 this.activities = response.data;
-                document.getElementById('reload').setAttribute('hidden');
+                document.getElementById('reload').setAttribute('hidden', true);
             } catch (error) {
                 console.error("Error fetching activities:", error);
                 if (error.response) {
