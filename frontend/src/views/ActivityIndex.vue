@@ -1,9 +1,11 @@
 <template>
     <div class="container mx-auto p-4">
         <h1 class="text-4xl font-bold mb-4">Activities List</h1>
-        <button v-if="newActivities > 0" class ='btn bg-neutral' @click="Location.reload()">
-            Reload Page ({{ newActivities }} added)
-        </button>
+        <div id='reload' style='padding: 1%;'>
+            <button class ='btn btn-accent' @click="fetchActivities()">
+                New Activity Available!, Reload Now
+            </button>
+        </div>
         <div v-if="activities.length">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div
@@ -55,7 +57,6 @@ export default {
             activities: [],
             isDarkTheme: false,
             timeZoneOffset: 0,
-            newActivities: 0,
         };
     },
     mounted() {
@@ -93,6 +94,7 @@ export default {
             try {
                 const response = await apiClient.get("/activities/"); // Trying to get data from API
                 this.activities = response.data;
+                document.getElementById('reload').setAttribute('hidden');
             } catch (error) {
                 console.error("Error fetching activities:", error);
                 if (error.response) {
@@ -117,31 +119,30 @@ export default {
             const localDate = new Date(dateObj.getTime() + offsetMilliseconds);
             return localDate.toLocaleString(); // Return the localized date string
         },
-        setupSocket(){
+        setupSocket() {
             /*
              * Connect to websocket to observe the change of index.
              * Return Nothing
              */
             const socket = new WebSocket(`${process.env.VUE_APP_BASE_URL.replace(/^http/, 'ws')
                                                                         .replace(/^https/, 'wss')}ws/index/`);
-            socket.onopen = function(event){
+            socket.onopen = (event) => {
                 console.log('index websocket successfully connect.', event);
             }
-            socket.onmessage = function(event){
+            socket.onmessage = (event) => {
                     try {
                         var parsedData = JSON.parse(event.data);
-                        if (parsedData.type == 'newAct')
+                        if (parsedData['type'] === 'new_act')
                             {
-                                this.newActivities++;
+                                document.getElementById('reload').removeAttribute('hidden')
                             }
-                        
+                        console.log(parsedData['type'] === 'new_act');
                     } catch (error) {
                         console.log('Parsing Error: ', error)
                     }
-
-                socket.onerror = function(e){
-                    console.log('Websocket Error', e);
-                }
+            }        
+            socket.onerror = (e) => {
+                console.log('Websocket Error', e);
             }
         }
     },
