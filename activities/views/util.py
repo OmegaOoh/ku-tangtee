@@ -1,3 +1,5 @@
+"""Utility module."""
+
 from django.http import HttpRequest, JsonResponse
 from django.middleware.csrf import get_token
 import pytz

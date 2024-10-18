@@ -1,3 +1,5 @@
+"""Module for handle URL /activities/<activity_id>."""
+
 from typing import Any
 from django.http import HttpRequest
 from django.utils import timezone
@@ -9,20 +11,18 @@ from activities.permissions import IsHostOrReadOnly
 class ActivityDetail(mixins.RetrieveModelMixin,
                      mixins.UpdateModelMixin,
                      generics.GenericAPIView):
-    """
-    Return detail of an activity when GET request,
-    and edit the activity when PUT request
-    """
+    """Return detail of an activity when GET request, and edit the activity when PUT request."""
 
     queryset = models.Activity.objects.filter(date__gte=timezone.now())
     serializer_class = serializers.ActivitiesSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsHostOrReadOnly]
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
+        """Handle get request by return detail of an activity."""
         return self.retrieve(request, *args, **kwargs)
 
     def put(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
-        """Edit an activity"""
+        """Handle put request by edit an activity."""
         res = self.update(request, *args, **kwargs)
 
         res_dict = res.data
