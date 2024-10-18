@@ -2,6 +2,7 @@
 import pytz
 from datetime import datetime
 from django.conf import settings
+from . import models, participant_profile_picture
 
 
 def get_time_zone_offset() -> int:  # type: ignore[no-untyped-def] ## pragma: no cover
@@ -24,3 +25,13 @@ def get_time_zone_offset() -> int:  # type: ignore[no-untyped-def] ## pragma: no
     except Exception as e:
         print(f"Error getting offset for time zone {time_zone}: {e}")
         return 0  # Return 0 if there's an error
+
+def get_participant_detail(activity_id: int) -> list:  # pragma: no cover
+    """Return list of participant with detail and profile picture"""
+    activity = models.Activity.objects.get(id=activity_id)
+    attendees = activity.attend_set.all()
+    wanted_detail = []
+    for attendance in attendees:
+        joined_person = participant_profile_picture.retrive_profile_picture(attendance.user)
+        wanted_detail.append(joined_person)
+    return wanted_detail
