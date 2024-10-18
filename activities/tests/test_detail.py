@@ -2,7 +2,7 @@
 import json
 import django.test
 from django import urls
-from .shortcuts import create_activity, activity_to_json
+from .shortcuts import create_activity
 
 
 class DetailTest(django.test.TestCase):
@@ -18,7 +18,11 @@ class DetailTest(django.test.TestCase):
         """Future/Upcoming activity should be accessible."""
         _, activity = create_activity(days_delta=1)
         response = self.client.get(urls.reverse("activities:detail", args=[activity.id]))
-        self.assertJSONEqual(response.content, activity_to_json(activity, True))
+        content = json.loads(response.content)
+        self.assertEqual(content['name'], activity.name)
+        self.assertEqual(content['detail'], activity.detail)
+        self.assertEqual(content['max_people'], activity.max_people)
+        self.assertEqual(len(content['people']), activity.people)
 
     def test_with_max(self):
         """Maximum number of participant should be shown in detail page if it has been set."""
@@ -29,4 +33,8 @@ class DetailTest(django.test.TestCase):
         }
         _, activity = create_activity(data=data)
         response = self.client.get(urls.reverse("activities:detail", args=[activity.id]))
-        self.assertJSONEqual(response.content, activity_to_json(activity, True))
+        content = json.loads(response.content)
+        self.assertEqual(content['name'], activity.name)
+        self.assertEqual(content['detail'], activity.detail)
+        self.assertEqual(content['max_people'], activity.max_people)
+        self.assertEqual(len(content['people']), activity.people)
