@@ -13,6 +13,8 @@ from activities.decorator import login_required
 from django.views.decorators.http import require_POST
 from django.db.models import F, ExpressionWrapper, IntegerField
 from typing import Callable
+from channels import layers
+from asgiref import sync
 
 
 def get_number_of_people(activity_id: int) -> int:
@@ -137,6 +139,15 @@ def create(request: HttpRequest) -> JsonResponse:
 
         # Return successful message
         # TODO Log warning when logging already setup
+
+        layer = layers.get_channel_layer()
+        sync.async_to_sync(layer.group_send)(
+            'activity_index', {
+                'type': "new_act",
+                'activity_id': new_act.id,
+            }
+        )
+
         return JsonResponse(
             {
                 "message": f"Your have successfully create activity {new_act.name}",
