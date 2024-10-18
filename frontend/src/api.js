@@ -5,7 +5,7 @@ axios.defaults.xsrfHeaderName = "x-csrftoken";
 axios.defaults.xsrfCookieName = "csrfToken";
 
 const apiClient = axios.create({
-    baseURL: "http://127.0.0.1:8000", // Django backend URL
+    baseURL: process.env.VUE_APP_BASE_URL, // Django backend URL
 });
 
 export default apiClient;

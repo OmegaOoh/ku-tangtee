@@ -15,7 +15,7 @@
                         <h2 class="card-title text-2xl font-semibold">
                             {{ activity.name }}
                         </h2>
-                        <p>{{ activity.detail }}</p>
+                        <p class="line-clamp-2">{{ activity.detail }}</p>
                         <p>
                             Start date:
                             {{ formatActivityDate(activity.date) }}
@@ -57,7 +57,7 @@ export default {
     mounted() {
         this.fetchTimeZoneOffset();
         this.fetchActivities(); 
-        setInterval(this.fetchActivities, 5000); // Check for activities update every 5000 ms
+        setInterval(this.fetchActivities, 45000); // fetch check for activities update every 45 secs
         this.isDarkTheme = window.matchMedia(
             "(prefers-color-scheme: dark)"
         ).matches;
