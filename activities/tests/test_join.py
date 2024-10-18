@@ -11,7 +11,7 @@ class JoinTest(django.test.TestCase):
 
     def setUp(self):
         """Set up the common URL."""
-        self.url = urls.reverse("activities:create")
+        self.url = urls.reverse("activities:index")
         # self.host_user = create_test_user("Host")
 
     def test_join_with_get(self):
