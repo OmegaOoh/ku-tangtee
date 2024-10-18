@@ -72,7 +72,7 @@ class ActivityDetailView(generic.DetailView):
             "detail": activity.detail,
             "date": activity.date,
             "max_people": activity.max_people,
-            "people": activity.people,
+            "people": utils.get_participant_detail(activity.id),
             "can_join": activity.can_join(),
         }
         return JsonResponse(data)
