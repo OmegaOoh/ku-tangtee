@@ -126,9 +126,7 @@ export default {
              */
             const socket = new WebSocket(`${process.env.VUE_APP_BASE_URL.replace(/^http/, 'ws')
                                                                         .replace(/^https/, 'wss')}ws/index/`);
-            socket.onopen = (event) => {
-                console.log('index websocket successfully connect.', event);
-            }
+
             socket.onmessage = (event) => {
                     try {
                         var parsedData = JSON.parse(event.data);
@@ -136,14 +134,10 @@ export default {
                             {
                                 document.getElementById('reload').removeAttribute('hidden')
                             }
-                        console.log(parsedData['type'] === 'new_act');
                     } catch (error) {
                         console.log('Parsing Error: ', error)
                     }
             }        
-            socket.onerror = (e) => {
-                console.log('Websocket Error', e);
-            }
         }
     },
 };

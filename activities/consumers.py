@@ -8,7 +8,7 @@ from . import models
 
 
 class IndexPageConsumer(AsyncWebsocketConsumer):
-    """Consumer app for Chat application."""
+    """Consumer app for Index Page websocket."""
 
     async def connect(self) -> None:
         """Connect user to websocket."""
@@ -24,7 +24,7 @@ class IndexPageConsumer(AsyncWebsocketConsumer):
         )
 
     async def receive(self, text_data: bytes) -> None:
-        """Handle message receive on server side."""
+        """Handle new activity receive on server side."""
         text_data_json = json.loads(text_data)
         activity_id = text_data_json["activity_id"]
         # Validate Activity ids
@@ -39,7 +39,7 @@ class IndexPageConsumer(AsyncWebsocketConsumer):
         )
 
     async def new_act(self, event: Dict[str, Any]) -> None:
-        """Sent message to websocket."""
+        """Sent new activity status to websocket."""
         await self.send(text_data=json.dumps({
             "type": "new_act",
             "activity_id": event["activity_id"],
