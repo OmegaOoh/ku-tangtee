@@ -1,6 +1,9 @@
 <template>
     <div class="container mx-auto p-4">
         <h1 class="text-4xl font-bold mb-4">Activities List</h1>
+        <button v-if="newActivities > 0" class ='btn bg-neutral' @click="Location.reload()">
+            Reload Page ({{ newActivities }} added)
+        </button>
         <div v-if="activities.length">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div
@@ -52,12 +55,13 @@ export default {
             activities: [],
             isDarkTheme: false,
             timeZoneOffset: 0,
+            newActivities: 0,
         };
     },
     mounted() {
         this.fetchTimeZoneOffset();
-        this.fetchActivities(); 
-        setInterval(this.fetchActivities, 45000); // fetch check for activities update every 45 secs
+        this.fetchActivities();
+        this.setupSocket();
         this.isDarkTheme = window.matchMedia(
             "(prefers-color-scheme: dark)"
         ).matches;
@@ -113,6 +117,33 @@ export default {
             const localDate = new Date(dateObj.getTime() + offsetMilliseconds);
             return localDate.toLocaleString(); // Return the localized date string
         },
+        setupSocket(){
+            /*
+             * Connect to websocket to observe the change of index.
+             * Return Nothing
+             */
+            const socket = new WebSocket(`${process.env.VUE_APP_BASE_URL.replace(/^http/, 'ws')
+                                                                        .replace(/^https/, 'wss')}ws/index/`);
+            socket.onopen = function(event){
+                console.log('index websocket successfully connect.', event);
+            }
+            socket.onmessage = function(event){
+                    try {
+                        var parsedData = JSON.parse(event.data);
+                        if (parsedData.type == 'newAct')
+                            {
+                                this.newActivities++;
+                            }
+                        
+                    } catch (error) {
+                        console.log('Parsing Error: ', error)
+                    }
+
+                socket.onerror = function(e){
+                    console.log('Websocket Error', e);
+                }
+            }
+        }
     },
 };
 </script>
