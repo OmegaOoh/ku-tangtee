@@ -1,7 +1,7 @@
 <template>
     <div class="container mx-auto p-4">
         <h1 class="text-4xl font-bold mb-4">Activities List</h1>
-        <div id='reload' style='padding: 1%;'>
+        <div id='reload' style='padding: 1%;' hidden>
             <button class ='btn btn-accent' @click="fetchActivities()">
                 New Activity Available!, Reload Now
             </button>
