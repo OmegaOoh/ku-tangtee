@@ -185,6 +185,10 @@ def edit_activity(request: HttpRequest, activity_id: int) -> JsonResponse:
         modified_activity = get_object_or_404(models.Activity, pk=activity_id)
 
         # If user has set the date use, set activity date.
+        if max_people and modified_activity.people > max_people:
+            return JsonResponse({"message": "Number of participants exceed the capacity.", 
+                                 "id": modified_activity.id,}) 
+       
         if date_string:
             date = datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S.%fZ")
             # Get the timezone offset
