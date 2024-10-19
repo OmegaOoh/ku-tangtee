@@ -1,7 +1,6 @@
 """URL configuration for activities app."""
 from django.urls import path, include
 from . import views
-from . import old_views
 
 app_name = "activities"
 urlpatterns = [
