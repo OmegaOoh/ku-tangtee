@@ -6,7 +6,6 @@ from . import old_views
 app_name = "activities"
 urlpatterns = [
     path("", views.ActivityList.as_view(), name="index"),
-    path("<int:activity_id>/join", old_views.join, name="join"),
     path("<int:pk>", views.ActivityDetail.as_view(), name="detail"),
 
     # Utilities.
