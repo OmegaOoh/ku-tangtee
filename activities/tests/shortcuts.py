@@ -50,19 +50,6 @@ def create_activity(
 
 def activity_to_json(activity: models.Activity, use_can_join: bool = False):
     """Return dict that replicates json that's contain activity data."""
-    # formatted_date = activity.date.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
-    # output = {
-    #     "id": activity.id,
-    #     "name": activity.name,
-    #     "detail": activity.detail,
-    #     "date": formatted_date,
-    #     "max_people": activity.max_people,
-    #     "people": activity.people
-    # }
-    # if use_can_join:
-    #     output['can_join'] = activity.can_join()
-    # return output
-
     serial = ActivitiesSerializer(activity)
     return serial.data
 
@@ -106,5 +93,5 @@ def put_request_json_data(path: str, client: django.test.Client, data: dict) -> 
 def client_join_activity(client: django.test.Client, user: User, activity: models.Activity) -> None:
     """Client join specific activity with provided user."""
     client.force_login(user)
-    client.post(urls.reverse("activities:join", args=[activity.id]))
+    client.post(urls.reverse("activities:detail", args=[activity.id]))
     activity.refresh_from_db()
