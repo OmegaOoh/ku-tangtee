@@ -1,7 +1,9 @@
 <template>
-    <div class="flex items-center justify-center min-h-screen">
-        <div class="card bg-neutral card-primary w-1/3 shadow-xl items-center">
-            <div class="card-body size-3/4">
+    <div class="flex items-center justify-center">
+        <div
+            class="card bg-neutral card-primary w-full sm:w-3/4 md:w-1/2 lg:w-1/3 shadow-xl items-center"
+        >
+            <div class="card-body size-3/4 overflow-auto p-6">
                 <h2 class="card-title text-2xl mr-2 white-text">
                     Edit Activity
                 </h2>
@@ -38,10 +40,14 @@
                     class="input input-bordered input-primary w-full mb-4"
                     :min="0"
                 />
+                <div class="flex items-center space-x-4">
+                    <label class="white-text">Number of participant : </label>
+                    <p class="white-text">{{ people.length }}</p>
+                </div>
                 <label class="white-text">Participant list</label>
                 <div class="grid grid-cols-1 md:grid-cols-1 gap-4 mb-2 ml-3">
                     <div
-                        v-for="participant in activity.people"
+                        v-for="participant in people"
                         :key="participant.id"
                         class="card bg-base-100 shadow-lg p-4 rounded-lg"
                     >
