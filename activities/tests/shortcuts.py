@@ -69,9 +69,9 @@ def activity_to_json(activity: models.Activity, use_can_join: bool = False):
 
 def time_formatter(date_string: str) -> str:
     """Format time into expected format."""
-    received_date = timezone.make_aware(datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%S.%fZ'))
-    # utc_date = received_date.astimezone(pytz.utc)
-    formatted_date = received_date.strftime('%Y-%m-%dT%H:%M:%S.%f') + 'Z'
+    utc_date = pytz.utc.localize(datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%S.%fZ'))
+    local_date = utc_date.astimezone()
+    formatted_date = local_date.strftime('%Y-%m-%dT%H:%M:%S.%f') + 'Z'
     return formatted_date
 
 
@@ -82,6 +82,19 @@ def post_request_json_data(path: str, client: django.test.Client, data: dict) ->
     sys.stdout = io.StringIO()
     json_data = json.dumps(data)
     response = client.post(path, data=json_data, content_type='application/json')
+
+    # Restore original std out
+    sys.stdout = stdout
+
+    return response
+
+
+def put_request_json_data(path: str, client: django.test.Client, data: dict) -> HttpResponse:
+    # Suppress print statement
+    stdout = sys.stdout
+    sys.stdout = io.StringIO()
+    json_data = json.dumps(data)
+    response = client.put(path, data=json_data, content_type='application/json')
 
     # Restore original std out
     sys.stdout = stdout

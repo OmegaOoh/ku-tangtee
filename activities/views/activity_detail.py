@@ -29,7 +29,7 @@ class ActivityDetail(mixins.RetrieveModelMixin,
 
         return response.Response(
             {
-                "message": f"Your have edited activity {res_dict.get('name')}",
+                "message": f"You have successfully edited the activity {res_dict.get('name')}",
                 "id": res_dict.get("id")
             }
         )
