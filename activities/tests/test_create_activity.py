@@ -1,11 +1,8 @@
 """Module to test on activity creation."""
 import json
 import django.test
-from datetime import datetime
 from django import urls
-from django.utils import timezone
-from activities import models
-from .shortcuts import post_request_json_data, activity_to_json, create_activity, create_test_user
+from .shortcuts import post_request_json_data, create_activity, create_test_user
 
 
 class CreateActivityTest(django.test.TestCase):
@@ -13,14 +10,8 @@ class CreateActivityTest(django.test.TestCase):
 
     def setUp(self):
         """Set up the common URL."""
-        self.url = urls.reverse("activities:create")
+        self.url = urls.reverse("activities:index")
         self.host_user = create_test_user("Host")
-
-    def test_get_request(self):
-        """Create should return error message when got a GET request."""
-        response = self.client.get(self.url)
-
-        self.assertEqual(response.status_code, 405)
 
     def test_default_activity_creation(self):
         """Create should not return error message for default creation."""
@@ -83,10 +74,10 @@ class CreateActivityTest(django.test.TestCase):
             data=data
         )
 
-        response_dict = json.loads(response.content)
+        _ = json.loads(response.content)
 
         self.assertEqual(response.status_code, 400)
-        self.assertIn("Error occur", response_dict["error"])
+        self.assertJSONEqual(response.content, {'name': ['This field is required.']})
 
     def test_invalid_activity_creation_with_wrong_date_format(self):
         """Create should return json with error message."""
@@ -100,8 +91,9 @@ class CreateActivityTest(django.test.TestCase):
         response = post_request_json_data(self.url, self.client, data)
         self.assertEqual(response.status_code, 400)
 
-        response_dict = json.loads(response.content)
-        self.assertIn("Error occur", response_dict["error"])
+        self.assertJSONEqual(response.content,
+                             {'date': ['Datetime has wrong format. Use one of these formats instead: '
+                                       'YYYY-MM-DDThh:mm[:ss[.uuuuuu]][+HH:MM|-HH:MM|Z].']})
 
     def test_invalid_activity_creation_with_too_long_activity_name(self):
         """Create should return json with error message."""
@@ -116,6 +108,4 @@ class CreateActivityTest(django.test.TestCase):
             data=data
         )
         self.assertEqual(response.status_code, 400)
-
-        response_dict = json.loads(response.content)
-        self.assertIn("Error occur", response_dict["error"])
+        self.assertJSONEqual(response.content, {'name': ['Ensure this field has no more than 255 characters.']})

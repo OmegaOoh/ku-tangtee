@@ -1,14 +1,13 @@
 """URL configuration for activities app."""
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 app_name = "activities"
 urlpatterns = [
-    path("", views.IndexView.as_view(), name="index"),
-    path("<int:activity_id>/join", views.join, name="join"),
-    path("<int:pk>", views.ActivityDetailView.as_view(), name="detail"),
-    path("create", views.create, name="create"),
-    path("<int:activity_id>/edit", views.edit_activity, name="edit_activity"),
-    path('get-csrf-token/', views.csrf_token_view, name='get_csrf_token'),
-    path('get-timezone/', views.get_timezone, name='get_timezone')
+    path("", views.ActivityList.as_view(), name="index"),
+    path("<int:pk>/", views.ActivityDetail.as_view(), name="detail"),
+
+    # Utilities.
+    path('get-csrf-token/', views.util.csrf_token_view, name='get_csrf_token'),
+    path('get-timezone/', views.util.get_timezone, name='get_timezone')
 ]

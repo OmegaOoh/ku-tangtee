@@ -186,6 +186,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
     ),
+    'DATETIME_FORMAT': "%Y-%m-%dT%H:%M:%S.%fZ", 
 }
 
 REST_AUTH = {

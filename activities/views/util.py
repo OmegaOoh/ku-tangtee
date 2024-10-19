@@ -1,7 +1,25 @@
-"""Utility module that provides convenient functions."""
+"""Utility module."""
+
+from django.http import HttpRequest, JsonResponse
+from django.middleware.csrf import get_token
 import pytz
 from datetime import datetime
 from django.conf import settings
+from rest_framework import decorators, response
+
+
+@decorators.api_view(['get'])
+def csrf_token_view(request: HttpRequest) -> JsonResponse:  # pragma: no cover
+    """Return csrf token."""
+    csrf_token = get_token(request)
+    return response.Response({'csrfToken': csrf_token})
+
+
+@decorators.api_view(['get'])
+def get_timezone(request: HttpRequest) -> JsonResponse:  # pragma: no cover
+    """Return time zone offset to vue."""
+    tzo = get_time_zone_offset()
+    return response.Response({'offset': tzo})
 
 
 def get_time_zone_offset() -> int:  # type: ignore[no-untyped-def] ## pragma: no cover
