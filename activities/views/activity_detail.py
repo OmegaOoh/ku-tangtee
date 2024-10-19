@@ -5,7 +5,7 @@ from django.http import HttpRequest
 from django.utils import timezone
 from rest_framework import generics, permissions, mixins, response, status
 from activities import models, serializers
-from activities.permissions import IsHostOrReadOnly
+from activities.permissions import IsHostOrReadOnly, IsNotJoinedForPOST, IsFullForPOST
 
 
 class ActivityDetail(mixins.RetrieveModelMixin,
@@ -15,7 +15,7 @@ class ActivityDetail(mixins.RetrieveModelMixin,
 
     queryset = models.Activity.objects.filter(date__gte=timezone.now())
     serializer_class = serializers.ActivitiesSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsHostOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsHostOrReadOnly, IsNotJoinedForPOST, IsFullForPOST]
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Handle get request by return detail of an activity."""
@@ -30,6 +30,24 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         return response.Response(
             {
                 "message": f"You have successfully edited the activity {res_dict.get('name')}",
+                "id": res_dict.get("id")
+            }
+        )
+
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
+        """Handle post request by joining an activity."""
+        res = self.retrieve(request, *args, **kwargs)
+
+        res_dict = res.data
+
+        request.user.attend_set.create(
+            activity=models.Activity.objects.get(pk=res_dict.get("id")),
+            is_host=False
+        )
+
+        return response.Response(
+            {
+                "message": f"You have successfully joined the activity {res_dict.get('name')}",
                 "id": res_dict.get("id")
             }
         )
