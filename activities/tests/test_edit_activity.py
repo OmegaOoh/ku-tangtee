@@ -4,7 +4,7 @@ import django.test
 from datetime import datetime
 from django import urls
 from activities import models
-from .shortcuts import post_request_json_data, activity_to_json, time_formatter, create_activity, create_test_user, put_request_json_data
+from .shortcuts import activity_to_json, time_formatter, create_activity, create_test_user, put_request_json_data
 from django.utils import timezone
 
 
@@ -53,7 +53,7 @@ class EditActivityTest(django.test.TestCase):
             "max_people": 200,
             "people": 20,
         }
-        # Send POST request with new activity data
+        # Send PUT request with new activity data
         response = put_request_json_data(self.url, self.client, data)
         response_dict = json.loads(response.content)
         updated_act = models.Activity.objects.get(pk=self.activity.id)
@@ -74,7 +74,10 @@ class EditActivityTest(django.test.TestCase):
         }
         response = put_request_json_data(self.url, self.client, data)
         self.assertEqual(response.status_code, 400)
-        self.assertJSONEqual(response.content, {'date': ['Datetime has wrong format. Use one of these formats instead: YYYY-MM-DDThh:mm[:ss[.uuuuuu]][+HH:MM|-HH:MM|Z].'], 'name': ['Ensure this field has no more than 255 characters.']})
+        self.assertJSONEqual(response.content, {'date': [
+            'Datetime has wrong format. Use one of these formats instead: '
+            'YYYY-MM-DDThh:mm[:ss[.uuuuuu]][+HH:MM|-HH:MM|Z].'],
+            'name': ['Ensure this field has no more than 255 characters.']})
 
     def test_non_host_edit_activity(self):
         """Edit should return error message when the editor isn't host."""
@@ -83,4 +86,4 @@ class EditActivityTest(django.test.TestCase):
 
         response = put_request_json_data(self.url, self.client, {})
         self.assertEqual(response.status_code, 403)
-        self.assertJSONEqual(response.content, {'detail': 'You do not have permission to perform this action.'})
+        self.assertJSONEqual(response.content, {'detail': 'User must be the host to perform this action.'})
