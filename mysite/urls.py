@@ -11,7 +11,3 @@ urlpatterns = [
     path("auth/", include('auth.urls')),
     path("profile-pic/", views.profile_picture_view)
 ]
-
-urlpatterns += [
-    path('api-auth/', include('rest_framework.urls')),
-]
