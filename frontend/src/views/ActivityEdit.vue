@@ -159,8 +159,8 @@ export default {
                     date: this.date,
                     max_people: this.maxPeople || null,
                 };
-                const response = await apiClient.post(
-                    `/activities/${this.activityId}/edit`,
+                const response = await apiClient.put(
+                    `/activities/${this.activityId}/`,
                     data,
                     {
                         // HTTP headers

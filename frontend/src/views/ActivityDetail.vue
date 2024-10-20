@@ -137,7 +137,7 @@ export default {
                 this.csrfToken = await this.getCsrfToken();
                 console.log(this.csrfToken);
                 const response = await apiClient.post(
-                    `/activities/${this.activityId}/join`,
+                    `/activities/${this.activityId}/`,
                     {},
                     {
                         headers: { "X-CSRFToken": this.csrfToken },
