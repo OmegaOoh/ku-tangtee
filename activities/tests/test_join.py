@@ -54,10 +54,13 @@ class JoinTest(django.test.TestCase):
         self.client.force_login(attender)
 
         response = self.client.post(urls.reverse("activities:detail", args=[new_act.id]))
+        self.assertEqual(response.status_code, 401)
         new_act.refresh_from_db()
         self.assertEqual(new_act.people, 1)
         self.assertNotIn(attender, new_act.participants())
-        self.assertJSONEqual(response.content, {'detail': 'This activity is full.'})
+
+        response_dict = json.loads(response.content)
+        self.assertEqual(response_dict['message'], f'The activity {new_act.name} is full.')
 
     def test_rejoin_joined_activity(self):
         """Cannot join activity that already joined."""
@@ -74,7 +77,10 @@ class JoinTest(django.test.TestCase):
 
         # Second time joined, get error and number of people stays the same.
         response = self.client.post(urls.reverse("activities:detail", args=[new_act.id]))
+        self.assertEqual(response.status_code, 401)
         new_act.refresh_from_db()
         self.assertEqual(new_act.people, 2)
         self.assertIn(attender, new_act.participants())
-        self.assertJSONEqual(response.content, {'detail': "You've already joined the activity."})
+
+        response_dict = json.loads(response.content)
+        self.assertEqual(response_dict['message'], f"You've already joined the activity {new_act.name}.")
