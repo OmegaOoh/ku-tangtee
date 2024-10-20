@@ -98,7 +98,8 @@ class EditActivityTest(django.test.TestCase):
         response = self.client.post(urls.reverse("activities:detail", args=[self.activity.id]))
         self.activity.refresh_from_db()
         self.assertEqual(self.activity.people, 2)
-        self.assertJSONEqual(response.content, {"message": f"You successfully joined {self.activity.name}"})
+        response_dict = response.json()
+        self.assertEqual(response_dict['message'], f'You have successfully joined the activity {self.activity.name}')
         data = {
             "name": "Updated Activity",
             "detail": "This is should be failed",
