@@ -1,7 +1,9 @@
 <template>
-    <div class="flex items-center justify-center min-h-screen">
-        <div class="card bg-neutral card-primary w-1/3 shadow-xl items-center">
-            <div class="card-body size-3/4">
+    <div class="flex items-center justify-center">
+        <div
+            class="card bg-neutral card-primary w-full sm:w-3/4 md:w-1/2 lg:w-1/3 shadow-xl items-center"
+        >
+            <div class="card-body size-3/4 overflow-auto p-6">
                 <h2 class="card-title text-2xl mr-2 white-text">
                     Edit Activity
                 </h2>
@@ -38,14 +40,30 @@
                     class="input input-bordered input-primary w-full mb-4"
                     :min="0"
                 />
-                <label class="white-text">Number of participants </label>
-                <input
-                    v-model.number="people"
-                    type="number"
-                    placeholder="Enter People"
-                    class="input input-bordered input-primary w-full mb-4"
-                    :min="0"
-                />
+                <div class="flex items-center space-x-4">
+                    <label class="white-text">Number of participant : </label>
+                    <p class="white-text">{{ people.length }}</p>
+                </div>
+                <label class="white-text">Participant list</label>
+                <div class="grid grid-cols-1 md:grid-cols-1 gap-4 mb-2 ml-3">
+                    <div
+                        v-for="participant in people"
+                        :key="participant.id"
+                        class="card bg-base-100 shadow-lg p-4 rounded-lg"
+                    >
+                        <div class="flex items-center space-x-4">
+                            <img
+                                :src="participant.profile_picture_url"
+                                alt="Profile Picture"
+                                class="w-12 h-12 rounded-full"
+                            />
+                            <p class="font-medium">
+                                {{ participant.first_name }}
+                                {{ participant.last_name }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
                 <button class="btn btn-accent" @click="postUpdateActivity">
                     Update Activity
                 </button>
@@ -68,7 +86,7 @@ export default {
             activityDetail: "",
             date: "",
             maxPeople: 0,
-            people: 0,
+            people: [],
             showMaxPeople: false,
             isDarkTheme: false,
             activity: {},
@@ -99,7 +117,7 @@ export default {
         },
         async fetchActivity() {
             /*
-             * Get data from specific activity.
+             * Get data from specific activity including participant detail.
              * This function does not return anything.
              */
             try {
@@ -107,6 +125,9 @@ export default {
                     `/activities/${this.activityId}`
                 );
                 this.activity = response.data;
+                const participant = await apiClient.get(
+                    `/activities/get-participant/${this.activity.id}/`
+                );
                 this.activityName = this.activity.name;
                 this.activityDetail = this.activity.detail;
                 this.date = this.formatActivityDate(
@@ -114,7 +135,7 @@ export default {
                 );
                 this.maxPeople = this.activity.max_people || 0;
                 this.showMaxPeople = this.maxPeople > 0;
-                this.people = this.activity.people;
+                this.people = participant.data;
             } catch (error) {
                 console.error("Error fetching activity:", error);
             }
@@ -140,7 +161,6 @@ export default {
                     detail: this.activityDetail,
                     date: this.date,
                     max_people: this.maxPeople || null,
-                    people: this.people,
                 };
                 const response = await apiClient.put(
                     `/activities/${this.activityId}/`,

@@ -9,6 +9,7 @@ class ActivitiesSerializer(serializers.ModelSerializer):
     """Serialized activity."""
 
     people = serializers.ReadOnlyField()
+    can_join = serializers.ReadOnlyField()
     host = serializers.SerializerMethodField()
 
     class Meta:

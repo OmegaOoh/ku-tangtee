@@ -87,3 +87,34 @@ class EditActivityTest(django.test.TestCase):
         response = put_request_json_data(self.url, self.client, {})
         self.assertEqual(response.status_code, 403)
         self.assertJSONEqual(response.content, {'detail': 'User must be the host to perform this action.'})
+
+    def test_invalid_activity_editing_with_people_exceed_capacity(self):
+        """Editing should be rollbacked."""
+        user1 = create_test_user("Participant number 1")
+        self.client.force_login(user=user1)
+        self.assertEqual(self.activity.people, 1)
+        response = self.client.post(urls.reverse("activities:detail", args=[self.activity.id]))
+        self.activity.refresh_from_db()
+        self.assertEqual(self.activity.people, 2)
+        response_dict = response.json()
+        self.assertEqual(response_dict['message'], f'You have successfully joined the activity {self.activity.name}')
+        data = {
+            "name": "Updated Activity",
+            "detail": "This is should be failed",
+            "max_people": 1,
+        }
+        original_data = {
+            "name": "Test Activity",
+            "detail": "This is a test activity",
+            "max_people": None,
+        }
+        self.client.force_login(user=self.host)
+        response = put_request_json_data(self.url, self.client, data)
+        response_dict = json.loads(response.content)
+        updated_act = models.Activity.objects.get(pk=self.activity.id)
+        updated_act_json = activity_to_json(updated_act)
+        # The updated activity should be the same as original one
+        self.assertEqual(updated_act_json['name'], original_data['name'])
+        self.assertEqual(updated_act_json['detail'], original_data['detail'])
+        self.assertEqual(updated_act_json['max_people'], original_data['max_people'])
+        self.assertEqual(response_dict["message"], "Number of participants exceed the capacity.")
