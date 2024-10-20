@@ -117,7 +117,7 @@ export default {
         },
         async fetchActivity() {
             /*
-             * Get data from specific activity.
+             * Get data from specific activity including participant detail.
              * This function does not return anything.
              */
             try {
@@ -125,6 +125,9 @@ export default {
                     `/activities/${this.activityId}`
                 );
                 this.activity = response.data;
+                const participant = await apiClient.get(
+                    `/activities/get-participant/${this.activity.id}/`
+                );
                 this.activityName = this.activity.name;
                 this.activityDetail = this.activity.detail;
                 this.date = this.formatActivityDate(
@@ -132,7 +135,7 @@ export default {
                 );
                 this.maxPeople = this.activity.max_people || 0;
                 this.showMaxPeople = this.maxPeople > 0;
-                this.people = this.activity.people;
+                this.people = participant.data;
             } catch (error) {
                 console.error("Error fetching activity:", error);
             }
