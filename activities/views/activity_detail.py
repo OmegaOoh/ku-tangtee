@@ -26,7 +26,7 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         activity = self.get_object()
         max_people = request.data.get("max_people")
         current_people = activity.people
-        if max_people and current_people >= max_people:
+        if max_people and current_people > max_people:
             return response.Response(
                 {"message": "Number of participants exceed the capacity.",
                  "id": activity.id
