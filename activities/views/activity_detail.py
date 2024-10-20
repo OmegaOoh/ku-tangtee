@@ -29,8 +29,8 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         if max_people and current_people >= max_people:
             return response.Response(
                 {"message": "Number of participants exceed the capacity.",
-                "id": activity.id
-                },
+                 "id": activity.id
+                 },
             )
         res = self.update(request, *args, **kwargs)
         res_dict = res.data
