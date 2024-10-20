@@ -23,10 +23,17 @@ class ActivityDetail(mixins.RetrieveModelMixin,
 
     def put(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Handle put request by edit an activity."""
+        activity = self.get_object()
+        max_people = request.data.get("max_people")
+        current_people = activity.people
+        if max_people and current_people >= max_people:
+            return response.Response(
+                {"message": "Number of participants exceed the capacity.",
+                "id": activity.id
+                },
+            )
         res = self.update(request, *args, **kwargs)
-
         res_dict = res.data
-
         return response.Response(
             {
                 "message": f"You have successfully edited the activity {res_dict.get('name')}",

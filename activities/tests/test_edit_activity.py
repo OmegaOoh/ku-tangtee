@@ -90,8 +90,6 @@ class EditActivityTest(django.test.TestCase):
 
     def test_invalid_activity_editing_with_people_exceed_capacity(self):
         """Editing should be rollbacked."""
-        # TODO : Teerapat it has to pass this testcase.
-        # You can modify by to be raising error or let it rollback like this it is ok.
         user1 = create_test_user("Participant number 1")
         self.client.force_login(user=user1)
         self.assertEqual(self.activity.people, 1)
@@ -110,6 +108,7 @@ class EditActivityTest(django.test.TestCase):
             "detail": "This is a test activity",
             "max_people": None,
         }
+        self.client.force_login(user=self.host)
         response = put_request_json_data(self.url, self.client, data)
         response_dict = json.loads(response.content)
         updated_act = models.Activity.objects.get(pk=self.activity.id)
