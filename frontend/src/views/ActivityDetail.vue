@@ -137,7 +137,7 @@ export default {
                     {}
                 );
                 addAlert('success', response.data.message);
-                location.reload(); // Refresh the page
+                this.fetchActivity(); //Fetch Activity
             } catch (error) {
                 if (error.response && error.response.data) {
                     addAlert('error', error.response.data.message); // Show error message from backend
