@@ -12,15 +12,16 @@ class JoinTest(django.test.TestCase):
     def setUp(self):
         """Set up the common URL."""
         self.host = create_test_user("Host")
+        self.url = lambda id :urls.reverse("activities:join", args=[id])
 
     def test_logout_join(self):
         """Join should respond with error if user are not authenticated."""
         _, new_act = create_activity(host=self.host)
 
         self.client.logout()
-        response = self.client.post(urls.reverse("activities:detail", args=[new_act.id]))
+        response = self.client.post(self.url(new_act.id))
         self.assertEqual(response.status_code, 403)
-        self.assertJSONEqual(response.content, {'detail': 'Authentication credentials were not provided.'})
+        self.assertJSONEqual(response.content, {'message': 'Authentication credentials were not provided.'})
 
     def test_join(self):
         """Join will increase number of people in activity."""
@@ -31,14 +32,24 @@ class JoinTest(django.test.TestCase):
 
         self.assertEqual(new_act.people, 1)
 
-        response = self.client.post(urls.reverse("activities:detail", args=[new_act.id]))
-        self.assertEqual(response.status_code, 200)
+        response = self.client.post(self.url(new_act.id))
+        self.assertEqual(response.status_code, 201)
         new_act.refresh_from_db()
         self.assertEqual(new_act.people, 2)
         self.assertIn(attender, new_act.participants())
 
         response_dict = response.json()
         self.assertEqual(response_dict['message'], f'You have successfully joined the activity {new_act.name}')
+        
+    def test_join_not_exist_actitvity(self):
+        
+        attender = create_test_user("Attend")
+        self.client.force_login(attender)
+        
+        not_exist_pk = 9999
+        
+        response = self.client.post(self.url(not_exist_pk))
+        self.assertJSONEqual(response.content, {'message': f'Invalid pk "{not_exist_pk}" - object does not exist.'})
 
     def test_join_full(self):
         """Join will not increase number of people in activity as activities is full."""
@@ -53,14 +64,14 @@ class JoinTest(django.test.TestCase):
         attender = create_test_user("Attend")
         self.client.force_login(attender)
 
-        response = self.client.post(urls.reverse("activities:detail", args=[new_act.id]))
-        self.assertEqual(response.status_code, 401)
+        response = self.client.post(self.url(new_act.id))
+        self.assertEqual(response.status_code, 400)
         new_act.refresh_from_db()
         self.assertEqual(new_act.people, 1)
         self.assertNotIn(attender, new_act.participants())
 
         response_dict = json.loads(response.content)
-        self.assertEqual(response_dict['message'], f'The activity {new_act.name} is full.')
+        self.assertJSONEqual(response.content, {'message': 'The activity Unjoinable is full.'})
 
     def test_rejoin_joined_activity(self):
         """Cannot join activity that already joined."""
@@ -70,17 +81,17 @@ class JoinTest(django.test.TestCase):
         self.client.force_login(attender)
 
         # First time joined, number of people increase.
-        response = self.client.post(urls.reverse("activities:detail", args=[new_act.id]))
+        response = self.client.post(self.url(new_act.id))
         new_act.refresh_from_db()
         self.assertEqual(new_act.people, 2)
         self.assertIn(attender, new_act.participants())
 
         # Second time joined, get error and number of people stays the same.
-        response = self.client.post(urls.reverse("activities:detail", args=[new_act.id]))
-        self.assertEqual(response.status_code, 401)
+        response = self.client.post(self.url(new_act.id))
+        self.assertEqual(response.status_code, 400)
         new_act.refresh_from_db()
         self.assertEqual(new_act.people, 2)
         self.assertIn(attender, new_act.participants())
 
         response_dict = json.loads(response.content)
-        self.assertEqual(response_dict['message'], f"You've already joined the activity {new_act.name}.")
+        self.assertJSONEqual(response.content, {'message': f"You've already joined the activity {new_act.name}."})
