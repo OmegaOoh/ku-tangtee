@@ -93,7 +93,7 @@ class EditActivityTest(django.test.TestCase):
         user1 = create_test_user("Participant number 1")
         self.client.force_login(user=user1)
         self.assertEqual(self.activity.people, 1)
-        response = self.client.post(urls.reverse("activities:detail", args=[self.activity.id]))
+        response = self.client.post(urls.reverse("activities:join", args=[self.activity.id]))
         self.activity.refresh_from_db()
         self.assertEqual(self.activity.people, 2)
         response_dict = response.json()
