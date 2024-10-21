@@ -10,6 +10,7 @@ def can_join_validator(attrs, *args, **kwargs) -> serializers.ValidationError | 
     if not act.can_join():
         message = f'The activity {act.name} is full.'
         raise serializers.ValidationError(message)
+   
     
 class CustomMsgUniqueTogetherValidator(validators.UniqueTogetherValidator):
     
@@ -34,6 +35,7 @@ class CustomMsgUniqueTogetherValidator(validators.UniqueTogetherValidator):
 
         if checked_values and None not in checked_values and validators.qs_exists(queryset):
             raise validators.ValidationError({"message": f"You've already joined the activity {attrs.get('activity').name}."}, code='unique')
+
 
 class ActivitiesSerializer(serializers.ModelSerializer):
     """Serialized activity."""

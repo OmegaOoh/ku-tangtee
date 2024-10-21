@@ -41,37 +41,3 @@ class ActivityDetail(mixins.RetrieveModelMixin,
             }
         )
 
-    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
-        """Handle post request by joining an activity."""
-        res = self.retrieve(request, *args, **kwargs)
-
-        res_dict = res.data
-
-        activity = models.Activity.objects.get(pk=res_dict.get("id"))
-
-        if not activity.can_join():
-            return response.Response(
-                {"message": f"The activity {res_dict.get('name')} is full.",
-                 "id": activity.id
-                 }, status=401
-            )
-
-        if activity.attend_set.filter(user=request.user).exists():
-            return response.Response(
-                {"message": f"You've already joined the activity {res_dict.get('name')}.",
-                 "id": activity.id
-                 }, status=401
-            )
-
-        request.user.attend_set.create(
-            activity=activity,
-            is_host=False
-        )
-
-        return response.Response(
-            {
-                "message": f"You have successfully joined the activity {res_dict.get('name')}",
-                "id": res_dict.get("id")
-            }
-        )
-        
