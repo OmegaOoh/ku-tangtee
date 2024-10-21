@@ -23,7 +23,9 @@ class ActivityList(
         """Handle get request by return with list of activity."""
         keyword = request.GET.get("keyword")
         if keyword:
-            activity = models.Activity.objects.filter(name__iregex=rf'{keyword}', date__gte=timezone.now()).order_by("date")
+            activity = models.Activity.objects.filter(
+                name__iregex=rf'{keyword}',
+                date__gte=timezone.now()).order_by("date")
             serializer = serializers.ActivitiesSerializer(activity, many=True)
             return response.Response(serializer.data)
 
