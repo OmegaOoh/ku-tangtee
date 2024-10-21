@@ -74,3 +74,4 @@ class ActivityDetail(mixins.RetrieveModelMixin,
                 "id": res_dict.get("id")
             }
         )
+        
