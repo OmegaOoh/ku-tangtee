@@ -51,6 +51,15 @@
                     </div>
                 </div>
             </div>
+            <AlertToast
+                v-for="(alert, index) in alerts"
+                :key="index"
+                :content="alert.content"
+                :type="alert.type"
+                :isVisible="alert.isVisible"
+                @update:isVisible="hideAlert(index)"
+            />
+            
             <router-view />
         </div>
         <div class="drawer-side">
@@ -73,6 +82,10 @@
 <script setup>
 import { googleTokenLogin } from "vue3-google-login";
 import apiClient from "./api";
+import { addAlert, useAlert } from './functions/AlertManager';
+import AlertToast from './component/AlertToast.vue';
+
+const { alerts } = useAlert();
 </script>
 
 <script>
@@ -99,6 +112,7 @@ export default {
             .addEventListener("change", (e) => {
                 this.isDarkTheme = e.matches;
             });
+        addAlert('success', 'Alert is successfully implemented');
     },
     onMounted() {
         this.authStatus();
