@@ -86,7 +86,7 @@ class EditActivityTest(django.test.TestCase):
 
         response = put_request_json_data(self.url, self.client, {})
         self.assertEqual(response.status_code, 403)
-        self.assertJSONEqual(response.content, {'detail': 'User must be the host to perform this action.'})
+        self.assertJSONEqual(response.content, {'message': 'User must be the host to perform this action.'})
 
     def test_invalid_activity_editing_with_people_exceed_capacity(self):
         """Editing should be rollbacked."""
