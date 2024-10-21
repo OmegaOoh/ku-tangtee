@@ -1,48 +1,48 @@
 <template>
-    <div class="drawer h-screen">
-        <input id="my-drawer" type="checkbox" class="drawer-toggle" />
-        <div class="drawer-content flex flex-col">
-            <div class="flex items-center justify-between p-4">
+    <div class='drawer h-screen'>
+        <input id='my-drawer' type='checkbox' class='drawer-toggle' />
+        <div class='drawer-content flex flex-col'>
+            <div class='flex items-center justify-between p-4'>
                 <label
-                    for="my-drawer"
-                    class="btn btn-primary drawer-button"
-                    style="width: auto; padding: 0.5rem 1rem"
+                    for='my-drawer'
+                    class='btn btn-primary drawer-button'
+                    style='width: auto; padding: 0.5rem 1rem'
                 >
                     ☰
                 </label>
                 <div>
-                    <div v-if="!isAuth">
-                        <button class="btn btn-primary" @click="login">
+                    <div v-if='!isAuth'>
+                        <button class='btn btn-primary' @click='login'>
                             Login Using Google
                         </button>
                     </div>
                     <div
                         v-else
-                        class="relative"
-                        @mouseenter="showDropdown"
-                        @mouseleave="hideDropdown"
+                        class='relative'
+                        @mouseenter='showDropdown'
+                        @mouseleave='hideDropdown'
                     >
                         <div
-                            class="btn btn-primary flex items-center cursor-pointer"
+                            class='btn btn-primary flex items-center cursor-pointer'
                         >
                             <img
-                                v-if="pfp"
-                                :src="pfp"
-                                alt="Profile Picture"
-                                class="w-8 h-8 rounded-full mr-2"
+                                v-if='pfp'
+                                :src='pfp'
+                                alt='Profile Picture'
+                                class='w-8 h-8 rounded-full mr-2'
                             />
                             <span>{{ fName }} {{ lName }}</span>
                         </div>
                         <div
-                            v-if="isDropdown"
-                            class="absolute right-0 w-48 bg-base-200 rounded-full shadow-lg z-10 justify-center"
-                            @mouseenter="keepDropdownOpen"
-                            @mouseleave="checkHideDropdown"
+                            v-if='isDropdown'
+                            class='absolute right-0 w-48 bg-base-200 rounded-full shadow-lg z-10 justify-center'
+                            @mouseenter='keepDropdownOpen'
+                            @mouseleave='checkHideDropdown'
                         >
                             <ul>
                                 <li
-                                    class="block px-4 py-2 text-center hover:bg-base-300 cursor-pointer rounded-full"
-                                    @click="logout"
+                                    class='block px-4 py-2 text-center hover:bg-base-300 cursor-pointer rounded-full'
+                                    @click='logout'
                                 >
                                     Logout
                                 </li>
@@ -52,27 +52,27 @@
                 </div>
             </div>
             <AlertToast
-                v-for="(alert, index) in alerts"
-                :key="index"
-                :content="alert.content"
-                :type="alert.type"
-                :isVisible="alert.isVisible"
-                @update:isVisible="hideAlert(index)"
+                v-for='(alert, index) in alerts'
+                :key='index'
+                :content='alert.content'
+                :type='alert.type'
+                :isVisible='alert.isVisible'
+                @update:isVisible='hideAlert(index)'
             />
             
             <router-view />
         </div>
-        <div class="drawer-side">
+        <div class='drawer-side'>
             <label
-                for="my-drawer"
-                aria-label="close sidebar"
-                class="drawer-overlay"
+                for='my-drawer'
+                aria-label='close sidebar'
+                class='drawer-overlay'
             ></label>
-            <ul class="menu bg-base-200 text-base-content w-64 p-4">
+            <ul class='menu bg-base-200 text-base-content w-64 p-4'>
                 <!-- Sidebar content here -->
-                <li><router-link to="/">Home</router-link></li>
+                <li><router-link to='/'>Home</router-link></li>
                 <li>
-                    <router-link to="/create">Create Activity</router-link>
+                    <router-link to='/create'>Create Activity</router-link>
                 </li>
             </ul>
         </div>
@@ -80,9 +80,9 @@
 </template>
 
 <script setup>
-import { googleTokenLogin } from "vue3-google-login";
-import apiClient from "./api";
-import { addAlert, useAlert } from './functions/AlertManager';
+import { googleTokenLogin } from 'vue3-google-login';
+import apiClient from './api';
+import { useAlert } from './functions/AlertManager';
 import AlertToast from './component/AlertToast.vue';
 
 const { alerts } = useAlert();
@@ -90,14 +90,14 @@ const { alerts } = useAlert();
 
 <script>
 export default {
-    name: "App",
+    name: 'App',
     data() {
         return {
             isAuth: false,
-            fName: "",
-            lName: "",
+            fName: '',
+            lName: '',
             isDarkTheme: false,
-            pfp: "",
+            pfp: '',
             isDropdown: false,
             hideTimeout: null,
         };
@@ -105,14 +105,13 @@ export default {
     mounted() {
         this.authStatus();
         this.isDarkTheme = window.matchMedia(
-            "(prefers-color-scheme: dark)"
+            '(prefers-color-scheme: dark)'
         ).matches;
         window
-            .matchMedia("(prefers-color-scheme: dark)")
-            .addEventListener("change", (e) => {
+            .matchMedia('(prefers-color-scheme: dark)')
+            .addEventListener('change', (e) => {
                 this.isDarkTheme = e.matches;
             });
-        addAlert('success', 'Alert is successfully implemented');
     },
     onMounted() {
         this.authStatus();
@@ -176,7 +175,7 @@ export default {
                         `rest-auth/logout/`,
                         {},
                         {
-                            headers: { "X-CsrfToken": csrfToken },
+                            headers: { 'X-CsrfToken': csrfToken },
                             withCredentials: true,
                         }
                     );
@@ -187,12 +186,12 @@ export default {
                         access_token: logInResponse.access_token,
                     },
                     {
-                        headers: { "X-CsrfToken": csrfToken },
+                        headers: { 'X-CsrfToken': csrfToken },
                         withCredentials: true,
                     }
                 );
                 const accessToken = response.data.access;
-                sessionStorage.setItem("token", accessToken);
+                sessionStorage.setItem('token', accessToken);
                 this.isAuth = true;
                 this.getUserData();
             } catch (e) {
@@ -211,10 +210,10 @@ export default {
                 await apiClient.post(
                     `rest-auth/token/verify/`,
                     {
-                        token: sessionStorage.getItem("token"),
+                        token: sessionStorage.getItem('token'),
                     },
                     {
-                        headers: { "X-CsrfToken": csrfToken },
+                        headers: { 'X-CsrfToken': csrfToken },
                         withCredentials: true,
                     }
                 );
@@ -237,13 +236,13 @@ export default {
                     `rest-auth/logout/`,
                     {},
                     {
-                        headers: { "X-CsrfToken": csrfToken },
+                        headers: { 'X-CsrfToken': csrfToken },
                         withCredentials: true,
                     }
                 );
             }
             this.isAuth = false;
-            sessionStorage.setItem("token", "");
+            sessionStorage.setItem('token', '');
             this.isDropdown = false;
         },
         async getUserData() {

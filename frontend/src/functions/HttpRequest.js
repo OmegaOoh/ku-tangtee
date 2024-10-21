@@ -1,4 +1,4 @@
-import apiClient from "@/api";
+import apiClient from '@/api';
 
 async function getCsrfToken() {
     var csrfResponse = await apiClient.get(`/activities/get-csrf-token/`);
@@ -14,7 +14,7 @@ export async function createPostRequest(path, data){
     return await apiClient.post(path,
         data,
         {
-            headers: {"X-CSRFToken": csrfToken}
+            headers: {'X-CSRFToken': csrfToken}
         }
     )
 }
@@ -28,7 +28,7 @@ export async function createPutRequest(path, data) {
         return await apiClient.put(path,
             data,
             {
-                headers: {"X-CSRFToken": csrfToken}
+                headers: {'X-CSRFToken': csrfToken}
             }
         )
 }

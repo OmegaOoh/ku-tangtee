@@ -1,37 +1,37 @@
 <template>
-    <div class="container mx-auto p-4">
-        <h1 class="text-4xl font-bold mb-4">Activities List</h1>
+    <div class='container mx-auto p-4'>
+        <h1 class='text-4xl font-bold mb-4'>Activities List</h1>
         <div id='reload' style='padding: 1%;' hidden>
-            <button class ='btn btn-accent' @click="fetchActivities()">
+            <button class ='btn btn-accent' @click='fetchActivities()'>
                 New Activity Available!, Reload Now
             </button>
         </div>
-        <div v-if="activities.length">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div v-if='activities.length'>
+            <div class='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <div
-                    v-for="activity in activities"
-                    :key="activity.id"
-                    class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-200"
+                    v-for='activity in activities'
+                    :key='activity.id'
+                    class='card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-200'
                 >
                     <div
-                        class="bg-primary card-body p-4"
-                        style="border-radius: 8px"
+                        class='bg-primary card-body p-4'
+                        style='border-radius: 8px'
                     >
-                        <h2 class="card-title text-2xl font-semibold">
+                        <h2 class='card-title text-2xl font-semibold'>
                             {{ activity.name }}
                         </h2>
-                        <p class="line-clamp-2">{{ activity.detail }}</p>
+                        <p class='line-clamp-2'>{{ activity.detail }}</p>
                         <p>
                             Start date:
                             {{ formatActivityDate(activity.date) }}
                         </p>
-                        <div class="card-actions justify-end">
+                        <div class='card-actions justify-end'>
                             <router-link
-                                :to="{ path: `/activities/${activity.id}` }"
+                                :to='{ path: `/activities/${activity.id}` }'
                             >
                                 <button
-                                    class="btn btn-info"
-                                    @click="viewActivity(activity.id)"
+                                    class='btn btn-info'
+                                    @click='viewActivity(activity.id)'
                                 >
                                     View
                                 </button>
@@ -41,15 +41,15 @@
                 </div>
             </div>
         </div>
-        <p v-else class="text-center text-gray-500 mt-4">
+        <p v-else class='text-center text-gray-500 mt-4'>
             No upcoming activities found.
         </p>
     </div>
 </template>
 
 <script>
-import apiClient from "@/api"; // Get API
-import "@/styles/ActivityIndex.css";
+import apiClient from '@/api'; // Get API
+import '@/styles/ActivityIndex.css';
 
 export default {
     data() {
@@ -64,11 +64,11 @@ export default {
         this.fetchActivities();
         this.setupSocket();
         this.isDarkTheme = window.matchMedia(
-            "(prefers-color-scheme: dark)"
+            '(prefers-color-scheme: dark)'
         ).matches;
         window
-            .matchMedia("(prefers-color-scheme: dark)")
-            .addEventListener("change", (e) => {
+            .matchMedia('(prefers-color-scheme: dark)')
+            .addEventListener('change', (e) => {
                 this.isDarkTheme = e.matches;
             });
     },
@@ -80,11 +80,11 @@ export default {
              */
             try {
                 const response = await apiClient.get(
-                    "activities/get-timezone/"
+                    'activities/get-timezone/'
                 );
                 this.timeZoneOffset = response.data.offset; // Set the time zone offset
             } catch (error) {
-                console.error("Error fetching time zone offset:", error);
+                console.error('Error fetching time zone offset:', error);
             }
         },
         async fetchActivities() {
@@ -92,14 +92,14 @@ export default {
              * Get data for all activities from API.
              */
             try {
-                const response = await apiClient.get("/activities/"); // Trying to get data from API
+                const response = await apiClient.get('/activities/'); // Trying to get data from API
                 this.activities = response.data;
                 document.getElementById('reload').setAttribute('hidden', true);
             } catch (error) {
-                console.error("Error fetching activities:", error);
+                console.error('Error fetching activities:', error);
                 if (error.response) {
-                    console.error("Response data:", error.response.data);
-                    console.error("Response status:", error.response.status);
+                    console.error('Response data:', error.response.data);
+                    console.error('Response status:', error.response.status);
                 }
             }
         },
