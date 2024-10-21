@@ -1,7 +1,7 @@
 """Module for serializing data before respond a request."""
 from typing import Any
 
-from rest_framework import serializers
+from rest_framework import serializers, validators
 from . import models
 
 
@@ -24,3 +24,20 @@ class ActivitiesSerializer(serializers.ModelSerializer):
         host_ids = [attend.user_id for attend in act_host]
 
         return host_ids
+
+
+class AttendSerializer(serializers.ModelSerializer):
+    """Serialized Attend"""
+    
+    class Meta:
+        """Attend serializer META class."""
+        
+        model = models.Attend
+        fields = ('__all__')
+        
+        validators = [
+            validators.UniqueTogetherValidator(
+                queryset=model.objects.all(),
+                fields=['user', 'activity']
+            )
+        ]
