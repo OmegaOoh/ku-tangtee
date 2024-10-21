@@ -65,12 +65,12 @@
 <script>
 import apiClient from "@/api";
 import "@/styles/ActivityDetail.css";
+import { createPostRequest } from "@/functions/HttpRequest.js";
 export default {
     data() {
         return {
             activity: {},
             canJoin: true,
-            csrfToken: "",
             activityId: null,
             isDarkTheme: false,
             timeZoneOffset: 0,
@@ -106,14 +106,6 @@ export default {
                 console.error("Error fetching time zone offset:", error);
             }
         },
-        async getCsrfToken() {
-            /*
-             * Get CSRF Token.
-             * @returns {string} CSRF Token.
-             */
-            const response = await apiClient.get(`/activities/get-csrf-token`); // Ensure this points to the correct endpoint
-            return response.data.csrfToken; // Return the CSRF token
-        },
         async fetchActivity() {
             /*
              * Get data from specific activity including participant detail.
@@ -139,15 +131,9 @@ export default {
              * This function does not return anything.
              */
             try {
-                this.csrfToken = await this.getCsrfToken();
-                console.log(this.csrfToken);
-                const response = await apiClient.post(
+                const response = await createPostRequest(
                     `/activities/${this.activityId}/`,
-                    {},
-                    {
-                        headers: { "X-CSRFToken": this.csrfToken },
-                        withCredentials: true,
-                    }
+                    {}
                 );
                 alert(response.data.message);
                 location.reload(); // Refresh the page

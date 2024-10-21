@@ -53,7 +53,7 @@
 </template>
 
 <script>
-import apiClient from "@/api";
+import { createPostRequest } from "@/functions/HttpRequest.js";
 import "@/styles/WhiteText.css";
 export default {
     data() {
@@ -83,10 +83,6 @@ export default {
             if (this.maxPeople < 0) {
                 this.maxPeople = 0;
             }
-            const csrfResponse = await apiClient.get(
-                `/activities/get-csrf-token`
-            ); // Ensure this points to the correct endpoint
-            const csrfToken = csrfResponse.data.csrfToken;
             try {
                 // Construct data to create POST request
                 const dateObj = new Date(this.date);
@@ -97,14 +93,9 @@ export default {
                     date: formattedDate,
                     max_people: this.maxPeople || null,
                 };
-                const response = await apiClient.post(
+                const response = await createPostRequest(
                     `/activities/`,
-                    data,
-                    {
-                        // HTTP headers
-                        headers: { "X-CSRFToken": csrfToken },
-                        withCredentials: true,
-                    }
+                    data
                 );
                 alert(response.data.message);
                 this.$router.push(`/activities/${response.data.id}`);

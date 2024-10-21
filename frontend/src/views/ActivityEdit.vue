@@ -78,6 +78,7 @@
 <script>
 import apiClient from "@/api";
 import "@/styles/WhiteText.css";
+import { createPutRequest } from "@/functions/HttpRequest.js";
 export default {
     data() {
         return {
@@ -88,7 +89,7 @@ export default {
             maxPeople: 0,
             people: [],
             showMaxPeople: false,
-            isDarkTheme: false,
+
             activity: {},
             timeZoneOffset: 0,
         };
@@ -145,15 +146,10 @@ export default {
              * Attempt to update activity information.
              * This function does not return anything.
              */
-            // Validate numeric input
 
             if (this.maxPeople < 0) {
                 this.maxPeople = 0;
             }
-            const csrfResponse = await apiClient.get(
-                `/activities/get-csrf-token`
-            );
-            const csrfToken = csrfResponse.data.csrfToken;
             try {
                 // Construct data to create POST request
                 const data = {
@@ -162,14 +158,9 @@ export default {
                     date: this.date,
                     max_people: this.maxPeople || null,
                 };
-                const response = await apiClient.put(
+                const response = await createPutRequest(
                     `/activities/${this.activityId}/`,
-                    data,
-                    {
-                        // HTTP headers
-                        headers: { "X-CSRFToken": csrfToken },
-                        withCredentials: true,
-                    }
+                    data
                 );
                 alert(response.data.message);
                 this.$router.push(`/activities/${response.data.id}`);
