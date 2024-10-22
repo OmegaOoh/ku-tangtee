@@ -48,4 +48,23 @@ class JoinLeaveView(
         serializer.is_valid(raise_exception=True)
         new_attend = serializer.save()
         headers = self.get_success_headers(serializer.data)
-        return response.Response({'message': f'You have successfully joined the activity {new_attend.activity.name}'}, status=status.HTTP_201_CREATED, headers=headers)
+        return response.Response(
+            {'message': f'You have successfully joined the activity {new_attend.activity.name}'}, 
+            status=status.HTTP_201_CREATED, headers=headers
+        )
+        
+    def delete(self, request: HttpRequest, *args, **kwargs):
+        res = self.destroy(request, *args, **kwargs)
+        return res
+        
+    def destroy(self, request, *args, **kwargs) -> response.Response:
+        tobe_del = self.get_serializer().get_attend(self.kwargs.get('pk'), request.user.id)
+        self.perform_destroy(tobe_del)
+        return response.Response(
+            {'message': f"You've successfully leave {tobe_del.activity.name}"}, 
+            status=status.HTTP_200_OK
+        )
+        
+    # def get_object(self):
+    #     self.kwargs[self.lookup_field] = self.get_serializer.filter({'activity'})
+    #     return super().get_object()
