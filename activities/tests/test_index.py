@@ -56,10 +56,10 @@ class IndexTest(django.test.TestCase):
         self.assertJSONEqual(response.content, expected)
 
     def test_search_by_keyword(self):
-        """Only activities with keyword in its name showed on index page."""
+        """Only activities with keyword in its name or detail showed on index page."""
         _, activity1 = create_activity(host=self.host_user, data={"name": "tes1", "detail": "12"})
-        _, activity2 = create_activity(host=self.host_user, data={"name": "test2", "detail": "tes1"})
-        _, activity3 = create_activity(host=self.host_user, data={"name": "12", "detail": "test2"})
+        _, activity2 = create_activity(host=self.host_user, data={"name": "test2", "detail": "en"})
+        _, activity3 = create_activity(host=self.host_user, data={"name": "12", "detail": "garde"})
 
         json_act1 = activity_to_json(activity1)
         json_act2 = activity_to_json(activity2)
@@ -71,8 +71,8 @@ class IndexTest(django.test.TestCase):
         response = self.client.get(urls.reverse("activities:index") + "?keyword=tes")
         self.assertJSONEqual(response.content, [json_act1, json_act2])
 
-        response = self.client.get(urls.reverse("activities:index") + "?keyword=1")
-        self.assertJSONEqual(response.content, [json_act1, json_act3])
+        response = self.client.get(urls.reverse("activities:index") + "?keyword=2")
+        self.assertJSONEqual(response.content, [json_act1, json_act2, json_act3])
 
         response = self.client.get(urls.reverse("activities:index") + "?keyword=")
         self.assertJSONEqual(response.content, [json_act1, json_act2, json_act3])

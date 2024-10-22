@@ -2,6 +2,7 @@
 from typing import Any
 from django.http import HttpRequest
 from django.utils import timezone
+from django.db.models import Q
 from rest_framework import generics, permissions, mixins, response
 from activities import models, serializers
 from channels import layers
@@ -23,9 +24,8 @@ class ActivityList(
         """Handle get request by return with list of activity."""
         keyword = request.GET.get("keyword")
         if keyword:
-            activity = models.Activity.objects.filter(
-                name__iregex=rf'{keyword}',
-                date__gte=timezone.now()).order_by("date")
+            activity = models.Activity.objects.filter(Q(name__iregex=rf'{keyword}') | Q(detail__iregex=rf'{keyword}'),
+                                                      date__gte=timezone.now()).order_by("date")
             serializer = serializers.ActivitiesSerializer(activity, many=True)
             return response.Response(serializer.data)
 
