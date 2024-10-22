@@ -36,12 +36,12 @@ class JoinLeaveView(
             status=status.HTTP_201_CREATED, headers=headers
         )
 
-    def delete(self, request: HttpRequest, *args: Any, **kwargs: Any):
+    def delete(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Handle delete request by destroy attend instance."""
         res = self.destroy(request, *args, **kwargs)
         return res
 
-    def destroy(self, request, *args, **kwargs) -> response.Response:
+    def destroy(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Get attend instance and destroy it."""
         tobe_del = self.get_serializer().get_attend(self.kwargs.get('pk'), request.user.id)
         self.perform_destroy(tobe_del)

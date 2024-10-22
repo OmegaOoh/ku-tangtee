@@ -4,26 +4,32 @@ from rest_framework import serializers, validators, exceptions
 from . import models
 
 
-def can_join_validator(attrs: dict, *args: Any, **kwargs: Any) -> serializers.ValidationError | None:
+def can_join_validator(
+    attrs: dict[str, models.Activity],
+    *args: Any, **kwargs: Any
+) -> serializers.ValidationError | None:
     """Validate activity joinability."""
-    act = attrs.get('activity')
+    act: models.Activity | None = attrs.get('activity')
 
-    if not act.can_join():
-        message = f'The activity {act.name} is full.'
-        raise serializers.ValidationError(message)
+    if act:
+        if not act.can_join():
+            message = f'The activity {act.name} is full.'
+            raise serializers.ValidationError(message)
+
+    return None
 
 
 class CustomMsgUniqueTogetherValidator(validators.UniqueTogetherValidator):
     """Custom validator class base from UniqueTogetherValidator."""
 
-    def __call__(self, attrs: dict, serializer: serializers.Serializer):
+    def __call__(self, attrs: dict[str, Any], serializer: serializers.Serializer) -> Any:
         """Make object callable."""
         try:
             return super().__call__(attrs, serializer)
         except validators.ValidationError:
             raise validators.ValidationError(
                 {
-                    "message": f"You've already joined the activity {attrs.get('activity').name}."
+                    "message": f"You've already joined the activity {attrs['activity'].name}."
                 },
                 code='unique'
             )
@@ -67,7 +73,7 @@ class AttendSerializer(serializers.ModelSerializer):
             can_join_validator
         ]
 
-    def get_attend(self, activity_id, user_id) -> models.Attend:
+    def get_attend(self, activity_id: int, user_id: int) -> Any:
         """Return attend object specify by activity_id and user_id."""
         try:
             return models.Attend.objects.get(
