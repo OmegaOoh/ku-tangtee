@@ -42,7 +42,7 @@
                             <ul>
                                 <li
                                     class='block px-4 py-2 text-center hover:bg-base-300 cursor-pointer rounded-full'
-                                    @click='logout'
+                                    @click='navBarLogout'
                                 >
                                     Logout
                                 </li>
@@ -80,11 +80,9 @@
 </template>
 
 <script setup>
-import { googleTokenLogin } from 'vue3-google-login';
-import apiClient from './api';
 import { useAlert } from './functions/AlertManager';
 import AlertToast from './component/AlertToast.vue';
-import { createPostRequest } from './functions/HttpRequest';
+import { login, logout, authStatus, isAuth, fName, lName, pfp } from './functions/Authentications';
 
 const { alerts } = useAlert();
 </script>
@@ -94,17 +92,12 @@ export default {
     name: 'App',
     data() {
         return {
-            isAuth: false,
-            fName: '',
-            lName: '',
             isDarkTheme: false,
-            pfp: '',
             isDropdown: false,
-            hideTimeout: null,
         };
     },
     mounted() {
-        this.authStatus();
+        authStatus();
         this.isDarkTheme = window.matchMedia(
             '(prefers-color-scheme: dark)'
         ).matches;
@@ -113,9 +106,6 @@ export default {
             .addEventListener('change', (e) => {
                 this.isDarkTheme = e.matches;
             });
-    },
-    onMounted() {
-        this.authStatus();
     },
     methods: {
         showDropdown() {
@@ -161,73 +151,14 @@ export default {
             this.isMouseOverDropdown = true;
             clearTimeout(this.hideTimeout);
         },
-        async login() {
+        navBarLogout() {
             /**
-             * Log user in with Google authentication token and set user data.
-             * This function return nothing.
+             * Logout and close the dropdown.
+             * This function returns nothing.
              */
-            try {
-                const logInResponse = await googleTokenLogin();
-                if (this.isAuth) {
-                    this.logout();
-                }
-                const response = await createPostRequest(
-                    `auth/google-oauth2/`,
-                    {
-                        access_token: logInResponse.access_token,
-                    },
-                );
-                const accessToken = response.data.access;
-                sessionStorage.setItem('token', accessToken);
-                this.isAuth = true;
-                this.getUserData();
-            } catch (e) {
-                console.log(e);
-            }
-        },
-        async authStatus() {
-            /**
-             * Check session authentication status
-             * This function does not return anything.
-             */
-            try {
-                await createPostRequest(
-                    `rest-auth/token/verify/`,
-                    {
-                        token: sessionStorage.getItem('token'),
-                    },
-                );
-                this.isAuth = true;
-                this.getUserData();
-            } catch {
-                this.isAuth = false;
-                this.logout();
-            }
-        },
-        async logout() {
-            /**
-             * Logout user from the system.
-             * this function return nothing.
-             */
-            await createPostRequest(
-                `rest-auth/logout/`,
-                {},
-            );
-            this.isAuth = false;
-            sessionStorage.setItem('token', '');
+            logout();
             this.isDropdown = false;
-        },
-        async getUserData() {
-            /**
-             * Get user data from backend.
-             * this function return nothing.
-             */
-            const response = await apiClient.get(`rest-auth/user/`);
-            this.fName = response.data.first_name;
-            this.lName = response.data.last_name;
-            const profilePic = await apiClient.get(`profile-pic/`);
-            this.pfp = profilePic.data.profile_picture_url;
-        },
+        }
     },
 };
 </script>
