@@ -64,7 +64,7 @@ class JoinTest(django.test.TestCase):
         self.client.force_login(attender)
 
         response = self.client.post(self.url(new_act.id))
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 403)
         new_act.refresh_from_db()
         self.assertEqual(new_act.people, 1)
         self.assertNotIn(attender, new_act.participants())
@@ -86,7 +86,8 @@ class JoinTest(django.test.TestCase):
 
         # Second time joined, get error and number of people stays the same.
         response = self.client.post(self.url(new_act.id))
-        self.assertEqual(response.status_code, 400)
+        print(response)
+        self.assertEqual(response.status_code, 403)
         new_act.refresh_from_db()
         self.assertEqual(new_act.people, 2)
         self.assertIn(attender, new_act.participants())
