@@ -1,8 +1,8 @@
 """Module for serializing data before respond a request."""
 from typing import Any
-
-from rest_framework import serializers, validators
+from rest_framework import serializers, validators, exceptions
 from . import models
+
 
 def can_join_validator(attrs, *args, **kwargs) -> serializers.ValidationError | None:
     act = attrs.get('activity')
@@ -58,4 +58,13 @@ class AttendSerializer(serializers.ModelSerializer):
             ),
             can_join_validator
         ]
+        
+    def get_attend(self, activity_id, user_id) -> models.Attend:
+        try:
+            return models.Attend.objects.get(
+                activity__id=activity_id, 
+                user__id=user_id
+            )
+        except models.Attend.DoesNotExist as e:
+            raise exceptions.APIException("You've never join this activity")
 
