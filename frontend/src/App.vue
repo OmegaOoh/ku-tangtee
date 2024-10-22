@@ -84,6 +84,7 @@ import { googleTokenLogin } from 'vue3-google-login';
 import apiClient from './api';
 import { useAlert } from './functions/AlertManager';
 import AlertToast from './component/AlertToast.vue';
+import { createPostRequest } from './functions/HttpRequest';
 
 const { alerts } = useAlert();
 </script>
@@ -167,28 +168,14 @@ export default {
              */
             try {
                 const logInResponse = await googleTokenLogin();
-                const csrfToken = (
-                    await apiClient.get(`activities/get-csrf-token/`, {})
-                ).data.csrfToken;
                 if (this.isAuth) {
-                    await apiClient.post(
-                        `rest-auth/logout/`,
-                        {},
-                        {
-                            headers: { 'X-CsrfToken': csrfToken },
-                            withCredentials: true,
-                        }
-                    );
+                    this.logout();
                 }
-                const response = await apiClient.post(
+                const response = await createPostRequest(
                     `auth/google-oauth2/`,
                     {
                         access_token: logInResponse.access_token,
                     },
-                    {
-                        headers: { 'X-CsrfToken': csrfToken },
-                        withCredentials: true,
-                    }
                 );
                 const accessToken = response.data.access;
                 sessionStorage.setItem('token', accessToken);
@@ -204,23 +191,17 @@ export default {
              * This function does not return anything.
              */
             try {
-                const csrfToken = (
-                    await apiClient.get(`activities/get-csrf-token/`, {})
-                ).data.csrfToken;
-                await apiClient.post(
+                await createPostRequest(
                     `rest-auth/token/verify/`,
                     {
                         token: sessionStorage.getItem('token'),
                     },
-                    {
-                        headers: { 'X-CsrfToken': csrfToken },
-                        withCredentials: true,
-                    }
                 );
                 this.isAuth = true;
                 this.getUserData();
             } catch {
                 this.isAuth = false;
+                this.logout();
             }
         },
         async logout() {
@@ -228,19 +209,10 @@ export default {
              * Logout user from the system.
              * this function return nothing.
              */
-            const csrfToken = (
-                await apiClient.get(`activities/get-csrf-token/`, {})
-            ).data.csrfToken;
-            if (this.isAuth) {
-                await apiClient.post(
-                    `rest-auth/logout/`,
-                    {},
-                    {
-                        headers: { 'X-CsrfToken': csrfToken },
-                        withCredentials: true,
-                    }
-                );
-            }
+            await createPostRequest(
+                `rest-auth/logout/`,
+                {},
+            );
             this.isAuth = false;
             sessionStorage.setItem('token', '');
             this.isDropdown = false;
