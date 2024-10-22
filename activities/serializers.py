@@ -1,33 +1,46 @@
 """Module for serializing data before respond a request."""
 from typing import Any
-from rest_framework import serializers, validators, exceptions
+from rest_framework import serializers, validators, exceptions, status
 from . import models
 
 
-def can_join_validator(
-    attrs: dict[str, models.Activity],
-    *args: Any, **kwargs: Any
-) -> serializers.ValidationError | None:
+class ForbiddenValidationError(exceptions.APIException):
+    """Custom error inherit from ValidationError but different error code."""
+
+    status_code = status.HTTP_403_FORBIDDEN
+
+
+class CanJoinValidator:
     """Validate activity joinability."""
-    act: models.Activity | None = attrs.get('activity')
 
-    if act:
-        if not act.can_join():
-            message = f'The activity {act.name} is full.'
-            raise serializers.ValidationError(message)
+    def __call__(
+        self,
+        attrs: dict[str, models.Activity],
+        *args: Any,
+        **kwargs: Any
+    ) -> None:
+        """Raise an error if actican't join."""
+        act: models.Activity = attrs['activity']
 
-    return None
+        if act:
+            if not act.can_join():
+                message = f'The activity {act.name} is full.'
+                raise ForbiddenValidationError(message)
+
+        return None
 
 
 class CustomMsgUniqueTogetherValidator(validators.UniqueTogetherValidator):
     """Custom validator class base from UniqueTogetherValidator."""
+
+    status_code = status.HTTP_403_FORBIDDEN
 
     def __call__(self, attrs: dict[str, Any], serializer: serializers.Serializer) -> Any:
         """Make object callable."""
         try:
             return super().__call__(attrs, serializer)
         except validators.ValidationError:
-            raise validators.ValidationError(
+            raise ForbiddenValidationError(
                 {
                     "message": f"You've already joined the activity {attrs['activity'].name}."
                 },
@@ -70,7 +83,7 @@ class AttendSerializer(serializers.ModelSerializer):
                 queryset=model.objects.all(),
                 fields=['user', 'activity']
             ),
-            can_join_validator
+            CanJoinValidator()
         ]
 
     def get_attend(self, activity_id: int, user_id: int) -> Any:
