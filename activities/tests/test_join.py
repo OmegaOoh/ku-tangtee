@@ -39,7 +39,8 @@ class JoinTest(django.test.TestCase):
         self.assertIn(attender, new_act.participants())
 
         response_dict = response.json()
-        self.assertEqual(response_dict['message'], f'You have successfully joined the activity {new_act.name}')
+        
+        self.assertJSONEqual(response.content, {'message': f'You have successfully joined the activity {new_act.name}'})
         
     def test_join_not_exist_actitvity(self):
         
@@ -93,5 +94,52 @@ class JoinTest(django.test.TestCase):
         self.assertEqual(new_act.people, 2)
         self.assertIn(attender, new_act.participants())
 
-        response_dict = json.loads(response.content)
         self.assertJSONEqual(response.content, {'message': f"You've already joined the activity {new_act.name}."})
+        
+    def test_logout_leave(self):
+        """Join should respond with error if user are not authenticated."""
+        _, new_act = create_activity(host=self.host)
+
+        self.client.logout()
+        response = self.client.delete(self.url(new_act.id))
+        self.assertEqual(response.status_code, 403)
+        self.assertJSONEqual(response.content, {'message': 'Authentication credentials were not provided.'})
+        
+    def test_leave_activity(self):
+        _, new_act = create_activity(host=self.host)
+
+        attender = create_test_user("Attend")
+        self.client.force_login(attender)
+        
+        _ = self.client.post(self.url(new_act.id))
+        new_act.refresh_from_db()
+        self.assertEqual(new_act.people, 2)
+        
+        response = self.client.delete(self.url(new_act.id))
+        new_act.refresh_from_db()
+        self.assertEqual(new_act.people, 1)
+
+        self.assertNotIn(attender, new_act.participants())
+        
+        self.assertJSONEqual(response.content, {'message': f"You've successfully leave {new_act.name}"})
+        # self.assertJSONEqual(response.content, {'message': f"You've already joined the activity {new_act.name}."})
+
+    def test_leave_not_exist_activity(self):
+            # _, new_act = create_activity(host=self.host)
+
+            attender = create_test_user("Attend")
+            self.client.force_login(attender)
+            
+            response = self.client.delete(self.url(9999))
+            
+            self.assertJSONEqual(response.content, {'message': "You've never join this activity"})
+
+    def test_leave_activity_that_they_havent_join(self):
+            _, new_act = create_activity(host=self.host)
+
+            attender = create_test_user("Attend")
+            self.client.force_login(attender)
+            
+            response = self.client.delete(self.url(new_act.id))
+            
+            self.assertJSONEqual(response.content, {'message': "You've never join this activity"})
