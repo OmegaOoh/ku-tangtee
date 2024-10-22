@@ -2,18 +2,17 @@
     <div class='drawer h-screen'>
         <input id='my-drawer' type='checkbox' class='drawer-toggle' />
         <div class='drawer-content flex flex-col'>
-            <div class='flex items-center justify-between p-4'>
+            <div class='flex items-center justify-between p-4 sticky z-10 top-0 backdrop-blur-md w-screen h-10'>
                 <label
                     for='my-drawer'
-                    class='btn btn-primary drawer-button'
-                    style='width: auto; padding: 0.5rem 1rem'
+                    class='btn btn-ghost drawer-button w-auto h-5'
                 >
                     ☰
                 </label>
                 <div>
                     <div v-if='!isAuth'>
-                        <button class='btn btn-primary' @click='login'>
-                            Login Using Google
+                        <button class='btn btn-ghost' @click='login'>
+                            Login
                         </button>
                     </div>
                     <div
@@ -23,14 +22,14 @@
                         @mouseleave='hideDropdown'
                     >
                         <div
-                            class='btn btn-primary flex items-center cursor-pointer'
+                            class='btn btn-ghost flex items-center cursor-pointer'
                         >
                             <img
+                                v-if='pfp'
                                 :src='pfp'
                                 alt='Profile Picture'
                                 class='w-8 h-8 rounded-full mr-2'
                             />
-                            <span>{{ fName }} {{ lName }}</span>
                         </div>
                         <div
                             v-if='isDropdown'
@@ -41,7 +40,7 @@
                             <ul>
                                 <li
                                     class='block px-4 py-2 text-center hover:bg-base-300 cursor-pointer rounded-full'
-                                    @click='navBarLogout'
+                                    @click='logout'
                                 >
                                     Logout
                                 </li>
@@ -50,16 +49,19 @@
                     </div>
                 </div>
             </div>
-            <AlertToast
-                v-for='(alert, index) in alerts'
-                :key='index'
-                :content='alert.content'
-                :type='alert.type'
-                :isVisible='alert.isVisible'
-                @update:isVisible='hideAlert(index)'
-            />
-
             <router-view />
+            <div class='z-20 fixed bottom-1 right-0 w-2/5'>
+                <AlertToast
+                    v-for='(alert, index) in alerts'
+                    class='text-ms justify-start h-auto'
+                    style='margin-top: 0.25rem;'
+                    :key='index'
+                    :content='alert.content'
+                    :type='alert.type'
+                    :isVisible='alert.isVisible'
+                    @update:isVisible='hideAlert(index)'
+                />
+            </div>
         </div>
         <div class='drawer-side'>
             <label
@@ -81,7 +83,7 @@
 <script setup>
 import { useAlert } from './functions/AlertManager';
 import AlertToast from './component/AlertToast.vue';
-import { login, logout, authStatus, isAuth, fName, lName, pfp } from './functions/Authentications';
+import { login, logout, authStatus, isAuth, pfp } from './functions/Authentications';
 
 const { alerts } = useAlert();
 </script>
