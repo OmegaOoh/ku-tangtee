@@ -29,11 +29,6 @@ class JoinLeaveView(
     serializer_class = serializers.AttendSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
-        return response.Response({
-            'yes': 'yes'
-        })
-
     def post(self, request: HttpRequest, *args, **kwargs) -> response.Response:
         return self.create(request, *args, **kwargs)
     
