@@ -26,7 +26,6 @@
                             class='btn btn-primary flex items-center cursor-pointer'
                         >
                             <img
-                                v-if='pfp'
                                 :src='pfp'
                                 alt='Profile Picture'
                                 class='w-8 h-8 rounded-full mr-2'
@@ -59,7 +58,7 @@
                 :isVisible='alert.isVisible'
                 @update:isVisible='hideAlert(index)'
             />
-            
+
             <router-view />
         </div>
         <div class='drawer-side'>
