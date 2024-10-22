@@ -19,7 +19,12 @@ class CanJoinValidator:
         *args: Any,
         **kwargs: Any
     ) -> None:
-        """Raise an error if actican't join."""
+        """Raise an error if activity is unjoinable.
+
+        :param attrs: Dict contain instance of each fields.
+        :raises ForbiddenValidationError: If activity is unjoinable.
+        :return: None
+        """
         act: models.Activity = attrs['activity']
 
         if act:
@@ -36,7 +41,12 @@ class CustomMsgUniqueTogetherValidator(validators.UniqueTogetherValidator):
     status_code = status.HTTP_403_FORBIDDEN
 
     def __call__(self, attrs: dict[str, Any], serializer: serializers.Serializer) -> Any:
-        """Make object callable."""
+        """Validate data such that user can't join activity that they've join.
+
+        :param attrs: Dict contain instance of each fields.
+        :raises ForbiddenValidationError: If user id and activity id combination are not unique.
+        :return: _description_
+        """
         try:
             return super().__call__(attrs, serializer)
         except validators.ValidationError:
@@ -62,7 +72,11 @@ class ActivitiesSerializer(serializers.ModelSerializer):
         fields = ('__all__')
 
     def get_host(self, obj: models.Activity) -> list[Any]:
-        """Return list of activity host."""
+        """Return list of activity host.
+
+        :param obj: Instance of activity model
+        :return: List of activity host id
+        """
         act_host = models.Attend.objects.filter(activity=obj, is_host=True)
         host_ids = [attend.user_id for attend in act_host]
 
@@ -87,7 +101,13 @@ class AttendSerializer(serializers.ModelSerializer):
         ]
 
     def get_attend(self, activity_id: int, user_id: int) -> Any:
-        """Return attend object specify by activity_id and user_id."""
+        """Return attend object specify by activity_id and user_id.
+
+        :param activity_id: Id of activity model instance
+        :param user_id: Id of user model instance
+        :raises exceptions.APIException: if Attend object with specify id not exist.
+        :return: None
+        """
         try:
             return models.Attend.objects.get(
                 activity__id=activity_id,
