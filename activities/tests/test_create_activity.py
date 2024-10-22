@@ -91,9 +91,13 @@ class CreateActivityTest(django.test.TestCase):
         response = post_request_json_data(self.url, self.client, data)
         self.assertEqual(response.status_code, 400)
 
-        self.assertJSONEqual(response.content,
-                             {'message': 'Datetime has wrong format. Use one of these formats instead: '
-                                       'YYYY-MM-DDThh:mm[:ss[.uuuuuu]][+HH:MM|-HH:MM|Z].'})
+        expect_datetime_format = 'YYYY-MM-DDThh:mm[:ss[.uuuuuu]][+HH:MM|-HH:MM|Z].'
+
+        self.assertJSONEqual(
+            response.content,
+            {'message':
+                f'Datetime has wrong format. Use one of these formats instead: {expect_datetime_format}'}
+        )
 
     def test_invalid_activity_creation_with_too_long_activity_name(self):
         """Create should return json with error message."""

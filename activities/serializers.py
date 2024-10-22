@@ -4,21 +4,29 @@ from rest_framework import serializers, validators, exceptions
 from . import models
 
 
-def can_join_validator(attrs, *args, **kwargs) -> serializers.ValidationError | None:
+def can_join_validator(attrs: dict, *args: Any, **kwargs: Any) -> serializers.ValidationError | None:
+    """Validate activity joinability."""
     act = attrs.get('activity')
 
     if not act.can_join():
         message = f'The activity {act.name} is full.'
         raise serializers.ValidationError(message)
-   
-    
+
+
 class CustomMsgUniqueTogetherValidator(validators.UniqueTogetherValidator):
-    
-    def __call__(self, attrs, serializer):
-        try: 
+    """Custom validator class base from UniqueTogetherValidator."""
+
+    def __call__(self, attrs: dict, serializer: serializers.Serializer):
+        """Make object callable."""
+        try:
             return super().__call__(attrs, serializer)
         except validators.ValidationError:
-            raise validators.ValidationError({"message": f"You've already joined the activity {attrs.get('activity').name}."}, code='unique')
+            raise validators.ValidationError(
+                {
+                    "message": f"You've already joined the activity {attrs.get('activity').name}."
+                },
+                code='unique'
+            )
 
 
 class ActivitiesSerializer(serializers.ModelSerializer):
@@ -43,14 +51,14 @@ class ActivitiesSerializer(serializers.ModelSerializer):
 
 
 class AttendSerializer(serializers.ModelSerializer):
-    """Serialized Attend"""
-    
+    """Serialized Attend."""
+
     class Meta:
         """Attend serializer META class."""
-        
+
         model = models.Attend
         fields = ('__all__')
-        
+
         validators = [
             CustomMsgUniqueTogetherValidator(
                 queryset=model.objects.all(),
@@ -58,13 +66,13 @@ class AttendSerializer(serializers.ModelSerializer):
             ),
             can_join_validator
         ]
-        
+
     def get_attend(self, activity_id, user_id) -> models.Attend:
+        """Return attend object specify by activity_id and user_id."""
         try:
             return models.Attend.objects.get(
-                activity__id=activity_id, 
+                activity__id=activity_id,
                 user__id=user_id
             )
-        except models.Attend.DoesNotExist as e:
+        except models.Attend.DoesNotExist:
             raise exceptions.APIException("You've never join this activity")
-
