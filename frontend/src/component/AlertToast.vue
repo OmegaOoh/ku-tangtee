@@ -1,6 +1,6 @@
 <template>
     <div role="alert" class='fade' :class="alertClass" v-if="isVisible">
-        <component :is="alertIcon" class="h-6 w-6 shrink-0 stroke-current"></component>
+        <component :is="alertIcon" class="h-6 w-6 shrink-0 stroke-current "></component>
         <span>{{ content }}</span>
     </div>
 </template>
@@ -69,20 +69,5 @@ const alertTypeIcon = {
 
 // Computed properties for alert class and icon
 const alertClass = computed(() => alertType[props.type] || alertType.info);
-//const alertIcon = computed(() => alertTypeIcon[props.type] || alertTypeIcon.info);
-const alertIcon = computed(() => {
-    const icon = alertTypeIcon[props.type];
-    console.log(icon); // Log the icon being used
-    return icon || alertTypeIcon.info;
-});
-
+const alertIcon = computed(() => alertTypeIcon[props.type] || alertTypeIcon.info);
 </script>
-
-<style scoped>
-.fade-enter-active, .fade-leave-active {
-    transition: opacity 0.5s;
-}
-.fade-enter, .fade-leave-to {
-    opacity: 0;
-}
-</style>

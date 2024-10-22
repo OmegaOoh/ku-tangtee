@@ -9,7 +9,7 @@ export function addAlert(type, content) {
      */
     alerts.value.push({type, content, isVisible: true});
     setTimeout(() => {
-        alerts.value[alerts.value.length - 1].isVisible = false;
+        hideAlert(0);
     }, 3000);
 }
 
@@ -19,6 +19,7 @@ export function hideAlert(index) {
      * this function return nothing.
      */
     alerts.value[index].isVisible = false;
+    alerts.value.splice(index, 1);
 }
 
 export function useAlert() {
