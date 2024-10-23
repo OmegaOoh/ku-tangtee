@@ -1,6 +1,6 @@
 <template>
-    <div class='p-6 bg-base-100 shadow-md rounded-lg'>
-        <div class='bg-primary card-body p-4' style='border-radius: 8px'>
+    <div class='p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6'>
+        <div class='card-body p-4' style='border-radius: 8px'>
             <h1 class='text-4xl font-bold mb-4 ml-2'>
                 {{ activity.name }}
             </h1>
@@ -40,33 +40,55 @@
 
             <div class='flex justify-between items-center'>
                 <div class='flex space-x-4'>
-                    <button @click='goToEdit' class='btn btn-warning ml-2 mr-2'>
+                    <button v-if="isHost" @click='goToEdit' class='btn btn-warning ml-2 mr-2'>
                         Edit
                     </button>
                     <button @click='goBack' class='btn btn-info ml-2 mr-2'>
                         Back to Activities
                     </button>
                 </div>
-                <button
-                    v-if='canJoin'
-                    @click='joinActivity'
-                    class='btn btn-success ml-2 mr-2'
-                >
-                    Join Activity
-                </button>
-                <p v-else class='text-red-500 mt-4 ml-2 mr-2'>
-                    This activity cannot be joined.
-                </p>
+                <div v-if="!isAuth">
+                    <button class="btn btn-accent" @click="login">Please Login before join</button>
+                </div>
+                <div v-else-if="isJoined">
+                    <button class="btn btn-secondary">
+                        Chat
+                    </button>
+                    <button class="btn btn-accent mx-4">
+                        Leave Activity
+                    </button>
+                </div>
+                <div v-else>
+                    <button v-if="canJoin"
+                        id="join-button"
+                        @click='joinActivity'
+                        class='btn btn-primary ml-2 mr-2'
+                    >
+                        Join Activity
+                    </button>
+                    <button v-else
+                        id="join-button"
+                        @click='joinActivity'
+                        class='btn btn-disabled ml-2 mr-2'
+                    >
+                        Join Activity
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
-<script>
+<script setup>
 import { addAlert } from '@/functions/AlertManager';
 import apiClient from '@/api';
-import '@/styles/ActivityDetail.css';
 import { createPostRequest } from '@/functions/HttpRequest.js';
+import { isAuth, login, userId } from '@/functions/Authentications';
+import { watch } from 'vue';
+</script>
+
+<script>
+
 export default {
     data() {
         return {
@@ -76,6 +98,9 @@ export default {
             isDarkTheme: false,
             timeZoneOffset: 0,
             people: [],
+            hosts: [],
+            isHost: false,
+            isJoined: false,
         };
     },
     methods: {
@@ -88,7 +113,7 @@ export default {
         },
         goToEdit() {
             /*
-             * Navigagte to Activity Edit page.
+             * Navigate to Activity Edit page.
              * This function does not return anything.
              */
             this.$router.push(`/activities/${this.activityId}/edit`);
@@ -107,7 +132,7 @@ export default {
                 console.error('Error fetching time zone offset:', error);
             }
         },
-        async fetchActivity() {
+        async fetchDetail() {
             /*
              * Get data from specific activity including participant detail.
              * This function does not return anything.
@@ -121,7 +146,11 @@ export default {
                     `/activities/get-participant/${this.activity.id}/`
                 );
                 this.people = participant.data;
-                this.canJoin = this.activity.can_join; // Adjust this based on your backend logic
+                this.canJoin = this.activity.can_join;
+                console.log(response);
+                this.hosts = response.data.host;
+                this.checkHost();
+                this.checkJoined();
             } catch (error) {
                 console.error('Error fetching activity:', error);
             }
@@ -137,7 +166,7 @@ export default {
                     {}
                 );
                 addAlert('success', response.data.message);
-                this.fetchActivity(); //Fetch Activity
+                this.fetchDetail(); //Fetch Activity
             } catch (error) {
                 if (error.response && error.response.data) {
                     addAlert('error', error.response.data.message); // Show error message from backend
@@ -159,10 +188,24 @@ export default {
             const localDate = new Date(dateObj.getTime() + offsetMilliseconds);
             return localDate.toLocaleString(); // Return the localized date string
         },
+        checkJoined() {
+            /**
+             * Check if current user joined the activity
+             * return boolean whether or not user is joined
+             */
+            this.isJoined = this.people.some(element => element['id'] === userId.value);
+        },
+        checkHost() {
+            /**
+             * Check whether or not user is host of activity.
+             * return boolean
+             */
+            this.isHost = this.hosts.includes(userId.value);
+        },
     },
     mounted() {
         this.activityId = this.$route.params.id;
-        this.fetchActivity();
+        this.fetchDetail();
         this.isDarkTheme = window.matchMedia(
             '(prefers-color-scheme: dark)'
         ).matches;
@@ -172,6 +215,13 @@ export default {
                 this.isDarkTheme = e.matches;
             });
         this.fetchTimeZoneOffset();
+        watch(userId, (newUserId) => {
+            if(newUserId) {
+                this.checkHost();
+                this.checkJoined();
+            }
+        })
     },
 };
+
 </script>

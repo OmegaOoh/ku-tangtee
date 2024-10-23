@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { ref } from 'vue';
 import apiClient from '@/api';
 import { googleTokenLogin } from 'vue3-google-login';
 import { createPostRequest } from './HttpRequest';
@@ -8,6 +8,7 @@ export var isAuth = ref(false);
 export var fName = ref('');
 export var lName = ref('');
 export var pfp = ref('');
+export var userId = ref(-1);
 
 export async function login() {
     /**
@@ -63,6 +64,10 @@ export async function logout() {
         {},
     );
     isAuth.value = false;
+    fName.value = '';
+    lName.value = '';
+    pfp.value = '';
+    userId.value = '';
     sessionStorage.setItem('token', '');
 }
 
@@ -76,4 +81,5 @@ export async function getUserData() {
     lName.value = response.data.last_name;
     const profilePic = await apiClient.get(`profile-pic/`);
     pfp.value = profilePic.data.profile_picture_url;
+    userId.value = response.data.pk;
 }
