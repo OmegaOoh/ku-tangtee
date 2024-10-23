@@ -2,7 +2,7 @@
 from typing import Any
 from django.http import HttpRequest
 from django.utils import timezone
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 from rest_framework import generics, permissions, mixins, response
 from activities import models, serializers
 from channels import layers
@@ -19,7 +19,7 @@ class ActivityList(
     serializer_class = serializers.ActivitiesSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
         """Activity index view returns a list of all the activities according to query parameters."""
         queryset = models.Activity.objects.filter(date__gte=timezone.now()).order_by("date")
 
