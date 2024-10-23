@@ -1,17 +1,16 @@
 """Test module for chat websocket."""
+import django.test
 from channels.testing import WebsocketCommunicator
 from django.contrib.auth import get_user_model
-from django.test import TransactionTestCase
 from activities.models import Activity, Attend
 from mysite.asgi import application
 from django.utils import timezone
 from asgiref.sync import async_to_sync
-from MySQLdb import OperationalError
 
 User = get_user_model()
 
 
-class ChatWebSocketTest(TransactionTestCase):
+class ChatWebSocketTest(django.test.TransactionTestCase):
     """Test for chat message websocket."""
 
     def setUp(self):
@@ -31,25 +30,21 @@ class ChatWebSocketTest(TransactionTestCase):
         # Define async test for WebSocket connection and messaging
 
         async def async_test():
-            try:
-                # Initialize WebSocket communicator with ASGI application
-                communicator = WebsocketCommunicator(application, f"/ws/chat/{self.activity.id}")
-                communicator.scope['user'] = self.user
-                # Connect to the WebSocket
-                connected, subprotocol = await communicator.connect()
-                self.assertTrue(connected, "WebSocket connection failed.")
+            # Initialize WebSocket communicator with ASGI application
+            communicator = WebsocketCommunicator(application, f"/ws/chat/{self.activity.id}")
+            communicator.scope['user'] = self.user
+            # Connect to the WebSocket
+            connected, subprotocol = await communicator.connect()
+            self.assertTrue(connected, "WebSocket connection failed.")
 
-                # Send a test message
-                await communicator.send_json_to({
-                    "message": "Test Message",
-                })
-                # Receive message from WebSocket
-                response = await communicator.receive_json_from()
-                self.assertEqual(response["message"], "Test Message")
-                # Close WebSocket connection
-                await communicator.disconnect()
-            except OperationalError as e:
-                print(f"MySQL error occurred: {e}")
-                raise
+            # Send a test message
+            await communicator.send_json_to({
+                "message": "Test Message",
+            })
+            # Receive message from WebSocket
+            response = await communicator.receive_json_from()
+            self.assertEqual(response["message"], "Test Message")
+            # Close WebSocket connection
+            await communicator.disconnect()
         # Run the async test using async_to_sync
         async_to_sync(async_test)()
