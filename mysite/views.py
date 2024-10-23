@@ -11,6 +11,6 @@ def profile_picture_view(request: HttpRequest) -> response.Response:  # pragma: 
     try:
         social_account = SocialAccount.objects.get(user=user)
         profile_picture_url = social_account.extra_data.get('picture', '')
-        return response.Response({"profile_picture_url": profile_picture_url})
+        return response.Response({"profile_picture_url": profile_picture_url, "user_id": user.id})
     except SocialAccount.DoesNotExist:
         return response.Response({"error": "Google account not found for user"}, status=404)

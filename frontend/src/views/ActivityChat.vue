@@ -2,7 +2,14 @@
     <div>
         <ul ref="messageList" class="overflow-y-auto h-[75vh]">
             <li v-for="(message, index) in messages" :key="index">
-                <div class="chat chat-start">
+                <div
+                    :class="[
+                        'chat',
+                        Number(message.user_id) === currentUserId
+                            ? 'chat-end'
+                            : 'chat-start',
+                    ]"
+                >
                     <div class="chat-image avatar">
                         <div class="w-10 rounded-full">
                             <img
@@ -57,6 +64,7 @@ export default {
             messages: [],
             activityId: this.$route.params.id,
             people: [],
+            currentUserId: null,
         };
     },
     methods: {
@@ -105,6 +113,15 @@ export default {
         insertNewLine() {
             this.newMessage += "\n";
         },
+        async fetchCurrentUser() {
+            try {
+                const response = await apiClient.get("/profile-pic/");
+                this.currentUserId = response.data.user_id;
+                console.log(this.currentUserId);
+            } catch (error) {
+                console.error("Error fetching current user:", error);
+            }
+        },
         async fetchProfile() {
             this.people = [];
             const participant = await apiClient.get(
@@ -146,6 +163,7 @@ export default {
         },
     },
     async mounted() {
+        await this.fetchCurrentUser();
         await this.fetchProfile();
         await this.fetchMessages();
         this.connectWebSocket();
