@@ -3,6 +3,9 @@
         <div class='card-body p-4' style='border-radius: 8px'>
             <h1 class='text-4xl font-bold mb-4 ml-2'>
                 {{ activity.name }}
+                <button v-if="isHost" @click='goToEdit' class='btn btn-ghost ml-2 mr-2'>
+                        Edit
+                </button>
             </h1>
             <p class='mb-2 ml-3 overflow-hidden'>
                 <strong class='text-lg'>Details:</strong> {{ activity.detail }}
@@ -38,23 +41,20 @@
                 </div>
             </div>
 
-            <div class='flex justify-between items-center'>
-                <div class='flex space-x-4'>
-                    <button v-if="isHost" @click='goToEdit' class='btn btn-warning ml-2 mr-2'>
-                        Edit
-                    </button>
-                    <button @click='goBack' class='btn btn-info ml-2 mr-2'>
+            <div class='flex flex-col sm:flex-row justify-between items-center'>
+                <div class='sm: my-5'>
+                    <button @click='goBack' class='btn btn-info mx-2'>
                         Back to Activities
                     </button>
                 </div>
                 <div v-if="!isAuth">
                     <button class="btn btn-accent" @click="login">Please Login before join</button>
                 </div>
-                <div v-else-if="isJoined">
+                <div v-else-if="isJoined" class='flex'>
                     <button class="btn btn-secondary">
                         Chat
                     </button>
-                    <button class="btn btn-accent mx-4">
+                    <button v-if='!isHost' class="btn btn-accent mx-4">
                         Leave Activity
                     </button>
                 </div>
