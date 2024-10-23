@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import ActivityIndex from "../views/ActivityIndex.vue";
 import ActivityDetail from "../views/ActivityDetail.vue";
 import ActivityCreate from "../views/ActivityCreate.vue";
-import ActivityEdit from "../views/ActivityEdit.vue";
+import ActivityEdit from "../component/EditModal.vue";
 
 // Just like  urls.py
 const routes = [

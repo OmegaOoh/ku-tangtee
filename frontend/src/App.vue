@@ -1,7 +1,7 @@
 <template>
 <NavBar>
     <router-view />
-    <div class='z-20 fixed bottom-1 right-0 w-2/5'>
+    <div class='z-50 fixed bottom-1 right-0 w-2/5'>
         <AlertToast
             v-for='(alert, index) in alerts'
             class='text-ms justify-start h-auto'
@@ -44,5 +44,6 @@ export default {
                 this.isDarkTheme = e.matches;
             });
     },
+
 };
 </script>

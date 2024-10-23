@@ -28,7 +28,7 @@
                             >
                             <img
                                 v-if='pfp'
-                                :src='pfp'
+                                v-lazy='pfp'
                                 alt='Profile Picture'
                                 class='w-8 h-8 rounded-full mr-2 transition-all duration-100 hover:border-opacity-10 hover:border-4'
                             />

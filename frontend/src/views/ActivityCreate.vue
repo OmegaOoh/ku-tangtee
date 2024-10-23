@@ -47,7 +47,7 @@
                     :dark='isDarkTheme'
                 />
             </div>
-            <label class='white-text'>Max People </label>
+            <label>Max People </label>
             <input type='checkbox' class='toggle' @change='setMaxPeople' />
             <input
                 v-if='showMaxPeople'
@@ -56,16 +56,16 @@
                 type='number'
                 placeholder='Enter Max People (Optional)'
                 class='input input-bordered input-primary w-full mb-4'
-                :min='0'
+                :min='1'
             />
             <div class="flex flex-col sm:flex-row justify-between">
+                <button class='btn btn-primary' @click='goBack'>
+                    Back to List
+                </button>
                 <button v-if="!isAuth" class="btn btn-accent" @click="login">Please Login before create</button>
                 <button v-else class='btn btn-accent sm:my-0 my-6' @click='postCreateActivity'>
-                    Create Activity
+                Create Activity
                 </button>
-                    <button class='btn btn-primary' @click='goBack'>
-                        Back to List
-                    </button>
             </div>
         </div>
     </div>
@@ -84,7 +84,7 @@ export default {
             activityName: '',
             activityDetail: '',
             date: '',
-            maxPeople: 0,
+            maxPeople: 1,
             showMaxPeople: false,
             isDarkTheme: false,
         };
@@ -140,6 +140,11 @@ export default {
             }
             else {
                 dateFieldError.setAttribute('hidden', 'true')
+            }
+            if (this.maxPeople <= 0) {
+                addAlert('warning', 'Max People must be positive and not zeroes.')
+                this.maxPeople = 1;
+                result = false;
             }
             return result;
         },

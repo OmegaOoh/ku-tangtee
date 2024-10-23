@@ -60,7 +60,6 @@
 
 <script>
 import apiClient from '@/api'; // Get API
-import '@/styles/ActivityIndex.css';
 
 export default {
     data() {

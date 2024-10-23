@@ -1,9 +1,24 @@
+
 <template>
+    <div
+        class="modal"
+        :class="{ 'modal-open': showModal }">
+        <div class="modal-box">
+            <div class="sticky flex justify-end">
+                <button
+                    class="btn btn-ghost btn-circle"
+                    @click="closeModal">
+                    x
+                </button>
+            </div>
+            <EditModal @update-success="closeModal"/>
+        </div>
+    </div>
     <div class='card p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6'>
         <div class='card-body p-4' style='border-radius: 8px'>
             <h1 class='text-4xl font-bold mb-4 ml-2'>
                 {{ activity.name }}
-                <button v-if="isHost" @click='goToEdit' class='btn btn-ghost ml-2 mr-2'>
+                <button v-if="isHost" @click="openModal" class='btn btn-ghost ml-2 mr-2'>
                         Edit
                 </button>
             </h1>
@@ -29,9 +44,10 @@
                 >
                     <div class='flex items-center space-x-4'>
                         <img
-                            :src='participant.profile_picture_url'
+                            v-lazy='participant.profile_picture_url'
                             alt='Profile Picture'
                             class='w-12 h-12 rounded-full'
+                            @error="handleImageError"
                         />
                         <p class='font-medium'>
                             {{ participant.first_name }}
@@ -84,7 +100,8 @@ import { addAlert } from '@/functions/AlertManager';
 import apiClient from '@/api';
 import { createPostRequest } from '@/functions/HttpRequest.js';
 import { isAuth, login, userId } from '@/functions/Authentications';
-import { watch } from 'vue';
+import { watch, ref } from 'vue';
+import EditModal from '@/component/EditModal.vue';
 </script>
 
 <script>
@@ -101,6 +118,7 @@ export default {
             hosts: [],
             isHost: false,
             isJoined: false,
+            showModal: ref(false),
         };
     },
     methods: {
@@ -111,12 +129,19 @@ export default {
              */
             this.$router.push('/');
         },
-        goToEdit() {
-            /*
-             * Navigate to Activity Edit page.
-             * This function does not return anything.
+        openModal() {
+            /**
+             * Show Edit Activity Modal
+             * This function return nothing.
              */
-            this.$router.push(`/activities/${this.activityId}/edit`);
+            this.showModal = true;
+        },
+        closeModal() {
+            /**
+             * Close Edit Activity Modal
+             * This function return nothing.
+             */
+             this.showModal = false;
         },
         async fetchTimeZoneOffset() {
             /*
@@ -147,7 +172,6 @@ export default {
                 );
                 this.people = participant.data;
                 this.canJoin = this.activity.can_join;
-                console.log(response);
                 this.hosts = response.data.host;
                 this.checkHost();
                 this.checkJoined();
@@ -202,6 +226,9 @@ export default {
              */
             this.isHost = this.hosts.includes(userId.value);
         },
+        handleImageError(event) {
+            console.error(event);
+        }
     },
     mounted() {
         this.activityId = this.$route.params.id;
@@ -219,6 +246,11 @@ export default {
             if(newUserId) {
                 this.checkHost();
                 this.checkJoined();
+            }
+        })
+        window.addEventListener('keydown', (e) => {
+            if (e.key == 'Escape') {
+                this.closeModal();
             }
         })
     },
