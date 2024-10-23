@@ -1,71 +1,79 @@
 <template>
-    <div class='card p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6'>
-        <div class='card-body p-4'>
-            <h2 class='card-title text-2xl mr-2 text-base-content'>
-                Create Activity
-            </h2>
-            <div class="form-control w-full">
-                <div class="label"> 
-                    <span class='text-base-content text-lg'> Activity Title </span>
-                    <span id='name-field-error' class='text-error text-sm' hidden> required </span>
+    <div>
+        <div class='breadcrumbs text-lm size-fit my-6 mx-10'>
+            <ul>
+                <li><a @click="goBack">Home</a></li>
+                <li>Create Activity</li>
+            </ul>
+        </div>
+        <div class='card p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6'>
+            <div class='card-body p-4'>
+                <button class='btn btn-secondary w-fit' @click='goBack'>
+                Back to List
+            </button>
+                <h2 class='card-title text-2xl mr-2 text-base-content'>
+                    Create Activity
+                </h2>
+                <div class="form-control w-full">
+                    <div class="label"> 
+                        <span class='text-base-content text-lg'> Activity Title </span>
+                        <span id='name-field-error' class='text-error text-sm' hidden> required </span>
+                    </div>
+                    <input
+                        v-model='activityName'
+                        id='name-field'
+                        type='text'
+                        placeholder='Activity Title'
+                        class='input input-bordered input-primary w-full mb-4'
+                        :maxlength='255'
+                        required
+                    />
                 </div>
+                <div class="form-control w-full">
+                    <div class="label">
+                        <span class='text-base-content'> Activity Detail </span>
+                        <span id='detail-field-error' class='text-error text-sm' hidden> required </span>
+                    </div>
+                    <textarea
+                        v-model='activityDetail'
+                        id='detail-field'
+                        class='textarea textarea-primary w-full mb-4'
+                        placeholder='Activity Detail'
+                        :maxlength='1024'
+                    >
+                    </textarea>
+                </div>
+                <div class="form-control w-full">
+                    <div class="label">
+                        <span class='text-base-content'> Activity Date </span>
+                        <span id='date-field-error' class='text-error text-sm' hidden> required </span>
+                    </div>
+                    <VueDatePicker
+                        v-model='date'
+                        id='date-field'
+                        type='text'
+                        placeholder='Select Date'
+                        :min-date='new Date()'
+                        :dark='isDarkTheme'
+                    />
+                </div>
+                <label>Max People </label>
+                <input type='checkbox' class='toggle' @change='setMaxPeople' />
                 <input
-                    v-model='activityName'
-                    id='name-field'
-                    type='text'
-                    placeholder='Activity Title'
+                    v-if='showMaxPeople'
+                    id='max-field'
+                    v-model.number='maxPeople'
+                    type='number'
+                    placeholder='Enter Max People (Optional)'
                     class='input input-bordered input-primary w-full mb-4'
-                    :maxlength='255'
-                    required
+                    :min='1'
                 />
-            </div>
-            <div class="form-control w-full">
-                <div class="label">
-                    <span class='text-base-content'> Activity Detail </span>
-                    <span id='detail-field-error' class='text-error text-sm' hidden> required </span>
+                <div class="flex flex-col sm:flex-row justify-between">
+                    <button v-if="!isAuth" class="btn btn-primary" @click="login">Please Login before create</button>
+                    <button v-else class='btn btn-primary sm:my-0 my-6' @click='postCreateActivity'>
+                        Create Activity
+                    </button>
                 </div>
-                <textarea
-                    v-model='activityDetail'
-                    id='detail-field'
-                    class='textarea textarea-primary w-full mb-4'
-                    placeholder='Activity Detail'
-                    :maxlength='1024'
-                >
-                </textarea>
-            </div>
-            <div class="form-control w-full">
-                <div class="label">
-                    <span class='text-base-content'> Activity Date </span>
-                    <span id='date-field-error' class='text-error text-sm' hidden> required </span>
-                </div>
-                <VueDatePicker
-                    v-model='date'
-                    id='date-field'
-                    type='text'
-                    placeholder='Select Date'
-                    :min-date='new Date()'
-                    :dark='isDarkTheme'
-                />
-            </div>
-            <label>Max People </label>
-            <input type='checkbox' class='toggle' @change='setMaxPeople' />
-            <input
-                v-if='showMaxPeople'
-                id='max-field'
-                v-model.number='maxPeople'
-                type='number'
-                placeholder='Enter Max People (Optional)'
-                class='input input-bordered input-primary w-full mb-4'
-                :min='1'
-            />
-            <div class="flex flex-col sm:flex-row justify-between">
-                <button class='btn btn-primary' @click='goBack'>
-                    Back to List
-                </button>
-                <button v-if="!isAuth" class="btn btn-accent" @click="login">Please Login before create</button>
-                <button v-else class='btn btn-accent sm:my-0 my-6' @click='postCreateActivity'>
-                Create Activity
-                </button>
             </div>
         </div>
     </div>

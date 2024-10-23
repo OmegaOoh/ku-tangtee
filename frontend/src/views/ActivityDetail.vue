@@ -1,94 +1,97 @@
 
 <template>
-    <div
-        class="modal"
-        :class="{ 'modal-open': showModal }">
-        <div class="modal-box border-2 border-primary">
-            <div class="sticky flex justify-end">
-                <button
-                    class="btn btn-ghost btn-circle"
-                    @click="closeModal">
-                    x
-                </button>
-            </div>
-            <EditModal @update-success="closeModal"/>
+    <div>
+        <div class='breadcrumbs text-lm size-fit my-6 mx-10 back'>
+            <ul>
+                <li><a @click="goBack">Home</a></li>
+                <li>Activity {{ activity.id }}</li>
+            </ul>
         </div>
-    </div>
-    <div class='card p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6'>
-        <div class='card-body p-4' style='border-radius: 8px'>
-            <h1 class='text-4xl font-bold mb-4 ml-2'>
-                {{ activity.name }}
-                <button v-if="isHost" @click="openModal" class='btn btn-ghost ml-2 mr-2'>
-                        Edit
-                </button>
-            </h1>
-            <p class='mb-2 ml-3 overflow-hidden'>
-                <strong class='text-lg'>Details:</strong> {{ activity.detail }}
-            </p>
-            <p class='mb-2 ml-3'>
-                <strong class='text-lg'>Date:</strong>
-                {{ formatActivityDate(activity.date) }}
-            </p>
-            <p class='mb-2 ml-3'>
-                <strong class='text-lg'>Max People:</strong>
-                {{ activity.max_people }}
-            </p>
-            <p class='mb-2 ml-3'>
-                <strong class='text-lg'>Joined People:</strong>
-            </p>
-            <div class='grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 ml-3'>
-                <div
-                    v-for='participant in people'
-                    :key='participant.id'
-                    class='card bg-base-100 shadow-lg p-4 rounded-lg'
-                >
-                    <div class='flex items-center space-x-4'>
-                        <img
-                            v-lazy='participant.profile_picture_url'
-                            alt='Profile Picture'
-                            class='w-12 h-12 rounded-full'
-                            @error="handleImageError"
-                        />
-                        <p class='font-medium'>
-                            {{ participant.first_name }}
-                            {{ participant.last_name }}
-                        </p>
+        <div
+            class="modal"
+            :class="{ 'modal-open': showModal }">
+            <div class="modal-box border-2 border-primary">
+                <div class="sticky flex justify-end">
+                    <button
+                        class="btn btn-ghost btn-circle"
+                        @click="closeModal">
+                        x
+                    </button>
+                </div>
+                <EditModal @update-success="closeModal"/>
+            </div>
+        </div>
+        <div class='card p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6'>
+            <div class='card-body p-4' style='border-radius: 8px'>
+                <h1 class='text-4xl font-bold mb-4 ml-2'>
+                    {{ activity.name }}
+                    <button v-if="isHost" @click="openModal" class='btn btn-ghost ml-2 mr-2'>
+                            Edit
+                    </button>
+                </h1>
+                <p class='mb-2 ml-3 overflow-hidden'>
+                    <strong class='text-base-content text-lg'>Details:</strong> {{ activity.detail }}
+                </p>
+                <p class='mb-2 ml-3'>
+                    <strong class='text-base-content text-lg'>Date:</strong>
+                    {{ formatActivityDate(activity.date) }}
+                </p>
+                <p v-if="activity.max_people != null" class='mb-2 ml-3'>
+                    <strong class='text-base-content text-lg'>Max People:</strong>
+                    {{ activity.max_people }}
+                </p>
+                <p class='mb-2 ml-3'>
+                    <strong class='text-base-content text-lg'>Joined People:</strong>
+                </p>
+                <div class='grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 ml-3'>
+                    <div
+                        v-for='participant in people'
+                        :key='participant.id'
+                        class='card bg-base-100 shadow-lg p-4 rounded-lg'
+                    >
+                        <div class='flex items-center space-x-4'>
+                            <img
+                                v-lazy='participant.profile_picture_url'
+                                alt='Profile Picture'
+                                class='w-12 h-12 rounded-full'
+                                @error="handleImageError"
+                            />
+                            <p class='font-medium'>
+                                {{ participant.first_name }}
+                                {{ participant.last_name }}
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class='flex flex-col sm:flex-row justify-between items-center'>
-                <div class='sm: my-5'>
-                    <button @click='goBack' class='btn btn-info mx-2'>
-                        Back to Activities
-                    </button>
-                </div>
-                <div v-if="!isAuth">
-                    <button class="btn btn-accent" @click="login">Please Login before join</button>
-                </div>
-                <div v-else-if="isJoined" class='flex'>
-                    <button class="btn btn-secondary">
-                        Chat
-                    </button>
-                    <button v-if='!isHost' class="btn btn-accent mx-4">
-                        Leave Activity
-                    </button>
-                </div>
-                <div v-else>
-                    <button v-if="canJoin"
-                        id="join-button"
-                        @click='joinActivity'
-                        class='btn btn-primary ml-2 mr-2'
-                    >
-                        Join Activity
-                    </button>
-                    <button v-else
-                        id="join-button"
-                        @click='joinActivity'
-                        class='btn btn-disabled ml-2 mr-2'
-                    >
-                        Join Activity
-                    </button>
+                <div class='flex flex-col sm:flex-row justify-between items-center'>
+                    <div v-if="!isAuth">
+                        <button class="btn btn-accent" @click="login">Please Login before join</button>
+                    </div>
+                    <div v-else-if="isJoined" class='flex'>
+                        <button class="btn btn-secondary">
+                            Chat
+                        </button>
+                        <button v-if='!isHost' class="btn btn-accent mx-4">
+                            Leave Activity
+                        </button>
+                    </div>
+                    <div v-else>
+                        <button v-if="canJoin"
+                            id="join-button"
+                            @click='joinActivity'
+                            class='btn btn-primary ml-2 mr-2'
+                        >
+                            Join Activity
+                        </button>
+                        <button v-else
+                            id="join-button"
+                            @click='joinActivity'
+                            class='btn btn-disabled ml-2 mr-2'
+                        >
+                            Join Activity
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

@@ -2,7 +2,7 @@
     <div class='drawer h-screen'>
         <input id='my-drawer' type='checkbox' class='drawer-toggle' />
         <div class='drawer-content flex flex-col'>
-            <div class='flex items-center p-4 sticky z-10 top-0 left-0 right-0 justify-between backdrop-blur-md  w-screen h-fit'>
+            <div class='flex items-center p-2 sticky z-10 top-0 left-0 right-0 justify-between bg-base-300 w-screen h-fit border-b-2 border-primary backdrop-blur-md bg-opacity-50 '>
                 <div class="flex justify-start items-center">
                     <label
                         v-if="isAuth"
