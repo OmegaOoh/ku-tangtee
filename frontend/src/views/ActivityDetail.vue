@@ -45,6 +45,12 @@
                     <button @click="goToEdit" class="btn btn-warning ml-2 mr-2">
                         Edit
                     </button>
+                    <button
+                        @click="goToChat"
+                        class="btn btn-secondary ml-2 mr-2"
+                    >
+                        Chat
+                    </button>
                     <button @click="goBack" class="btn btn-info ml-2 mr-2">
                         Back to Activities
                     </button>
@@ -93,6 +99,13 @@ export default {
              * This function does not return anything.
              */
             this.$router.push(`/activities/${this.activityId}/edit`);
+        },
+        goToChat() {
+            /*
+             * Navigagte to Activity Chart page.
+             * This function does not return anything.
+             */
+            this.$router.push(`/chat/${this.activityId}`);
         },
         async getCsrfToken() {
             /*
