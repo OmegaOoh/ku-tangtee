@@ -90,7 +90,6 @@ export default {
             showMaxPeople: false,
             isDarkTheme: false,
             activity: {},
-            timeZoneOffset: 0,
         };
     },
     methods: {
@@ -100,20 +99,6 @@ export default {
              * This function does not return anything.
              */
             this.$router.push(`/`);
-        },
-        async fetchTimeZoneOffset() {
-            /*
-             * Attempt to get timezone offset.
-             * This function does not return anything.
-             */
-            try {
-                const response = await apiClient.get(
-                    "activities/get-timezone/"
-                );
-                this.timeZoneOffset = response.data.offset; // Set the time zone offset
-            } catch (error) {
-                console.error("Error fetching time zone offset:", error);
-            }
         },
         async fetchActivity() {
             /*
@@ -130,9 +115,7 @@ export default {
                 );
                 this.activityName = this.activity.name;
                 this.activityDetail = this.activity.detail;
-                this.date = this.formatActivityDate(
-                    new Date(this.activity.date)
-                );
+                this.date = new Date(this.activity.date);
                 this.maxPeople = this.activity.max_people || 0;
                 this.showMaxPeople = this.maxPeople > 0;
                 this.people = participant.data;
@@ -187,16 +170,6 @@ export default {
                 }
             }
         },
-        formatActivityDate(date) {
-            /*
-             * Adjust the activity date with the timezone offset.
-             * Return localized time.
-             */
-            const dateObj = new Date(date);
-            const offsetMilliseconds = this.timeZoneOffset * 60 * 60 * 1000;
-            const localDate = new Date(dateObj.getTime() + offsetMilliseconds);
-            return localDate;
-        },
         setMaxPeople() {
             this.showMaxPeople = !this.showMaxPeople;
         },
@@ -211,7 +184,6 @@ export default {
             .addEventListener("change", (e) => {
                 this.isDarkTheme = e.matches;
             });
-        this.fetchTimeZoneOffset();
         this.fetchActivity();
     },
 };

@@ -5,18 +5,20 @@
                 {{ activity.name }}
             </h1>
             <p class="mb-2 ml-3 overflow-hidden">
-                <strong class="text-lg">Details:</strong> {{ activity.detail }}
+                <strong class="text-lg">Details: </strong> {{ activity.detail }}
             </p>
             <p class="mb-2 ml-3">
-                <strong class="text-lg">Date:</strong>
-                {{ formatActivityDate(activity.date) }}
+                <strong class="text-lg">Date: </strong>
+                <time class="text-lg">{{
+                    formatTimestamp(activity.date)
+                }}</time>
             </p>
             <p class="mb-2 ml-3">
-                <strong class="text-lg">Max People:</strong>
+                <strong class="text-lg">Max People: </strong>
                 {{ activity.max_people }}
             </p>
             <p class="mb-2 ml-3">
-                <strong class="text-lg">Joined People:</strong>
+                <strong class="text-lg">Joined People: </strong>
             </p>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 ml-3">
                 <div
@@ -64,7 +66,7 @@
 
 <script>
 import apiClient from "@/api";
-import "@/styles/ActivityDetail.css";
+import { format } from "date-fns";
 export default {
     data() {
         return {
@@ -91,20 +93,6 @@ export default {
              * This function does not return anything.
              */
             this.$router.push(`/activities/${this.activityId}/edit`);
-        },
-        async fetchTimeZoneOffset() {
-            /*
-             * Attempt to get timezone offset.
-             * This function does not return anything.
-             */
-            try {
-                const response = await apiClient.get(
-                    "activities/get-timezone/"
-                );
-                this.timeZoneOffset = response.data.offset; // Set the time zone offset
-            } catch (error) {
-                console.error("Error fetching time zone offset:", error);
-            }
         },
         async getCsrfToken() {
             /*
@@ -165,15 +153,12 @@ export default {
                 }
             }
         },
-        formatActivityDate(date) {
-            /*
-             * Adjust the activity date with the timezone offset.
-             * Return localized time.
-             */
-            const dateObj = new Date(date);
-            const offsetMilliseconds = this.timeZoneOffset * 60 * 60 * 1000;
-            const localDate = new Date(dateObj.getTime() + offsetMilliseconds);
-            return localDate.toLocaleString(); // Return the localized date string
+        formatTimestamp(timestamp) {
+            if (timestamp) {
+                return format(new Date(timestamp), "PPpp");
+            } else {
+                return "No date provided";
+            }
         },
     },
     mounted() {
@@ -187,7 +172,6 @@ export default {
             .addEventListener("change", (e) => {
                 this.isDarkTheme = e.matches;
             });
-        this.fetchTimeZoneOffset();
     },
 };
 </script>

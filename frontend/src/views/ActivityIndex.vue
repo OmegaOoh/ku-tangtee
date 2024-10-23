@@ -1,8 +1,8 @@
 <template>
     <div class="container mx-auto p-4">
         <h1 class="text-4xl font-bold mb-4">Activities List</h1>
-        <div id='reload' style='padding: 1%;' hidden>
-            <button class ='btn btn-accent' @click="fetchActivities()">
+        <div id="reload" style="padding: 1%" hidden>
+            <button class="btn btn-accent" @click="fetchActivities()">
                 New Activity Available!, Reload Now
             </button>
         </div>
@@ -23,7 +23,7 @@
                         <p class="line-clamp-2">{{ activity.detail }}</p>
                         <p>
                             Start date:
-                            {{ formatActivityDate(activity.date) }}
+                            {{ formatTimestamp(activity.date) }}
                         </p>
                         <div class="card-actions justify-end">
                             <router-link
@@ -49,7 +49,7 @@
 
 <script>
 import apiClient from "@/api"; // Get API
-import "@/styles/ActivityIndex.css";
+import { format } from "date-fns";
 
 export default {
     data() {
@@ -60,7 +60,6 @@ export default {
         };
     },
     mounted() {
-        this.fetchTimeZoneOffset();
         this.fetchActivities();
         this.setupSocket();
         this.isDarkTheme = window.matchMedia(
@@ -73,20 +72,6 @@ export default {
             });
     },
     methods: {
-        async fetchTimeZoneOffset() {
-            /*
-             * Attempt to get timezone offset.
-             * This function does not return anything.
-             */
-            try {
-                const response = await apiClient.get(
-                    "activities/get-timezone/"
-                );
-                this.timeZoneOffset = response.data.offset; // Set the time zone offset
-            } catch (error) {
-                console.error("Error fetching time zone offset:", error);
-            }
-        },
         async fetchActivities() {
             /*
              * Get data for all activities from API.
@@ -94,7 +79,7 @@ export default {
             try {
                 const response = await apiClient.get("/activities/"); // Trying to get data from API
                 this.activities = response.data;
-                document.getElementById('reload').setAttribute('hidden', true);
+                document.getElementById("reload").setAttribute("hidden", true);
             } catch (error) {
                 console.error("Error fetching activities:", error);
                 if (error.response) {
@@ -109,36 +94,38 @@ export default {
              */
             this.$router.push(`/activities/${activityId}`);
         },
-        formatActivityDate(date) {
-            /*
-             * Adjust the activity date with the timezone offset.
-             * Return localized time.
-             */
-            const dateObj = new Date(date);
-            const offsetMilliseconds = this.timeZoneOffset * 60 * 60 * 1000;
-            const localDate = new Date(dateObj.getTime() + offsetMilliseconds);
-            return localDate.toLocaleString(); // Return the localized date string
+        formatTimestamp(timestamp) {
+            if (timestamp) {
+                return format(new Date(timestamp), "PPpp");
+            } else {
+                return "No date provided";
+            }
         },
         setupSocket() {
             /*
              * Connect to websocket to observe the change of index.
              * Return Nothing
              */
-            const socket = new WebSocket(`${process.env.VUE_APP_BASE_URL.replace(/^http/, 'ws')
-                                                                        .replace(/^https/, 'wss')}ws/index/`);
+            const socket = new WebSocket(
+                `${process.env.VUE_APP_BASE_URL.replace(/^http/, "ws").replace(
+                    /^https/,
+                    "wss"
+                )}ws/index/`
+            );
 
             socket.onmessage = (event) => {
-                    try {
-                        var parsedData = JSON.parse(event.data);
-                        if (parsedData['type'] === 'new_act')
-                            {
-                                document.getElementById('reload').removeAttribute('hidden')
-                            }
-                    } catch (error) {
-                        console.log('Parsing Error: ', error)
+                try {
+                    var parsedData = JSON.parse(event.data);
+                    if (parsedData["type"] === "new_act") {
+                        document
+                            .getElementById("reload")
+                            .removeAttribute("hidden");
                     }
-            }        
-        }
+                } catch (error) {
+                    console.log("Parsing Error: ", error);
+                }
+            };
+        },
     },
 };
 </script>
