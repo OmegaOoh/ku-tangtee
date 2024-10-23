@@ -96,7 +96,7 @@ export default {
         },
         formatTimestamp(timestamp) {
             if (timestamp) {
-                return format(new Date(timestamp), "PPpp");
+                return format(new Date(timestamp), "PPp");
             } else {
                 return "No date provided";
             }
