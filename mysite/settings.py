@@ -187,6 +187,7 @@ REST_FRAMEWORK = {
         'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
     ),
     'DATETIME_FORMAT': "%Y-%m-%dT%H:%M:%S.%fZ", 
+    'EXCEPTION_HANDLER': 'mysite.exc_handler.custom_exception_handler'
 }
 
 REST_AUTH = {

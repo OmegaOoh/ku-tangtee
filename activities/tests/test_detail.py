@@ -3,7 +3,7 @@ import json
 import django.test
 from django import urls
 from .shortcuts import create_activity, activity_to_json
-from activities.serializers import ActivitiesSerializer
+from activities.serializer.model_serializers import ActivitiesSerializer
 
 
 class DetailTest(django.test.TestCase):

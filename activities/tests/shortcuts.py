@@ -10,7 +10,7 @@ from django.utils import timezone
 from activities import models
 from django.contrib.auth.models import User
 from django import urls
-from activities.serializers import ActivitiesSerializer
+from activities.serializer.model_serializers import ActivitiesSerializer
 
 
 def create_test_user(username: str = "test_user") -> User:
@@ -93,5 +93,5 @@ def put_request_json_data(path: str, client: django.test.Client, data: dict) -> 
 def client_join_activity(client: django.test.Client, user: User, activity: models.Activity) -> None:
     """Client join specific activity with provided user."""
     client.force_login(user)
-    client.post(urls.reverse("activities:detail", args=[activity.id]))
+    client.post(urls.reverse("activities:join", args=[activity.id]))
     activity.refresh_from_db()

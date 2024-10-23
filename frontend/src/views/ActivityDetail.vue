@@ -133,7 +133,7 @@ export default {
              */
             try {
                 const response = await createPostRequest(
-                    `/activities/${this.activityId}/`,
+                    `/activities/join/${this.activityId}/`,
                     {}
                 );
                 addAlert('success', response.data.message);
