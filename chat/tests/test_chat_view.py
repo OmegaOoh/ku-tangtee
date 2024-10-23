@@ -9,7 +9,6 @@ from chat.models import Message
 class ChatMessageListTest(APITestCase):
     """Test case for the ChatMessageList view."""
 
-
     def setUp(self):
         """Create user, login user, create activity and create message."""
         self.activity = Activity.objects.create(name="Test Activity")
