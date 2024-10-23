@@ -1,12 +1,12 @@
-### Description**
+### Description
 
 - The description for the changes in this pull request.
 
-### Functional Acceptance Criteria**
+### Functional Acceptance Criteria (Not required for Documentation update)
 
 Expected behaviour and acceptance criteria of work in this pull request.
 
-### Checklist
+### Checklist (Not required for Documentation update)
 
 - [ ] I have performed a self-review of my code.
 - [ ] I have added tests to cover my changes.
@@ -20,6 +20,6 @@ Expected behaviour and acceptance criteria of work in this pull request.
 - [ ] Documentation update
 - [ ] Other (please specify)
 
-### Additional Information
+### Additional Information (Optional)
 
 Further information about pull request.
