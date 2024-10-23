@@ -7,11 +7,11 @@
                     <label
                         v-if="isAuth"
                         for='my-drawer'
-                        class='btn pl-5 btn-ghost rounded-none drawer-button w-auto h-5'
+                        class='btn btn-ghost rounded-none drawer-button w-auto h-5'
                     >
                         ☰
                     </label>
-                    <p class="flex items-center justify-center"><RouterLink to="/">KU Tangtee</RouterLink></p>
+                    <p class="flex items-center justify-center mx-2"><RouterLink to="/">KU Tangtee</RouterLink></p>
                 </div>
                 <div class="pr-5">
                     <div v-if='!isAuth'>

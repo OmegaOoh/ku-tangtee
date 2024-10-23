@@ -1,5 +1,5 @@
 <template>
-    <div class='p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6'>
+    <div class='card p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6'>
         <div class='card-body p-4' style='border-radius: 8px'>
             <h1 class='text-4xl font-bold mb-4 ml-2'>
                 {{ activity.name }}
