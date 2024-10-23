@@ -86,7 +86,6 @@ class JoinTest(django.test.TestCase):
 
         # Second time joined, get error and number of people stays the same.
         response = self.client.post(self.url(new_act.id))
-        print(response)
         self.assertEqual(response.status_code, 403)
         new_act.refresh_from_db()
         self.assertEqual(new_act.people, 2)

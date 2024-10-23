@@ -2,7 +2,7 @@
 from typing import Any
 from django.http import HttpRequest
 from rest_framework import permissions, generics
-from . import models
+from .. import models
 
 
 class IsHostOrReadOnly(permissions.BasePermission):

@@ -3,9 +3,11 @@ from typing import Any
 from django.http import HttpRequest
 from django.utils import timezone
 from rest_framework import generics, permissions, mixins, response
-from activities import models, serializers
+from activities import models
 from channels import layers
 from asgiref import sync
+
+from activities.serializer import model_serializers
 
 
 class ActivityList(
@@ -16,7 +18,7 @@ class ActivityList(
     """Return list of available upcoming activity when GET request and create new activity when POST request."""
 
     queryset = models.Activity.objects.filter(date__gte=timezone.now()).order_by("date")
-    serializer_class = serializers.ActivitiesSerializer
+    serializer_class = model_serializers.ActivitiesSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:

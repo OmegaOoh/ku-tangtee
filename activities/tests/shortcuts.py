@@ -10,7 +10,7 @@ from django.utils import timezone
 from activities import models
 from django.contrib.auth.models import User
 from django import urls
-from activities.serializers import ActivitiesSerializer
+from activities.serializer.model_serializers import ActivitiesSerializer
 
 
 def create_test_user(username: str = "test_user") -> User:

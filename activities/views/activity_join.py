@@ -2,7 +2,8 @@
 from typing import Any
 from django.http import HttpRequest
 from rest_framework import generics, permissions, mixins, response, status
-from activities import models, serializers
+from activities import models
+from activities.serializer import model_serializers
 
 
 class JoinLeaveView(
@@ -13,7 +14,7 @@ class JoinLeaveView(
     """API view class for handle URL activities/join/<activies_id>."""
 
     queryset = models.Attend.objects.all()
-    serializer_class = serializers.AttendSerializer
+    serializer_class = model_serializers.AttendSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:

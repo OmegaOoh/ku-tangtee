@@ -4,8 +4,9 @@ from typing import Any
 from django.http import HttpRequest
 from django.utils import timezone
 from rest_framework import generics, permissions, mixins, response, status
-from activities import models, serializers
-from activities.permissions import IsHostOrReadOnly
+from activities import models
+from activities.serializer.permissions import IsHostOrReadOnly
+from activities.serializer import model_serializers
 
 
 class ActivityDetail(mixins.RetrieveModelMixin,
@@ -14,7 +15,7 @@ class ActivityDetail(mixins.RetrieveModelMixin,
     """Return detail of an activity when GET request, and edit the activity when PUT request."""
 
     queryset = models.Activity.objects.filter(date__gte=timezone.now())
-    serializer_class = serializers.ActivitiesSerializer
+    serializer_class = model_serializers.ActivitiesSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsHostOrReadOnly]
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
