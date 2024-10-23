@@ -39,13 +39,13 @@
             <textarea
                 v-model="newMessage"
                 placeholder="Start your chat"
-                class="textarea textarea-primary w-full mb-2"
+                class="textarea textarea-primary w-full mb-2 mx-2"
                 :maxlength="1024"
                 @keydown.exact.enter.prevent="sendMessage"
                 @keydown.shift.enter.prevent="insertNewLine"
                 rows="1"
             ></textarea>
-            <button class="btn btn-primary ml-2 mb-2" @click="sendMessage">
+            <button class="btn btn-primary mx-2 mb-2" @click="sendMessage">
                 Send
             </button>
         </div>
