@@ -6,6 +6,7 @@ from activities.models import Activity
 from django.contrib.auth.models import User
 from chat.models import Message
 
+
 class ChatMessageListTest(APITestCase):
     """Test case for the ChatMessageList view."""
 
