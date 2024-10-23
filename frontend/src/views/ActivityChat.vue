@@ -1,6 +1,6 @@
 <template>
     <div>
-        <ul ref="messageList" class="overflow-y-auto h-[75vh]">
+        <ul ref="messageList" class="overflow-y-auto h-[80vh]">
             <li v-for="(message, index) in messages" :key="index">
                 <div
                     :class="[
