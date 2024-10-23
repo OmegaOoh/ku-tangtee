@@ -16,6 +16,15 @@ class TestActivityModel(django.test.TestCase):
         _, activity = create_activity(data=data)
         self.assertFalse(activity.can_join())
 
+    def test_str(self):
+        """__str__ returns activity name."""
+        data = {
+            "name": "Fun activity",
+            "detail": "This activity is fun"
+        }
+        _, activity = create_activity(data=data)
+        self.assertEqual(str(activity), "Fun activity")
+
     def test_can_join_less(self):
         """can_join() return True as Number of people is less than max_people."""
         data = {
@@ -63,3 +72,24 @@ class TestActivityModel(django.test.TestCase):
             client_join_activity(self.client, user, activity)
         participants = activity.participants()
         self.assertEqual(participants, [user1, user2, user3])
+
+
+class TestAttendModel(django.test.TestCase):
+    """TestCase Class for Attend model."""
+
+    def test_str_repr(self):
+        """__str__ returns attendance info and __repr__ returns __str__."""
+        data = {
+            "name": "Fun activity",
+            "detail": "This activity is fun"
+        }
+        _, activity = create_activity(data=data)
+        attend_host = activity.attend_set.first()
+        self.assertEqual(str(attend_host), "user host attend Fun activity")
+        self.assertEqual(repr(attend_host), str(attend_host))
+
+        attendee = create_test_user("Alexa")
+        client_join_activity(self.client, attendee, activity)
+        attend_attendee = activity.attend_set.last()
+        self.assertEqual(str(attend_attendee), "user Alexa attend Fun activity")
+        self.assertEqual(repr(attend_attendee), str(attend_attendee))

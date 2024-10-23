@@ -4,8 +4,12 @@ from django.contrib.auth.models import User
 from typing import Dict
 
 
-def retrieve_profile_picture(user: User) -> Dict[str, str]:  # pragma: no cover
-    """Return profile picture url from Google account and also return his name."""
+def retrive_profile_picture(user: User) -> Dict[str, str]:  # pragma: no cover
+    """Return profile picture url from Google account and also return his name.
+
+    :param user: Instance of User model
+    :return: Dict of user first name, last name and their profile picture
+    """
     try:
         social_account = SocialAccount.objects.get(user=user)
         profile_picture_url = social_account.extra_data.get('picture', '')

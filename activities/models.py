@@ -14,31 +14,49 @@ class Activity(models.Model):
     max_people = models.IntegerField(null=True, blank=True)
 
     def __str__(self) -> Any:
-        """Return Activity Name as string representative."""
+        """Return Activity Name as string representative.
+
+        :return: activity name
+        """
         return self.name
 
     def can_join(self) -> Any:
-        """Return True if max_people doesn't reach and date doesn't past, Otherwise false."""
+        """Check if max_people doesn't reach and date doesn't past.
+
+        :return: true if the activity is join able, false otherwise
+        """
         if self.max_people:
             return self.date >= timezone.now() and self.people < self.max_people
         else:
             return self.date >= timezone.now()
 
     def is_upcoming(self) -> Any:
-        """Return True if activities took place on incoming weeks, Otherwise false."""
+        """Check if activities took place on incoming weeks.
+
+        :return: true if the activity took place on incoming weeks, false otherwise
+        """
         return timezone.now() + timezone.timedelta(weeks=1) >= self.date and self.can_join()
 
     def host(self) -> User:
-        """Return user that is host of the activity."""
+        """Find user that is host of the activity (is_host is True).
+
+        :return: the host of the activity
+        """
         return self.attend_set.filter(is_host=True).first().user
 
     def participants(self) -> list[User]:
-        """Return participants user list of the activity."""
+        """Find all participants user of the activity (host excluded).
+
+        :return: list of participants
+        """
         return [a.user for a in self.attend_set.filter(is_host=False)]
 
     @property
     def people(self) -> int:
-        """Return number of people attend this activity include host."""
+        """Count number of Attend objects for the activity (host included).
+
+        :return: number of people attend the activity
+        """
         return int(self.attend_set.count())
 
 
@@ -50,9 +68,15 @@ class Attend(models.Model):
     is_host = models.BooleanField(default=False)
 
     def __str__(self) -> str:
-        """Return user's first name and which activity they join."""
+        """Return activity attendance information.
+
+        :return: user's username and the activity they've joined
+        """
         return f"user {self.user.username} attend {self.activity.name}"
 
     def __repr__(self) -> str:
-        """Return user's first name and which activity they join."""
+        """Return activity attendance information.
+
+        :return: user's username and the activity they've joined
+        """
         return self.__str__()
