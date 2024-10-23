@@ -3,6 +3,18 @@
         <ul ref="messageList" class="overflow-y-auto h-[75vh]">
             <li v-for="(message, index) in messages" :key="index">
                 <div class="chat chat-start">
+                    <div class="chat-image avatar">
+                        <div class="w-10 rounded-full">
+                            <img
+                                alt="No Profile Picture"
+                                :src="
+                                    getProfilePicture(
+                                        (userId = message.user_id)
+                                    )
+                                "
+                            />
+                        </div>
+                    </div>
                     <div class="chat-header">
                         {{ message.first_name }}
                         {{ message.last_name }}
@@ -44,6 +56,7 @@ export default {
             newMessage: "",
             messages: [],
             activityId: this.$route.params.id,
+            people: [],
         };
     },
     methods: {
@@ -63,6 +76,7 @@ export default {
                 if (data.message) {
                     this.messages.push(data.message);
                 }
+                this.fetchProfile();
                 this.fetchMessages();
             };
             this.socket.onclose = () => {
@@ -91,6 +105,13 @@ export default {
         insertNewLine() {
             this.newMessage += "\n";
         },
+        async fetchProfile() {
+            this.people = [];
+            const participant = await apiClient.get(
+                `/activities/get-participant/${this.activityId}/`
+            );
+            this.people = participant.data;
+        },
         async fetchMessages() {
             this.messages = [];
             try {
@@ -115,10 +136,19 @@ export default {
         formatMessage(message) {
             return message.replace(/\n/g, "<br>");
         },
+        getProfilePicture(userId) {
+            const participant = this.people.find(
+                (person) => person.id === Number(userId)
+            );
+            return participant
+                ? participant.profile_picture_url
+                : "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg";
+        },
     },
-    mounted() {
+    async mounted() {
+        await this.fetchProfile();
+        await this.fetchMessages();
         this.connectWebSocket();
-        this.fetchMessages();
     },
     beforeUnmount() {
         if (this.socket) {
