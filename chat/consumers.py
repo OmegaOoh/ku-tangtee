@@ -1,5 +1,6 @@
 """Module contains websocket consumers implementation."""
 import json
+from django.utils import timezone
 from typing import Any, Dict
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels import exceptions
@@ -48,14 +49,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
         """Handle message receive on server side."""
         text_data_json = json.loads(text_data)
         message = text_data_json["message"]
-
         # Send message to the group
         await self.channel_layer.group_send(
             self.room_group_name, {
                 "type": "sendMessage",
                 "message": message,
+                'user_id': self.scope['user'].id,
             }
         )
+
         # Verify user and activity
         if self.user != self.scope['user'] or self.activity.id != self.scope['url_route']['kwargs']['activity_id']:
             await self.disconnect(4000)  # User does not the same.
@@ -67,4 +69,5 @@ class ChatConsumer(AsyncWebsocketConsumer):
         """Sent message to websocket."""
         await self.send(text_data=json.dumps({
             "message": event["message"],
+            "user_id": event['user_id'],
         }))

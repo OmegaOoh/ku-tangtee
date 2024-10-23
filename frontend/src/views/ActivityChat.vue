@@ -23,8 +23,7 @@
                         </div>
                     </div>
                     <div class="chat-header">
-                        {{ message.first_name }}
-                        {{ message.last_name }}
+                        {{ getFullName(message.user_id) }}
                         <time class="text-xs opacity-50">{{
                             formatTimestamp(message.timestamp)
                         }}</time>
@@ -80,12 +79,16 @@ export default {
                 console.log("WebSocket connection opened", this.activityId);
             };
             this.socket.onmessage = (event) => {
+                this.fetchProfile();
                 const data = JSON.parse(event.data);
                 if (data.message) {
-                    this.messages.push(data.message);
+                    this.messages.push({
+                        message: data.message,
+                        timestamp: new Date(),
+                        user_id: data.user_id,
+                    });
+                    this.scrollToBottom();
                 }
-                this.fetchProfile();
-                this.fetchMessages();
             };
             this.socket.onclose = () => {
                 console.log("WebSocket connection closed");
@@ -99,10 +102,10 @@ export default {
                 return;
             }
             if (this.socket.readyState === WebSocket.OPEN) {
-                console.log(this.newMessage);
                 this.socket.send(
                     JSON.stringify({
                         message: this.newMessage,
+                        user_id: this.currentUserId,
                     })
                 );
                 this.newMessage = "";
@@ -148,7 +151,7 @@ export default {
             });
         },
         formatTimestamp(timestamp) {
-            return format(new Date(timestamp), "PPpp");
+            return format(new Date(timestamp), "PPp");
         },
         formatMessage(message) {
             return message.replace(/\n/g, "<br>");
@@ -160,6 +163,14 @@ export default {
             return participant
                 ? participant.profile_picture_url
                 : "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg";
+        },
+        getFullName(userId) {
+            const participant = this.people.find(
+                (person) => person.id === Number(userId)
+            );
+            return participant
+                ? `${participant.first_name} ${participant.last_name}`
+                : "Unknown User";
         },
     },
     async mounted() {
