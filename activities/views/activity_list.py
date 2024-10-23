@@ -24,7 +24,11 @@ class ActivityList(
         return self.list(request, *args, **kwargs)
 
     def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
-        """Create an activity and add user who create it to attend table."""
+        """Create an activity and add user who create it to attend table.
+
+        :param request: Http request object
+        :return: Http response object
+        """
         res = self.create(request, *args, **kwargs)
 
         res_dict = res.data

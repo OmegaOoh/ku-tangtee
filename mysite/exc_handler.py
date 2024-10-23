@@ -1,11 +1,16 @@
 """Custom exception handler."""
 from rest_framework.views import exception_handler
-from rest_framework import response
+from rest_framework import response, exceptions
 from typing import Any
 
 
-def custom_exception_handler(exc: Exception, context: Any) -> response.Response:
-    """Return custom exception response by convert error message's key to message."""
+def custom_exception_handler(exc: exceptions.APIException, context: Any) -> response.Response:
+    """Convert exception to http response.
+
+    :param exc: API exception object that got raise during process.
+    :param context: Additional information.
+    :return: Return custom exception response by convert error message's key to message.
+    """
     # Call REST framework's default exception handler first,
     # to get the standard error response.
     response = exception_handler(exc, context)

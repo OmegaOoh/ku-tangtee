@@ -7,6 +7,11 @@ from rest_framework import decorators, response
 @decorators.api_view(["GET"])
 def profile_picture_view(request: HttpRequest) -> response.Response:  # pragma: no cover
     """Return profile picture url from Google account."""
+    """Return profile picture url from Google account.
+
+    :param request: Http request object
+    :return: Response object contain user profile picture or error message.
+    """
     user = request.user
     try:
         social_account = SocialAccount.objects.get(user=user)

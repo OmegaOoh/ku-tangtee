@@ -18,11 +18,19 @@ class ActivityDetail(mixins.RetrieveModelMixin,
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsHostOrReadOnly]
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
-        """Handle get request by return detail of an activity."""
+        """Handle get request by return detail of an activity.
+
+        :param request: Http request object
+        :return: Http response object
+        """
         return self.retrieve(request, *args, **kwargs)
 
     def put(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
-        """Handle put request by edit an activity."""
+        """Handle put request by edit an activity.
+
+        :param request: Http request object
+        :return: Http response object
+        """
         activity = self.get_object()
         max_people = request.data.get("max_people")
         current_people = activity.people

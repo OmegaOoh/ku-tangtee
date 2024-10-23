@@ -45,7 +45,7 @@ class CustomMsgUniqueTogetherValidator(validators.UniqueTogetherValidator):
 
         :param attrs: Dict contain instance of each fields.
         :raises ForbiddenValidationError: If user id and activity id combination are not unique.
-        :return: _description_
+        :return: None
         """
         try:
             return super().__call__(attrs, serializer)
