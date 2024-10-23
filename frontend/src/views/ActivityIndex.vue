@@ -95,6 +95,12 @@ export default {
             this.$router.push(`/activities/${activityId}`);
         },
         formatTimestamp(timestamp) {
+            /*
+             * Format the timestamp into (Oct 22, 2024, 9:00 AM).
+             *
+             * @params {string} not yet formatted timestamp
+             * @returns {string} formatted timestamp
+             */
             if (timestamp) {
                 return format(new Date(timestamp), "PPp");
             } else {
@@ -104,7 +110,6 @@ export default {
         setupSocket() {
             /*
              * Connect to websocket to observe the change of index.
-             * Return Nothing
              */
             const socket = new WebSocket(
                 `${process.env.VUE_APP_BASE_URL.replace(/^http/, "ws").replace(

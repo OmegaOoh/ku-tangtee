@@ -89,21 +89,18 @@ export default {
         goBack() {
             /*
              * Navigate back to Activity Index page.
-             * This function does not return anything.
              */
             this.$router.push("/");
         },
         goToEdit() {
             /*
              * Navigagte to Activity Edit page.
-             * This function does not return anything.
              */
             this.$router.push(`/activities/${this.activityId}/edit`);
         },
         goToChat() {
             /*
              * Navigagte to Activity Chart page.
-             * This function does not return anything.
              */
             this.$router.push(`/chat/${this.activityId}`);
         },
@@ -118,7 +115,6 @@ export default {
         async fetchActivity() {
             /*
              * Get data from specific activity including participant detail.
-             * This function does not return anything.
              */
             try {
                 const response = await apiClient.get(
@@ -137,7 +133,6 @@ export default {
         async joinActivity() {
             /*
              * Attempt to join activity.
-             * This function does not return anything.
              */
             try {
                 this.csrfToken = await this.getCsrfToken();
@@ -167,6 +162,12 @@ export default {
             }
         },
         formatTimestamp(timestamp) {
+            /*
+             * Format the timestamp into (Oct 22, 2024, 9:00 AM).
+             *
+             * @params {string} not yet formatted timestamp
+             * @returns {string} formatted timestamp
+             */
             if (timestamp) {
                 return format(new Date(timestamp), "PPp");
             } else {

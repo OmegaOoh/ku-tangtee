@@ -68,6 +68,10 @@ export default {
     },
     methods: {
         connectWebSocket() {
+            /*
+             * Connect to websocket to observe the change of index.
+             * Return Nothing
+             */
             const socket = new WebSocket(
                 `${process.env.VUE_APP_BASE_URL.replace(/^http/, "ws").replace(
                     /^https/,
@@ -98,6 +102,10 @@ export default {
             };
         },
         sendMessage() {
+            /*
+             * Send message using text in text area.
+             * Return Nothing
+             */
             if (this.newMessage.trim() === "") {
                 return;
             }
@@ -114,9 +122,17 @@ export default {
             }
         },
         insertNewLine() {
+            /*
+             * Add one line to the message.
+             * Return Nothing
+             */
             this.newMessage += "\n";
         },
         async fetchCurrentUser() {
+            /*
+             * Get current user that is on the current browser tab.
+             * Return Nothing
+             */
             try {
                 const response = await apiClient.get("/profile-pic/");
                 this.currentUserId = response.data.user_id;
@@ -126,6 +142,10 @@ export default {
             }
         },
         async fetchProfile() {
+            /*
+             * Get attendee profiles.
+             * Return Nothing
+             */
             this.people = [];
             const participant = await apiClient.get(
                 `/activities/get-participant/${this.activityId}/`
@@ -133,6 +153,10 @@ export default {
             this.people = participant.data;
         },
         async fetchMessages() {
+            /*
+             * Get all previous messages.
+             * Return Nothing
+             */
             this.messages = [];
             try {
                 const response = await apiClient.get(
@@ -145,18 +169,40 @@ export default {
             }
         },
         scrollToBottom() {
+            /*
+             * Scroll the page to the bottom.
+             * Return Nothing
+             */
             this.$nextTick(() => {
                 const messageList = this.$refs.messageList;
                 messageList.scrollTop = messageList.scrollHeight;
             });
         },
         formatTimestamp(timestamp) {
+            /*
+             * Format the timestamp into (Oct 22, 2024, 9:00 AM).
+             *
+             * @params {string} not yet formatted timestamp
+             * @returns {string} formatted timestamp
+             */
             return format(new Date(timestamp), "PPp");
         },
         formatMessage(message) {
+            /*
+             * Format message to be html format with <br> instead of \n.
+             *
+             * @params {string} not yet formatted message
+             * @returns {string} formatted message
+             */
             return message.replace(/\n/g, "<br>");
         },
         getProfilePicture(userId) {
+            /*
+             * Get profile picture from specific user id.
+             *
+             * @params {Number} sender user id
+             * @returns {string} profile picture url
+             */
             const participant = this.people.find(
                 (person) => person.id === Number(userId)
             );
@@ -165,6 +211,12 @@ export default {
                 : "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg";
         },
         getFullName(userId) {
+            /*
+             * Get user fullname from specific user id.
+             *
+             * @params {Number} sender user id
+             * @returns {string} user firstname and lastname
+             */
             const participant = this.people.find(
                 (person) => person.id === Number(userId)
             );

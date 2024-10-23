@@ -96,14 +96,12 @@ export default {
         goBack() {
             /*
              * Navigate back to Activity Detail page.
-             * This function does not return anything.
              */
             this.$router.push(`/`);
         },
         async fetchActivity() {
             /*
              * Get data from specific activity including participant detail.
-             * This function does not return anything.
              */
             try {
                 const response = await apiClient.get(
@@ -126,10 +124,9 @@ export default {
         async postUpdateActivity() {
             /*
              * Attempt to update activity information.
-             * This function does not return anything.
              */
-            // Validate numeric input
 
+            // Validate numeric input
             if (this.maxPeople < 0) {
                 this.maxPeople = 0;
             }

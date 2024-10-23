@@ -70,14 +70,12 @@ export default {
         goBack() {
             /*
              * Navigate back to Activity Index page.
-             * This function does not return anything.
              */
             this.$router.push("/");
         },
         async postCreateActivity() {
             /*
              * Attempt to create activity.
-             * This function does not return anything.
              */
             // Validate numeric input
             if (this.maxPeople < 0) {
@@ -97,15 +95,11 @@ export default {
                     date: formattedDate,
                     max_people: this.maxPeople || null,
                 };
-                const response = await apiClient.post(
-                    `/activities/`,
-                    data,
-                    {
-                        // HTTP headers
-                        headers: { "X-CSRFToken": csrfToken },
-                        withCredentials: true,
-                    }
-                );
+                const response = await apiClient.post(`/activities/`, data, {
+                    // HTTP headers
+                    headers: { "X-CSRFToken": csrfToken },
+                    withCredentials: true,
+                });
                 alert(response.data.message);
                 this.$router.push(`/activities/${response.data.id}`);
             } catch (error) {
@@ -123,6 +117,9 @@ export default {
             }
         },
         setMaxPeople() {
+            /*
+             * Switch the flag of setting max people.
+             */
             this.showMaxPeople = !this.showMaxPeople;
         },
     },
