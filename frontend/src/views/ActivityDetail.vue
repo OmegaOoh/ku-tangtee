@@ -132,15 +132,9 @@ export default {
              * This function does not return anything.
              */
             try {
-                this.csrfToken = await this.getCsrfToken();
-                console.log(this.csrfToken);
-                const response = await apiClient.post(
+                const response = await createPostRequest(
                     `/activities/join/${this.activityId}/`,
-                    {},
-                    {
-                        headers: { "X-CSRFToken": this.csrfToken },
-                        withCredentials: true,
-                    }
+                    {}
                 );
                 addAlert('success', response.data.message);
                 this.fetchActivity(); //Fetch Activity
