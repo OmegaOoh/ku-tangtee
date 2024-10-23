@@ -3,7 +3,7 @@
     <div
         class="modal"
         :class="{ 'modal-open': showModal }">
-        <div class="modal-box">
+        <div class="modal-box border-2 border-primary">
             <div class="sticky flex justify-end">
                 <button
                     class="btn btn-ghost btn-circle"

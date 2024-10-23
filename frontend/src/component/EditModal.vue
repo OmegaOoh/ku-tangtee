@@ -62,26 +62,7 @@
             />
         </div>
     </div>
-    <label class="text-base-content mt-6">Participant list</label>
-    <div class='grid grid-cols-1 md:grid-cols-1 gap-4 mb-2 ml-3'>
-        <div
-            v-for='participant in people'
-            :key='participant.id'
-            class='card bg-base-100 shadow-lg p-4 rounded-lg'
-        >
-            <div class='flex items-center space-x-4'>
-                <img
-                    :src='participant.profile_picture_url'
-                    alt='Profile Picture'
-                    class='w-12 h-12 rounded-full'
-                />
-                <p class='font-medium'>
-                    {{ participant.first_name }}
-                    {{ participant.last_name }}
-                </p>
-            </div>
-        </div>
-    </div>
+
     <div class='flex justify-end'>
         <button class='btn btn-accent' @click='postUpdate'>
             Update Activity
