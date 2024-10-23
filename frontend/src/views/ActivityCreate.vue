@@ -8,9 +8,6 @@
         </div>
         <div class='card p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6'>
             <div class='card-body p-4'>
-                <button class='btn btn-secondary w-fit' @click='goBack'>
-                Back to List
-            </button>
                 <h2 class='card-title text-2xl mr-2 text-base-content'>
                     Create Activity
                 </h2>
@@ -149,7 +146,7 @@ export default {
             else {
                 dateFieldError.setAttribute('hidden', 'true')
             }
-            if (this.maxPeople <= 0) {
+            if (this.maxPeople <= 0 && this.showMaxPeople) {
                 addAlert('warning', 'Max People must be positive and not zeroes.')
                 this.maxPeople = 1;
                 result = false;
@@ -168,6 +165,9 @@ export default {
                 // Construct data to create POST request
                 const dateObj = new Date(this.date);
                 const formattedDate = dateObj.toISOString();
+                if (!this.showMaxPeople) {
+                    this.maxPeople = null;
+                }
                 const data = {
                     name: this.activityName,
                     detail: this.activityDetail,

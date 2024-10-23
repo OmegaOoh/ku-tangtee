@@ -191,6 +191,9 @@ export default {
             }
             try {
                 // Construct data to create POST request
+                if (!this.showMaxPeople) {
+                    this.maxPeople = null;
+                }
                 const data = {
                     name: this.activityName,
                     detail: this.activityDetail,

@@ -72,7 +72,7 @@
                         <button class="btn btn-secondary">
                             Chat
                         </button>
-                        <button v-if='!isHost' class="btn btn-accent mx-4">
+                        <button v-if='!isHost' @click='leaveActivity' class="btn btn-accent mx-4">
                             Leave Activity
                         </button>
                     </div>
@@ -101,7 +101,7 @@
 <script setup>
 import { addAlert } from '@/functions/AlertManager';
 import apiClient from '@/api';
-import { createPostRequest } from '@/functions/HttpRequest.js';
+import { createDeleteRequest, createPostRequest } from '@/functions/HttpRequest.js';
 import { isAuth, login, userId } from '@/functions/Authentications';
 import { watch, ref } from 'vue';
 import EditModal from '@/component/EditModal.vue';
@@ -144,7 +144,7 @@ export default {
              * Close Edit Activity Modal
              * This function return nothing.
              */
-             this.showModal = false;
+            this.showModal = false;
         },
         async fetchTimeZoneOffset() {
             /*
@@ -205,6 +205,29 @@ export default {
                 }
             }
         },
+        async leaveActivity() {
+            /**
+             * Attempt Leave activity
+             * this function return nothing
+             */
+            try {
+                const response = await createDeleteRequest(
+                    `/activities/join/${this.activityId}/`,
+                    {}
+                );
+                addAlert('success', response.data.message);
+                this.fetchDetail(); //Fetch Activity
+            } catch (error) {
+                if (error.response && error.response.data) {
+                    addAlert('error', error.response.data.message); // Show error message from backend
+                } else {
+                    addAlert(
+                        'error',
+                        'An unexpected error occurred. Please try again later.'
+                    );
+                }
+            }
+        },
         formatActivityDate(date) {
             /*
              * Adjust the activity date with the timezone offset.
@@ -229,9 +252,6 @@ export default {
              */
             this.isHost = this.hosts.includes(userId.value);
         },
-        handleImageError(event) {
-            console.error(event);
-        }
     },
     mounted() {
         this.activityId = this.$route.params.id;
