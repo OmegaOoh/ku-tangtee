@@ -6,8 +6,14 @@
             </button>
         </div>
     </div>
+    <h1 class='text-4xl font-bold mb-4 flex justify-center my-6'>Activities List</h1>
+    <div class="grid grid-flow-col justify-end pr-5 items-center">
+                <div class="flex items-center mr-8">
+                    <input v-model='searchKeyword' @keydown.enter='fetchActivities' class="input input-bordered gap-2 rounded-r-none" placeholder="Search">
+                    <button @click='fetchActivities' class="btn btn-secondary rounded-l-none">Search</button>
+        </div>
+    </div>
     <div class='container mx-auto p-4'>
-        <h1 class='text-4xl font-bold mb-4 flex justify-center'>Activities List</h1>
         <div v-if='activities.length'>
             <div class='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <div
@@ -67,6 +73,7 @@ export default {
             activities: [],
             isDarkTheme: false,
             timeZoneOffset: 0,
+            searchKeyword: '',
         };
     },
     mounted() {
@@ -102,7 +109,13 @@ export default {
              * Get data for all activities from API.
              */
             try {
-                const response = await apiClient.get('/activities/'); // Trying to get data from API
+                let response;
+                if (this.searchKeyword == '' || this.searchKeyword == null) {
+                    response = await apiClient.get('/activities/');
+                }
+                else {
+                    response = await apiClient.get('/activities/', {params: {keyword: this.searchKeyword}});
+                }
                 this.activities = response.data;
                 window.scrollTo(0,0);
                 // Hide reload button
@@ -110,7 +123,6 @@ export default {
                 reloadButton.classList.remove('translate-y-0');
                 reloadButton.classList.remove('translate-y-[100%]');
                 setTimeout(reloadButton.setAttribute('hidden', 'true'));
-
             } catch (error) {
                 console.error('Error fetching activities:', error);
                 if (error.response) {
@@ -118,6 +130,12 @@ export default {
                     console.error('Response status:', error.response.status);
                 }
             }
+        },
+        search() {
+            /**
+             * Handle Search using search bar
+             * this function return nothing.
+             */
         },
         viewActivity(activityId) {
             /*
