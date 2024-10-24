@@ -22,7 +22,7 @@
             </p>
             <div class='grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 ml-3'>
                 <div
-                    v-for='participant in people'
+                    v-for='participant in activity.participant'
                     :key='participant.id'
                     class='card bg-base-100 shadow-lg p-4 rounded-lg'
                 >
@@ -115,10 +115,6 @@ export default {
                     `/activities/${this.activityId}`
                 );
                 this.activity = response.data;
-                const participant = await apiClient.get(
-                    `/activities/get-participant/${this.activity.id}/`
-                );
-                this.people = participant.data;
                 this.canJoin = this.activity.can_join; // Adjust this based on your backend logic
             } catch (error) {
                 console.error('Error fetching activity:', error);
