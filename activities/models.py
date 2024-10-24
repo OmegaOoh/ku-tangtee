@@ -20,15 +20,19 @@ class Activity(models.Model):
         """
         return self.name
 
+    def is_active(self) -> bool:
+        """Check if activity is active.
+
+        :return: True if activity is active.
+        """
+        return self.date >= timezone.now()
+
     def can_join(self) -> Any:
         """Check if max_people doesn't reach and date doesn't past.
 
         :return: true if the activity is join able, false otherwise
         """
-        if self.max_people:
-            return self.date >= timezone.now() and self.people < self.max_people
-        else:
-            return self.date >= timezone.now()
+        return self.is_active() and (not self.max_people or self.people < self.max_people)
 
     def is_upcoming(self) -> Any:
         """Check if activities took place on incoming weeks.
