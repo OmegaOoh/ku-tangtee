@@ -8,9 +8,9 @@
             </ul>
         </div>
         <div
-            class="modal"
+            class="modal backdrop-blur-sm"
             :class="{ 'modal-open': showModal }">
-            <div class="modal-box border-2 border-primary">
+            <div class="modal-box shadow-xl">
                 <div class="sticky flex justify-end">
                     <button
                         class="btn btn-ghost btn-circle"
