@@ -33,14 +33,13 @@ export async function createPutRequest(path, data) {
         )
 }
 
-export async function createDeleteRequest(path, data) {
+export async function createDeleteRequest(path) {
     /**
      * Create DELETE request with CSRF token in its headers.
      * Return HttpResponse from DELETE request
      */
     const csrfToken = await getCsrfToken();
     return await apiClient.delete(path,
-            data,
             {
                 headers: {'X-CSRFToken': csrfToken}
             }

@@ -212,8 +212,7 @@ export default {
              */
             try {
                 const response = await createDeleteRequest(
-                    `/activities/join/${this.activityId}/`,
-                    {}
+                    `/activities/join/${this.activityId}/`
                 );
                 addAlert('success', response.data.message);
                 this.fetchDetail(); //Fetch Activity
@@ -271,6 +270,12 @@ export default {
                 this.checkJoined();
             }
         })
+        watch(isAuth, (newStatus) => {
+            if (!newStatus.value) {
+                this.isHost = false
+                this.isJoined = false;
+            }
+        })
         window.addEventListener('keydown', (e) => {
             if (e.key == 'Escape') {
                 this.closeModal();
@@ -278,5 +283,8 @@ export default {
         })
     },
 };
-
 </script>
+
+<style scoped>
+
+</style>
