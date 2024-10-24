@@ -1,4 +1,3 @@
-
 <template>
     <div>
         <div class='breadcrumbs text-lm size-fit my-6 mx-10 back'>
@@ -34,7 +33,7 @@
                 </p>
                 <p class='mb-2 ml-3'>
                     <strong class='text-base-content text-lg'>Date:</strong>
-                    {{ formatActivityDate(activity.date) }}
+                    {{ formatTimestamp(activity.date) }}
                 </p>
                 <p v-if="activity.max_people != null" class='mb-2 ml-3'>
                     <strong class='text-base-content text-lg'>Max People:</strong>
@@ -69,7 +68,7 @@
                         <button class="btn btn-accent" @click="login">Please Login before join</button>
                     </div>
                     <div v-else-if="isJoined" class='flex'>
-                        <button class="btn btn-secondary">
+                        <button class="btn btn-secondary" @click="goToChat">
                             Chat
                         </button>
                         <button v-if='!isHost' @click='leaveActivity' class="btn btn-accent mx-4">
@@ -99,6 +98,7 @@
 </template>
 
 <script setup>
+import { format } from "date-fns";
 import { addAlert } from '@/functions/AlertManager';
 import apiClient from '@/api';
 import { createDeleteRequest, createPostRequest } from '@/functions/HttpRequest.js';
@@ -128,7 +128,6 @@ export default {
         goBack() {
             /*
              * Navigate back to Activity Index page.
-             * This function does not return anything.
              */
             this.$router.push('/');
         },
@@ -146,24 +145,15 @@ export default {
              */
             this.showModal = false;
         },
-        async fetchTimeZoneOffset() {
+        goToChat() {
             /*
-             * Attempt to get timezone offset.
-             * This function does not return anything.
+             * Navigagte to Activity Chart page.
              */
-            try {
-                const response = await apiClient.get(
-                    'activities/get-timezone/'
-                );
-                this.timeZoneOffset = response.data.offset; // Set the time zone offset
-            } catch (error) {
-                console.error('Error fetching time zone offset:', error);
-            }
+            this.$router.push(`/chat/${this.activityId}`);
         },
         async fetchDetail() {
             /*
              * Get data from specific activity including participant detail.
-             * This function does not return anything.
              */
             try {
                 const response = await apiClient.get(
@@ -185,7 +175,6 @@ export default {
         async joinActivity() {
             /*
              * Attempt to join activity.
-             * This function does not return anything.
              */
             try {
                 const response = await createPostRequest(
@@ -227,15 +216,18 @@ export default {
                 }
             }
         },
-        formatActivityDate(date) {
+        formatTimestamp(timestamp) {
             /*
-             * Adjust the activity date with the timezone offset.
-             * Return localized time.
+             * Format the timestamp into (Oct 22, 2024, 9:00 AM).
+             *
+             * @params {string} not yet formatted timestamp
+             * @returns {string} formatted timestamp
              */
-            const dateObj = new Date(date);
-            const offsetMilliseconds = this.timeZoneOffset * 60 * 60 * 1000;
-            const localDate = new Date(dateObj.getTime() + offsetMilliseconds);
-            return localDate.toLocaleString(); // Return the localized date string
+            if (timestamp) {
+                return format(new Date(timestamp), "PPp");
+            } else {
+                return "No date provided";
+            }
         },
         checkJoined() {
             /**
@@ -255,7 +247,6 @@ export default {
     mounted() {
         this.activityId = this.$route.params.id;
         this.fetchDetail();
-        this.fetchTimeZoneOffset();
         watch(userId, (newUserId) => {
             if(newUserId) {
                 this.checkHost();

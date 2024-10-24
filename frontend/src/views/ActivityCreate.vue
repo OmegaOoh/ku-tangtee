@@ -98,7 +98,6 @@ export default {
         goBack() {
             /*
              * Navigate back to Activity Index page.
-             * This function does not return anything.
              */
             this.$router.push('/');
         },
@@ -156,7 +155,6 @@ export default {
         async postCreateActivity() {
             /*
              * Attempt to create activity.
-             * This function does not return anything.
              */
             if(!this.validateInput()) {
                 return null;
@@ -192,6 +190,9 @@ export default {
             }
         },
         setMaxPeople() {
+            /*
+             * Switch the flag of setting max people.
+             */
             this.showMaxPeople = !this.showMaxPeople;
         },
     },
