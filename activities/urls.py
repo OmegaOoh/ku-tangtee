@@ -11,5 +11,4 @@ urlpatterns = [
     # Utilities.
     path('get-csrf-token/', views.util.csrf_token_view, name='get_csrf_token'),
     path('get-timezone/', views.util.get_timezone, name='get_timezone'),
-    path('get-participant/<int:activity_id>/', views.util.get_participant_detail, name='get_participant')
 ]
