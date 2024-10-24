@@ -28,21 +28,8 @@ const { alerts } = useAlert();
 <script>
 export default {
     name: 'App',
-    data() {
-        return {
-            isDarkTheme: false,
-        };
-    },
     mounted() {
         authStatus();
-        this.isDarkTheme = window.matchMedia(
-            '(prefers-color-scheme: dark)'
-        ).matches;
-        window
-            .matchMedia('(prefers-color-scheme: dark)')
-            .addEventListener('change', (e) => {
-                this.isDarkTheme = e.matches;
-            });
     },
 
 };

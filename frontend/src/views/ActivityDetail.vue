@@ -255,14 +255,6 @@ export default {
     mounted() {
         this.activityId = this.$route.params.id;
         this.fetchDetail();
-        this.isDarkTheme = window.matchMedia(
-            '(prefers-color-scheme: dark)'
-        ).matches;
-        window
-            .matchMedia('(prefers-color-scheme: dark)')
-            .addEventListener('change', (e) => {
-                this.isDarkTheme = e.matches;
-            });
         this.fetchTimeZoneOffset();
         watch(userId, (newUserId) => {
             if(newUserId) {

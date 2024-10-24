@@ -80,14 +80,6 @@ export default {
         this.fetchTimeZoneOffset();
         this.fetchActivities();
         this.setupSocket();
-        this.isDarkTheme = window.matchMedia(
-            '(prefers-color-scheme: dark)'
-        ).matches;
-        window
-            .matchMedia('(prefers-color-scheme: dark)')
-            .addEventListener('change', (e) => {
-                this.isDarkTheme = e.matches;
-            });
     },
     methods: {
         async fetchTimeZoneOffset() {
