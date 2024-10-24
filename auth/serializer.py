@@ -15,7 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'profile_picture_url')
 
-    def get_profile_picture_url(self, user) -> str:
+    def get_profile_picture_url(self, user: User) -> str:
         """Get profile picture from provided user.
 
         :param obj: User model instance
@@ -23,7 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
         """
         try:
             social_account = SocialAccount.objects.get(user=user)
-            profile_picture_url = social_account.extra_data.get('picture', '')
+            profile_picture_url: str = social_account.extra_data.get('picture', '')
             return profile_picture_url
         except SocialAccount.DoesNotExist:
             return ""
