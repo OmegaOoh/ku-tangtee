@@ -23,14 +23,14 @@
         </div>
         <div class='card p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6'>
             <div class='card-body p-4' style='border-radius: 8px'>
-                <h1 class='text-4xl font-bold mb-4 ml-2'>
+                <h1 class='text-4xl font-bold mb-4 ml-2 multi-line'>
                     {{ activity.name }}
                     <button v-if="isHost" @click="openModal" class='btn btn-ghost ml-2 mr-2'>
                             Edit
                     </button>
                 </h1>
-                <p class='mb-2 ml-3 overflow-hidden'>
-                    <strong class='text-base-content text-lg'>Details:</strong> {{ activity.detail }}
+                <p class='mb-2 ml-3 overflow-hidden multi-line'>
+                    {{ activity.detail }}
                 </p>
                 <p class='mb-2 ml-3'>
                     <strong class='text-base-content text-lg'>Date:</strong>
@@ -286,5 +286,9 @@ export default {
 </script>
 
 <style scoped>
-
+    .multi-line {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        word-wrap: break-word;
+    }
 </style>

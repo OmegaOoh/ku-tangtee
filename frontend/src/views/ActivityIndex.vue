@@ -19,10 +19,10 @@
                         class='card-body p-4 '
                         style='border-radius: 8px'
                     >
-                        <h2 class='card-title text-2xl font-semibold overflow-hidden whitespace-nowrap text-ellipsis'>
+                        <h2 class='card-title text-2xl font-semibold line-clamp-1'>
                             {{ activity.name }}
                         </h2>
-                        <p class='line-clamp-2 text-ellipsis'>{{ activity.detail }}</p>
+                        <p class='line-clamp-2'>{{ activity.detail }}</p>
                         <p>
                             Start date:
                             {{ formatActivityDate(activity.date) }}
@@ -168,7 +168,18 @@ export default {
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
         line-clamp: 2;
-        word-wrap: normal;
+        word-wrap: break-word;
         overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .line-clamp-1 {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
+        word-wrap: break-word;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 </style>
