@@ -5,13 +5,13 @@ from allauth.socialaccount.models import SocialAccount
 
 class UserSerializer(serializers.ModelSerializer):
     
-    profile_picture = serializers.SerializerMethodField()
+    profile_picture_url = serializers.SerializerMethodField()
     
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'profile_picture')
+        fields = ('username', 'first_name', 'last_name', 'email', 'profile_picture_url')
         
-    def get_profile_picture(self, obj) -> str:
+    def get_profile_picture_url(self, obj) -> str:
         
         try:
             social_account = SocialAccount.objects.get(user=obj)
