@@ -7,13 +7,14 @@
         </div>
     </div>
     <h1 class='text-4xl font-bold mb-4 flex justify-center my-6'>Activities List</h1>
-    <div class="grid grid-flow-col justify-end pr-5 items-center">
-                <div class="flex items-center mr-8">
-                    <input v-model='searchKeyword' @keydown.enter='fetchActivities' class="input input-bordered gap-2 rounded-r-none" placeholder="Search">
-                    <button @click='fetchActivities' class="btn btn-secondary rounded-l-none">Search</button>
-        </div>
-    </div>
+
     <div class='container mx-auto p-4'>
+        <div class="grid grid-flow-col justify-end pr-5 items-center">
+            <div class="flex my-5">
+                <input v-model='searchKeyword' @keydown.enter='fetchActivities' class="input input-bordered gap-2 rounded-r-none" placeholder="Search">
+                <button @click='fetchActivities' class="btn btn-secondary rounded-l-none">Search</button>
+            </div>
+        </div>
         <div v-if='activities.length'>
             <div class='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <div
