@@ -165,7 +165,7 @@ export default {
                 );
                 this.people = participant.data;
                 this.canJoin = this.activity.can_join;
-                this.hosts = response.data.host;
+                this.hosts = JSON.stringify(response.data.host);
                 this.checkHost();
                 this.checkJoined();
             } catch (error) {
@@ -232,31 +232,37 @@ export default {
         checkJoined() {
             /**
              * Check if current user joined the activity
-             * return boolean whether or not user is joined
+             * return None
              */
-            this.isJoined = this.people.some(element => element['id'] == userId.value);
+            if (!isAuth) {
+                this.isJoined = false;
+            }
+            else {
+                this.isJoined = this.people.some(element => element['id'] == userId.value);
+            }
         },
         checkHost() {
             /**
              * Check whether or not user is host of activity.
-             * return boolean
+             * return None
              */
-            this.isHost = this.hosts.includes(userId.value);
+            if (!isAuth) {
+                this.isHost = false;
+            }
+            else {
+                this.isHost = this.hosts.includes(userId.value);
+            }
         },
     },
     mounted() {
         this.activityId = this.$route.params.id;
         this.fetchDetail();
+        this.checkHost();
+        this.checkJoined();
         watch(userId, (newUserId) => {
             if(newUserId) {
                 this.checkHost();
                 this.checkJoined();
-            }
-        })
-        watch(isAuth, (newStatus) => {
-            if (!newStatus.value) {
-                this.isHost = false
-                this.isJoined = false;
             }
         })
         window.addEventListener('keydown', (e) => {
