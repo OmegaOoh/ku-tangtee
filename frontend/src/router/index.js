@@ -18,11 +18,6 @@ const routes = [
         component: ActivityDetail,
     },
     {
-        path: "/activities/:id/edit",
-        name: "ActivityEditPage",
-        component: ActivityEdit,
-    },
-    {
         path: "/create",
         name: "ActivityCreationPage",
         component: ActivityCreate,
