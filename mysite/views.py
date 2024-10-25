@@ -27,10 +27,13 @@ def get_user_data(user_id: int) -> response.Response:  # pragma: no cover
     :param user_id: User id to indicate the user
     :return: Response object contain single user data or error message.
     """
-    user = User.object.filter(id=user_id)
+    user = User.object.get(id=user_id)
     try:
         social_account = SocialAccount.objects.get(user=user)
         profile_picture_url = social_account.extra_data.get('picture', '')
-        return response.Response({"profile_picture_url": profile_picture_url, "id": user.id, "first_name":user.first_name, "last_name":user.last_name})
+        return response.Response({"profile_picture_url": profile_picture_url,
+                                   "id": user.id,
+                                   "first_name":user.first_name,
+                                   "last_name":user.last_name})
     except SocialAccount.DoesNotExist:
         return response.Response({"error": "Google account not found for user"}, status=404)
