@@ -115,13 +115,16 @@ export default {
                 console.log('WebSocket connection opened', this.activityId);
             };
             this.socket.onmessage = (event) => {
-                this.fetchProfile();
                 const data = JSON.parse(event.data);
+                const user_id = data.user_id;
+                if (this.people.some((element) => { element['id'] == userId})) {
+                    this.fetchProfile();
+                }
                 if (data.message) {
                     this.messages.push({
                         message: data.message,
                         timestamp: new Date(),
-                        user_id: data.user_id,
+                        user_id: user_id,
                     });
                     this.scrollToBottom();
                 }
@@ -207,7 +210,9 @@ export default {
              */
             this.$nextTick(() => {
                 const messageList = this.$refs.messageList;
-                messageList.scrollTop = messageList.scrollHeight;
+                if (messageList) {
+                    messageList.scrollTop = messageList.scrollHeight;
+                }
             });
         },
         formatTimestamp(timestamp) {
@@ -291,7 +296,10 @@ export default {
     },
     mounted() {
         this.chatSetup();
-        watch(userId, () => {
+        watch(userId, (newUserId) => {
+            if (newUserId === this.currentUserId) {
+                return // Same User, Take no action.
+            }
             if(this.socket) {
                 this.socket.close();
             }

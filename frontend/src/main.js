@@ -19,6 +19,7 @@ app.use(VueLazyload, {
     preLoad: 1.3,
     error: placeholderAvatar,
     loading: placeholderAvatar,
-    attempt: 3
+    attempt: 3,
+    log: false,
 })
 app.use(router).mount('#app');
