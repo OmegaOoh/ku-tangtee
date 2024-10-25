@@ -2,6 +2,8 @@ import { ref } from 'vue';
 import apiClient from '@/api';
 import { googleTokenLogin } from 'vue3-google-login';
 import { createPostRequest } from './HttpRequest';
+import { getCookie, setCookie, deleteCookie } from './cookies';
+import { jwtDecode } from 'jwt-decode';
 
 
 export var isAuth = ref(false);
@@ -26,7 +28,11 @@ export async function login() {
                 access_token: logInResponse.access_token,
             },
         );
-        sessionStorage.setItem('token', response.data.access);
+        const decodedCookie = jwtDecode(response.data.access);
+
+        setCookie('backend_token', response.data.access);
+        console.log(decodedCookie);
+        
         isAuth.value = true;
         await getUserData();
     } catch (e) {
@@ -39,17 +45,24 @@ export async function authStatus() {
      * Check session authentication status
      * This function does not return anything.
      */
-    try {
-        await createPostRequest(
-            `rest-auth/token/verify/`,
-            {
-                token: sessionStorage.getItem('token'),
-            },
-        );
-        isAuth.value = true;
-        await getUserData();
-    } catch {
-        isAuth.value = false;
+    const token = getCookie('backend_token');
+    console.log(token);
+    if (token) {
+        try {
+            await createPostRequest(
+                `rest-auth/token/verify/`,
+                {
+                    token: token,
+                },
+            );
+            isAuth.value = true;
+            getUserData();
+        }
+        catch (e) {
+            await logout();
+        }
+    }
+    else {
         await logout();
     }
 }
@@ -68,7 +81,7 @@ export async function logout() {
     lName.value = '';
     pfp.value = '';
     userId.value = '';
-    sessionStorage.setItem('token', '');
+    deleteCookie('backend_token');
 }
 
 export async function getUserData() {
