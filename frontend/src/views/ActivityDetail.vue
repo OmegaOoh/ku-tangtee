@@ -234,7 +234,7 @@ export default {
              * Check if current user joined the activity
              * return boolean whether or not user is joined
              */
-            this.isJoined = this.people.some(element => element['id'] === userId.value);
+            this.isJoined = this.people.some(element => element['id'] == userId.value);
         },
         checkHost() {
             /**
