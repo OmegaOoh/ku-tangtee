@@ -21,13 +21,14 @@ def profile_picture_view(request: HttpRequest) -> response.Response:  # pragma: 
         return response.Response({"error": "Google account not found for user"}, status=404)
 
 @decorators.api_view(["GET"])
-def get_user_data(user_id: int) -> response.Response:  # pragma: no cover
+def get_user_data(request: HttpRequest, user_id: int) -> response.Response:  # pragma: no cover
     """Return user data from Google account.
 
+    :param request: Http request object
     :param user_id: User id to indicate the user
     :return: Response object contain single user data or error message.
     """
-    user = User.object.get(id=user_id)
+    user = User.objects.get(id=user_id)
     try:
         social_account = SocialAccount.objects.get(user=user)
         profile_picture_url = social_account.extra_data.get('picture', '')
