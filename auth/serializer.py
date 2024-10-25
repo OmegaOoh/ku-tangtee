@@ -13,7 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
         """User serailizer Meta class."""
 
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'profile_picture_url')
+        fields = ('username', 'first_name', 'last_name', 'email', 'profile_picture_url', 'id')
 
     def get_profile_picture_url(self, user: User) -> str:
         """Get profile picture from provided user.

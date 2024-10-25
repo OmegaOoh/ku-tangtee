@@ -147,10 +147,12 @@ export default {
              * Return Nothing
              */
             this.people = [];
-            const participant = await apiClient.get(
-                `/activities/get-participant/${this.activityId}/`
+            const response = await apiClient.get(
+                `/activities/${this.activityId}/`
             );
-            this.people = participant.data;
+            const activity = response.data;
+            this.people = activity.participant;
+            console.log(this.people);
         },
         async fetchMessages() {
             /*
