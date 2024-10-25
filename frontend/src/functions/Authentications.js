@@ -3,7 +3,6 @@ import apiClient from '@/api';
 import { googleTokenLogin } from 'vue3-google-login';
 import { createPostRequest } from './HttpRequest';
 import { getCookie, setCookie, deleteCookie } from './cookies';
-import { jwtDecode } from 'jwt-decode';
 
 
 export var isAuth = ref(false);
@@ -28,10 +27,7 @@ export async function login() {
                 access_token: logInResponse.access_token,
             },
         );
-        const decodedCookie = jwtDecode(response.data.access);
-
         setCookie('backend_token', response.data.access);
-        console.log(decodedCookie);
         
         isAuth.value = true;
         await getUserData();
@@ -89,10 +85,15 @@ export async function getUserData() {
      * Get user data from backend.
      * this function return nothing.
      */
-    const response = await apiClient.get(`rest-auth/user/`);
-    fName.value = response.data.first_name;
-    lName.value = response.data.last_name;
-    const profilePic = await apiClient.get(`profile-pic/`);
-    pfp.value = profilePic.data.profile_picture_url;
-    userId.value = response.data.pk;
+    try {
+        const response = await apiClient.get(`rest-auth/user/`);
+        fName.value = response.data.first_name;
+        lName.value = response.data.last_name;
+        const profilePic = await apiClient.get(`profile-pic/`);
+        pfp.value = profilePic.data.profile_picture_url;
+        userId.value = response.data.pk;
+    } catch (e) {
+        console.error(e);
+        await logout();
+    }
 }

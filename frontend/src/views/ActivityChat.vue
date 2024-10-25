@@ -325,6 +325,10 @@ export default {
             if (this.isJoined) {
                 await this.fetchCurrentUser();
                 await this.fetchMessages();
+                if (this.socket) {
+                    this.socket.close();
+                    this.socket = null;
+                }
                 this.connectWebSocket();
             }
         },
@@ -332,14 +336,13 @@ export default {
     mounted() {
         this.chatSetup();
         watch(userId, (newUserId) => {
-            if (newUserId === this.currentUserId) {
-                return; // Same User, Take no action.
-            }
-            if (this.socket) {
-                this.socket.close();
-            }
-            if (isAuth) {
-                this.chatSetup();
+            if (newUserId != this.currentUserId) {
+                if (this.socket) {
+                    this.socket.close();
+                }
+                if (isAuth) {
+                    this.chatSetup();
+                }
             }
         });
     },

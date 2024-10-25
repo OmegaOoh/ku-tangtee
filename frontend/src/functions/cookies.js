@@ -8,7 +8,6 @@ export function setCookie(id, value) {
 }
 
 export function deleteCookie(id) {
-
     document.cookie = id + '=;';
 }
 
