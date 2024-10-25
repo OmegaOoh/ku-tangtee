@@ -17,14 +17,17 @@
                         x
                     </button>
                 </div>
-                <EditModal @update-success="closeModal"/>
+                <EditModal @update-success="() => {
+                    this.closeModal()
+                    this.fetchDetail();
+                }"/>
             </div>
         </div>
         <div class='card p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6'>
             <div class='card-body p-4' style='border-radius: 8px'>
                 <h1 class='text-4xl font-bold mb-4 ml-2 multi-line'>
                     {{ activity.name }}
-                    <button v-if="isHost" @click="openModal" class='btn btn-ghost ml-2 mr-2'>
+                    <button v-if="isHost" @click="openModal" class='btn btn-ghost text-accent ml-2 mr-2'>
                             Edit
                     </button>
                 </h1>
