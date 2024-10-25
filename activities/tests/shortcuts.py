@@ -2,7 +2,6 @@
 import io
 import sys
 import json
-import pytz
 from datetime import datetime
 from django.http import HttpResponse
 import django.test
