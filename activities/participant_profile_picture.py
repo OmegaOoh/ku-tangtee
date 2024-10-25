@@ -15,6 +15,7 @@ def retrive_profile_picture(user: User) -> Dict[str, str]:  # pragma: no cover
         profile_picture_url = social_account.extra_data.get('picture', '')
         return {"profile_picture_url": profile_picture_url,
                 "first_name": user.first_name,
-                "last_name": user.last_name}
+                "last_name": user.last_name,
+                "id": user.id}
     except SocialAccount.DoesNotExist:
         return {"error": "Google account not found for user"}

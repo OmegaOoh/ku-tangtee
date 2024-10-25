@@ -4,19 +4,21 @@
             <h1 class='text-4xl font-bold mb-4 ml-2'>
                 {{ activity.name }}
             </h1>
-            <p class='mb-2 ml-3 overflow-hidden'>
-                <strong class='text-lg'>Details:</strong> {{ activity.detail }}
+            <p class="mb-2 ml-3 overflow-hidden">
+                <strong class="text-lg">Details: </strong> {{ activity.detail }}
             </p>
-            <p class='mb-2 ml-3'>
-                <strong class='text-lg'>Date:</strong>
-                {{ formatActivityDate(activity.date) }}
+            <p class="mb-2 ml-3">
+                <strong class="text-lg">Date: </strong>
+                <time class="text-lg">{{
+                    formatTimestamp(activity.date)
+                }}</time>
             </p>
-            <p class='mb-2 ml-3'>
-                <strong class='text-lg'>Max People:</strong>
+            <p class="mb-2 ml-3">
+                <strong class="text-lg">Max People: </strong>
                 {{ activity.max_people }}
             </p>
-            <p class='mb-2 ml-3'>
-                <strong class='text-lg'>Joined People:</strong>
+            <p class="mb-2 ml-3">
+                <strong class="text-lg">Joined People: </strong>
             </p>
             <div class='grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 ml-3'>
                 <div
@@ -43,7 +45,13 @@
                     <button @click='goToEdit' class='btn btn-warning ml-2 mr-2'>
                         Edit
                     </button>
-                    <button @click='goBack' class='btn btn-info ml-2 mr-2'>
+                    <button
+                        @click="goToChat"
+                        class="btn btn-secondary ml-2 mr-2"
+                    >
+                        Chat
+                    </button>
+                    <button @click="goBack" class="btn btn-info ml-2 mr-2">
                         Back to Activities
                     </button>
                 </div>
@@ -63,6 +71,7 @@
 </template>
 
 <script>
+import { format } from "date-fns";
 import { addAlert } from '@/functions/AlertManager';
 import apiClient from '@/api';
 import '@/styles/ActivityDetail.css';
@@ -82,35 +91,24 @@ export default {
         goBack() {
             /*
              * Navigate back to Activity Index page.
-             * This function does not return anything.
              */
             this.$router.push('/');
         },
         goToEdit() {
             /*
              * Navigagte to Activity Edit page.
-             * This function does not return anything.
              */
             this.$router.push(`/activities/${this.activityId}/edit`);
         },
-        async fetchTimeZoneOffset() {
+        goToChat() {
             /*
-             * Attempt to get timezone offset.
-             * This function does not return anything.
+             * Navigagte to Activity Chart page.
              */
-            try {
-                const response = await apiClient.get(
-                    'activities/get-timezone/'
-                );
-                this.timeZoneOffset = response.data.offset; // Set the time zone offset
-            } catch (error) {
-                console.error('Error fetching time zone offset:', error);
-            }
+            this.$router.push(`/chat/${this.activityId}`);
         },
         async fetchActivity() {
             /*
              * Get data from specific activity including participant detail.
-             * This function does not return anything.
              */
             try {
                 const response = await apiClient.get(
@@ -129,7 +127,6 @@ export default {
         async joinActivity() {
             /*
              * Attempt to join activity.
-             * This function does not return anything.
              */
             try {
                 const response = await createPostRequest(
@@ -149,15 +146,18 @@ export default {
                 }
             }
         },
-        formatActivityDate(date) {
+        formatTimestamp(timestamp) {
             /*
-             * Adjust the activity date with the timezone offset.
-             * Return localized time.
+             * Format the timestamp into (Oct 22, 2024, 9:00 AM).
+             *
+             * @params {string} not yet formatted timestamp
+             * @returns {string} formatted timestamp
              */
-            const dateObj = new Date(date);
-            const offsetMilliseconds = this.timeZoneOffset * 60 * 60 * 1000;
-            const localDate = new Date(dateObj.getTime() + offsetMilliseconds);
-            return localDate.toLocaleString(); // Return the localized date string
+            if (timestamp) {
+                return format(new Date(timestamp), "PPp");
+            } else {
+                return "No date provided";
+            }
         },
     },
     mounted() {
@@ -171,7 +171,6 @@ export default {
             .addEventListener('change', (e) => {
                 this.isDarkTheme = e.matches;
             });
-        this.fetchTimeZoneOffset();
     },
 };
 </script>
