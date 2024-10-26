@@ -10,5 +10,4 @@ urlpatterns = [
 
     # Utilities.
     path('get-csrf-token/', views.util.csrf_token_view, name='get_csrf_token'),
-    path('get-timezone/', views.util.get_timezone, name='get_timezone'),
 ]
