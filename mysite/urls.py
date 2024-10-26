@@ -10,5 +10,6 @@ urlpatterns = [
     path("rest-auth/", include("dj_rest_auth.urls")),
     path("accounts/", include("allauth.urls")),
     path("auth/", include('auth.urls')),
-    path("profile-pic/", views.profile_picture_view)
+    path("profile-pic/", views.profile_picture_view),
+    path("get-user/<int:user_id>/", views.get_user_data)
 ]

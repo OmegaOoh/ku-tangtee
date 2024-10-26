@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from typing import Dict
 
 
-def retrive_profile_picture(user: User) -> Dict[str, str]:  # pragma: no cover
+def retrieve_profile_picture(user: User) -> Dict[str, str]:  # pragma: no cover
     """Return profile picture url from Google account and also return his name.
 
     :param user: Instance of User model

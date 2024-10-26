@@ -18,8 +18,8 @@ def get_participant_detail(request: HttpRequest, activity_id: int) -> JsonRespon
     """Return list of participant with detail and profile picture."""
     activity = models.Activity.objects.get(id=activity_id)
     attendees = activity.attend_set.all()
-    wanted_detail = []
+    participants_detail = []
     for attendance in attendees:
-        joined_person = participant_profile_picture.retrive_profile_picture(attendance.user)
-        wanted_detail.append(joined_person)
-    return response.Response(wanted_detail)
+        details = participant_profile_picture.retrieve_profile_picture(attendance.user)
+        participants_detail.append(details)
+    return response.Response(participants_detail)

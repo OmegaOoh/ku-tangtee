@@ -1,7 +1,7 @@
 <template>
     <div role="alert" class='fade' :class="alertClass" v-if="isVisible">
         <component :is="alertIcon" class="h-6 w-6 shrink-0 stroke-current "></component>
-        <span>{{ content }}</span>
+        <span class="line-clamp-3">{{ content }}</span>
     </div>
 </template>
 
@@ -71,3 +71,15 @@ const alertTypeIcon = {
 const alertClass = computed(() => alertType[props.type] || alertType.info);
 const alertIcon = computed(() => alertTypeIcon[props.type] || alertTypeIcon.info);
 </script>
+
+<style scoped>
+    .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    word-wrap: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+</style>
