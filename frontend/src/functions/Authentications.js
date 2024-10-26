@@ -1,13 +1,15 @@
-import { ref } from "vue";
+import { ref } from 'vue';
 import apiClient from '@/api';
 import { googleTokenLogin } from 'vue3-google-login';
 import { createPostRequest } from './HttpRequest';
+import { getCookie, setCookie, deleteCookie } from './cookies';
 
 
 export var isAuth = ref(false);
 export var fName = ref('');
 export var lName = ref('');
 export var pfp = ref('');
+export var userId = ref(-1);
 
 export async function login() {
     /**
@@ -25,11 +27,11 @@ export async function login() {
                 access_token: logInResponse.access_token,
             },
         );
-        sessionStorage.setItem('token', response.data.access);
+        setCookie('backend-token', response.data.access);
         isAuth.value = true;
         await getUserData();
     } catch (e) {
-        console.log(e);
+        console.error("error on login: ",e);
     }
 }
 
@@ -38,17 +40,23 @@ export async function authStatus() {
      * Check session authentication status
      * This function does not return anything.
      */
-    try {
-        await createPostRequest(
-            `rest-auth/token/verify/`,
-            {
-                token: sessionStorage.getItem('token'),
-            },
-        );
-        isAuth.value = true;
-        await getUserData();
-    } catch {
-        isAuth.value = false;
+    const token = getCookie('backend-token');
+    if (token) {
+        try {
+            await createPostRequest(
+                `rest-auth/token/verify/`,
+                {
+                    token: token,
+                },
+            );
+            isAuth.value = true;
+            getUserData();
+        }
+        catch (e) {
+            await logout();
+        }
+    }
+    else {
         await logout();
     }
 }
@@ -63,7 +71,11 @@ export async function logout() {
         {},
     );
     isAuth.value = false;
-    sessionStorage.setItem('token', '');
+    fName.value = '';
+    lName.value = '';
+    pfp.value = '';
+    userId.value = '';
+    deleteCookie('backend-token');
 }
 
 export async function getUserData() {
@@ -71,9 +83,15 @@ export async function getUserData() {
      * Get user data from backend.
      * this function return nothing.
      */
-    const response = await apiClient.get(`rest-auth/user/`);
-    fName.value = response.data.first_name;
-    lName.value = response.data.last_name;
-    const profilePic = await apiClient.get(`profile-pic/`);
-    pfp.value = profilePic.data.profile_picture_url;
+    try {
+        const response = await apiClient.get(`rest-auth/user/`);
+        fName.value = response.data.first_name;
+        lName.value = response.data.last_name;
+        const profilePic = await apiClient.get(`profile-pic/`);
+        pfp.value = profilePic.data.profile_picture_url;
+        userId.value = response.data.pk;
+    } catch (e) {
+        console.error(e);
+        await logout();
+    }
 }

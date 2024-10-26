@@ -1,81 +1,117 @@
 <template>
-    <div class='p-6 bg-base-100 shadow-md rounded-lg'>
-        <div class='bg-primary card-body p-4' style='border-radius: 8px'>
-            <h1 class='text-4xl font-bold mb-4 ml-2'>
-                {{ activity.name }}
-            </h1>
-            <p class="mb-2 ml-3 overflow-hidden">
-                <strong class="text-lg">Details: </strong> {{ activity.detail }}
-            </p>
-            <p class="mb-2 ml-3">
-                <strong class="text-lg">Date: </strong>
-                <time class="text-lg">{{
-                    formatTimestamp(activity.date)
-                }}</time>
-            </p>
-            <p class="mb-2 ml-3">
-                <strong class="text-lg">Max People: </strong>
-                {{ activity.max_people }}
-            </p>
-            <p class="mb-2 ml-3">
-                <strong class="text-lg">Joined People: </strong>
-            </p>
-            <div class='grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 ml-3'>
-                <div
-                    v-for='participant in activity.participant'
-                    :key='participant.id'
-                    class='card bg-base-100 shadow-lg p-4 rounded-lg'
-                >
-                    <div class='flex items-center space-x-4'>
-                        <img
-                            :src='participant.profile_picture_url'
-                            alt='Profile Picture'
-                            class='w-12 h-12 rounded-full'
-                        />
-                        <p class='font-medium'>
-                            {{ participant.first_name }}
-                            {{ participant.last_name }}
-                        </p>
+    <div>
+        <div class='breadcrumbs text-lm size-fit my-6 mx-10 back'>
+            <ul>
+                <li><a @click="goBack">Home</a></li>
+                <li>Activity {{ activity.id }}</li>
+            </ul>
+        </div>
+        <div
+            class="modal backdrop-blur-sm"
+            :class="{ 'modal-open': showModal }">
+            <div class="modal-box shadow-xl">
+                <div class="sticky flex justify-end">
+                    <button
+                        class="btn btn-ghost btn-circle"
+                        @click="closeModal">
+                        x
+                    </button>
+                </div>
+                <EditModal @update-success="() => {
+                    this.closeModal()
+                    this.fetchDetail();
+                }"/>
+            </div>
+        </div>
+        <div class='card p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6'>
+            <div class='card-body p-4' style='border-radius: 8px'>
+                <h1 class='text-4xl font-bold mb-4 ml-2 multi-line'>
+                    {{ activity.name }}
+                    <button v-if="isHost" @click="openModal" class='btn btn-ghost text-accent ml-2 mr-2'>
+                            Edit
+                    </button>
+                </h1>
+                <p class='mb-2 ml-3 overflow-hidden multi-line'>
+                    {{ activity.detail }}
+                </p>
+                <p class='mb-2 ml-3'>
+                    <strong class='text-base-content text-lg'>Date:</strong>
+                    {{ formatTimestamp(activity.date) }}
+                </p>
+                <p v-if="activity.max_people != null" class='mb-2 ml-3'>
+                    <strong class='text-base-content text-lg'>Max People:</strong>
+                    {{ activity.max_people }}
+                </p>
+                <p class='mb-2 ml-3'>
+                    <strong class='text-base-content text-lg'>Joined People:</strong>
+                </p>
+                <div class='grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 ml-3'>
+                    <div
+                        v-for='participant in activity.participant'
+                        :key='participant.id'
+                        class='card bg-base-100 shadow-lg p-4 rounded-lg'
+                    >
+                        <div class='flex items-center space-x-4'>
+                            <img
+                                v-lazy='participant.profile_picture_url'
+                                alt='Profile Picture'
+                                class='w-12 h-12 rounded-full'
+                                @error="handleImageError"
+                            />
+                            <p class='font-medium'>
+                                {{ participant.first_name }}
+                                {{ participant.last_name }}
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class='flex justify-between items-center'>
-                <div class='flex space-x-4'>
-                    <button @click='goToEdit' class='btn btn-warning ml-2 mr-2'>
-                        Edit
-                    </button>
-                    <button
-                        @click="goToChat"
-                        class="btn btn-secondary ml-2 mr-2"
-                    >
-                        Chat
-                    </button>
-                    <button @click="goBack" class="btn btn-info ml-2 mr-2">
-                        Back to Activities
-                    </button>
+                <div class='flex flex-col sm:flex-row justify-between items-center'>
+                    <div v-if="!isAuth">
+                        <button class="btn btn-accent" @click="login">Please Login before join</button>
+                    </div>
+                    <div v-else-if="isJoined" class='flex'>
+                        <button class="btn btn-secondary" @click="goToChat">
+                            Chat
+                        </button>
+                        <button v-if='!isHost' @click='leaveActivity' class="btn btn-accent mx-4">
+                            Leave Activity
+                        </button>
+                    </div>
+                    <div v-else>
+                        <button v-if="canJoin"
+                            id="join-button"
+                            @click='joinActivity'
+                            class='btn btn-primary ml-2 mr-2'
+                        >
+                            Join Activity
+                        </button>
+                        <button v-else
+                            id="join-button"
+                            @click='joinActivity'
+                            class='btn btn-disabled ml-2 mr-2'
+                        >
+                            Join Activity
+                        </button>
+                    </div>
                 </div>
-                <button
-                    v-if='canJoin'
-                    @click='joinActivity'
-                    class='btn btn-success ml-2 mr-2'
-                >
-                    Join Activity
-                </button>
-                <p v-else class='text-red-500 mt-4 ml-2 mr-2'>
-                    This activity cannot be joined.
-                </p>
             </div>
         </div>
     </div>
 </template>
 
-<script>
+<script setup>
 import { format } from "date-fns";
 import { addAlert } from '@/functions/AlertManager';
 import apiClient from '@/api';
-import '@/styles/ActivityDetail.css';
-import { createPostRequest } from '@/functions/HttpRequest.js';
+import { createDeleteRequest, createPostRequest } from '@/functions/HttpRequest.js';
+import { isAuth, login, userId } from '@/functions/Authentications';
+import { watch, ref } from 'vue';
+import EditModal from '@/component/EditModal.vue';
+</script>
+
+<script>
+
 export default {
     data() {
         return {
@@ -85,6 +121,10 @@ export default {
             isDarkTheme: false,
             timeZoneOffset: 0,
             people: [],
+            hosts: [],
+            isHost: false,
+            isJoined: false,
+            showModal: ref(false),
         };
     },
     methods: {
@@ -94,11 +134,19 @@ export default {
              */
             this.$router.push('/');
         },
-        goToEdit() {
-            /*
-             * Navigagte to Activity Edit page.
+        openModal() {
+            /**
+             * Show Edit Activity Modal
+             * This function return nothing.
              */
-            this.$router.push(`/activities/${this.activityId}/edit`);
+            this.showModal = true;
+        },
+        closeModal() {
+            /**
+             * Close Edit Activity Modal
+             * This function return nothing.
+             */
+            this.showModal = false;
         },
         goToChat() {
             /*
@@ -106,7 +154,7 @@ export default {
              */
             this.$router.push(`/chat/${this.activityId}`);
         },
-        async fetchActivity() {
+        async fetchDetail() {
             /*
              * Get data from specific activity including participant detail.
              */
@@ -115,7 +163,13 @@ export default {
                     `/activities/${this.activityId}`
                 );
                 this.activity = response.data;
-                this.canJoin = this.activity.can_join; // Adjust this based on your backend logic
+                const participant = await apiClient.get(
+                    `/activities/get-participant/${this.activity.id}/`
+                );
+                this.canJoin = this.activity.can_join;
+                this.hosts = JSON.stringify(response.data.host);
+                this.checkHost();
+                this.checkJoined();
             } catch (error) {
                 console.error('Error fetching activity:', error);
             }
@@ -130,7 +184,29 @@ export default {
                     {}
                 );
                 addAlert('success', response.data.message);
-                this.fetchActivity(); //Fetch Activity
+                this.fetchDetail(); //Fetch Activity
+            } catch (error) {
+                if (error.response && error.response.data) {
+                    addAlert('error', error.response.data.message); // Show error message from backend
+                } else {
+                    addAlert(
+                        'error',
+                        'An unexpected error occurred. Please try again later.'
+                    );
+                }
+            }
+        },
+        async leaveActivity() {
+            /**
+             * Attempt Leave activity
+             * this function return nothing
+             */
+            try {
+                const response = await createDeleteRequest(
+                    `/activities/join/${this.activityId}/`
+                );
+                addAlert('success', response.data.message);
+                this.fetchDetail(); //Fetch Activity
             } catch (error) {
                 if (error.response && error.response.data) {
                     addAlert('error', error.response.data.message); // Show error message from backend
@@ -155,18 +231,55 @@ export default {
                 return "No date provided";
             }
         },
+        checkJoined() {
+            /**
+             * Check if current user joined the activity
+             * return None
+             */
+            if (!isAuth) {
+                this.isJoined = false;
+            }
+            else {
+                this.isJoined = this.people.some(element => element['id'] == userId.value);
+            }
+        },
+        checkHost() {
+            /**
+             * Check whether or not user is host of activity.
+             * return None
+             */
+            if (!isAuth) {
+                this.isHost = false;
+            }
+            else {
+                this.isHost = this.hosts.includes(userId.value);
+            }
+        },
     },
     mounted() {
         this.activityId = this.$route.params.id;
-        this.fetchActivity();
-        this.isDarkTheme = window.matchMedia(
-            '(prefers-color-scheme: dark)'
-        ).matches;
-        window
-            .matchMedia('(prefers-color-scheme: dark)')
-            .addEventListener('change', (e) => {
-                this.isDarkTheme = e.matches;
-            });
+        this.fetchDetail();
+        this.checkHost();
+        this.checkJoined();
+        watch(userId, (newUserId) => {
+            if(newUserId) {
+                this.checkHost();
+                this.checkJoined();
+            }
+        })
+        window.addEventListener('keydown', (e) => {
+            if (e.key == 'Escape') {
+                this.closeModal();
+            }
+        })
     },
 };
 </script>
+
+<style scoped>
+    .multi-line {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        word-wrap: break-word;
+    }
+</style>
