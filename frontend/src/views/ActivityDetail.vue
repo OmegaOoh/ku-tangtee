@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class='breadcrumbs text-lm size-fit my-6 mx-10 back'>
+        <div class="breadcrumbs text-lm size-fit my-6 mx-10 back">
             <ul>
                 <li><a @click="goBack">Home</a></li>
                 <li>Activity {{ activity.id }}</li>
@@ -8,57 +8,73 @@
         </div>
         <div
             class="modal backdrop-blur-sm"
-            :class="{ 'modal-open': showModal }">
+            :class="{ 'modal-open': showModal }"
+        >
             <div class="modal-box shadow-xl">
                 <div class="sticky flex justify-end">
                     <button
                         class="btn btn-ghost btn-circle"
-                        @click="closeModal">
+                        @click="closeModal"
+                    >
                         x
                     </button>
                 </div>
-                <EditModal @update-success="() => {
-                    this.closeModal()
-                    this.fetchDetail();
-                }"/>
+                <EditModal
+                    @update-success="
+                        () => {
+                            this.closeModal();
+                            this.fetchDetail();
+                        }
+                    "
+                />
             </div>
         </div>
-        <div class='card p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6'>
-            <div class='card-body p-4' style='border-radius: 8px'>
-                <h1 class='text-4xl font-bold mb-4 ml-2 multi-line'>
+        <div
+            class="card p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6"
+        >
+            <div class="card-body p-4" style="border-radius: 8px">
+                <h1 class="text-4xl font-bold mb-4 ml-2 multi-line">
                     {{ activity.name }}
-                    <button v-if="isHost" @click="openModal" class='btn btn-ghost text-accent ml-2 mr-2'>
-                            Edit
+                    <button
+                        v-if="isHost"
+                        @click="openModal"
+                        class="btn btn-ghost text-accent ml-2 mr-2"
+                    >
+                        Edit
                     </button>
                 </h1>
-                <p class='mb-2 ml-3 overflow-hidden multi-line'>
+                <p class="mb-2 ml-3 overflow-hidden multi-line">
                     {{ activity.detail }}
                 </p>
-                <p class='mb-2 ml-3'>
-                    <strong class='text-base-content text-lg'>Date:</strong>
+                <p class="mb-2 ml-3">
+                    <strong class="text-base-content text-lg">Date:</strong>
                     {{ formatTimestamp(activity.date) }}
                 </p>
-                <p v-if="activity.max_people != null" class='mb-2 ml-3'>
-                    <strong class='text-base-content text-lg'>Max People:</strong>
+                <p v-if="activity.max_people != null" class="mb-2 ml-3">
+                    <strong class="text-base-content text-lg"
+                        >Max People:</strong
+                    >
                     {{ activity.max_people }}
                 </p>
-                <p class='mb-2 ml-3'>
-                    <strong class='text-base-content text-lg'>Joined People:</strong>
-                </p>
-                <div class='grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 ml-3'>
-                    <div
-                        v-for='participant in people'
-                        :key='participant.id'
-                        class='card bg-base-100 shadow-lg p-4 rounded-lg'
+                <p class="mb-2 ml-3">
+                    <strong class="text-base-content text-lg"
+                        >Joined People:</strong
                     >
-                        <div class='flex items-center space-x-4'>
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 ml-3">
+                    <div
+                        v-for="participant in people"
+                        :key="participant.id"
+                        class="card bg-base-100 shadow-lg p-4 rounded-lg"
+                    >
+                        <div class="flex items-center space-x-4">
                             <img
-                                v-lazy='participant.profile_picture_url'
-                                alt='Profile Picture'
-                                class='w-12 h-12 rounded-full'
+                                v-lazy="participant.profile_picture_url"
+                                alt="Profile Picture"
+                                class="w-12 h-12 rounded-full"
                                 @error="handleImageError"
                             />
-                            <p class='font-medium'>
+                            <p class="font-medium">
                                 {{ participant.first_name }}
                                 {{ participant.last_name }}
                             </p>
@@ -66,30 +82,40 @@
                     </div>
                 </div>
 
-                <div class='flex flex-col sm:flex-row justify-between items-center'>
+                <div
+                    class="flex flex-col sm:flex-row justify-between items-center"
+                >
                     <div v-if="!isAuth">
-                        <button class="btn btn-accent" @click="login">Please Login before join</button>
+                        <button class="btn btn-accent" @click="login">
+                            Please Login before join
+                        </button>
                     </div>
-                    <div v-else-if="isJoined" class='flex'>
+                    <div v-else-if="isJoined" class="flex">
                         <button class="btn btn-secondary" @click="goToChat">
                             Chat
                         </button>
-                        <button v-if='!isHost' @click='leaveActivity' class="btn btn-accent mx-4">
+                        <button
+                            v-if="!isHost"
+                            @click="leaveActivity"
+                            class="btn btn-accent mx-4"
+                        >
                             Leave Activity
                         </button>
                     </div>
                     <div v-else>
-                        <button v-if="canJoin"
+                        <button
+                            v-if="canJoin"
                             id="join-button"
-                            @click='joinActivity'
-                            class='btn btn-primary ml-2 mr-2'
+                            @click="joinActivity"
+                            class="btn btn-primary ml-2 mr-2"
                         >
                             Join Activity
                         </button>
-                        <button v-else
+                        <button
+                            v-else
                             id="join-button"
-                            @click='joinActivity'
-                            class='btn btn-disabled ml-2 mr-2'
+                            @click="joinActivity"
+                            class="btn btn-disabled ml-2 mr-2"
                         >
                             Join Activity
                         </button>
@@ -102,16 +128,18 @@
 
 <script setup>
 import { format } from "date-fns";
-import { addAlert } from '@/functions/AlertManager';
-import apiClient from '@/api';
-import { createDeleteRequest, createPostRequest } from '@/functions/HttpRequest.js';
-import { isAuth, login, userId } from '@/functions/Authentications';
-import { watch, ref } from 'vue';
-import EditModal from '@/component/EditModal.vue';
+import { addAlert } from "@/functions/AlertManager";
+import apiClient from "@/api";
+import {
+    createDeleteRequest,
+    createPostRequest,
+} from "@/functions/HttpRequest.js";
+import { isAuth, login, userId } from "@/functions/Authentications";
+import { watch, ref } from "vue";
+import EditModal from "@/component/EditModal.vue";
 </script>
 
 <script>
-
 export default {
     data() {
         return {
@@ -132,7 +160,7 @@ export default {
             /*
              * Navigate back to Activity Index page.
              */
-            this.$router.push('/');
+            this.$router.push("/");
         },
         openModal() {
             /**
@@ -172,7 +200,7 @@ export default {
                 this.checkHost();
                 this.checkJoined();
             } catch (error) {
-                console.error('Error fetching activity:', error);
+                console.error("Error fetching activity:", error);
             }
         },
         async joinActivity() {
@@ -184,15 +212,15 @@ export default {
                     `/activities/join/${this.activityId}/`,
                     {}
                 );
-                addAlert('success', response.data.message);
+                addAlert("success", response.data.message);
                 this.fetchDetail(); //Fetch Activity
             } catch (error) {
                 if (error.response && error.response.data) {
-                    addAlert('error', error.response.data.message); // Show error message from backend
+                    addAlert("error", error.response.data.message); // Show error message from backend
                 } else {
                     addAlert(
-                        'error',
-                        'An unexpected error occurred. Please try again later.'
+                        "error",
+                        "An unexpected error occurred. Please try again later."
                     );
                 }
             }
@@ -206,15 +234,15 @@ export default {
                 const response = await createDeleteRequest(
                     `/activities/join/${this.activityId}/`
                 );
-                addAlert('success', response.data.message);
+                addAlert("success", response.data.message);
                 this.fetchDetail(); //Fetch Activity
             } catch (error) {
                 if (error.response && error.response.data) {
-                    addAlert('error', error.response.data.message); // Show error message from backend
+                    addAlert("error", error.response.data.message); // Show error message from backend
                 } else {
                     addAlert(
-                        'error',
-                        'An unexpected error occurred. Please try again later.'
+                        "error",
+                        "An unexpected error occurred. Please try again later."
                     );
                 }
             }
@@ -239,9 +267,10 @@ export default {
              */
             if (!isAuth) {
                 this.isJoined = false;
-            }
-            else {
-                this.isJoined = this.people.some(element => element['id'] == userId.value);
+            } else {
+                this.isJoined = this.people.some(
+                    (element) => element["id"] == userId.value
+                );
             }
         },
         checkHost() {
@@ -251,8 +280,7 @@ export default {
              */
             if (!isAuth) {
                 this.isHost = false;
-            }
-            else {
+            } else {
                 this.isHost = this.hosts.includes(userId.value);
             }
         },
@@ -263,24 +291,32 @@ export default {
         this.checkHost();
         this.checkJoined();
         watch(userId, (newUserId) => {
-            if(newUserId) {
+            if (newUserId) {
                 this.checkHost();
                 this.checkJoined();
             }
-        })
-        window.addEventListener('keydown', (e) => {
-            if (e.key == 'Escape') {
+        });
+        watch(
+            () => this.$route.params.id,
+            (newId) => {
+                this.activityId = newId;
+                console.log("Fetch detail");
+                this.fetchDetail();
+            }
+        );
+        window.addEventListener("keydown", (e) => {
+            if (e.key == "Escape") {
                 this.closeModal();
             }
-        })
+        });
     },
 };
 </script>
 
 <style scoped>
-    .multi-line {
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        word-wrap: break-word;
-    }
+.multi-line {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    word-wrap: break-word;
+}
 </style>
