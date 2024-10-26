@@ -163,6 +163,7 @@ export default {
                     `/activities/${this.activityId}`
                 );
                 this.activity = response.data;
+                this.people = this.activity.participant
                 this.canJoin = this.activity.can_join;
                 this.hosts = JSON.stringify(response.data.host);
                 this.checkHost();
