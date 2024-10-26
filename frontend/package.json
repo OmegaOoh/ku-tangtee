@@ -1,5 +1,5 @@
 {
-    "name": "frontend",
+    "name": "ku-tangtee",
     "version": "0.1.0",
     "private": true,
     "scripts": {
@@ -15,7 +15,8 @@
         "path": "^0.12.7",
         "vue": "^3.5.11",
         "vue-router": "^4.4.5",
-        "vue3-google-login": "^2.0.33"
+        "vue3-google-login": "^2.0.33",
+        "vue3-lazyload": "^0.3.8"
     },
     "devDependencies": {
         "@babel/core": "^7.25.7",
