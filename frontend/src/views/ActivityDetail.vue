@@ -163,9 +163,6 @@ export default {
                     `/activities/${this.activityId}`
                 );
                 this.activity = response.data;
-                const participant = await apiClient.get(
-                    `/activities/get-participant/${this.activity.id}/`
-                );
                 this.canJoin = this.activity.can_join;
                 this.hosts = JSON.stringify(response.data.host);
                 this.checkHost();
