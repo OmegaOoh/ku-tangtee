@@ -100,8 +100,8 @@
 <script setup>
 import apiClient from "@/api";
 import { format } from "date-fns";
-import { watch } from "vue";
-import { login, isAuth, userId } from "@/functions/Authentications";
+import  { watch } from 'vue'
+import { login, isAuth, userId as authUserId } from "@/functions/Authentications";
 </script>
 
 <script>
@@ -136,13 +136,6 @@ export default {
             this.socket.onmessage = (event) => {
                 const data = JSON.parse(event.data);
                 const user_id = data.user_id;
-                if (
-                    this.people.some((element) => {
-                        element["id"] == userId;
-                    })
-                ) {
-                    this.fetchProfile();
-                }
                 if (data.message) {
                     this.messages.push({
                         message: data.message,
@@ -169,14 +162,15 @@ export default {
              * Send message using text in text area.
              * Return Nothing
              */
-            if (this.newMessage.trim() === "") {
+            let trimMessage = this.newMessage.trim()
+            if (trimMessage === "") {
                 return;
             }
             if (this.socket.readyState === WebSocket.OPEN) {
                 this.socket.send(
                     JSON.stringify({
-                        message: this.newMessage,
-                        user_id: this.currentUserId,
+                        message: trimMessage,
+                        user_id: authUserId.value,
                     })
                 );
                 this.newMessage = "";
@@ -196,13 +190,7 @@ export default {
              * Get current user that is on the current browser tab.
              * Return Nothing
              */
-            try {
-                const response = await apiClient.get("/profile-pic/");
-                this.currentUserId = response.data.user_id;
-                console.log(this.currentUserId);
-            } catch (error) {
-                console.error("Error fetching current user:", error);
-            }
+            this.currentUserId = authUserId.value;
         },
         async fetchProfile() {
             /*
@@ -316,35 +304,31 @@ export default {
              * return boolean whether or not user is joined
              */
             this.isJoined = this.people.some(
-                (element) => element["id"] == userId.value
+                (element) => element["id"] == authUserId.value
             );
         },
         async chatSetup() {
             await this.fetchProfile();
-            this.checkJoined();
+            await this.checkJoined();
             if (this.isJoined) {
+                if (this.socket)
+                {
+                    this.socket.close();
+                    this.connectWebSocket();
+                }
                 await this.fetchCurrentUser();
                 await this.fetchMessages();
-                if (this.socket) {
-                    this.socket.close();
-                    this.socket = null;
-                }
-                this.connectWebSocket();
             }
         },
     },
     mounted() {
         this.chatSetup();
-        watch(userId, (newUserId) => {
-            if (newUserId != this.currentUserId) {
-                if (this.socket) {
-                    this.socket.close();
-                }
-                if (isAuth) {
-                    this.chatSetup();
-                }
+        this.connectWebSocket();
+        watch(authUserId, (newUserId) => {
+            if (newUserId != this.currentUserId && isAuth) {
+                this.chatSetup();
             }
-        });
+        }, { immediate: true })
     },
     beforeUnmount() {
         if (this.socket) {

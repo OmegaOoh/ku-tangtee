@@ -27,12 +27,11 @@ export async function login() {
                 access_token: logInResponse.access_token,
             },
         );
-        setCookie('backend_token', response.data.access);
-        
+        setCookie('backend-token', response.data.access);
         isAuth.value = true;
         await getUserData();
     } catch (e) {
-        console.log(e);
+        console.error("error on login: ",e);
     }
 }
 
@@ -41,8 +40,7 @@ export async function authStatus() {
      * Check session authentication status
      * This function does not return anything.
      */
-    const token = getCookie('backend_token');
-    console.log(token);
+    const token = getCookie('backend-token');
     if (token) {
         try {
             await createPostRequest(
@@ -77,7 +75,7 @@ export async function logout() {
     lName.value = '';
     pfp.value = '';
     userId.value = '';
-    deleteCookie('backend_token');
+    deleteCookie('backend-token');
 }
 
 export async function getUserData() {
