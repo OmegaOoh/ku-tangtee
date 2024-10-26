@@ -42,3 +42,6 @@ venv.bak/
 
 # Google credentials
 client_secret*.json
+
+# .DS file
+.DS_Store 

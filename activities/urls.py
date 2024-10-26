@@ -1,5 +1,5 @@
 """URL configuration for activities app."""
-from django.urls import path, include
+from django.urls import path
 from . import views
 
 app_name = "activities"
@@ -10,5 +10,4 @@ urlpatterns = [
 
     # Utilities.
     path('get-csrf-token/', views.util.csrf_token_view, name='get_csrf_token'),
-    path('get-participant/<int:activity_id>/', views.util.get_participant_detail, name='get_participant')
 ]
