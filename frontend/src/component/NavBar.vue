@@ -100,9 +100,7 @@ export default {
     methods: {
         async getRecentActivity() {
             const response = await apiClient.get("/activities/get-recently/");
-            console.log(response);
             this.activities = response.data;
-            console.log(this.activities);
         },
     },
     mounted() {

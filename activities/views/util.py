@@ -5,7 +5,6 @@ from django.middleware.csrf import get_token
 from activities import models, participant_profile_picture
 from rest_framework import decorators, response
 from rest_framework.permissions import IsAuthenticated
-from activities.serializer import recently_join_serializer
 
 
 @decorators.api_view(['get'])
@@ -28,7 +27,7 @@ def get_participant_detail(request: HttpRequest, activity_id: int) -> JsonRespon
 
 
 @decorators.api_view(['get'])
-@decorators.permission_classes([IsAuthenticated]) 
+@decorators.permission_classes([IsAuthenticated])
 def get_recent_activity(request: HttpRequest) -> JsonResponse:  # pragma: no cover
     """Return recently joined activities.
 
@@ -38,5 +37,4 @@ def get_recent_activity(request: HttpRequest) -> JsonResponse:  # pragma: no cov
     user = request.user
     activities = models.Attend.recently_joined(user)
     recent_activities = [{"name": activity.name, "activity_id": activity.id} for activity in activities]
-    print(recent_activities)
     return response.Response(recent_activities)
