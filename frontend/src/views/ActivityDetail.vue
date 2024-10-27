@@ -297,7 +297,6 @@ export default {
             () => this.$route.params.id,
             (newId) => {
                 this.activityId = newId;
-                console.log("Fetch detail");
                 this.fetchDetail();
             }
         );

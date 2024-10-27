@@ -97,6 +97,7 @@ export default {
             isDarkTheme: false,
             timeZoneOffset: 0,
             searchKeyword: "",
+            socket: null,
         };
     },
     mounted() {
@@ -167,8 +168,9 @@ export default {
                     "wss"
                 )}ws/index/`
             );
+            this.socket = socket;
 
-            socket.onmessage = (event) => {
+            this.socket.onmessage = (event) => {
                 try {
                     var parsedData = JSON.parse(event.data);
                     if (parsedData["type"] === "new_act") {
