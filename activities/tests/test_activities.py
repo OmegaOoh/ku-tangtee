@@ -1,6 +1,7 @@
 """Test for activity model of activities app."""
 import django.test
 from .shortcuts import create_activity, create_test_user, client_join_activity
+from ..models import Attend
 
 
 class TestActivityModel(django.test.TestCase):
@@ -24,6 +25,16 @@ class TestActivityModel(django.test.TestCase):
         }
         _, activity = create_activity(data=data)
         self.assertEqual(str(activity), "Fun activity")
+
+    def test_is_active_future(self):
+        """is_active() return True if and only if the current time haven't surpassed the date."""
+        _, activity = create_activity(days_delta=1)
+        self.assertTrue(activity.is_active())
+
+    def test_is_active_past(self):
+        """is_active() return False if and only if the current time have surpassed the date."""
+        _, activity = create_activity(days_delta=-1)
+        self.assertFalse(activity.is_active())
 
     def test_can_join_less(self):
         """can_join() return True as Number of people is less than max_people."""
@@ -93,3 +104,39 @@ class TestAttendModel(django.test.TestCase):
         attend_attendee = activity.attend_set.last()
         self.assertEqual(str(attend_attendee), "user Alexa attend Fun activity")
         self.assertEqual(repr(attend_attendee), str(attend_attendee))
+
+    def test_recently_joined(self):
+        """Return a list of the latest 3 activities joined by a user, order by join time."""
+        host = create_test_user("activity_host")
+        _, activity1 = create_activity(host=host, data={"name": "act1", "detail": "act"})
+        _, activity2 = create_activity(host=host, data={"name": "act2", "detail": "act"}, days_delta=2)
+        _, activity3 = create_activity(host=host, data={"name": "act3", "detail": "act"})
+        _, activity4 = create_activity(host=host, data={"name": "act4", "detail": "act"})
+
+        attendee = create_test_user("Attend")
+        self.assertEqual(Attend.recently_joined(attendee), [])
+
+        for activity in (activity1, activity2, activity3):
+            client_join_activity(self.client, attendee, activity)
+        self.assertEqual(Attend.recently_joined(attendee), [activity3, activity2, activity1])
+
+        client_join_activity(self.client, attendee, activity4)
+        self.assertEqual(Attend.recently_joined(attendee), [activity4, activity3, activity2])
+
+    def test_active_joined_activity(self):
+        """Return a list of active activities joined by a user and order by activity date."""
+        host = create_test_user("activity_host")
+        _, activity1 = create_activity(host=host, data={"name": "act1", "detail": "act"})
+        _, activity2 = create_activity(host=host, data={"name": "act2", "detail": "act"}, days_delta=2)
+        _, activity3 = create_activity(host=host, data={"name": "act3", "detail": "act"})
+        _, activity4 = create_activity(host=host, data={"name": "act4", "detail": "act"})
+
+        attendee = create_test_user("Attend")
+        self.assertEqual(Attend.active_joined_activity(attendee), [])
+
+        for activity in (activity1, activity2, activity3):
+            client_join_activity(self.client, attendee, activity)
+        self.assertEqual(Attend.active_joined_activity(attendee), [activity1, activity3, activity2])
+
+        client_join_activity(self.client, attendee, activity4)
+        self.assertEqual(Attend.active_joined_activity(attendee), [activity1, activity3, activity4, activity2])

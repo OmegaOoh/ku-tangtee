@@ -95,7 +95,6 @@ export default {
             showMaxPeople: false,
 
             activity: {},
-            timeZoneOffset: 0,
         };
     },
     methods: {

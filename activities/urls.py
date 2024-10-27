@@ -10,4 +10,5 @@ urlpatterns = [
 
     # Utilities.
     path('get-csrf-token/', views.util.csrf_token_view, name='get_csrf_token'),
+    path('get-recently/', views.util.get_recent_activity, name='get_recently')
 ]

@@ -20,15 +20,19 @@ class Activity(models.Model):
         """
         return self.name
 
+    def is_active(self) -> Any:
+        """Check if activity is active.
+
+        :return: True if activity is active.
+        """
+        return self.date >= timezone.now()
+
     def can_join(self) -> Any:
         """Check if max_people doesn't reach and date doesn't past.
 
         :return: true if the activity is join able, false otherwise
         """
-        if self.max_people:
-            return self.date >= timezone.now() and self.people < self.max_people
-        else:
-            return self.date >= timezone.now()
+        return self.is_active() and (not self.max_people or self.people < self.max_people)
 
     def is_upcoming(self) -> Any:
         """Check if activities took place on incoming weeks.
@@ -80,3 +84,22 @@ class Attend(models.Model):
         :return: user's username and the activity they've joined
         """
         return self.__str__()
+
+    @classmethod
+    def recently_joined(cls, user: User) -> list[Activity]:
+        """Class method that get 3 most recently joined activities of a user.
+
+        :param user: the user to get activities for.
+        :return: The latest 3 activities joined by a user, order by join time.
+        """
+        return [a.activity for a in cls.objects.filter(user=user).order_by('-id')[:3]]
+
+    @classmethod
+    def active_joined_activity(cls, user: User) -> list[Activity]:
+        """Class method that get all active activity that a user have joined.
+
+        :param user: the user to get activities for.
+        :return: Active activities joined by a user and order by activity date.
+        """
+        return [a.activity for a in
+                cls.objects.filter(user=user, activity__date__gte=timezone.now()).order_by("activity__date")]
