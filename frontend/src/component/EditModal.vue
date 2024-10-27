@@ -108,9 +108,6 @@ export default {
                     `/activities/${this.activityId}`
                 );
                 this.activity = response.data;
-                const participant = await apiClient.get(
-                    `/activities/get-participant/${this.activity.id}/`
-                );
                 this.activityName = this.activity.name;
                 this.activityDetail = this.activity.detail;
                 this.date = this.formatActivityDate(
@@ -119,7 +116,7 @@ export default {
                 this.maxPeople =
                     this.activity.max_people || this.activity.people;
                 this.showMaxPeople = this.maxPeople > 0;
-                this.people = participant.data;
+                this.people = this.activity.participant;
             } catch (error) {
                 console.error("Error fetching activity:", error);
             }
