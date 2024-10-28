@@ -24,3 +24,20 @@ class IsHostOrReadOnly(permissions.BasePermission):
 
         # Edit permissions are only allowed to the host.
         return request.user == obj.host()
+
+
+class CheckInAlowed(permissions.BasePermission):
+    """Custom permission to only allow host of an activity to edit it."""
+
+    message = 'This activity are not allow to check-in yet.'
+
+    def has_object_permission(self, request: HttpRequest, view: generics.GenericAPIView, obj: models.Activity) -> Any:
+        """Check such that user has right to edit activity or not.
+
+        :param request: Http request object
+        :param view: APIView object
+        :param obj: Activity model object
+        :return: boolean value that signify that user has permission to perform action or not.
+        """
+        # Edit permissions are only allowed to the host.
+        return obj.checkin_allowed
