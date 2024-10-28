@@ -12,6 +12,8 @@ class Activity(models.Model):
     detail = models.CharField(max_length=1024)
     date = models.DateTimeField(default=timezone.now)
     max_people = models.IntegerField(null=True, blank=True)
+    check_in_allowed = models.BooleanField(default=False)
+    check_in_code = models.CharField(max_length=6, null=True, default=None)
 
     def __str__(self) -> Any:
         """Return Activity Name as string representative.
@@ -55,6 +57,18 @@ class Activity(models.Model):
         """
         return [a.user for a in self.attend_set.filter(is_host=False)]
 
+    def verified_check_in_code(self, attempt: str) -> Any:
+        """Verify that given check-in code are match actual check-in code or not.
+
+        :param attempt: Given check-in code to verify.
+        :return: True if given check-in code match actual check-in code
+                 False if check-in code are not created yet or given check-in code are not match.
+        """
+        if not (self.check_in_code):
+            return False
+
+        return self.check_in_code == attempt
+
     @property
     def people(self) -> int:
         """Count number of Attend objects for the activity (host included).
@@ -70,6 +84,7 @@ class Attend(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
     is_host = models.BooleanField(default=False)
+    checked_in = models.BooleanField(default=True)
 
     def __str__(self) -> str:
         """Return activity attendance information.
