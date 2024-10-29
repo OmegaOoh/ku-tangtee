@@ -38,15 +38,15 @@
                         </label>
                 </div>
                 <div class="flex justify-center">
-                    <div class='carousel w-full max-h-[50vh]' >
+                    <div id='img-carousel' class='carousel w-full max-h-[50vh]' tabindex="-1" >
                         <div :id="'slide'+index" class="carousel-item relative w-full justify-center" v-for="(imageSrc, index) in images" :key="index">
                             <img
                                 v-if="imageSrc"
                                 v-lazy="imageSrc"
                             >
                             <div class="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between">
-                                <a :href="'#slide'+((index - 1 < 0 ? this.images.length - 1 : index - 1))" class="btn btn-circle">❮</a>
-                                <a :href="'#slide'+((index + 1 > this.images.length - 1 ? 0 : index + 1))" class="btn btn-circle">❯</a>
+                                <a @click.prevent="scrollCarousel(index - 1)" class="btn btn-circle">❮</a>
+                                <a @click.prevent="scrollCarousel(index + 1)" class="btn btn-circle">❯</a>
                             </div>
                         </div>
                     </div>
@@ -235,6 +235,16 @@ export default {
                     });
                 });
             }
+        },
+        scrollCarousel(index) {
+            const carousel = document.getElementById('img-carousel');
+
+            let carouselW = carousel.clientWidth;
+            let actualIndex = index < 0 ? this.images.length - 1 : index; 
+            actualIndex = actualIndex >= this.images.length ? 0 : actualIndex;
+
+            const targetPixel = (carouselW * actualIndex) + 1;
+            carousel.scrollTo(targetPixel, 0);
         },
     },
     mounted() {
