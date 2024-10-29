@@ -26,6 +26,15 @@
                         required
                     />
                 </div>
+                <div>
+                    
+                    <input type="file" multiple 
+                    id ='file-add'
+                    accept="image/*"
+                    @change="handleFileChange"
+                    class="file-input file-input-bordered file-input-primary w-full max-w-xs"
+                    />
+                </div>
                 <div class="form-control w-full">
                     <div class="label">
                         <span class='text-base-content'> Activity Detail </span>
@@ -92,6 +101,7 @@ export default {
             maxPeople: 1,
             showMaxPeople: false,
             isDarkTheme: false,
+            images: [],
         };
     },
     methods: {
@@ -195,6 +205,10 @@ export default {
              */
             this.showMaxPeople = !this.showMaxPeople;
         },
+        handleFileChange(event) {
+            this.images = event.target.files;
+            console.log(this.images);
+        }
     },
     mounted() {
         this.isDarkTheme = window.matchMedia(
