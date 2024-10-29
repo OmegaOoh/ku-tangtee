@@ -5,7 +5,7 @@ from django.http import HttpRequest
 from django.utils import timezone
 from rest_framework import generics, permissions, mixins, response, status
 from activities import models
-from activities.serializer.permissions import IsHostOrReadOnly
+from activities.serializer.permissions import OnlyHostCanEdit
 from activities.serializer import model_serializers
 
 
@@ -16,7 +16,7 @@ class ActivityDetail(mixins.RetrieveModelMixin,
 
     queryset = models.Activity.objects.filter(date__gte=timezone.now())
     serializer_class = model_serializers.ActivitiesSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsHostOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, OnlyHostCanEdit]
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Handle get request by return detail of an activity.

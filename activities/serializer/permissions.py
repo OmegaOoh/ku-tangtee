@@ -5,7 +5,7 @@ from rest_framework import permissions, generics
 from .. import models
 
 
-class IsHostOrReadOnly(permissions.BasePermission):
+class OnlyHostCanEdit(permissions.BasePermission):
     """Custom permission to only allow host of an activity to edit it."""
 
     message = 'User must be the host to perform this action.'
