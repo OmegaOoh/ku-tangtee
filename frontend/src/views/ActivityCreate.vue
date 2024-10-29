@@ -26,7 +26,7 @@
                         required
                     />
                 </div>
-                <div class="carousel-item relative w-full">
+                <div>
                         <label class="btn btn-primary">
                             Add Image
                             <input type="file" multiple 
@@ -37,7 +37,7 @@
                             />
                         </label>
                 </div>
-                <div class="flex justify-center">
+                <div class="flex flex-col justify-center">
                     <div id='img-carousel' class='carousel w-full max-h-[50vh]' tabindex="-1" >
                         <div :id="'slide'+index" class="carousel-item relative w-full justify-center" v-for="(imageSrc, index) in images" :key="index">
                             <img
@@ -50,6 +50,10 @@
                             </div>
                         </div>
                     </div>
+                    <div class="flex w-full justify-center gap-2 py-2">
+                        <a @click.prevent="scrollCarousel(index)" v-for="index in images.length" :key="index" class="btn btn-xs">{{index}}</a>
+
+                    </div>
                 </div>
                 <div class="form-control w-full">
                     <div class="label">
@@ -59,9 +63,10 @@
                     <textarea
                         v-model='activityDetail'
                         id='detail-field'
-                        class='textarea textarea-primary w-full mb-4'
+                        class='textarea textarea-primary w-full mb-4 resize-none'
                         placeholder='Activity Detail'
                         :maxlength='1024'
+                        :rows="4"
                     >
                     </textarea>
                 </div>
@@ -228,10 +233,10 @@ export default {
                 Array.from(files).forEach(file => {
                 loadImage(file)
                     .then(imageSrc => {
-                    this.images.push(imageSrc); // Store the image source in the array
+                        this.images.push(imageSrc); // Store the image source in the array
                     })
                     .catch(error => {
-                    console.error('Error loading image:', error);
+                        console.error('Error loading image:', error);
                     });
                 });
             }
