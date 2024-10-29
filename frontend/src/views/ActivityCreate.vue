@@ -26,14 +26,30 @@
                         required
                     />
                 </div>
-                <div>
-                    
-                    <input type="file" multiple 
-                    id ='file-add'
-                    accept="image/*"
-                    @change="handleFileChange"
-                    class="file-input file-input-bordered file-input-primary w-full max-w-xs"
-                    />
+                <div class="carousel-item relative w-full">
+                        <label class="btn btn-primary">
+                            Add Image
+                            <input type="file" multiple 
+                            id ='file-add'
+                            accept="image/*"
+                            @change="handleFileChange"
+                            hidden
+                            />
+                        </label>
+                </div>
+                <div class="flex justify-center">
+                    <div class='carousel w-full max-h-[50vh]' >
+                        <div :id="'slide'+index" class="carousel-item relative w-full justify-center" v-for="(imageSrc, index) in images" :key="index">
+                            <img
+                                v-if="imageSrc"
+                                v-lazy="imageSrc"
+                            >
+                            <div class="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between">
+                                <a :href="'#slide'+((index - 1 < 0 ? this.images.length - 1 : index - 1))" class="btn btn-circle">❮</a>
+                                <a :href="'#slide'+((index + 1 > this.images.length - 1 ? 0 : index + 1))" class="btn btn-circle">❯</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-control w-full">
                     <div class="label">
@@ -89,6 +105,7 @@
 import { addAlert } from '@/functions/AlertManager';
 import { createPostRequest } from '@/functions/HttpRequest';
 import { isAuth, login } from '@/functions/Authentications';
+import { loadImage } from '@/functions/Utils.';
 </script>
 
 <script>
@@ -206,9 +223,19 @@ export default {
             this.showMaxPeople = !this.showMaxPeople;
         },
         handleFileChange(event) {
-            this.images = event.target.files;
-            console.log(this.images);
-        }
+            const files = event.target.files;
+            if (files.length > 0) {
+                Array.from(files).forEach(file => {
+                loadImage(file)
+                    .then(imageSrc => {
+                    this.images.push(imageSrc); // Store the image source in the array
+                    })
+                    .catch(error => {
+                    console.error('Error loading image:', error);
+                    });
+                });
+            }
+        },
     },
     mounted() {
         this.isDarkTheme = window.matchMedia(
