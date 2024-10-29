@@ -31,6 +31,14 @@ class ActivitiesSerializer(serializers.ModelSerializer):
 
         model = models.Activity
         fields = ('__all__')
+        
+    def create(self, validated_data):
+        
+        # Prevent user to pre-created check-in code.
+        validated_data.pop('check_in_allowed', None)
+        validated_data.pop('check_in_code', None)
+
+        return super().create(validated_data)
 
     def get_host(self, activity: models.Activity) -> list[Any]:
         """Return list of activity host.
