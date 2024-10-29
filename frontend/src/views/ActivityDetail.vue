@@ -92,7 +92,6 @@
                             alt="Activity Image"
                             class="w-12 h-12"
                             @error="handleImageError"
-                            @load="console.log('Image loaded:', image)"
                         />
                     </div>
                 </div>
@@ -217,7 +216,6 @@ export default {
                     const imageurl = this.baseUrl + image;
                     this.imageUrls.push(imageurl);
                 }
-                console.log(this.imageUrls);
                 this.canJoin = this.activity.can_join;
                 this.hosts = JSON.stringify(response.data.host);
                 this.checkHost();
