@@ -103,3 +103,9 @@ class Attend(models.Model):
         """
         return [a.activity for a in
                 cls.objects.filter(user=user, activity__date__gte=timezone.now()).order_by("activity__date")]
+
+
+class Attachment(models.Model):
+    """Image attachment for activity"""
+    image = models.ImageField('Activity', upload_to="activities/", height_field=None, width_field=None, max_length=None)
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
