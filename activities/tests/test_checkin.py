@@ -50,5 +50,20 @@ class CheckinTest(django.test.TestCase):
         self.assertJSONEqual(res.content, {'message': 'No status provided.'})
         self.activity.refresh_from_db()
         self.assertFalse(self.activity.check_in_allowed)
+        
+    def test_open_and_close(self):
+        self.client.force_login(self.host)
+        
+        res = self.client.put(self.url(self.activity.id) + '?status=open')
+        self.assertJSONEqual(res.content, {'message': 'Activity check-in are open'})
+        self.activity.refresh_from_db()
+        self.assertTrue(self.activity.check_in_allowed)
+        
+        res = self.client.put(self.url(self.activity.id) + '?status=close')
+        self.assertJSONEqual(res.content, {'message': 'Activity check-in are close'})
+        self.activity.refresh_from_db()
+        self.assertFalse(self.activity.check_in_allowed)
+
+    
     
     
