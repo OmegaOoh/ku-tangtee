@@ -11,21 +11,23 @@ class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     nick_name = models.CharField(max_length=30, null=True, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
-    age = models.PositiveSmallIntegerField(null=True, blank=True)
-    gender = models.CharField(max_length=100, null=True, blank=True)
-    religion = models.CharField(max_length=100, null=True, blank=True)
-    is_single = models.BooleanField(null=True, blank=True)
-    student_id = models.IntegerField(null=True, blank=True)
-    generation = models.PositiveSmallIntegerField(null=True, blank=True)
+    pronoun = models.CharField(max_length=30, null=True, blank=True)
+    ku_generation = models.PositiveSmallIntegerField(null=True, blank=True)
     faculty = models.CharField(max_length=100)
     major = models.CharField(max_length=100)
-    tel = models.CharField(max_length=10, null=True, blank=True)
-    contact = models.CharField(max_length=100, null=True, blank=True)
-    description = models.CharField(max_length=1024)
+    about_me = models.CharField(max_length=1024, null=True, blank=True)
 
     def __str__(self) -> str:
-        """Return ???.
+        """Return user's username as string representative.
 
-        :return: ???
+        :return: string containing user's username
         """
-        return f"user {self.user.username}'s profile"
+        return f"{self.user.username}'s profile"
+
+    @property
+    def age(self) -> Any:
+        """Calculate age of the user by subtracting birthday.
+
+        :return: age of the user
+        """
+        return (timezone.now() - self.date_of_birth).years
