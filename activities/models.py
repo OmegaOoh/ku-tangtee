@@ -56,6 +56,10 @@ class Activity(models.Model):
         :return: list of participants
         """
         return [a.user for a in self.attend_set.filter(is_host=False)]
+    
+    def is_participated(self, user) -> bool:
+        
+        return user in self.participants()
 
     def verified_check_in_code(self, attempt: str) -> Any:
         """Verify that given check-in code are match actual check-in code or not.
