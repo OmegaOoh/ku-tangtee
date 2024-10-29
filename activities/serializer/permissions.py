@@ -18,7 +18,6 @@ class IsHostOrReadOnly(permissions.BasePermission):
         :param obj: Activity model object
         :return: boolean value that signify that user has permission to perform action or not.
         """
-        # GET, HEAD, POST or OPTIONS requests are allowed.
         if request.method != "PUT":
             return True
 
@@ -26,10 +25,10 @@ class IsHostOrReadOnly(permissions.BasePermission):
         return request.user == obj.host()
 
 
-class CheckInAlowed(permissions.BasePermission):
+class MustBeMember(permissions.BasePermission):
     """Custom permission to only allow host of an activity to edit it."""
 
-    message = 'This activity are not allow to check-in yet.'
+    message = 'You must be member of this activity before perform this action.'
 
     def has_object_permission(self, request: HttpRequest, view: generics.GenericAPIView, obj: models.Activity) -> Any:
         """Check such that user has right to edit activity or not.
@@ -39,5 +38,5 @@ class CheckInAlowed(permissions.BasePermission):
         :param obj: Activity model object
         :return: boolean value that signify that user has permission to perform action or not.
         """
-        # Edit permissions are only allowed to the host.
-        return obj.checkin_allowed
+        # Edit permissions are only allowed to activity member.
+        return obj.is_participated(request.user)
