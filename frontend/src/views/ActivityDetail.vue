@@ -81,7 +81,21 @@
                         </div>
                     </div>
                 </div>
-
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 ml-3">
+                    <div
+                        v-for="(image, index) in imageUrls"
+                        :key="index"
+                        class="card bg-base-100 shadow-lg p-4 rounded-lg"
+                    >
+                        <img
+                            v-lazy="image"
+                            alt="Activity Image"
+                            class="w-12 h-12"
+                            @error="handleImageError"
+                            @load="console.log('Image loaded:', image)"
+                        />
+                    </div>
+                </div>
                 <div
                     class="flex flex-col sm:flex-row justify-between items-center"
                 >
@@ -153,6 +167,8 @@ export default {
             isHost: false,
             isJoined: false,
             showModal: ref(false),
+            baseUrl: "",
+            imageUrls: [],
         };
     },
     methods: {
@@ -192,6 +208,16 @@ export default {
                 );
                 this.activity = response.data;
                 this.people = this.activity.participant;
+                this.images = this.activity.images;
+                this.baseUrl = process.env.VUE_APP_BASE_URL;
+                if (this.baseUrl.endsWith("/")) {
+                    this.baseUrl = this.baseUrl.slice(0, -1);
+                }
+                for (const image of this.images) {
+                    const imageurl = this.baseUrl + image;
+                    this.imageUrls.push(imageurl);
+                }
+                console.log(this.imageUrls);
                 this.canJoin = this.activity.can_join;
                 this.hosts = JSON.stringify(response.data.host);
                 this.checkHost();
