@@ -1,6 +1,8 @@
 """Module for handle URL /activities."""
+import requests
 from typing import Any
 from django.http import HttpRequest
+from django.core.files.base import ContentFile
 from django.utils import timezone
 from django.db.models import Q, QuerySet
 from rest_framework import generics, permissions, mixins, response
@@ -42,11 +44,24 @@ class ActivityList(
         :param request: Http request object
         :return: Http response object
         """
+        image_urls = request.data.pop('images', [])
         res = self.create(request, *args, **kwargs)
 
         res_dict = res.data
 
         new_act = models.Activity.objects.get(pk=res_dict.get("id"))
+
+        for url in image_urls:
+            try:
+                img_response = requests.get(url)
+                img_response.raise_for_status()
+                
+                # Extract the image name and create ContentFile for attachment
+                file_name = url.split("/")[-1]
+                image_content = ContentFile(img_response.content, name=file_name)
+                models.Attachment.objects.create(activity=new_act, image=image_content)
+            except requests.exceptions.RequestException as e:
+                print(f"Failed to download image from {url}: {e}")
 
         request.user.attend_set.create(
             activity=new_act,

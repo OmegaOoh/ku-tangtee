@@ -1,5 +1,5 @@
 """Module for serializing data before respond a request."""
-from typing import Any, Dict
+from typing import Any
 from rest_framework import serializers, exceptions
 from .. import models
 from . import custom_validator
@@ -33,21 +33,6 @@ class ActivitiesSerializer(serializers.ModelSerializer):
         model = models.Activity
         fields = ('__all__')
 
-    def create(self, validated_data: Dict[str,Any]) -> models.Activity:
-        """Create attachments to activity
-
-        :param validated_data: Necessary data for activity creation
-        :return: Newly created activity
-        """
-        images = validated_data.pop('images', [])
-        activity = super().create(validated_data)
-        
-        # Create image attachments
-        for image in images:
-            attachment = models.Attachment.objects.create(activity=activity, image=image)
-            attachment.save()
-
-        return activity
 
     def get_host(self, activity: models.Activity) -> list[Any]:
         """Return list of activity host.
