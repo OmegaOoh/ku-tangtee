@@ -61,6 +61,17 @@
                     @keydown.shift.enter.prevent="insertNewLine"
                     rows="1"
                 ></textarea>
+                <div class="mx-2 mb-2">
+                        <label class="btn btn-primary btn-circle text-3xl">
+                            +
+                            <input type="file" multiple 
+                            id ='file-add'
+                            accept="image/*"
+                            @change="handleFileChange"
+                            hidden
+                            />
+                        </label>
+                </div>
                 <button class="btn btn-primary mx-2 mb-2" @click="sendMessage">
                     Send
                 </button>
@@ -102,9 +113,15 @@ import apiClient from "@/api";
 import { format } from "date-fns";
 import  { watch } from 'vue'
 import { login, isAuth, userId as authUserId } from "@/functions/Authentications";
+import { addAlert } from "@/functions/AlertManager";
+import { loadImage } from "@/functions/Utils.";
 </script>
 
 <script>
+
+const MAX_IMAGE_COUNT = 6;
+const MAX_IMAGES_SIZE = 60e+6; // 60 MB
+
 export default {
     data() {
         return {
@@ -115,6 +132,7 @@ export default {
             people: [],
             currentUserId: null,
             isJoined: false,
+            images: [],
         };
     },
     methods: {
@@ -320,6 +338,39 @@ export default {
                 }
                 await this.fetchCurrentUser();
                 await this.fetchMessages();
+            }
+        },
+        handleFileChange(event) {
+            const files = event.target.files;
+            if (files.length > 0) {
+                if (files.length + this.images.length > MAX_IMAGE_COUNT) {
+                    addAlert('warning', 'You can add at most '+MAX_IMAGE_COUNT+' pictures');
+                    return;
+                }
+                var totalSize = 0;
+                Array.from(this.images).forEach((file) => {
+                    totalSize += file.size;
+                });
+                Array.from(files).forEach((file) => {
+                    totalSize += file.size;
+                });
+                if (totalSize > MAX_IMAGES_SIZE) {
+                    addAlert('warning', 'You can add at most'+(MAX_IMAGES_SIZE/1e+6) +'MB');
+                }
+                Array.from(files).forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        loadImage(file)
+                            .then(imageSrc => {
+                                this.images.push(imageSrc); // Store the image source in the array
+                            })
+                            .catch(error => {
+                                console.error('Error loading image:', error);
+                            });
+                    }
+                    else {
+                        addAlert('warning', file.name + ' is not images.')
+                    }
+                });
             }
         },
     },
