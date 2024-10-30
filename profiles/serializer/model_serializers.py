@@ -7,9 +7,6 @@ from .. import models
 class ProfilesSerializer(serializers.ModelSerializer):
     """Serialized profile."""
 
-    faculty = serializers.ReadOnlyField()
-    major = serializers.ReadOnlyField()
-
     class Meta:
         """Profile serializer META class."""
 
@@ -28,4 +25,4 @@ class ProfilesSerializer(serializers.ModelSerializer):
                 user__id=user_id
             )
         except models.Profile.DoesNotExist:
-            raise exceptions.APIException("You've never created your profile")
+            raise exceptions.APIException("You've never created your profile.")
