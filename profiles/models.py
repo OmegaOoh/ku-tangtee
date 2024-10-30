@@ -1,4 +1,5 @@
 """Database Model for profile app."""
+from datetime import datetime
 from typing import Any
 from django.db import models
 from django.utils import timezone
@@ -25,12 +26,14 @@ class Profile(models.Model):
         return f"{self.user.username}'s profile"
 
     @property
-    def age(self) -> Any:
+    def age(self) -> int:
         """Calculate age of the user by subtracting birthday.
 
         :return: age of the user
         """
-        return (timezone.now() - self.date_of_birth).years
+        today = datetime.today().date()
+        return today.year - self.date_of_birth.year - (
+                (today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
 
     @classmethod
     def has_profile(cls, user: User) -> bool:
