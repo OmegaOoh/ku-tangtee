@@ -10,6 +10,7 @@
                 v-if="imageSrc"
                 :src="imageSrc"
                 class="object-cover w-full h-full"
+                @click="openModal(imageSrc)"
             />
             <button
                 v-if="removable"
@@ -32,11 +33,18 @@
                 </svg>
             </button>
         </div>
+        <ImagePreview
+            v-if="isModalOpen"
+            :imageSrc="selectedImage"
+            :isOpen="isModalOpen"
+            @close="closeModal"
+        />
     </div>
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue';
+import { defineProps, defineEmits, ref } from 'vue';
+import ImagePreview from './ImagePreview.vue';
 
 defineProps({
     images: {
@@ -53,7 +61,19 @@ defineProps({
     }
 });
 
-
 defineEmits('onRemove');
+
+const isModalOpen = ref(false);
+const selectedImage = ref('');
+
+const openModal = (imageSrc) => {
+    selectedImage.value = imageSrc;
+    isModalOpen.value = true;
+};
+
+const closeModal = () => {
+    isModalOpen.value = false;
+    selectedImage.value = '';
+};
 
 </script>
