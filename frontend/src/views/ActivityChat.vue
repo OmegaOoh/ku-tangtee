@@ -13,49 +13,59 @@
             v-if="isAuth & isJoined"
             class="card bg-base-300 mx-10 border-2 border-primary"
         >
-            <ul
-                ref="messageList"
-                class="card-body overflow-y-auto h-[70vh] break-words"
-            >
-                <li v-for="(message, index) in messages" :key="index">
-                    <div
-                        :class="[
-                            'chat',
-                            Number(message.user_id) === currentUserId
-                                ? 'chat-end'
-                                : 'chat-start',
-                        ]"
-                    >
-                        <div class="chat-image avatar">
-                            <div class="w-10 rounded-full">
-                                <img
-                                    alt="No Profile Picture"
-                                    v-lazy="
-                                        getProfilePicture(
-                                            (userId = message.user_id)
-                                        )
-                                    "
-                                />
-                            </div>
-                        </div>
-                        <div class="chat-header">
-                            {{ getFullName(message.user_id) }}
-                            <time class="text-xs opacity-50">{{
-                                formatTimestamp(message.timestamp)
-                            }}</time>
-                        </div>
+            <div class='flex flex-col h-[70vh]'>
+                <ul
+                    ref="messageList"
+                    class="card-body overflow-y-auto break-words"
+                >
+                    <li v-for="(message, index) in messages" :key="index">
                         <div
-                            class="chat-bubble chat-bubble-primary"
-                            v-html="formatMessage(message.message)"
-                        ></div>
-                    </div>
-                </li>
-            </ul>
+                            :class="[
+                                'chat',
+                                Number(message.user_id) === currentUserId
+                                    ? 'chat-end'
+                                    : 'chat-start',
+                            ]"
+                        >
+                            <div class="chat-image avatar">
+                                <div class="w-10 rounded-full">
+                                    <img
+                                        alt="No Profile Picture"
+                                        v-lazy="
+                                            getProfilePicture(
+                                                (userId = message.user_id)
+                                            )
+                                        "
+                                    />
+                                </div>
+                            </div>
+                            <div class="chat-header">
+                                {{ getFullName(message.user_id) }}
+                                <time class="text-xs opacity-50">{{
+                                    formatTimestamp(message.timestamp)
+                                }}</time>
+                            </div>
+                            <div
+                                class="chat-bubble chat-bubble-primary"
+                                v-html="formatMessage(message.message)"
+                            ></div>
+                        </div>
+                    </li>
+                </ul>
+                <div v-if="images.length > 0" class="min-h-10 max-h-[15vh] mx-4 bottom-1">
+                    <ImageGrid  
+                        componentClass="min-h-10 max-h-[15vh] p-2 rounded-lg bg-neutral mx-2"
+                        :images="images" 
+                        removable="true" 
+                        @onRemove="(index) => images.splice(index, 1)"
+                    />
+                </div>
+            </div>
             <div class="flex justify-between items-center mt-2">
                 <textarea
                     v-model="newMessage"
                     placeholder="Start your chat"
-                    class="textarea textarea-primary w-full mb-2 mx-2"
+                    class="textarea textarea-primary w-full mb-2 mx-2 resize-none"
                     :maxlength="1024"
                     @keydown.exact.enter.prevent="sendMessage"
                     @keydown.shift.enter.prevent="insertNewLine"
@@ -115,12 +125,13 @@ import  { watch } from 'vue'
 import { login, isAuth, userId as authUserId } from "@/functions/Authentications";
 import { addAlert } from "@/functions/AlertManager";
 import { loadImage } from "@/functions/Utils.";
+import ImageGrid from "@/component/ImageGrid.vue"
 </script>
 
 <script>
 
-const MAX_IMAGE_COUNT = 6;
-const MAX_IMAGES_SIZE = 60e+6; // 60 MB
+const MAX_IMAGE_COUNT = 5;
+const MAX_IMAGES_SIZE = 50e+6; // 60 MB
 
 export default {
     data() {
