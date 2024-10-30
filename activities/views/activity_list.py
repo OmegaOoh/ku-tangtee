@@ -51,7 +51,7 @@ class ActivityList(
 
         new_act = models.Activity.objects.get(pk=res_dict.get("id"))
 
-        for url in image_urls:
+        for url in image_urls[:10]:
             try:
                 img_response = requests.get(url)
                 img_response.raise_for_status()

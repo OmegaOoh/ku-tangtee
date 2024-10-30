@@ -1,6 +1,7 @@
 """Module contains websocket consumers implementation."""
 import json
-from django.utils import timezone
+import requests
+from django.core.files.base import ContentFile
 from typing import Any, Dict
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels import exceptions
@@ -58,14 +59,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         """
         text_data_json = json.loads(text_data)
         message = text_data_json["message"]
-        # Send message to the group
-        await self.channel_layer.group_send(
-            self.room_group_name, {
-                "type": "sendMessage",
-                "message": message,
-                'user_id': self.scope['user'].id,
-            }
-        )
+        image_urls = text_data_json.get("images", [])
 
         # Verify user and activity
         if self.user != self.scope['user'] or self.activity.id != self.scope['url_route']['kwargs']['activity_id']:
@@ -73,6 +67,30 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return
         new_message = chat_models.Message(message=message, sender=self.user, activity=self.activity)
         await sync.sync_to_async(new_message.save)()
+
+        attachment_urls = []
+        # Limit images per message to be 5
+        for url in image_urls[:5]:
+            try:
+                img_response = requests.get(url)
+                img_response.raise_for_status()
+
+                file_name = url.split("/")[-1]
+                image_content = ContentFile(img_response.content, name=file_name)
+                attachment =  await sync.sync_to_async(chat_models.Attachment.objects.create)(message=new_message, image=image_content)
+                attachment_urls.append(attachment.image.url)
+            except requests.exceptions.RequestException as e:
+                print(f"Failed to download image from {url}: {e}")
+
+        # Send message to the group
+        await self.channel_layer.group_send(
+            self.room_group_name, {
+                "type": "sendMessage",
+                "message": message,
+                'user_id': self.scope['user'].id,
+                'images': attachment_urls,
+            }
+        )
 
     async def sendMessage(self, event: Dict[str, Any]) -> None:
         """Send message to the websocket.
@@ -82,4 +100,5 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             "message": event["message"],
             "user_id": event['user_id'],
+            "images": event['images'],
         }))
