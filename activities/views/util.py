@@ -2,9 +2,6 @@
 
 from django.http import HttpRequest, JsonResponse
 from django.middleware.csrf import get_token
-import pytz
-from datetime import datetime
-from django.conf import settings
 from activities import models
 from rest_framework import decorators, response
 from rest_framework.permissions import IsAuthenticated

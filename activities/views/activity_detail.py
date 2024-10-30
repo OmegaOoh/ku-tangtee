@@ -3,7 +3,7 @@
 from typing import Any
 from django.http import HttpRequest
 from django.utils import timezone
-from rest_framework import generics, permissions, mixins, response, status
+from rest_framework import generics, permissions, mixins, response
 from activities import models
 from activities.serializer.permissions import OnlyHostCanEdit
 from activities.serializer import model_serializers

@@ -2,8 +2,6 @@
 import json
 from typing import Any, Dict
 from channels.generic.websocket import AsyncWebsocketConsumer
-from channels import exceptions
-from asgiref import sync
 from . import models
 
 
