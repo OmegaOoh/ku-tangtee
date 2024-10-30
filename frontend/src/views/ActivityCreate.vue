@@ -38,22 +38,7 @@
                         </label>
                 </div>
                 <div class="flex flex-col justify-center">
-                    <div id='img-carousel' class='carousel w-full max-h-[50vh]' tabindex="-1" >
-                        <div :id="'slide'+index" class="carousel-item relative w-full justify-center" v-for="(imageSrc, index) in images" :key="index">
-                            <img
-                                v-if="imageSrc"
-                                v-lazy="imageSrc"
-                            >
-                            <div class="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between">
-                                <a @click.prevent="scrollCarousel(index - 1)" class="btn btn-circle">❮</a>
-                                <a @click.prevent="scrollCarousel(index + 1)" class="btn btn-circle">❯</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex w-full justify-center gap-2 py-2">
-                        <a @click.prevent="scrollCarousel(index)" v-for="index in images.length" :key="index" class="btn btn-xs">{{index}}</a>
-
-                    </div>
+                    <ImageCarousel :images='images'/>
                 </div>
                 <div class="form-control w-full">
                     <div class="label">
@@ -111,6 +96,7 @@ import { addAlert } from '@/functions/AlertManager';
 import { createPostRequest } from '@/functions/HttpRequest';
 import { isAuth, login } from '@/functions/Authentications';
 import { loadImage } from '@/functions/Utils.';
+import ImageCarousel from '@/component/ImageCarousel';
 </script>
 
 <script>
@@ -240,16 +226,6 @@ export default {
                     });
                 });
             }
-        },
-        scrollCarousel(index) {
-            const carousel = document.getElementById('img-carousel');
-
-            let carouselW = carousel.clientWidth;
-            let actualIndex = index < 0 ? this.images.length - 1 : index; 
-            actualIndex = actualIndex >= this.images.length ? 0 : actualIndex;
-
-            const targetPixel = (carouselW * actualIndex) + 1;
-            carousel.scrollTo(targetPixel, 0);
         },
     },
     mounted() {
