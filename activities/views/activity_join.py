@@ -1,4 +1,4 @@
-"""Module for handle URL /activities."""
+"""Module for handle URL /activities/join/<activity_id>/."""
 from typing import Any
 from django.http import HttpRequest
 from rest_framework import generics, permissions, mixins, response, status
