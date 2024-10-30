@@ -213,7 +213,7 @@ export default {
                     this.baseUrl = this.baseUrl.slice(0, -1);
                 }
                 for (const image of this.images) {
-                    const imageurl = this.baseUrl + image;
+                    const imageurl = this.baseUrl + image["url"];
                     this.imageUrls.push(imageurl);
                 }
                 this.canJoin = this.activity.can_join;

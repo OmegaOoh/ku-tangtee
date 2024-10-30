@@ -1,11 +1,10 @@
 """Utility module."""
-
+import requests
 from django.http import HttpRequest, JsonResponse
 from django.middleware.csrf import get_token
-import pytz
-from datetime import datetime
-from django.conf import settings
+from django.core.files.base import ContentFile
 from activities import models
+from typing import Dict, Any
 from rest_framework import decorators, response
 from rest_framework.permissions import IsAuthenticated
 
@@ -29,3 +28,18 @@ def get_recent_activity(request: HttpRequest) -> JsonResponse:  # pragma: no cov
     activities = models.Attend.recently_joined(user)
     recent_activities = [{"name": activity.name, "activity_id": activity.id} for activity in activities]
     return response.Response(recent_activities)
+
+
+def image_loader(image_urls: list[Dict[str, Any]], new_act: models.Activity):
+    """Saving attachments for activity"""
+    for url in image_urls[:10]:
+        try:
+            img_response = requests.get(url)
+            img_response.raise_for_status()
+
+            # Extract the image name and create ContentFile for attachment
+            file_name = url.split("/")[-1]
+            image_content = ContentFile(img_response.content, name=file_name)
+            models.Attachment.objects.create(activity=new_act, image=image_content)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to download image from {url}: {e}")

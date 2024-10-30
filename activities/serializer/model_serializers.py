@@ -67,7 +67,7 @@ class ActivitiesSerializer(serializers.ModelSerializer):
         :return: List of serialized images.
         """
         act_images = models.Attachment.objects.filter(activity=activity)
-        images = [img.image.url for img in act_images]
+        images = [{"id": img.id, "url": img.image.url} for img in act_images]
         return images
 
 

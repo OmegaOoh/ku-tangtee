@@ -1,5 +1,5 @@
 """Module for handle URL /activities/<activity_id>."""
-
+from activities.views.util import image_loader
 from typing import Any
 from django.http import HttpRequest
 from django.utils import timezone
@@ -43,6 +43,19 @@ class ActivityDetail(mixins.RetrieveModelMixin,
             )
         res = self.update(request, *args, **kwargs)
         res_dict = res.data
+        attachment_ids_to_remove = res_dict.get("remove_attachments", [])
+
+        if attachment_ids_to_remove:
+            for attachment_id in attachment_ids_to_remove:
+                attachment = activity.attachments.filter(id=attachment_id).first()
+                if attachment:
+                    attachment.image.delete(save=False)
+                    attachment.delete()
+
+        attachment_to_add = res_dict.get("images", [])
+
+        image_loader(attachment_to_add, activity)
+
         return response.Response(
             {
                 "message": f"You have successfully edited the activity {res_dict.get('name')}",
