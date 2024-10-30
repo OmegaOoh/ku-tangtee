@@ -31,14 +31,19 @@ class ActivitiesSerializer(serializers.ModelSerializer):
 
         model = models.Activity
         fields = ('__all__')
-        
-    def create(self, validated_data):
-        
+
+    def create(self, validated_data: dict[str, Any]) -> models.Activity:
+        """Override create function to prevent pre-created check-in code.
+
+        :param validated_data: Data that got validated,
+        :return: _description_
+        """
         # Prevent user to pre-created check-in code.
         validated_data.pop('check_in_allowed', None)
         validated_data.pop('check_in_code', None)
 
-        return super().create(validated_data)
+        result: models.Activity = super().create(validated_data)
+        return result
 
     def get_host(self, activity: models.Activity) -> list[Any]:
         """Return list of activity host.

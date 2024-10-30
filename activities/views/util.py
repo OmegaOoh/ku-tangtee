@@ -10,6 +10,7 @@ import string
 
 CHECKIN_CODE_LEN = 6
 
+
 @decorators.api_view(['get'])
 def csrf_token_view(request: HttpRequest) -> response.Response:  # pragma: no cover
     """Return csrf token."""
@@ -31,9 +32,12 @@ def get_recent_activity(request: HttpRequest) -> response.Response:  # pragma: n
     return response.Response(recent_activities)
 
 
-def get_checkin_code():
+def get_checkin_code() -> str:
+    """Random 6 capital character.
+
+    :return: string of random 6 character.
+    """
     # choose from all lowercase letter
     letters = string.ascii_uppercase
     result_str = ''.join(random.choice(letters) for i in range(CHECKIN_CODE_LEN))
     return result_str
-

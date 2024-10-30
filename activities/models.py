@@ -49,9 +49,13 @@ class Activity(models.Model):
         :return: list of participants
         """
         return [a.user for a in self.attend_set.filter(is_host=False)]
-    
-    def is_participated(self, user) -> bool:
-        
+
+    def is_participated(self, user: User) -> bool:
+        """Return boolean value which tell that are given user are participate in activity or not.
+
+        :param user: _description_
+        :return: _description_
+        """
         return user in self.participants()
 
     def verified_check_in_code(self, attempt: str) -> Any:
@@ -63,7 +67,7 @@ class Activity(models.Model):
         """
         if not (self.check_in_code):
             return False
-        
+
         return self.check_in_code == attempt
 
     @property
