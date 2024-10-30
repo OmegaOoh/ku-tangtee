@@ -50,6 +50,7 @@ class CheckInView(generics.GenericAPIView,
         
         attend = act.attend_set.get(user=request.user)
         attend.checked_in = True
+        attend.save()
         
         return response.Response(
             {'message': f"You've successfully check-in to {act.name}"}
