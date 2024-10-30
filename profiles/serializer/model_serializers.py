@@ -7,6 +7,9 @@ from .. import models
 class ProfilesSerializer(serializers.ModelSerializer):
     """Serialized profile."""
 
+    faculty = serializers.ReadOnlyField()
+    major = serializers.ReadOnlyField()
+
     class Meta:
         """Profile serializer META class."""
 
