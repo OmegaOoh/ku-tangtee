@@ -36,13 +36,6 @@ class Activity(models.Model):
         """
         return self.is_active() and (not self.max_people or self.people < self.max_people)
 
-    def is_upcoming(self) -> Any:
-        """Check if activities took place on incoming weeks.
-
-        :return: true if the activity took place on incoming weeks, false otherwise
-        """
-        return timezone.now() + timezone.timedelta(weeks=1) >= self.date and self.can_join()
-
     def host(self) -> User:
         """Find user that is host of the activity (is_host is True).
 
