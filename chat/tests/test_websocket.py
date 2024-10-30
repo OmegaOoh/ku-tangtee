@@ -3,9 +3,10 @@ import django.test
 from channels.testing import WebsocketCommunicator
 from django.contrib.auth import get_user_model
 from activities.models import Activity, Attend
+from chat.models import Attachment
 from mysite.asgi import application
 from django.utils import timezone
-from asgiref.sync import async_to_sync
+from asgiref.sync import async_to_sync, sync_to_async
 
 User = get_user_model()
 
@@ -44,6 +45,40 @@ class ChatWebSocketTest(django.test.TransactionTestCase):
             # Receive message from WebSocket
             response = await communicator.receive_json_from()
             self.assertEqual(response["message"], "Test Message")
+            # Close WebSocket connection
+            await communicator.disconnect()
+        # Run the async test using async_to_sync
+        async_to_sync(async_test)()
+
+    def test_send_message_with_image(self):
+        """Test if image can be sent along with the message."""
+        # Simulate user login (for WebSocket authentication)
+        self.client.login(username='testuser', password='password123')
+        # Define async test for WebSocket connection and messaging
+
+        async def async_test():
+            # Initialize WebSocket communicator with ASGI application
+            communicator = WebsocketCommunicator(application, f"/ws/chat/{self.activity.id}")
+            communicator.scope['user'] = self.user
+            # Connect to the WebSocket
+            connected, subprotocol = await communicator.connect()
+            self.assertTrue(connected, "WebSocket connection failed.")
+
+            # Send a test message along with image
+            await communicator.send_json_to({
+                "message": "Test Message",
+                "images": ["https://www.zoomcamera.net/wp-content/uploads/2023/05/Canon-EOS-R100-Mirrorless-Camera-with-18-45mm-1.jpg"]
+            })
+            # Receive message from WebSocket
+            response = await communicator.receive_json_from()
+            self.assertEqual(response["message"], "Test Message")
+            attachments = response['images'][0]
+            expected_url = "/media/chat/Canon-EOS-R100-Mirrorless-Camera-with-18-45mm-1.jpg"
+            self.assertEqual(expected_url, attachments)
+            attachment = await sync_to_async(lambda: Attachment.objects.filter(message__message="Test Message").first())()
+            if attachment and attachment.image:
+                await sync_to_async(attachment.image.delete)()
+                await sync_to_async(attachment.delete)()
             # Close WebSocket connection
             await communicator.disconnect()
         # Run the async test using async_to_sync
