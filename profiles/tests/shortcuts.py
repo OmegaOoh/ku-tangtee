@@ -31,7 +31,7 @@ def create_profile(
         user = create_test_user("user")
 
     data_with_date = data | {
-        "date_of_birth": (timezone.now() - timezone.timedelta(days=days_delta)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        "date_of_birth": (timezone.now().date() - timezone.timedelta(days=days_delta)).strftime('%Y-%m-%d')
     }
 
     client.force_login(user)
