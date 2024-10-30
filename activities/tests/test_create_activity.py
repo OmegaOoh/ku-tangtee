@@ -119,7 +119,7 @@ class CreateActivityTest(django.test.TestCase):
         self.assertJSONEqual(response.content, {'message': 'Ensure this field has no more than 255 characters.'})
 
     def test_valid_activity_with_images(self):
-        """Create should return message with successful message and activity name."""
+        """Create should create a new object of Attachment."""
         image_url = "https://www.zoomcamera.net/wp-content/uploads/2023/05/Canon-EOS-R100-Mirrorless-Camera-with-18-45mm-1.jpg"
         data = {
             "name": "Valid Activity",
