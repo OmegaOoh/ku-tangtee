@@ -15,7 +15,7 @@ class EditActivityTest(django.test.TestCase):
         """Set up the common URL and create an activity."""
         data = {
             "name": "Test Activity",
-            "detail": "This is a test activity"
+            "detail": "This is a test activity",
         }
         self.host = create_test_user("host")
         _, self.activity = create_activity(host=self.host, data=data)
@@ -64,8 +64,44 @@ class EditActivityTest(django.test.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_dict["message"], f"You have successfully edited the activity {data.get('name')}")
 
+    def test_valid_activity_editing_images(self):
+        """Edit should return a success message with editing image."""
+        img_url = "https://static.wixstatic.com/media/11062b_6864d981fa86430f84b3926857b21d8c~mv2.jpg/v1/fill/w_640,h_1058,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/11062b_6864d981fa86430f84b3926857b21d8c~mv2.jpg"
+        data = {
+            "name": "Test Activity",
+            "detail": "This is a test activity",
+            "images": [img_url],
+        }
+        _, activity = create_activity(host=self.host, data=data)
+        old_img = models.Attachment.objects.filter(activity=activity).first()
+        old_img_id = old_img.id
+        data = {
+            "name": "Updated Activity",
+            "detail": "Detail of updated activity",
+            "max_people": 200,
+            "people": 20,
+            "new_images": [img_url],
+            "remove_attachments": [old_img_id]
+        }
+        # Send PUT request with new activity data
+        response = put_request_json_data(self.url, self.client, data)
+        response_dict = json.loads(response.content)
+        updated_act = models.Activity.objects.get(pk=activity.id)
+        updated_act_json = activity_to_json(updated_act)
+        # Compare the serialized activity with the expected data
+        expected_url = "/media/activities/11062b_6864d981fa86430f84b3926857b21d8cmv2.jpg"
+        self.assertEqual(updated_act_json['images'][0]['url'], expected_url)
+        self.assertEqual(len(updated_act_json['images']), 1)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_dict["message"], f"You have successfully edited the activity {data.get('name')}")
+        attachments = activity.attachment_set.all()
+        image = attachments.first()
+        image.image.delete(save=False)
+        image.delete()
+
     def test_invalid_activity_editing_with_too_long_activity_name(self):
         """Editing should return json with error message."""
+        test_img = "https://www.zoomcamera.net/wp-content/uploads/2023/05/Canon-EOS-R100-Mirrorless-Camera-with-18-45mm-1.jpg"
         data = {
             "name": "This is too long" * 50,
             "detail": "This is invalid activity",

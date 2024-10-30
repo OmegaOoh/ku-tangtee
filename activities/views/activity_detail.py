@@ -52,7 +52,7 @@ class ActivityDetail(mixins.RetrieveModelMixin,
                     attachment.image.delete(save=False)
                     attachment.delete()
 
-        attachment_to_add = res_dict.get("images", [])
+        attachment_to_add = res_dict.get("new_images", [])
 
         image_loader(attachment_to_add, activity)
 
