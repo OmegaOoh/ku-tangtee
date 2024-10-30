@@ -49,7 +49,7 @@ class ChatMessageListTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Check that the response data is empty
         self.assertEqual(response.data, [])
-    
+
     def test_get_image_from_message(self):
         """Test getting image that comes along with message."""
         message3 = Message.objects.create(

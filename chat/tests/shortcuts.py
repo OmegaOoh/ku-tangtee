@@ -3,8 +3,9 @@ import requests
 from chat import models
 from django.core.files.base import ContentFile
 
+
 def image_loader(image_urls: list[str], new_msg: models.Message):
-    """Saving attachments for activity"""
+    """Create attachments and save for message."""
     for url in image_urls[:5]:
         try:
             img_response = requests.get(url)

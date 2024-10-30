@@ -2,8 +2,8 @@
 # Specify the max line length allowed (We extend the max length because Django may not satisfy PEP8 max length)
 max-line-length = 128
 
-# Ignore unused import
-ignore = F401
+# Ignore unused import and line too long (because of async in test can cause error if seperate line)
+ignore = F401, E501
 
 # Exclude certain files and directories
 exclude = 
