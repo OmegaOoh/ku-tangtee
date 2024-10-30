@@ -19,7 +19,7 @@ class ParticipantSerializer(serializers.ModelSerializer):
 
 
 class ActivitiesSerializer(serializers.ModelSerializer):
-    """Serialized activity."""
+    """Serialized Activity and created activity from data."""
 
     people = serializers.ReadOnlyField()
     can_join = serializers.ReadOnlyField()
@@ -69,7 +69,7 @@ class ActivitiesSerializer(serializers.ModelSerializer):
 
 
 class AttendSerializer(serializers.ModelSerializer):
-    """Serialized Attend."""
+    """Serialized Attend model."""
 
     class Meta:
         """Attend serializer META class."""
