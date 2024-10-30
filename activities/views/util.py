@@ -11,7 +11,7 @@ import string
 CHECKIN_CODE_LEN = 6
 
 @decorators.api_view(['get'])
-def csrf_token_view(request: HttpRequest) -> JsonResponse:  # pragma: no cover
+def csrf_token_view(request: HttpRequest) -> response.Response:  # pragma: no cover
     """Return csrf token."""
     csrf_token = get_token(request)
     return response.Response({'csrfToken': csrf_token})
@@ -19,7 +19,7 @@ def csrf_token_view(request: HttpRequest) -> JsonResponse:  # pragma: no cover
 
 @decorators.api_view(['get'])
 @decorators.permission_classes([IsAuthenticated])
-def get_recent_activity(request: HttpRequest) -> JsonResponse:  # pragma: no cover
+def get_recent_activity(request: HttpRequest) -> response.Response:  # pragma: no cover
     """Return recently joined activities.
 
     :param request: Http request object
