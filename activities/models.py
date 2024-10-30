@@ -81,7 +81,7 @@ class Attend(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
     is_host = models.BooleanField(default=False)
-    checked_in = models.BooleanField(default=True)
+    checked_in = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         """Return activity attendance information.
