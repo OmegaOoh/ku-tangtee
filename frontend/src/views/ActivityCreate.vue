@@ -26,6 +26,11 @@
                         required
                     />
                 </div>
+                <div v-if="images.length > 0" class="flex flex-col justify-center">
+                    <span class="text-base-content text-lg"> Preview Image </span>
+                    <ImageCarousel :images='images' removable="true" @onRemove="(index) => images.splice(index, 1)"/>
+                </div>
+                
                 <div>
                         <label class="btn btn-primary">
                             Add Image
@@ -37,9 +42,7 @@
                             />
                         </label>
                 </div>
-                <div class="flex flex-col justify-center">
-                    <ImageCarousel :images='images'/>
-                </div>
+
                 <div class="form-control w-full">
                     <div class="label">
                         <span class='text-base-content'> Activity Detail </span>
