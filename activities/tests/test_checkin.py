@@ -3,6 +3,8 @@ import django.test
 from .shortcuts import create_activity, create_test_user, client_join_activity
 from ..models import Attend
 from django import urls
+import re
+import json
 
 
 class CheckinTest(django.test.TestCase):
@@ -23,19 +25,28 @@ class CheckinTest(django.test.TestCase):
         res = self.client.put(self.url(self.activity.id) + '?status=open')
         self.assertJSONEqual(res.content, {'message': 'User must be the host to perform this action.'})
         
-    def test_only_can_open_check_in(self):
+    def test_host_can_open_check_in(self):
         self.client.force_login(self.host)
         res = self.client.put(self.url(self.activity.id) + '?status=open')
-        self.assertJSONEqual(res.content, {'message': 'Activity check-in are open'})
-        self.activity.refresh_from_db()
-        self.assertTrue(self.activity.check_in_allowed)
+        res_dict = json.loads(res.content)
         
-    def test_only_can_close_check_in(self):
+        self.assertEqual(res_dict['message'], 'Activity check-in are open')
+        self.assertRegex(res_dict['check_in_code'], r'^[A-Z]{6}$')
+        
+        self.activity.refresh_from_db()
+        
+        self.assertTrue(self.activity.check_in_allowed)
+        self.assertEqual(self.activity.check_in_code, res_dict['check_in_code'])
+        
+    def test_host_can_close_check_in(self):
         self.client.force_login(self.host)
         res = self.client.put(self.url(self.activity.id) + '?status=close')
         self.assertJSONEqual(res.content, {'message': 'Activity check-in are close'})
+        
         self.activity.refresh_from_db()
+        
         self.assertFalse(self.activity.check_in_allowed)
+        self.assertIsNone(self.activity.check_in_code)
     
     def test_invalid_status(self):
         self.client.force_login(self.host)
@@ -54,10 +65,15 @@ class CheckinTest(django.test.TestCase):
     def test_open_and_close(self):
         self.client.force_login(self.host)
         
+        self.client.force_login(self.host)
         res = self.client.put(self.url(self.activity.id) + '?status=open')
-        self.assertJSONEqual(res.content, {'message': 'Activity check-in are open'})
+        res_dict = json.loads(res.content)
+        
+        self.assertEqual(res_dict['message'], 'Activity check-in are open')
+        self.assertRegex(res_dict['check_in_code'], r'^[A-Z]{6}$')
         self.activity.refresh_from_db()
         self.assertTrue(self.activity.check_in_allowed)
+        self.assertEqual(self.activity.check_in_code, res_dict['check_in_code'])
         
         res = self.client.put(self.url(self.activity.id) + '?status=close')
         self.assertJSONEqual(res.content, {'message': 'Activity check-in are close'})
