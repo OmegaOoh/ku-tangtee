@@ -106,6 +106,7 @@ class Attend(models.Model):
 
 
 class Attachment(models.Model):
-    """Image attachment for activity"""
+    """Image attachment for activity."""
+
     image = models.ImageField('Activity', upload_to="activities/", height_field=None, width_field=None, max_length=None)
-    activity = models.ForeignKey(Activity,on_delete=models.CASCADE)
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE)

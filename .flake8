@@ -1,6 +1,6 @@
 [flake8]
 # Specify the max line length allowed (We extend the max length because Django may not satisfy PEP8 max length)
-max-line-length = 120
+max-line-length = 128
 
 # Ignore unused import
 ignore = F401

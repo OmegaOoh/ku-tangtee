@@ -139,9 +139,9 @@ class CreateActivityTest(django.test.TestCase):
         self.assertEqual(new_act.name, data.get('name'))
         self.assertEqual(new_act.people, 1)
         attachments = new_act.attachment_set.all()
-        image = attachments.first() 
+        image = attachments.first()
         expected_url = "/media/activities/Canon-EOS-R100-Mirrorless-Camera-with-18-45mm-1.jpg"
-        self.assertEqual(expected_url , image.image.url)
+        self.assertEqual(expected_url, image.image.url)
 
         image.image.delete(save=False)
         image.delete()

@@ -33,7 +33,6 @@ class ActivitiesSerializer(serializers.ModelSerializer):
         model = models.Activity
         fields = ('__all__')
 
-
     def get_host(self, activity: models.Activity) -> list[Any]:
         """Return list of activity host.
 
@@ -60,7 +59,7 @@ class ActivitiesSerializer(serializers.ModelSerializer):
             result.append(participant['participant'])
 
         return result
-    
+
     def get_images(self, activity: models.Activity) -> list[Any]:
         """Return activity images.
 

@@ -55,7 +55,7 @@ class ActivityList(
             try:
                 img_response = requests.get(url)
                 img_response.raise_for_status()
-                
+
                 # Extract the image name and create ContentFile for attachment
                 file_name = url.split("/")[-1]
                 image_content = ContentFile(img_response.content, name=file_name)
