@@ -66,11 +66,11 @@ class Activity(models.Model):
 
         :param attempt: Given check-in code to verify.
         :return: True if given check-in code match actual check-in code
-                 False if check-in code are not created yet or given check-in code are not match.
+                False if check-in code are not created yet or given check-in code are not match.
         """
         if not (self.check_in_code):
             return False
-
+        
         return self.check_in_code == attempt
 
     @property
