@@ -11,7 +11,7 @@ class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     nick_name = models.CharField(max_length=30, null=True, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
-    pronoun = models.CharField(max_length=30, null=True, blank=True)
+    pronoun = models.CharField(max_length=20, null=True, blank=True)
     ku_generation = models.PositiveSmallIntegerField(null=True, blank=True)
     faculty = models.CharField(max_length=100)
     major = models.CharField(max_length=100)
@@ -31,3 +31,11 @@ class Profile(models.Model):
         :return: age of the user
         """
         return (timezone.now() - self.date_of_birth).years
+
+    @classmethod
+    def has_profile(cls, user: User) -> bool:
+        """Check if the user has a profile.
+
+        :return: true if the user has a profile, false otherwise
+        """
+        return cls.objects.filter(user__id=user.id).exists()
