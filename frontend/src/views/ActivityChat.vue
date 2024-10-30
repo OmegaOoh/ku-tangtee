@@ -54,7 +54,7 @@
                 </ul>
                 <div v-if="images.length > 0" class="min-h-10 max-h-[15vh] mx-4 bottom-1">
                     <ImageGrid  
-                        componentClass="min-h-10 max-h-[15vh] p-2 rounded-lg bg-neutral mx-2"
+                        componentSize="h-[15vh] w-1/12"
                         :images="images" 
                         removable="true" 
                         @onRemove="(index) => images.splice(index, 1)"
