@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="overflow-x-hidden">
         <div class='breadcrumbs text-lm size-fit my-6 mx-10'>
             <ul>
                 <li><a @click="goBack">Home</a></li>
@@ -30,7 +30,7 @@
                     <span class="text-base-content text-lg"> Preview Image </span>
                     <ImageCarousel :images='images' removable="true" @onRemove="(index) => images.splice(index, 1)"/>
                 </div>
-                
+
                 <div>
                         <label class="btn btn-primary">
                             Add Image
@@ -41,6 +41,7 @@
                             hidden
                             />
                         </label>
+                        <span class="text-base-content text-sm ml-2 align-bottom">Upto {{MAX_IMAGES_SIZE/1e+6}} MB</span>
                 </div>
 
                 <div class="form-control w-full">
@@ -103,6 +104,10 @@ import ImageCarousel from '@/component/ImageCarousel';
 </script>
 
 <script>
+
+const MAX_IMAGE_COUNT = 10;
+const MAX_IMAGES_SIZE = 100e+6; // 100 MB
+
 export default {
     data() {
         return {
@@ -219,14 +224,33 @@ export default {
         handleFileChange(event) {
             const files = event.target.files;
             if (files.length > 0) {
+                if (files.length + this.images.length > MAX_IMAGE_COUNT) {
+                    addAlert('warning', 'You can add at most '+MAX_IMAGE_COUNT+' pictures');
+                    return;
+                }
+                var totalSize = 0;
+                Array.from(this.images).forEach((file) => {
+                    totalSize += file.size;
+                });
+                Array.from(files).forEach((file) => {
+                    totalSize += file.size;
+                });
+                if (totalSize > MAX_IMAGES_SIZE) {
+                    addAlert('warning', 'You can add at most'+(MAX_IMAGES_SIZE/1e+6) +'MB');
+                }
                 Array.from(files).forEach(file => {
-                loadImage(file)
-                    .then(imageSrc => {
-                        this.images.push(imageSrc); // Store the image source in the array
-                    })
-                    .catch(error => {
-                        console.error('Error loading image:', error);
-                    });
+                    if (file.type.startsWith('image/')) {
+                        loadImage(file)
+                            .then(imageSrc => {
+                                this.images.push(imageSrc); // Store the image source in the array
+                            })
+                            .catch(error => {
+                                console.error('Error loading image:', error);
+                            });
+                    }
+                    else {
+                        addAlert('warning', file.name + ' is not images.')
+                    }
                 });
             }
         },
