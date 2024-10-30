@@ -75,11 +75,8 @@ class ProfileDetail(
         :param request: Http request object
         :return: Http response object
         """
-        serializer = self.get_serializer(
-            data={
-                "user": request.user.id
-            }
-        )
+        data = {"user": request.user.id} | request.data
+        serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         new_profile = serializer.save()
         headers = self.get_success_headers(serializer.data)
