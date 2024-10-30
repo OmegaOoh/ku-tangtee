@@ -50,7 +50,8 @@ class ActivityList(
 
         request.user.attend_set.create(
             activity=new_act,
-            is_host=True
+            is_host=True,
+            checked_in=True
         )
 
         # Send message to websocket
