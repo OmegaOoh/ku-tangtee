@@ -35,7 +35,7 @@ def create_profile(
     }
 
     client.force_login(user)
-    url = urls.reverse("profiles:detail")
+    url = urls.reverse("profiles:index")
     res = post_request_json_data(url, client, data_with_date)
 
     try:
@@ -54,6 +54,19 @@ def post_request_json_data(path: str, client: django.test.Client, data: dict) ->
     sys.stdout = io.StringIO()
     json_data = json.dumps(data)
     response = client.post(path, data=json_data, content_type='application/json')
+
+    # Restore original std out
+    sys.stdout = stdout
+
+    return response
+
+def put_request_json_data(path: str, client: django.test.Client, data: dict) -> HttpResponse:
+    """Create PUT request with provided data and Return response."""
+    # Suppress print statement
+    stdout = sys.stdout
+    sys.stdout = io.StringIO()
+    json_data = json.dumps(data)
+    response = client.put(path, data=json_data, content_type='application/json')
 
     # Restore original std out
     sys.stdout = stdout

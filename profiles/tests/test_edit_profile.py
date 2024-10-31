@@ -1,0 +1,55 @@
+"""Module on test profile editing."""
+import json
+import django.test
+from datetime import datetime, timedelta
+from django import urls
+from profiles import models
+from .shortcuts import create_test_user, create_profile, put_request_json_data
+from django.utils import timezone
+
+
+class EditActivityTest(django.test.TestCase):
+    """Test case for editing profile."""
+
+    def setUp(self):
+        """Set up the common URL and create a profile."""
+        data = {
+            "nick_name": "Alex",
+            "pronoun": "He/Him",
+            "ku_generation": 83,
+            "faculty": "Engineering",
+            "major": "Software and Knowledge Engineering",
+            "about_me": "A passionate coder and fencing enthusiast."
+        }
+        self.user = create_test_user("user")
+        self.client.force_login(self.user)
+        _, self.profile = create_profile(user=self.user, data=data, days_delta=0)
+
+        # Set the URL to the profile page
+        self.url = urls.reverse("profiles:detail", args=[self.profile.id])
+
+    def test_valid_profile_editing(self):
+        """Edit should return a success message with the updated profile information."""
+        data = {
+            "nick_name": "Bruce",
+            "pronoun": "She/Her",
+            "ku_generation": 84,
+            "date_of_birth": (datetime.today().date() - timedelta(days=1)).strftime('%Y-%m-%d'),
+            "faculty": "Science",
+            "major": "Computer Science",
+            "about_me": "A passionate coder and swimming enthusiast.",
+        }
+        # Send PUT request with new profile data
+        response = put_request_json_data(self.url, self.client, data)
+        response_dict = json.loads(response.content)
+        updated_profile = models.Profile.objects.get(pk=self.profile.id)
+        # Compare the serialized profile with the expected data
+        self.assertEqual(updated_profile.nick_name, data['nick_name'])
+        self.assertEqual(updated_profile.pronoun, data['pronoun'])
+        self.assertEqual(updated_profile.ku_generation, data['ku_generation'])
+        self.assertEqual(updated_profile.date_of_birth, datetime.now().date() - timedelta(days=1))
+        self.assertEqual(updated_profile.faculty, data['faculty'])
+        self.assertEqual(updated_profile.major, data['major'])
+        self.assertEqual(updated_profile.about_me, data['about_me'])
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_dict["message"], f"You have successfully edited your KU Tangtee profile.")
