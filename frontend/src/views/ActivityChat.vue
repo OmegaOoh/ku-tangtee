@@ -45,10 +45,30 @@
                                     formatTimestamp(message.timestamp)
                                 }}</time>
                             </div>
-                            <div
-                                class="chat-bubble chat-bubble-primary"
-                                v-html="formatMessage(message.message)"
-                            ></div>
+                            <div class="chat-bubble chat-bubble-primary">
+                                <div
+                                    v-html="formatMessage(message.message)"
+                                ></div>
+                                <div
+                                    v-if="
+                                        message.images &&
+                                        message.images.length > 0
+                                    "
+                                    class="image-grid mt-2"
+                                >
+                                    <div class="image-grid">
+                                        <img
+                                            v-for="(
+                                                image, index
+                                            ) in message.images"
+                                            :key="index"
+                                            :src="baseUrl + image"
+                                            class="h-[15vh] w-[15vh] m-1"
+                                            alt="Message image"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </li>
                 </ul>
@@ -162,6 +182,7 @@ export default {
             currentUserId: null,
             isJoined: false,
             images: [],
+            baseUrl: "",
         };
     },
     methods: {
@@ -275,6 +296,10 @@ export default {
                     `/chat/${this.activityId}/`
                 );
                 this.messages = response.data;
+                this.baseUrl = process.env.VUE_APP_BASE_URL;
+                if (this.baseUrl.endsWith("/")) {
+                    this.baseUrl = this.baseUrl.slice(0, -1);
+                }
                 this.scrollToBottom();
             } catch (error) {
                 console.error("Error fetching messages:", error);

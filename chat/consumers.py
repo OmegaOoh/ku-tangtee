@@ -1,5 +1,6 @@
 """Module contains websocket consumers implementation."""
 import json
+import base64
 import requests
 from django.core.files.base import ContentFile
 from typing import Any, Dict
@@ -70,18 +71,31 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         attachment_urls = []
         # Limit images per message to be 5
-        for url in image_urls[:5]:
+        for image_data in image_urls[:5]:
             try:
-                img_response = requests.get(url)
-                img_response.raise_for_status()
+                # Check if the image is a URL or base64
+                if "base64," in image_data:
+                    # Handle base64 image
+                    image_data = image_data.split("base64,")[1]
+                    image_content = base64.b64decode(image_data)
+                    file_name = f"{new_message.id}_attachment_{len(attachment_urls) + 1}.jpg"
+                    image_content = ContentFile(image_content, name=file_name)
+                else:
+                    # Handle URL image
+                    img_response = await sync.sync_to_async(requests.get)(image_data)
+                    img_response.raise_for_status()
+                    file_name = image_data.split("/")[-1]
+                    image_content = ContentFile(img_response.content, name=file_name)
 
-                file_name = url.split("/")[-1]
-                image_content = ContentFile(img_response.content, name=file_name)
-                attachment = await sync.sync_to_async(chat_models.Attachment.objects.create)(message=new_message,
-                                                                                             image=image_content)
+                # Save attachment asynchronously
+                attachment = await sync.sync_to_async(chat_models.Attachment.objects.create)(
+                    message=new_message,
+                    image=image_content
+                )
                 attachment_urls.append(attachment.image.url)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to download image from {url}: {e}")
+
+            except Exception as e:
+                print(f"Failed to process image {image_data}: {e}")
 
         # Send message to the group
         await self.channel_layer.group_send(
