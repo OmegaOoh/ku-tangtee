@@ -1,5 +1,5 @@
 """Module for handle URL /activities/<activity_id>."""
-from activities.views.util import image_loader
+from activities.views.util import image_loader, image_deleter
 from typing import Any
 from django.http import HttpRequest
 from django.utils import timezone
@@ -47,14 +47,11 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         attachment_ids_to_remove = request.data.get("remove_attachments", [])
 
         if attachment_ids_to_remove:
-            for attachment_id in attachment_ids_to_remove:
-                attachment = models.Attachment.objects.filter(pk=attachment_id).first()
-                if attachment:
-                    attachment.image.delete(save=False)
-                    attachment.delete()
+            image_deleter(attachment_ids_to_remove)
 
         attachment_to_add = request.data.get("new_images", [])
-        image_loader(attachment_to_add, activity)
+        if attachment_to_add:
+            image_loader(attachment_to_add, activity)
 
         activity.refresh_from_db()
 

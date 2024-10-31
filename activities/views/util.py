@@ -43,3 +43,12 @@ def image_loader(image_urls: list[str], new_act: models.Activity):
             models.Attachment.objects.create(activity=new_act, image=image_content)
         except requests.exceptions.RequestException as e:
             print(f"Failed to download image from {url}: {e}")
+
+
+def image_deleter(image_ids: list[int]):
+    """Delete attachments for all given ids."""
+    for attachment_id in image_ids:
+        attachment = models.Attachment.objects.filter(pk=attachment_id).first()
+        if attachment:
+            attachment.image.delete(save=False)
+            attachment.delete()
