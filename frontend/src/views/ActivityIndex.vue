@@ -52,7 +52,7 @@
                         </h2>
                         <p class="line-clamp-2">{{ activity.detail }}</p>
                         <p>
-                            Start date:
+                            <strong>Date and Time: </strong>
                             {{ formatTimestamp(activity.date) }}
                         </p>
                         <div class="card-actions justify-end">
@@ -153,7 +153,7 @@ export default {
              * @returns {string} formatted timestamp
              */
             if (timestamp) {
-                return format(new Date(timestamp), "PPp");
+                return format(new Date(timestamp), "EEEEEEE, MMM dd, yyyy, hh:mm a");
             } else {
                 return "No date provided";
             }

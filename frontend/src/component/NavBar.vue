@@ -65,7 +65,7 @@
                         activity.name
                     }}</router-link>
                 </li>
-
+                <div class="divider divider-primary"></div>
                 <li>
                     <router-link to="/create">Create Activity</router-link>
                 </li>

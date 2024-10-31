@@ -47,7 +47,7 @@
                     {{ activity.detail }}
                 </p>
                 <p class="mb-2 ml-3">
-                    <strong class="text-base-content text-lg">Date:</strong>
+                    <strong class="text-base-content text-lg">Date and Time:</strong>
                     {{ formatTimestamp(activity.date) }}
                 </p>
                 <p v-if="activity.max_people != null" class="mb-2 ml-3">
@@ -256,7 +256,7 @@ export default {
              * @returns {string} formatted timestamp
              */
             if (timestamp) {
-                return format(new Date(timestamp), "PPp");
+                return format(new Date(timestamp), "EEEEEEE, MMM dd, yyyy, hh:mm a");
             } else {
                 return "No date provided";
             }
