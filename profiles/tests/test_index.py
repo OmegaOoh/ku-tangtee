@@ -10,6 +10,7 @@ class IndexTest(django.test.TestCase):
     """Test Cases for Profile Index View."""
 
     def setUp(self):
+        """Set up test cases."""
         self.has_profile = [{'has_profile': True}]
         self.not_have_profile = [{'has_profile': False}]
 

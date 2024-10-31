@@ -8,14 +8,13 @@ from profiles import models
 from profiles.serializer import model_serializers
 from profiles.serializer.permissions import IsOwnerOrReadOnly
 
+
 class ProfileDetail(
     mixins.RetrieveModelMixin,
-    mixins.CreateModelMixin,
     mixins.UpdateModelMixin,
-    mixins.ListModelMixin,
     generics.GenericAPIView
 ):
-    """Return detail of the profile when GET request and create new profile when POST request."""
+    """Return detail of the profile when GET request and edit profile when PUT request."""
 
     serializer_class = model_serializers.ProfilesSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
@@ -44,7 +43,7 @@ class ProfileDetail(
 
         return response.Response(
             {
-                "message": f"You have successfully edited your KU Tangtee profile.",
+                "message": "You have successfully edited your KU Tangtee profile.",
                 "id": res_dict.get("id")
             }
         )

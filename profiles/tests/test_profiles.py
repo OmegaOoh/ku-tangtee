@@ -5,6 +5,7 @@ import django.test
 from .shortcuts import create_profile, create_test_user
 from ..models import Profile
 
+
 class TestActivityModel(django.test.TestCase):
     """TestCase Class for Profile model."""
 
@@ -52,11 +53,11 @@ class TestActivityModel(django.test.TestCase):
         self.assertFalse(Profile.has_profile(user))
 
     def test_age(self):
-        """age return user's age."""
+        """Attribute age return user's age."""
         data = {
             "faculty": "Engineering",
             "major": "SKE",
         }
         user = create_test_user('Clark')
-        _, profile = create_profile(user=user, data=data, days_delta=25*365 + 20)
+        _, profile = create_profile(user=user, data=data, days_delta=25 * 365 + 20)
         self.assertEqual(profile.age, 25)

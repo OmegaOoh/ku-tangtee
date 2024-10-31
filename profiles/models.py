@@ -26,17 +26,17 @@ class Profile(models.Model):
         return f"{self.user.username}'s profile"
 
     @property
-    def age(self) -> int:
+    def age(self) -> Any:
         """Calculate age of the user by subtracting birthday.
 
         :return: age of the user
         """
         today = datetime.today().date()
         return today.year - self.date_of_birth.year - (
-                (today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
+            (today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
 
     @classmethod
-    def has_profile(cls, user: User) -> bool:
+    def has_profile(cls, user: User) -> Any:
         """Check if the user has a profile.
 
         :return: true if the user has a profile, false otherwise

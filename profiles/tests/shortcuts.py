@@ -60,6 +60,7 @@ def post_request_json_data(path: str, client: django.test.Client, data: dict) ->
 
     return response
 
+
 def put_request_json_data(path: str, client: django.test.Client, data: dict) -> HttpResponse:
     """Create PUT request with provided data and Return response."""
     # Suppress print statement

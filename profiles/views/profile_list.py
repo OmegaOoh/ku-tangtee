@@ -13,6 +13,7 @@ class ProfileList(
     mixins.CreateModelMixin,
     generics.GenericAPIView
 ):
+    """Return detail of the profile when GET request and create new profile when POST request."""
 
     serializer_class = model_serializers.ProfilesSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -26,6 +27,11 @@ class ProfileList(
         return self.list(request, *args, **kwargs)
 
     def list(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
+        """List user's profile instance.
+
+        :param request: Http request object
+        :return: Http response object
+        """
         queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
@@ -35,7 +41,7 @@ class ProfileList(
 
         serializer = self.get_serializer(queryset, many=True)
         return response.Response(serializer.data + [{
-                "has_profile": models.Profile.has_profile(request.user)}])
+            "has_profile": models.Profile.has_profile(request.user)}])
 
     def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Handle post request by creating a profile.
@@ -44,7 +50,8 @@ class ProfileList(
         :return: Http response object
         """
         if self.get_queryset().exists():
-            return response.Response({"message": "You've already created your profile.", "id": self.get_queryset().first().id}, status=status.HTTP_403_FORBIDDEN)
+            return response.Response({"message": "You've already created your profile.",
+                                      "id": self.get_queryset().first().id}, status=status.HTTP_403_FORBIDDEN)
         return self.create(request, *args, **kwargs)
 
     def create(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
@@ -59,6 +66,6 @@ class ProfileList(
         new_profile = serializer.save()
         headers = self.get_success_headers(serializer.data)
         return response.Response(
-            {'message': f"You have successfully created your KU Tangtee profile.", "id": new_profile.id},
+            {'message': "You have successfully created your KU Tangtee profile.", "id": new_profile.id},
             status=status.HTTP_201_CREATED, headers=headers
         )

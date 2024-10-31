@@ -53,8 +53,7 @@ class EditActivityTest(django.test.TestCase):
         self.assertEqual(updated_profile.major, self.edited_data['major'])
         self.assertEqual(updated_profile.about_me, self.edited_data['about_me'])
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response_dict["message"], f"You have successfully edited your KU Tangtee profile.")
-
+        self.assertEqual(response_dict["message"], "You have successfully edited your KU Tangtee profile.")
 
     def test_other_profile_editing(self):
         """Edit should return an error message when try to edit other profile."""
@@ -65,4 +64,4 @@ class EditActivityTest(django.test.TestCase):
         response_dict = json.loads(response.content)
 
         self.assertEqual(response.status_code, 403)
-        self.assertEqual(response_dict["message"], f"Cannot edit other profile.")
+        self.assertEqual(response_dict["message"], "Cannot edit other profile.")

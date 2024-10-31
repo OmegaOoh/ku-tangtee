@@ -13,7 +13,8 @@ class CreateProfileTest(django.test.TestCase):
         self.client.force_login(user)
         response, profile = create_profile(user=user)
         self.assertEqual(response.status_code, 201)
-        self.assertJSONEqual(response.content, {'message': 'You have successfully created your KU Tangtee profile.', 'id': profile.id})
+        self.assertJSONEqual(response.content,
+                             {'message': 'You have successfully created your KU Tangtee profile.', 'id': profile.id})
 
     def test_duplicated_profile_creation(self):
         """Show error message when create profile."""
