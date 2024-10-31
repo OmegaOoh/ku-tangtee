@@ -43,6 +43,8 @@ class ProfileList(
         :param request: Http request object
         :return: Http response object
         """
+        if self.get_queryset().exists():
+            return response.Response({"message": "You've already created your profile.", "id": self.get_queryset().first().id}, status=status.HTTP_403_FORBIDDEN)
         return self.create(request, *args, **kwargs)
 
     def create(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
