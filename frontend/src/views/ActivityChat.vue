@@ -65,14 +65,14 @@
                 <textarea
                     v-model="newMessage"
                     placeholder="Start your chat"
-                    class="textarea textarea-primary w-full mb-2 mx-2 resize-none"
+                    class="textarea textarea-primary w-full mb-2 ml-2 resize-none rounded-r-none"
                     :maxlength="1024"
                     @keydown.exact.enter.prevent="sendMessage"
                     @keydown.shift.enter.prevent="insertNewLine"
                     rows="1"
                 ></textarea>
-                <div class="mx-2 mb-2">
-                        <label class="btn btn-primary btn-circle text-3xl">
+                <div class="mb-2">
+                        <label class="btn btn-primary rounded-l-none text-3xl pb-1 pl-">
                             +
                             <input type="file" multiple 
                             id ='file-add'
