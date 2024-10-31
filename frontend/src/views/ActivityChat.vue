@@ -13,7 +13,7 @@
             v-if="isAuth & isJoined"
             class="card bg-base-300 mx-10 border-2 border-primary"
         >
-            <div class='flex flex-col h-[65vh]'>
+            <div class="flex flex-col h-[65vh]">
                 <ul
                     ref="messageList"
                     class="card-body overflow-y-auto break-words"
@@ -52,24 +52,33 @@
                         </div>
                     </li>
                 </ul>
-                <div class='border-t-2 border-base-100 pt-2'>
-                    <div v-if="images.length > 0" class="min-h-10 max-h-[15vh] mx-4 bottom-1 mb-2">
-                        <ImageGrid  
+                <div class="border-t-2 border-base-100 pt-2">
+                    <div
+                        v-if="images.length > 0"
+                        class="min-h-10 max-h-[15vh] mx-4 bottom-1 mb-2"
+                    >
+                        <ImageGrid
                             componentSize="h-[15vh] w-1/12"
-                            :images="images" 
-                            :removable='true'
+                            :images="images"
+                            :removable="true"
                             @onRemove="(index) => images.splice(index, 1)"
                         />
                     </div>
                     <div class="flex justify-between items-center my-3 mx-3">
-                        <div class='flex justify-start textarea textarea-primary w-full py-0 px-2 overflow-hidden pt-0.5' >
-                            <label class=" text-base-content hover:text-primary transition-colors ease-in-out pb-1 text-3xl">
+                        <div
+                            class="flex justify-start textarea textarea-primary w-full py-0 px-2 overflow-hidden pt-0.5"
+                        >
+                            <label
+                                class="text-base-content hover:text-primary transition-colors ease-in-out pb-1 text-3xl"
+                            >
                                 +
-                                <input type="file" multiple 
-                                id ='file-add'
-                                accept="image/*"
-                                @change="handleFileChange"
-                                hidden
+                                <input
+                                    type="file"
+                                    multiple
+                                    id="file-add"
+                                    accept="image/*"
+                                    @change="handleFileChange"
+                                    hidden
                                 />
                             </label>
                             <textarea
@@ -82,8 +91,11 @@
                                 rows="1"
                             ></textarea>
                         </div>
-                        
-                        <button class="btn btn-primary mx-2" @click="sendMessage">
+
+                        <button
+                            class="btn btn-primary mx-2"
+                            @click="sendMessage"
+                        >
                             Send
                         </button>
                     </div>
@@ -124,17 +136,20 @@
 <script setup>
 import apiClient from "@/api";
 import { format } from "date-fns";
-import  { watch } from 'vue'
-import { login, isAuth, userId as authUserId } from "@/functions/Authentications";
+import { watch } from "vue";
+import {
+    login,
+    isAuth,
+    userId as authUserId,
+} from "@/functions/Authentications";
 import { addAlert } from "@/functions/AlertManager";
 import { loadImage } from "@/functions/Utils.";
-import ImageGrid from "@/component/ImageGrid.vue"
+import ImageGrid from "@/component/ImageGrid.vue";
 </script>
 
 <script>
-
 const MAX_IMAGE_COUNT = 5;
-const MAX_IMAGES_SIZE = 50e+6; // 60 MB
+const MAX_IMAGES_SIZE = 50e6; // 60 MB
 
 export default {
     data() {
@@ -173,6 +188,7 @@ export default {
                         message: data.message,
                         timestamp: new Date(),
                         user_id: user_id,
+                        images: data.images,
                     });
                     this.scrollToBottom();
                     if (
@@ -194,7 +210,7 @@ export default {
              * Send message using text in text area.
              * Return Nothing
              */
-            let trimMessage = this.newMessage.trim()
+            let trimMessage = this.newMessage.trim();
             if (trimMessage === "") {
                 return;
             }
@@ -203,8 +219,10 @@ export default {
                     JSON.stringify({
                         message: trimMessage,
                         user_id: authUserId.value,
+                        images: this.images,
                     })
                 );
+                this.images = [];
                 this.newMessage = "";
             } else {
                 console.log("WebSocket is not open.");
@@ -345,8 +363,7 @@ export default {
             await this.fetchProfile();
             await this.checkJoined();
             if (this.isJoined) {
-                if (this.socket)
-                {
+                if (this.socket) {
                     this.socket.close();
                     this.connectWebSocket();
                 }
@@ -358,7 +375,10 @@ export default {
             const files = event.target.files;
             if (files.length > 0) {
                 if (files.length + this.images.length > MAX_IMAGE_COUNT) {
-                    addAlert('warning', 'You can add at most '+MAX_IMAGE_COUNT+' pictures');
+                    addAlert(
+                        "warning",
+                        "You can add at most " + MAX_IMAGE_COUNT + " pictures"
+                    );
                     return;
                 }
                 var totalSize = 0;
@@ -369,21 +389,24 @@ export default {
                     totalSize += file.size;
                 });
                 if (totalSize > MAX_IMAGES_SIZE) {
-                    addAlert('warning', 'You can add at most'+(MAX_IMAGES_SIZE/1e+6) +'MB');
+                    addAlert(
+                        "warning",
+                        "You can add at most" + MAX_IMAGES_SIZE / 1e6 + "MB"
+                    );
                 }
-                Array.from(files).forEach(file => {
-                    if (file.type.startsWith('image/')) {
+                Array.from(files).forEach((file) => {
+                    if (file.type.startsWith("image/")) {
                         loadImage(file)
-                            .then(imageSrc => {
+                            .then((imageSrc) => {
                                 this.images.push(imageSrc); // Store the image source in the array
                             })
-                            .catch(error => {
-                                console.error('Error loading image:', error);
+                            .catch((error) => {
+                                console.error("Error loading image:", error);
                             });
+                    } else {
+                        addAlert("warning", file.name + " is not images.");
                     }
-                    else {
-                        addAlert('warning', file.name + ' is not images.')
-                    }
+                    console.log(this.images);
                 });
             }
         },
@@ -391,11 +414,15 @@ export default {
     mounted() {
         this.chatSetup();
         this.connectWebSocket();
-        watch(authUserId, (newUserId) => {
-            if (newUserId != this.currentUserId && isAuth) {
-                this.chatSetup();
-            }
-        }, { immediate: true })
+        watch(
+            authUserId,
+            (newUserId) => {
+                if (newUserId != this.currentUserId && isAuth) {
+                    this.chatSetup();
+                }
+            },
+            { immediate: true }
+        );
     },
     beforeUnmount() {
         if (this.socket) {
