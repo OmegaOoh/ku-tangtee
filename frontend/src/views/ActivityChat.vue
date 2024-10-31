@@ -52,40 +52,42 @@
                         </div>
                     </li>
                 </ul>
-                <div v-if="images.length > 0" class="min-h-10 max-h-[15vh] mx-4 bottom-1">
-                    <ImageGrid  
-                        componentSize="h-[15vh] w-1/12"
-                        :images="images" 
-                        removable="true" 
-                        @onRemove="(index) => images.splice(index, 1)"
-                    />
-                </div>
-            </div>
-            <div class="flex justify-between items-center my-3 mx-3">
-                <div class='flex justify-start textarea textarea-primary w-full py-0 px-2 overflow-hidden pt-0.5' >
-                    <label class=" text-base-content hover:text-primary transition-colors ease-in-out pb-1 text-3xl">
-                        +
-                        <input type="file" multiple 
-                        id ='file-add'
-                        accept="image/*"
-                        @change="handleFileChange"
-                        hidden
+                <div class='border-t-2 border-base-100 pt-2'>
+                    <div v-if="images.length > 0" class="min-h-10 max-h-[15vh] mx-4 bottom-1 mb-2">
+                        <ImageGrid  
+                            componentSize="h-[15vh] w-1/12"
+                            :images="images" 
+                            removable="true" 
+                            @onRemove="(index) => images.splice(index, 1)"
                         />
-                    </label>
-                    <textarea
-                        v-model="newMessage"
-                        placeholder="Start your chat"
-                        class="resize-none size-full bg-inherit focus:outline-none align-middle pt-1.5 px-2"
-                        :maxlength="1024"
-                        @keydown.exact.enter.prevent="sendMessage"
-                        @keydown.shift.enter.prevent="insertNewLine"
-                        rows="1"
-                    ></textarea>
+                    </div>
+                    <div class="flex justify-between items-center my-3 mx-3">
+                        <div class='flex justify-start textarea textarea-primary w-full py-0 px-2 overflow-hidden pt-0.5' >
+                            <label class=" text-base-content hover:text-primary transition-colors ease-in-out pb-1 text-3xl">
+                                +
+                                <input type="file" multiple 
+                                id ='file-add'
+                                accept="image/*"
+                                @change="handleFileChange"
+                                hidden
+                                />
+                            </label>
+                            <textarea
+                                v-model="newMessage"
+                                placeholder="Start your chat"
+                                class="resize-none size-full bg-inherit focus:outline-none align-middle pt-1.5 px-2"
+                                :maxlength="1024"
+                                @keydown.exact.enter.prevent="sendMessage"
+                                @keydown.shift.enter.prevent="insertNewLine"
+                                rows="1"
+                            ></textarea>
+                        </div>
+                        
+                        <button class="btn btn-primary mx-2" @click="sendMessage">
+                            Send
+                        </button>
+                    </div>
                 </div>
-                
-                <button class="btn btn-primary mx-2" @click="sendMessage">
-                    Send
-                </button>
             </div>
         </div>
         <div

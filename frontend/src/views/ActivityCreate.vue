@@ -41,7 +41,7 @@
                             hidden
                             />
                         </label>
-                        <span class="text-base-content text-sm ml-2 align-bottom">Upto {{MAX_IMAGES_SIZE/1e+6}} MB</span>
+                        <span class="text-base-content text-sm ml-2 align-bottom">Up to {{MAX_IMAGES_SIZE/1e+6}} MB</span>
                 </div>
 
                 <div class="form-control w-full">
