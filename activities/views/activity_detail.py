@@ -53,10 +53,8 @@ class ActivityDetail(mixins.RetrieveModelMixin,
                     attachment.image.delete(save=False)
                     attachment.delete()
 
-        activity_id = res_dict.get("id")
-        activity_obj = models.Activity.objects.filter(pk=activity_id).first()
         attachment_to_add = request.data.get("new_images", [])
-        image_loader(attachment_to_add, activity_obj)
+        image_loader(attachment_to_add, activity)
 
         activity.refresh_from_db()
 
