@@ -1,4 +1,5 @@
 """Module for handle URL /activities."""
+import re
 from typing import Any
 from django.http import HttpRequest
 from django.utils import timezone
@@ -24,11 +25,16 @@ class ActivityList(
 
     def get_queryset(self) -> QuerySet:
         """Activity index view returns a list of all the activities according to query parameters."""
-        queryset = models.Activity.objects.filter(date__gte=timezone.now()).order_by("date")
+        queryset = super().get_queryset()
 
         keyword = self.request.GET.get("keyword")
         if keyword:
             queryset = queryset.filter(Q(name__iregex=rf'{keyword}') | Q(detail__iregex=rf'{keyword}'))
+
+        day = self.__parse_date(self.request.GET.get("day"))
+        print(day)
+        if day:
+            queryset = queryset.filter(date__week_day__in=day)
 
         return queryset
 
@@ -69,3 +75,19 @@ class ActivityList(
                 "id": res_dict.get("id")
             }
         )
+
+    def __parse_date(self, date_param: str) -> list[int] | None:
+        
+        day_list_format = r'^(?:[1-7](?:,[1-7])*)?$'
+        
+        if (not date_param) or (not re.fullmatch(day_list_format, date_param)):
+            return None
+        
+        split_day = date_param.split(',')
+        
+        if len(split_day) > 7:
+            return None
+        
+        print(split_day)
+        
+        return [int(s.strip()) for s in split_day]
