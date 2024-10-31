@@ -24,3 +24,9 @@ class CreateProfileTest(django.test.TestCase):
         response, profile = create_profile(user=user)
         self.assertEqual(response.status_code, 403)
         self.assertJSONEqual(response.content, {'message': "You've already created your profile.", 'id': profile.id})
+
+    def test_not_logged_in(self):
+        """Show error message when not logged in."""
+        response, profile = create_profile(log_in=False)
+        self.assertEqual(response.status_code, 403)
+        self.assertJSONEqual(response.content, {'message': 'Authentication credentials were not provided.'})

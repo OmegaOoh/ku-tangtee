@@ -50,6 +50,7 @@ class TestActivityModel(django.test.TestCase):
     def test_does_not_have_profile(self):
         """has_profile() return False if and only if the user has not created the profile."""
         user = create_test_user('Bruce')
+        _, profile = create_profile()
         self.assertFalse(Profile.has_profile(user))
 
     def test_age(self):

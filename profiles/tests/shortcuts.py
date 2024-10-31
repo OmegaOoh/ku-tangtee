@@ -25,6 +25,7 @@ def create_profile(
     client: django.test.Client = django.test.Client(),
     data: dict = {"faculty": "Faculty", "major": "Major"},
     days_delta: int = 1,
+    log_in: bool = True,
 ):
     """Return response and created profile with given parameters."""
     if not user:
@@ -34,7 +35,9 @@ def create_profile(
         "date_of_birth": (timezone.now().date() - timezone.timedelta(days=days_delta)).strftime('%Y-%m-%d')
     }
 
-    client.force_login(user)
+    if log_in:
+        client.force_login(user)
+
     url = urls.reverse("profiles:index")
     res = post_request_json_data(url, client, data_with_date)
 
