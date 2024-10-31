@@ -1,11 +1,10 @@
 """Module for serializing data before respond a request."""
-from typing import Any
-from rest_framework import serializers, exceptions
+from rest_framework import serializers
 from .. import models
 
 
 class ProfilesSerializer(serializers.ModelSerializer):
-    """Serialized profile."""
+    """Serialized Profile model."""
 
     class Meta:
         """Profile serializer META class."""
