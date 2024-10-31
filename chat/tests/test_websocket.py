@@ -7,6 +7,7 @@ from chat.models import Attachment
 from mysite.asgi import application
 from django.utils import timezone
 from asgiref.sync import async_to_sync, sync_to_async
+from activities.tests.constants import CAMERA_EXPECTED_CHAT, CAMERA_IMAGE
 
 User = get_user_model()
 
@@ -67,13 +68,13 @@ class ChatWebSocketTest(django.test.TransactionTestCase):
             # Send a test message along with image
             await communicator.send_json_to({
                 "message": "Test Message",
-                "images": ["https://www.zoomcamera.net/wp-content/uploads/2023/05/Canon-EOS-R100-Mirrorless-Camera-with-18-45mm-1.jpg"]
+                "images": [CAMERA_IMAGE]
             })
             # Receive message from WebSocket
             response = await communicator.receive_json_from()
             self.assertEqual(response["message"], "Test Message")
             attachments = response['images'][0]
-            expected_url = "/media/chat/Canon-EOS-R100-Mirrorless-Camera-with-18-45mm-1.jpg"
+            expected_url = CAMERA_EXPECTED_CHAT
             self.assertEqual(expected_url, attachments)
             attachment = await sync_to_async(lambda: Attachment.objects.filter(message__message="Test Message").first())()
             if attachment and attachment.image:

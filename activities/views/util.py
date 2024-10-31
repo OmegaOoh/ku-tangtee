@@ -29,8 +29,12 @@ def get_recent_activity(request: HttpRequest) -> JsonResponse:  # pragma: no cov
     return response.Response(recent_activities)
 
 
-def image_loader(image_urls: list[str], new_act: models.Activity):
-    """Saving attachments for activity"""
+def image_loader(image_urls: list[str], act: models.Activity) -> None:
+    """Save images into Attachment objects.
+
+    :param image_urls: List of string contains image urls.
+    :param act: Activity object for creating Attachment.
+    """
     for url in image_urls[:10]:
         try:
             img_response = requests.get(url)
@@ -39,13 +43,16 @@ def image_loader(image_urls: list[str], new_act: models.Activity):
             # Extract the image name and create ContentFile for attachment
             file_name = url.split("/")[-1]
             image_content = ContentFile(img_response.content, name=file_name)
-            models.Attachment.objects.create(activity=new_act, image=image_content)
+            models.Attachment.objects.create(activity=act, image=image_content)
         except requests.exceptions.RequestException as e:
             print(f"Failed to download image from {url}: {e}")
 
 
-def image_deleter(image_ids: list[int]):
-    """Delete attachments for all given ids."""
+def image_deleter(image_ids: list[int]) -> None:
+    """Delete images and Attachment objects.
+
+    :param image_ids: List of ids of Attachment object.
+    """
     for attachment_id in image_ids:
         attachment = models.Attachment.objects.filter(pk=attachment_id).first()
         if attachment:

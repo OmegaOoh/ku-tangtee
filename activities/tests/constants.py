@@ -1,0 +1,6 @@
+"""Module for storing constants."""
+CAMERA_IMAGE = "https://www.zoomcamera.net/wp-content/uploads/2023/05/Canon-EOS-R100-Mirrorless-Camera-with-18-45mm-1.jpg"
+CAMERA_EXPECTED = "/media/activities/Canon-EOS-R100-Mirrorless-Camera-with-18-45mm-1.jpg"
+CAMERA_EXPECTED_CHAT = "/media/chat/Canon-EOS-R100-Mirrorless-Camera-with-18-45mm-1.jpg"
+SCHOOL_IMAGE = "https://static.wixstatic.com/media/11062b_6864d981fa86430f84b3926857b21d8c~mv2.jpg/v1/fill/w_640,h_1058,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/11062b_6864d981fa86430f84b3926857b21d8c~mv2.jpg"
+SCHOOL_EXPECTED = "/media/activities/11062b_6864d981fa86430f84b3926857b21d8cmv2.jpg"

@@ -6,6 +6,7 @@ from activities.models import Activity
 from django.contrib.auth.models import User
 from chat.models import Message, Attachment
 from chat.tests.shortcuts import image_loader
+from activities.tests.constants import SCHOOL_IMAGE
 
 
 class ChatMessageListTest(APITestCase):
@@ -57,7 +58,7 @@ class ChatMessageListTest(APITestCase):
             sender=self.user,
             message="Message comes up with image."
         )
-        img_url = ["https://static.wixstatic.com/media/11062b_6864d981fa86430f84b3926857b21d8c~mv2.jpg/v1/fill/w_640,h_1058,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/11062b_6864d981fa86430f84b3926857b21d8c~mv2.jpg"]
+        img_url = [SCHOOL_IMAGE]
         image_loader(img_url, message3)
         chat_img = Attachment.objects.filter(message=message3).first()
         chat_img_url = chat_img.image.url

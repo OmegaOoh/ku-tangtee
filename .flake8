@@ -3,7 +3,7 @@
 max-line-length = 128
 
 # Ignore unused import and line too long (because of async in test can cause error if seperate line)
-ignore = F401, E501
+ignore = F401
 
 # Exclude certain files and directories
 exclude = 
@@ -17,6 +17,7 @@ exclude =
     .github,    # Ignore github directory
     */settings.py # Ignore Django settings
     */__init__.py # Ignore __init__ file
+    */constants.py # Ignore constant file
 
 # Show the source code line for the error/warning
 show-source = True

@@ -3,6 +3,7 @@ import json
 import django.test
 import os
 from django import urls
+from activities.tests.constants import CAMERA_EXPECTED, CAMERA_IMAGE
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from .shortcuts import post_request_json_data, create_activity, create_test_user
@@ -120,7 +121,7 @@ class CreateActivityTest(django.test.TestCase):
 
     def test_valid_activity_with_images(self):
         """Create should create a new object of Attachment."""
-        image_url = "https://www.zoomcamera.net/wp-content/uploads/2023/05/Canon-EOS-R100-Mirrorless-Camera-with-18-45mm-1.jpg"
+        image_url = CAMERA_IMAGE
         data = {
             "name": "Valid Activity",
             "detail": "This is valid activity",
@@ -140,7 +141,7 @@ class CreateActivityTest(django.test.TestCase):
         self.assertEqual(new_act.people, 1)
         attachments = new_act.attachment_set.all()
         image = attachments.first()
-        expected_url = "/media/activities/Canon-EOS-R100-Mirrorless-Camera-with-18-45mm-1.jpg"
+        expected_url = CAMERA_EXPECTED
         self.assertEqual(expected_url, image.image.url)
 
         image.image.delete(save=False)

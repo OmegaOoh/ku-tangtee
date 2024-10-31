@@ -77,7 +77,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
                 file_name = url.split("/")[-1]
                 image_content = ContentFile(img_response.content, name=file_name)
-                attachment = await sync.sync_to_async(chat_models.Attachment.objects.create)(message=new_message, image=image_content)
+                attachment = await sync.sync_to_async(chat_models.Attachment.objects.create)(message=new_message,
+                                                                                             image=image_content)
                 attachment_urls.append(attachment.image.url)
             except requests.exceptions.RequestException as e:
                 print(f"Failed to download image from {url}: {e}")
