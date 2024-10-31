@@ -57,7 +57,7 @@
                         <ImageGrid  
                             componentSize="h-[15vh] w-1/12"
                             :images="images" 
-                            removable="true" 
+                            :removable='true'
                             @onRemove="(index) => images.splice(index, 1)"
                         />
                     </div>

@@ -36,7 +36,7 @@
         <ImagePreview
             v-if="isModalOpen"
             :imageSrc="selectedImage"
-            :isOpen="isModalOpen"
+            :isOpen=isModalOpen
             @close="closeModal"
         />
     </div>

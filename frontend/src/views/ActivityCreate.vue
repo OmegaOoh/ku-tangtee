@@ -28,7 +28,7 @@
                 </div>
                 <div v-if="images.length > 0" class="flex flex-col justify-center">
                     <span class="text-base-content text-lg"> Preview Image </span>
-                    <ImageCarousel :images='images' removable="true" @onRemove="(index) => images.splice(index, 1)"/>
+                    <ImageCarousel :images='images' :removable="true" @onRemove="(index) => images.splice(index, 1)"/>
                 </div>
 
                 <div>
