@@ -14,7 +14,7 @@ class ActivityDetail(mixins.RetrieveModelMixin,
                      generics.GenericAPIView):
     """Return detail of an activity when GET request, and edit the activity when PUT request."""
 
-    queryset = models.Activity.objects.filter(date__gte=timezone.now())
+    queryset = models.Activity.objects.all()
     serializer_class = model_serializers.ActivitiesSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, OnlyHostCanEdit]
 
