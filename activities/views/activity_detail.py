@@ -43,18 +43,22 @@ class ActivityDetail(mixins.RetrieveModelMixin,
             )
         res = self.update(request, *args, **kwargs)
         res_dict = res.data
-        attachment_ids_to_remove = res_dict.get("remove_attachments", [])
+
+        attachment_ids_to_remove = request.data.get("remove_attachments", [])
 
         if attachment_ids_to_remove:
             for attachment_id in attachment_ids_to_remove:
-                attachment = activity.attachments.filter(id=attachment_id).first()
+                attachment = models.Attachment.objects.filter(pk=attachment_id).first()
                 if attachment:
                     attachment.image.delete(save=False)
                     attachment.delete()
 
-        attachment_to_add = res_dict.get("new_images", [])
+        activity_id = res_dict.get("id")
+        activity_obj = models.Activity.objects.filter(pk=activity_id).first()
+        attachment_to_add = request.data.get("new_images", [])
+        image_loader(attachment_to_add, activity_obj)
 
-        image_loader(attachment_to_add, activity)
+        activity.refresh_from_db()
 
         return response.Response(
             {

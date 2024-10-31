@@ -30,7 +30,7 @@ def get_recent_activity(request: HttpRequest) -> JsonResponse:  # pragma: no cov
     return response.Response(recent_activities)
 
 
-def image_loader(image_urls: list[Dict[str, Any]], new_act: models.Activity):
+def image_loader(image_urls: list[str], new_act: models.Activity):
     """Saving attachments for activity"""
     for url in image_urls[:10]:
         try:

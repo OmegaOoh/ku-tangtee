@@ -66,34 +66,37 @@ class EditActivityTest(django.test.TestCase):
 
     def test_valid_activity_editing_images(self):
         """Edit should return a success message with editing image."""
+        test_img = "https://www.zoomcamera.net/wp-content/uploads/2023/05/Canon-EOS-R100-Mirrorless-Camera-with-18-45mm-1.jpg"
         img_url = "https://static.wixstatic.com/media/11062b_6864d981fa86430f84b3926857b21d8c~mv2.jpg/v1/fill/w_640,h_1058,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/11062b_6864d981fa86430f84b3926857b21d8c~mv2.jpg"
         data = {
             "name": "Test Activity",
             "detail": "This is a test activity",
-            "images": [img_url],
+            "images": [test_img],
         }
-        _, activity = create_activity(host=self.host, data=data)
+        _, activity = create_activity(client=self.client, host=self.host, days_delta=3, data=data)
         old_img = models.Attachment.objects.filter(activity=activity).first()
+        expected_url = "/media/activities/Canon-EOS-R100-Mirrorless-Camera-with-18-45mm-1.jpg"
+        self.assertEqual(expected_url, old_img.image.url)
+        url = urls.reverse("activities:detail", args=[activity.id])
         old_img_id = old_img.id
-        data = {
+        new_data = {
             "name": "Updated Activity",
             "detail": "Detail of updated activity",
-            "max_people": 200,
-            "people": 20,
             "new_images": [img_url],
-            "remove_attachments": [old_img_id]
+            "remove_attachments": [old_img_id],
         }
         # Send PUT request with new activity data
-        response = put_request_json_data(self.url, self.client, data)
+        response = put_request_json_data(url, self.client, new_data)
         response_dict = json.loads(response.content)
         updated_act = models.Activity.objects.get(pk=activity.id)
         updated_act_json = activity_to_json(updated_act)
-        # Compare the serialized activity with the expected data
+        new_img = models.Attachment.objects.filter(activity=activity).first()
+        print(new_img)
         expected_url = "/media/activities/11062b_6864d981fa86430f84b3926857b21d8cmv2.jpg"
-        self.assertEqual(updated_act_json['images'][0]['url'], expected_url)
+        self.assertEqual(new_img.image.url, expected_url)
         self.assertEqual(len(updated_act_json['images']), 1)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response_dict["message"], f"You have successfully edited the activity {data.get('name')}")
+        self.assertEqual(response_dict["message"], f"You have successfully edited the activity {new_data.get('name')}")
         attachments = activity.attachment_set.all()
         image = attachments.first()
         image.image.delete(save=False)
@@ -101,7 +104,6 @@ class EditActivityTest(django.test.TestCase):
 
     def test_invalid_activity_editing_with_too_long_activity_name(self):
         """Editing should return json with error message."""
-        test_img = "https://www.zoomcamera.net/wp-content/uploads/2023/05/Canon-EOS-R100-Mirrorless-Camera-with-18-45mm-1.jpg"
         data = {
             "name": "This is too long" * 50,
             "detail": "This is invalid activity",
