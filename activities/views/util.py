@@ -4,7 +4,6 @@ from django.http import HttpRequest, JsonResponse
 from django.middleware.csrf import get_token
 from django.core.files.base import ContentFile
 from activities import models
-from typing import Dict, Any
 from rest_framework import decorators, response
 from rest_framework.permissions import IsAuthenticated
 
