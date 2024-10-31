@@ -6,7 +6,7 @@ from rest_framework import generics, permissions, mixins, response, status
 from profiles import models
 
 from profiles.serializer import model_serializers
-
+from profiles.serializer.permissions import IsOwnerOrReadOnly
 
 class ProfileDetail(
     mixins.RetrieveModelMixin,
@@ -18,7 +18,7 @@ class ProfileDetail(
     """Return detail of the profile when GET request and create new profile when POST request."""
 
     serializer_class = model_serializers.ProfilesSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
     def get_queryset(self) -> QuerySet:
         """Profile view returns a user's profile."""

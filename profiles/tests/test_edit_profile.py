@@ -28,9 +28,7 @@ class EditActivityTest(django.test.TestCase):
         # Set the URL to the profile page
         self.url = urls.reverse("profiles:detail", args=[self.profile.id])
 
-    def test_valid_profile_editing(self):
-        """Edit should return a success message with the updated profile information."""
-        data = {
+        self.edited_data = {
             "nick_name": "Bruce",
             "pronoun": "She/Her",
             "ku_generation": 84,
@@ -39,17 +37,32 @@ class EditActivityTest(django.test.TestCase):
             "major": "Computer Science",
             "about_me": "A passionate coder and swimming enthusiast.",
         }
+
+    def test_valid_profile_editing(self):
+        """Edit should return a success message with the updated profile information."""
         # Send PUT request with new profile data
-        response = put_request_json_data(self.url, self.client, data)
+        response = put_request_json_data(self.url, self.client, self.edited_data)
         response_dict = json.loads(response.content)
         updated_profile = models.Profile.objects.get(pk=self.profile.id)
         # Compare the serialized profile with the expected data
-        self.assertEqual(updated_profile.nick_name, data['nick_name'])
-        self.assertEqual(updated_profile.pronoun, data['pronoun'])
-        self.assertEqual(updated_profile.ku_generation, data['ku_generation'])
+        self.assertEqual(updated_profile.nick_name, self.edited_data['nick_name'])
+        self.assertEqual(updated_profile.pronoun, self.edited_data['pronoun'])
+        self.assertEqual(updated_profile.ku_generation, self.edited_data['ku_generation'])
         self.assertEqual(updated_profile.date_of_birth, datetime.now().date() - timedelta(days=1))
-        self.assertEqual(updated_profile.faculty, data['faculty'])
-        self.assertEqual(updated_profile.major, data['major'])
-        self.assertEqual(updated_profile.about_me, data['about_me'])
+        self.assertEqual(updated_profile.faculty, self.edited_data['faculty'])
+        self.assertEqual(updated_profile.major, self.edited_data['major'])
+        self.assertEqual(updated_profile.about_me, self.edited_data['about_me'])
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_dict["message"], f"You have successfully edited your KU Tangtee profile.")
+
+
+    def test_other_profile_editing(self):
+        """Edit should return an error message when try to edit other profile."""
+        hacker = create_test_user("hacker")
+        self.client.force_login(hacker)
+
+        response = put_request_json_data(self.url, self.client, self.edited_data)
+        response_dict = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response_dict["message"], f"Cannot edit other profile.")
