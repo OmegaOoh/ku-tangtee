@@ -13,7 +13,7 @@
             v-if="isAuth & isJoined"
             class="card bg-base-300 mx-10 border-2 border-primary"
         >
-            <div class='flex flex-col h-[70vh]'>
+            <div class='flex flex-col h-[65vh]'>
                 <ul
                     ref="messageList"
                     class="card-body overflow-y-auto break-words"
@@ -61,28 +61,29 @@
                     />
                 </div>
             </div>
-            <div class="flex justify-between items-center mt-2">
-                <textarea
-                    v-model="newMessage"
-                    placeholder="Start your chat"
-                    class="textarea textarea-primary w-full mb-2 ml-2 resize-none rounded-r-none"
-                    :maxlength="1024"
-                    @keydown.exact.enter.prevent="sendMessage"
-                    @keydown.shift.enter.prevent="insertNewLine"
-                    rows="1"
-                ></textarea>
-                <div class="mb-2">
-                        <label class="btn btn-primary rounded-l-none text-3xl pb-1 pl-">
-                            +
-                            <input type="file" multiple 
-                            id ='file-add'
-                            accept="image/*"
-                            @change="handleFileChange"
-                            hidden
-                            />
-                        </label>
+            <div class="flex justify-between items-center my-3 mx-3">
+                <div class='flex justify-start textarea textarea-primary w-full py-0 px-2 overflow-hidden pt-0.5' >
+                    <label class=" text-base-content hover:text-primary transition-colors ease-in-out pb-1 text-3xl">
+                        +
+                        <input type="file" multiple 
+                        id ='file-add'
+                        accept="image/*"
+                        @change="handleFileChange"
+                        hidden
+                        />
+                    </label>
+                    <textarea
+                        v-model="newMessage"
+                        placeholder="Start your chat"
+                        class="resize-none size-full bg-inherit focus:outline-none align-middle pt-1.5 px-2"
+                        :maxlength="1024"
+                        @keydown.exact.enter.prevent="sendMessage"
+                        @keydown.shift.enter.prevent="insertNewLine"
+                        rows="1"
+                    ></textarea>
                 </div>
-                <button class="btn btn-primary mx-2 mb-2" @click="sendMessage">
+                
+                <button class="btn btn-primary mx-2" @click="sendMessage">
                     Send
                 </button>
             </div>
