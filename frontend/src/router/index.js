@@ -1,8 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router";
-import ActivityIndex from "../views/ActivityIndex.vue";
-import ActivityDetail from "../views/ActivityDetail.vue";
-import ActivityCreate from "../views/ActivityCreate.vue";
+import ActivityIndex from "@/views/ActivityIndex.vue";
+import ActivityDetail from "@/views/ActivityDetail.vue";
+import ActivityCreate from "@/views/ActivityCreate.vue";
 import ActivityChat from "@/views/ActivityChat.vue";
+import ProfileEdit from "@/views/ProfileEdit.vue";
 
 // Just like  urls.py
 const routes = [
@@ -25,6 +26,11 @@ const routes = [
         path: "/chat/:id",
         name: "ActivityChatPage",
         component: ActivityChat,
+    },
+    {
+        path: "/profile/edit",
+        name: "ProfileEditPage",
+        component: ProfileEdit,
     },
 ];
 
