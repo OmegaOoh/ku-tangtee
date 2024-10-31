@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="overflow-x-hidden">
         <div class='breadcrumbs text-lm size-fit my-6 mx-10'>
             <ul>
                 <li><a @click="goBack">Home</a></li>
@@ -26,6 +26,24 @@
                         required
                     />
                 </div>
+                <div v-if="images.length > 0" class="flex flex-col justify-center">
+                    <span class="text-base-content text-lg"> Preview Image </span>
+                    <ImageCarousel :images='images' :removable="true" @onRemove="(index) => images.splice(index, 1)"/>
+                </div>
+
+                <div>
+                        <label class="btn btn-primary">
+                            Add Image
+                            <input type="file" multiple 
+                            id ='file-add'
+                            accept="image/*"
+                            @change="handleFileChange"
+                            hidden
+                            />
+                        </label>
+                        <span class="text-base-content text-sm ml-2 align-bottom">Up to {{MAX_IMAGES_SIZE/1e+6}} MB</span>
+                </div>
+
                 <div class="form-control w-full">
                     <div class="label">
                         <span class='text-base-content'> Activity Detail </span>
@@ -34,9 +52,10 @@
                     <textarea
                         v-model='activityDetail'
                         id='detail-field'
-                        class='textarea textarea-primary w-full mb-4'
+                        class='textarea textarea-primary w-full mb-4 resize-none'
                         placeholder='Activity Detail'
                         :maxlength='1024'
+                        :rows="4"
                     >
                     </textarea>
                 </div>
@@ -80,9 +99,15 @@
 import { addAlert } from '@/functions/AlertManager';
 import { createPostRequest } from '@/functions/HttpRequest';
 import { isAuth, login } from '@/functions/Authentications';
+import { loadImage } from '@/functions/Utils.';
+import ImageCarousel from '@/component/ImageCarousel';
 </script>
 
 <script>
+
+const MAX_IMAGE_COUNT = 10;
+const MAX_IMAGES_SIZE = 100e+6; // 100 MB
+
 export default {
     data() {
         return {
@@ -92,6 +117,7 @@ export default {
             maxPeople: 1,
             showMaxPeople: false,
             isDarkTheme: false,
+            images: [],
         };
     },
     methods: {
@@ -194,6 +220,39 @@ export default {
              * Switch the flag of setting max people.
              */
             this.showMaxPeople = !this.showMaxPeople;
+        },
+        handleFileChange(event) {
+            const files = event.target.files;
+            if (files.length > 0) {
+                if (files.length + this.images.length > MAX_IMAGE_COUNT) {
+                    addAlert('warning', 'You can add at most '+MAX_IMAGE_COUNT+' pictures');
+                    return;
+                }
+                var totalSize = 0;
+                Array.from(this.images).forEach((file) => {
+                    totalSize += file.size;
+                });
+                Array.from(files).forEach((file) => {
+                    totalSize += file.size;
+                });
+                if (totalSize > MAX_IMAGES_SIZE) {
+                    addAlert('warning', 'You can add at most'+(MAX_IMAGES_SIZE/1e+6) +'MB');
+                }
+                Array.from(files).forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        loadImage(file)
+                            .then(imageSrc => {
+                                this.images.push(imageSrc); // Store the image source in the array
+                            })
+                            .catch(error => {
+                                console.error('Error loading image:', error);
+                            });
+                    }
+                    else {
+                        addAlert('warning', file.name + ' is not images.')
+                    }
+                });
+            }
         },
     },
     mounted() {

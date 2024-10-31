@@ -13,57 +13,81 @@
             v-if="isAuth & isJoined"
             class="card bg-base-300 mx-10 border-2 border-primary"
         >
-            <ul
-                ref="messageList"
-                class="card-body overflow-y-auto h-[70vh] break-words"
-            >
-                <li v-for="(message, index) in messages" :key="index">
-                    <div
-                        :class="[
-                            'chat',
-                            Number(message.user_id) === currentUserId
-                                ? 'chat-end'
-                                : 'chat-start',
-                        ]"
-                    >
-                        <div class="chat-image avatar">
-                            <div class="w-10 rounded-full">
-                                <img
-                                    alt="No Profile Picture"
-                                    v-lazy="
-                                        getProfilePicture(
-                                            (userId = message.user_id)
-                                        )
-                                    "
-                                />
-                            </div>
-                        </div>
-                        <div class="chat-header">
-                            {{ getFullName(message.user_id) }}
-                            <time class="text-xs opacity-50">{{
-                                formatTimestamp(message.timestamp)
-                            }}</time>
-                        </div>
+            <div class='flex flex-col h-[65vh]'>
+                <ul
+                    ref="messageList"
+                    class="card-body overflow-y-auto break-words"
+                >
+                    <li v-for="(message, index) in messages" :key="index">
                         <div
-                            class="chat-bubble chat-bubble-primary"
-                            v-html="formatMessage(message.message)"
-                        ></div>
+                            :class="[
+                                'chat',
+                                Number(message.user_id) === currentUserId
+                                    ? 'chat-end'
+                                    : 'chat-start',
+                            ]"
+                        >
+                            <div class="chat-image avatar">
+                                <div class="w-10 rounded-full">
+                                    <img
+                                        alt="No Profile Picture"
+                                        v-lazy="
+                                            getProfilePicture(
+                                                (userId = message.user_id)
+                                            )
+                                        "
+                                    />
+                                </div>
+                            </div>
+                            <div class="chat-header">
+                                {{ getFullName(message.user_id) }}
+                                <time class="text-xs opacity-50">{{
+                                    formatTimestamp(message.timestamp)
+                                }}</time>
+                            </div>
+                            <div
+                                class="chat-bubble chat-bubble-primary"
+                                v-html="formatMessage(message.message)"
+                            ></div>
+                        </div>
+                    </li>
+                </ul>
+                <div class='border-t-2 border-base-100 pt-2'>
+                    <div v-if="images.length > 0" class="min-h-10 max-h-[15vh] mx-4 bottom-1 mb-2">
+                        <ImageGrid  
+                            componentSize="h-[15vh] w-1/12"
+                            :images="images" 
+                            :removable='true'
+                            @onRemove="(index) => images.splice(index, 1)"
+                        />
                     </div>
-                </li>
-            </ul>
-            <div class="flex justify-between items-center mt-2">
-                <textarea
-                    v-model="newMessage"
-                    placeholder="Start your chat"
-                    class="textarea textarea-primary w-full mb-2 mx-2"
-                    :maxlength="1024"
-                    @keydown.exact.enter.prevent="sendMessage"
-                    @keydown.shift.enter.prevent="insertNewLine"
-                    rows="1"
-                ></textarea>
-                <button class="btn btn-primary mx-2 mb-2" @click="sendMessage">
-                    Send
-                </button>
+                    <div class="flex justify-between items-center my-3 mx-3">
+                        <div class='flex justify-start textarea textarea-primary w-full py-0 px-2 overflow-hidden pt-0.5' >
+                            <label class=" text-base-content hover:text-primary transition-colors ease-in-out pb-1 text-3xl">
+                                +
+                                <input type="file" multiple 
+                                id ='file-add'
+                                accept="image/*"
+                                @change="handleFileChange"
+                                hidden
+                                />
+                            </label>
+                            <textarea
+                                v-model="newMessage"
+                                placeholder="Start your chat"
+                                class="resize-none size-full bg-inherit focus:outline-none align-middle pt-1.5 px-2"
+                                :maxlength="1024"
+                                @keydown.exact.enter.prevent="sendMessage"
+                                @keydown.shift.enter.prevent="insertNewLine"
+                                rows="1"
+                            ></textarea>
+                        </div>
+                        
+                        <button class="btn btn-primary mx-2" @click="sendMessage">
+                            Send
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
         <div
@@ -102,9 +126,16 @@ import apiClient from "@/api";
 import { format } from "date-fns";
 import  { watch } from 'vue'
 import { login, isAuth, userId as authUserId } from "@/functions/Authentications";
+import { addAlert } from "@/functions/AlertManager";
+import { loadImage } from "@/functions/Utils.";
+import ImageGrid from "@/component/ImageGrid.vue"
 </script>
 
 <script>
+
+const MAX_IMAGE_COUNT = 5;
+const MAX_IMAGES_SIZE = 50e+6; // 60 MB
+
 export default {
     data() {
         return {
@@ -115,6 +146,7 @@ export default {
             people: [],
             currentUserId: null,
             isJoined: false,
+            images: [],
         };
     },
     methods: {
@@ -320,6 +352,39 @@ export default {
                 }
                 await this.fetchCurrentUser();
                 await this.fetchMessages();
+            }
+        },
+        handleFileChange(event) {
+            const files = event.target.files;
+            if (files.length > 0) {
+                if (files.length + this.images.length > MAX_IMAGE_COUNT) {
+                    addAlert('warning', 'You can add at most '+MAX_IMAGE_COUNT+' pictures');
+                    return;
+                }
+                var totalSize = 0;
+                Array.from(this.images).forEach((file) => {
+                    totalSize += file.size;
+                });
+                Array.from(files).forEach((file) => {
+                    totalSize += file.size;
+                });
+                if (totalSize > MAX_IMAGES_SIZE) {
+                    addAlert('warning', 'You can add at most'+(MAX_IMAGES_SIZE/1e+6) +'MB');
+                }
+                Array.from(files).forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        loadImage(file)
+                            .then(imageSrc => {
+                                this.images.push(imageSrc); // Store the image source in the array
+                            })
+                            .catch(error => {
+                                console.error('Error loading image:', error);
+                            });
+                    }
+                    else {
+                        addAlert('warning', file.name + ' is not images.')
+                    }
+                });
             }
         },
     },
