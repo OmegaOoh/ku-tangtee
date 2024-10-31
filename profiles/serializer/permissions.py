@@ -5,13 +5,13 @@ from rest_framework import permissions, generics
 from .. import models
 
 
-class IsOwnerOrReadOnly(permissions.BasePermission):
-    """Custom permission to only allow host of an activity to edit it."""
+class OnlyOwnerCanEdit(permissions.BasePermission):
+    """Custom permission to only allow the profile owners to edit it."""
 
     message = 'Cannot edit other profile.'
 
     def has_object_permission(self, request: HttpRequest, view: generics.GenericAPIView, obj: models.Profile) -> Any:
-        """Check such that user has right to edit .
+        """Check such that user is the profile owner.
 
         :param request: Http request object
         :param view: APIView object
@@ -22,5 +22,5 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         if request.method != "PUT":
             return True
 
-        # Edit permissions are only allowed to the owner.
+        # Edit permissions are only allowed to the profile owner.
         return request.user == obj.user
