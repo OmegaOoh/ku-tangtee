@@ -91,7 +91,6 @@ class EditActivityTest(django.test.TestCase):
         updated_act = models.Activity.objects.get(pk=activity.id)
         updated_act_json = activity_to_json(updated_act)
         new_img = models.Attachment.objects.filter(activity=activity).first()
-        print(new_img)
         expected_url = "/media/activities/11062b_6864d981fa86430f84b3926857b21d8cmv2.jpg"
         self.assertEqual(new_img.image.url, expected_url)
         self.assertEqual(len(updated_act_json['images']), 1)
