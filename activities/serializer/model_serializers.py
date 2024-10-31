@@ -19,7 +19,7 @@ class ParticipantSerializer(serializers.ModelSerializer):
 
 
 class ActivitiesSerializer(serializers.ModelSerializer):
-    """Serialized activity."""
+    """Serialized Activity and created activity from data."""
 
     people = serializers.ReadOnlyField()
     can_join = serializers.ReadOnlyField()
@@ -31,6 +31,19 @@ class ActivitiesSerializer(serializers.ModelSerializer):
 
         model = models.Activity
         fields = ('__all__')
+
+    def create(self, validated_data: dict[str, Any]) -> models.Activity:
+        """Override create function to prevent pre-created check-in code.
+
+        :param validated_data: Data that got validated,
+        :return: _description_
+        """
+        # Prevent user to pre-created check-in code.
+        validated_data.pop('check_in_allowed', None)
+        validated_data.pop('check_in_code', None)
+
+        result: models.Activity = super().create(validated_data)
+        return result
 
     def get_host(self, activity: models.Activity) -> list[Any]:
         """Return list of activity host.
@@ -61,7 +74,7 @@ class ActivitiesSerializer(serializers.ModelSerializer):
 
 
 class AttendSerializer(serializers.ModelSerializer):
-    """Serialized Attend."""
+    """Serialized Attend model."""
 
     class Meta:
         """Attend serializer META class."""
