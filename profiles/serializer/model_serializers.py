@@ -12,17 +12,3 @@ class ProfilesSerializer(serializers.ModelSerializer):
 
         model = models.Profile
         fields = ('__all__')
-
-    def get_profile(self, user_id: int) -> Any:
-        """Return attend object specify by user_id.
-
-        :param user_id: ID of user model instance
-        :raises exceptions.APIException: if Profile object with specify id not exist.
-        :return: None
-        """
-        try:
-            return models.Profile.objects.get(
-                user__id=user_id
-            )
-        except models.Profile.DoesNotExist:
-            raise exceptions.APIException("You've never created your profile.")
