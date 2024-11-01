@@ -80,8 +80,7 @@
                                 <span class='text-base-content'> Bio </span>
                             </div>
                             <textarea
-                                v-model='activityDetail'
-                                id='bio-field'
+                                v-model='bio'
                                 class='textarea textarea-primary w-full mb-4 resize-none'
                                 placeholder='Bio'
                                 :maxlength='1024'
@@ -112,10 +111,11 @@
                         </div>
                         <input
                             v-model='kuGen'
+                            id="ku-gen-field"
                             type='number'
                             placeholder='e.g. 83'
                             class='input input-bordered input-primary w-full mb-4'
-                            :max="getCurrentYear() - 1940"
+                            :max="getMaxKuGeneration()"
                             min=1
                         />
                     </div>
@@ -163,7 +163,20 @@ import { addAlert } from "@/functions/AlertManager";
 </script>
 
 <script>
+
+const kuEstablishedYear = 1940
+
 export default {
+    data() {
+        return {
+            nickname: '',
+            pronoun: '',
+            bio: '',
+            kuGen: '',
+            faculty: '',
+            major: '',
+        }
+    },
     methods: {
         scrollCarousel(index) {
             /**
@@ -175,16 +188,37 @@ export default {
             const targetPixel = (carouselW * index) + 1;
             carousel.scrollTo(targetPixel, 0);
         },
-        submitProfile() {
+        validateInput() {
+            /**
+             * Function to validate the input.
+             * return true if all input were valid.
+             */
+            var validInput = true;
+            if (this.kuGen != '')
+                if (this.kuGen < 1) {
+                    addAlert('warning', "Your KU Generation must be at least 1")
+                    validInput = false;
+                }
+                if (this.kuGen > this.getMaxKuGeneration()) {
+                    addAlert('warning', ("Your KU Generation must be less than or equal to " + this.getMaxKuGeneration()))
+                    validInput = false;
+                }
+            return validInput
+
+        },
+        async submitProfile() {
             /**
              * Function to submit data from form to the backend
              * This function return nothing
              */
+            if (!this.validateInput()) {
+                return;
+            }
             addAlert('info', 'Profile Submission to be implemented');
         },
-        getCurrentYear() {
-            const currentDate = new Date();
-            return currentDate.getFullYear()
+        getMaxKuGeneration() {
+            const currentYear =  (new Date()).getFullYear();
+            return currentYear - kuEstablishedYear;
         }
     },
 }
