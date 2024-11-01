@@ -2,10 +2,8 @@
 import io
 import sys
 import json
-from datetime import datetime
 from django.http import HttpResponse
 import django.test
-from django.utils import timezone
 
 from profiles import models
 from django.contrib.auth.models import User
@@ -24,22 +22,17 @@ def create_profile(
     user: User = None,
     client: django.test.Client = django.test.Client(),
     data: dict = {"faculty": "Faculty", "major": "Major"},
-    days_delta: int = 1,
     log_in: bool = True,
 ):
     """Return response and created profile with given parameters."""
     if not user:
         user = create_test_user("user")
 
-    data_with_date = data | {
-        "date_of_birth": (timezone.now().date() - timezone.timedelta(days=days_delta)).strftime('%Y-%m-%d')
-    }
-
     if log_in:
         client.force_login(user)
 
     url = urls.reverse("profiles:index")
-    res = post_request_json_data(url, client, data_with_date)
+    res = post_request_json_data(url, client, data)
 
     try:
         response_dict = json.loads(res.content)

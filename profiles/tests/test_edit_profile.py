@@ -1,11 +1,9 @@
 """Module on test profile editing."""
 import json
 import django.test
-from datetime import datetime, timedelta
 from django import urls
 from profiles import models
 from .shortcuts import create_test_user, create_profile, put_request_json_data
-from django.utils import timezone
 
 
 class EditActivityTest(django.test.TestCase):
@@ -23,7 +21,7 @@ class EditActivityTest(django.test.TestCase):
         }
         self.user = create_test_user("user")
         self.client.force_login(self.user)
-        _, self.profile = create_profile(user=self.user, data=data, days_delta=0)
+        _, self.profile = create_profile(user=self.user, data=data)
 
         # Set the URL to the profile page
         self.url = urls.reverse("profiles:detail", args=[self.profile.id])
@@ -32,7 +30,6 @@ class EditActivityTest(django.test.TestCase):
             "nick_name": "Bruce",
             "pronoun": "She/Her",
             "ku_generation": 84,
-            "date_of_birth": (datetime.today().date() - timedelta(days=1)).strftime('%Y-%m-%d'),
             "faculty": "Science",
             "major": "Computer Science",
             "about_me": "A passionate coder and swimming enthusiast.",
@@ -48,7 +45,6 @@ class EditActivityTest(django.test.TestCase):
         self.assertEqual(updated_profile.nick_name, self.edited_data['nick_name'])
         self.assertEqual(updated_profile.pronoun, self.edited_data['pronoun'])
         self.assertEqual(updated_profile.ku_generation, self.edited_data['ku_generation'])
-        self.assertEqual(updated_profile.date_of_birth, datetime.now().date() - timedelta(days=1))
         self.assertEqual(updated_profile.faculty, self.edited_data['faculty'])
         self.assertEqual(updated_profile.major, self.edited_data['major'])
         self.assertEqual(updated_profile.about_me, self.edited_data['about_me'])
