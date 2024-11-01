@@ -83,7 +83,7 @@
                                 v-model='bio'
                                 class='textarea textarea-primary w-full mb-4 resize-none'
                                 placeholder='Bio'
-                                :maxlength='1024'
+                                :maxlength='256'
                                 rows="4"
                             >
                             </textarea>

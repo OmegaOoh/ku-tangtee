@@ -84,6 +84,7 @@ import {
     pfp,
     fName,
     lName,
+    userId,
 } from "@/functions/Authentications";
 import apiClient from "@/api";
 </script>
@@ -100,7 +101,7 @@ export default {
     },
     methods: {
         async getRecentActivity() {
-            const response = await apiClient.get("/activities/get-recently/?records=5");
+            const response = await apiClient.get(`/activities/get-recently/${userId}/?records=5`);
             this.activities = response.data;
         },
     },

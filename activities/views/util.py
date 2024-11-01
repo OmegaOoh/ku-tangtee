@@ -1,8 +1,10 @@
 """Utility module."""
 
-from django.http import HttpRequest, JsonResponse
+from django.http import HttpRequest
 from django.middleware.csrf import get_token
+from django.shortcuts import get_object_or_404
 from activities import models
+from django.contrib.auth import models as auth_models
 from rest_framework import decorators, response
 from rest_framework.permissions import IsAuthenticated
 import random
@@ -19,15 +21,17 @@ def csrf_token_view(request: HttpRequest) -> response.Response:  # pragma: no co
 
 
 @decorators.api_view(['get'])
-@decorators.permission_classes([IsAuthenticated])
-def get_recent_activity(request: HttpRequest) -> response.Response:  # pragma: no cover
+def get_recent_activity(request: HttpRequest, *args, **kwargs) -> response.Response:  # pragma: no cover
     """Return recently joined activities.
 
     :param request: Http request object
     :return: Response object contain activities that recently joined.
     """
-    user = request.GET.get('user') if request.GET.get("user") else request.user
-    activities = models.Attend.recently_joined(user, int(request.GET.get("records")))
+    user = get_object_or_404(models.User, id=kwargs.get('id'))
+    records = None
+    if (request.GET.get('records')):
+        records = int(request.GET.get('records'))
+    activities = models.Attend.recently_joined(user, records)
     recent_activities = [{"name": activity.name, "activity_id": activity.id} for activity in activities]
     return response.Response(recent_activities)
 

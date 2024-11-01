@@ -29,7 +29,6 @@ class ProfileDetail(
     def retrieve(self, request, *args, **kwargs):
         """Override retrieve to return only base profile if KU Tangtee not found in the database and return it"""
         username = kwargs.get('username')
-
         user = get_object_or_404(auth_models.User, username=username)
         try:
             profile = models.Profile.objects.get(user=user)
