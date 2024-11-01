@@ -1,5 +1,6 @@
 """Utility module."""
 import requests
+import base64
 from django.http import HttpRequest, JsonResponse
 from django.middleware.csrf import get_token
 from django.core.files.base import ContentFile
@@ -58,3 +59,29 @@ def image_deleter(image_ids: list[int]) -> None:
         if attachment:
             attachment.image.delete(save=False)
             attachment.delete()
+
+
+def image_loader_64(image_data_list: list[str], act: models.Activity) -> None:
+    """Create attachments and save for a message from base64-encoded images.
+
+    :param image_data_list: List of string contains image urls in base64 format.
+    :param act: Activity object for creating Attachment.
+    """
+    for image_data in image_data_list:
+        try:
+            # Separate the base64 header if it exists
+            if "base64," in image_data:
+                image_data = image_data.split("base64,")[1]
+    
+            # Decode the base64 string into binary data
+            image_content = base64.b64decode(image_data)
+
+            # Generate a unique name for the file, for example by using the message ID
+            file_name = f"{act.id}_attachment_{len(image_data_list)}.jpg"
+
+            # Create ContentFile and save the attachment
+            image_file = ContentFile(image_content, name=file_name)
+            models.Attachment.objects.create(activity=act, image=image_file)
+
+        except (base64.binascii.Error, ValueError) as e:
+            print(f"Failed to decode image data: {e}")

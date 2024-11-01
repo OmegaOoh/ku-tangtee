@@ -28,7 +28,7 @@
                     stroke-linecap="round"
                     stroke-linejoin="round"
                 >
-                    <line x1="18" y1="6" x2="6" y2 ="18" />
+                    <line x1="18" y1="6" x2="6" y2="18" />
                     <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
             </button>
@@ -36,15 +36,15 @@
         <ImagePreview
             v-if="isModalOpen"
             :imageSrc="selectedImage"
-            :isOpen=isModalOpen
+            :isOpen="isModalOpen"
             @close="closeModal"
         />
     </div>
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref } from 'vue';
-import ImagePreview from './ImagePreview.vue';
+import { defineProps, defineEmits, ref } from "vue";
+import ImagePreview from "./ImagePreview.vue";
 
 defineProps({
     images: {
@@ -58,13 +58,13 @@ defineProps({
     componentSize: {
         type: String,
         required: true,
-    }
+    },
 });
 
-defineEmits('onRemove');
+defineEmits("onRemove");
 
 const isModalOpen = ref(false);
-const selectedImage = ref('');
+const selectedImage = ref("");
 
 const openModal = (imageSrc) => {
     selectedImage.value = imageSrc;
@@ -73,7 +73,6 @@ const openModal = (imageSrc) => {
 
 const closeModal = () => {
     isModalOpen.value = false;
-    selectedImage.value = '';
+    selectedImage.value = "";
 };
-
 </script>

@@ -1,5 +1,5 @@
 """Module for handle URL /activities/<activity_id>."""
-from activities.views.util import image_loader, image_deleter
+from activities.views.util import image_loader, image_deleter, image_loader_64
 from typing import Any
 from django.http import HttpRequest
 from django.utils import timezone
@@ -51,7 +51,10 @@ class ActivityDetail(mixins.RetrieveModelMixin,
 
         attachment_to_add = request.data.get("new_images", [])
         if attachment_to_add:
-            image_loader(attachment_to_add, activity)
+            if any("base64" in attachment for attachment in attachment_to_add):
+                image_loader_64(attachment_to_add, activity)
+            else:
+                image_loader(attachment_to_add, activity)
 
         activity.refresh_from_db()
 

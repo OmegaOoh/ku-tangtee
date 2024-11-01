@@ -56,17 +56,14 @@
                                     "
                                     class="image-grid mt-2"
                                 >
-                                    <div class="image-grid">
-                                        <img
-                                            v-for="(
-                                                image, index
-                                            ) in message.images"
-                                            :key="index"
-                                            :src="baseUrl + image"
-                                            class="h-[15vh] w-[15vh] m-1"
-                                            alt="Message image"
-                                        />
-                                    </div>
+                                    <ImageGrid
+                                        componentSize="h-[15vh] w-[15vh]"
+                                        :images="
+                                            message.images.map(
+                                                (image) => baseUrl + image
+                                            )
+                                        "
+                                    />
                                 </div>
                             </div>
                         </div>
