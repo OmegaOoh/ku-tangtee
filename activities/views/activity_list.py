@@ -32,7 +32,6 @@ class ActivityList(
             queryset = queryset.filter(Q(name__iregex=rf'{keyword}') | Q(detail__iregex=rf'{keyword}'))
 
         day = self.__parse_date(self.request.GET.get("day"))
-        print(day)
         if day:
             queryset = queryset.filter(date__week_day__in=day)
 
@@ -77,17 +76,15 @@ class ActivityList(
         )
 
     def __parse_date(self, date_param: str) -> list[int] | None:
-        
+
         day_list_format = r'^(?:[1-7](?:,[1-7])*)?$'
-        
+
         if (not date_param) or (not re.fullmatch(day_list_format, date_param)):
             return None
-        
+
         split_day = date_param.split(',')
-        
+
         if len(split_day) > 7:
             return None
-        
-        print(split_day)
-        
+
         return [int(s.strip()) for s in split_day]
