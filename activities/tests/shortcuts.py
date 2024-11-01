@@ -93,3 +93,15 @@ def client_join_activity(client: django.test.Client, user: User, activity: model
     client.force_login(user)
     client.post(urls.reverse("activities:join", args=[activity.id]))
     activity.refresh_from_db()
+
+
+def convert_day_num(day_num: int) -> int:
+    """Convert day num from python format (0 = Monday. 6 = Sunday) to MySQL format (1 = Sunday, 7 = Saturday).
+
+    :param day_num: Day num in Python format
+    :return: Day num in MySQL format
+    """
+    if day_num == 6:
+        return 1
+
+    return day_num + 2
