@@ -2,7 +2,7 @@ import { ref } from 'vue';
 import apiClient from '@/api';
 import { googleTokenLogin } from 'vue3-google-login';
 import { createPostRequest } from './HttpRequest';
-import { getCookie, setCookie, deleteCookie } from './cookies';
+import { getCookie, setCookie, deleteCookie } from './Cookies';
 
 
 export var isAuth = ref(false);

@@ -153,7 +153,7 @@ export default {
              * @returns {string} formatted timestamp
              */
             if (timestamp) {
-                return format(new Date(timestamp), "EEEEEEE, MMM dd, yyyy, hh:mm a");
+                return format(new Date(timestamp), "EEE, MMM/dd/yyyy, hh:mm a");
             } else {
                 return "No date provided";
             }

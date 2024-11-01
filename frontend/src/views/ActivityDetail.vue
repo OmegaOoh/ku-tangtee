@@ -65,7 +65,8 @@
                     <div
                         v-for="participant in people"
                         :key="participant.id"
-                        class="card bg-base-100 shadow-lg p-4 rounded-lg"
+                        class="card bg-base-100 shadow-lg p-4 rounded-lg border-primary hover: border-2 transition-all duration-75 ease-in-out"
+                        @click="$router.push('/profile/'+ participant.username)"
                     >
                         <div class="flex items-center space-x-4">
                             <img
@@ -256,7 +257,7 @@ export default {
              * @returns {string} formatted timestamp
              */
             if (timestamp) {
-                return format(new Date(timestamp), "EEEEEEE, MMM dd, yyyy, hh:mm a");
+                return format(new Date(timestamp), "EEE, MMM/dd/yyyy, hh:mm a");
             } else {
                 return "No date provided";
             }
