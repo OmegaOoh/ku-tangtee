@@ -80,17 +80,17 @@
                     </button>
                     <button
                         v-if="isHost && activity.check_in_allowed && isAuth"
-                        @click="closeCheckIn"
-                        class="btn btn-ghost text-accent ml-2 mr-2"
-                    >
-                        Close Checkin
-                    </button>
-                    <button
-                        v-if="isHost && activity.check_in_allowed && isAuth"
                         @click="openCheckInCodeModal"
                         class="btn btn-ghost text-accent ml-2 mr-2"
                     >
                         Show Check-In code
+                    </button>
+                    <button
+                        v-if="isHost && activity.check_in_allowed && isAuth"
+                        @click="closeCheckIn"
+                        class="btn btn-ghost text-accent ml-2 mr-2"
+                    >
+                        Close Checkin
                     </button>
                 </h1>
                 <p class="mb-2 ml-3 overflow-hidden multi-line">
