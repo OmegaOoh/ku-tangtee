@@ -58,15 +58,16 @@
                 aria-label="close sidebar"
                 class="drawer-overlay"
             ></label>
-            <ul class="menu bg-base-200 text-base-content w-64 p-4">
+            <ul class="menu bg-base-200 text-base-content w-[15%] p-4">
                 <!-- Sidebar content here -->
-                <li v-for="(activity, index) in activities" :key="index">
-                    <router-link :to="`/activities/${activity.activity_id}`">{{
-                        activity.name
-                    }}</router-link>
+                <li v-for="(activity, index) in activities" :key="index" class="w-full overflow-hidden h-fit">
+                        <router-link :to="`/activities/${activity.activity_id}`" class="w-full" >
+                            <p class="w-full h-fit text-ellipsis overflow-hidden"> {{ activity.name }} </p>
+                        </router-link>
+
                 </li>
-                <div class="divider divider-primary"></div>
-                <li>
+                <div class="divider w-full"></div>
+                <li class="w-full">
                     <router-link to="/create">Create Activity</router-link>
                 </li>
             </ul>
@@ -99,7 +100,7 @@ export default {
     },
     methods: {
         async getRecentActivity() {
-            const response = await apiClient.get("/activities/get-recently/");
+            const response = await apiClient.get("/activities/get-recently/?records=5");
             this.activities = response.data;
         },
     },
@@ -116,3 +117,15 @@ export default {
     },
 };
 </script>
+
+<style scoped>
+.line-ellipsis {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    word-wrap:break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+</style>

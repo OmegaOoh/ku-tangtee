@@ -26,8 +26,8 @@ def get_recent_activity(request: HttpRequest) -> response.Response:  # pragma: n
     :param request: Http request object
     :return: Response object contain activities that recently joined.
     """
-    user = request.user
-    activities = models.Attend.recently_joined(user)
+    user = request.GET.get('user') if request.GET.get("user") else request.user
+    activities = models.Attend.recently_joined(user, int(request.GET.get("records")))
     recent_activities = [{"name": activity.name, "activity_id": activity.id} for activity in activities]
     return response.Response(recent_activities)
 
