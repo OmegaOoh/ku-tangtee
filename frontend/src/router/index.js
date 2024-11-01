@@ -3,7 +3,7 @@ import ActivityIndex from "@/views/ActivityIndex.vue";
 import ActivityDetail from "@/views/ActivityDetail.vue";
 import ActivityCreate from "@/views/ActivityCreate.vue";
 import ActivityChat from "@/views/ActivityChat.vue";
-import ProfileEdit from "@/views/ProfileEdit.vue";
+import ProfileCreate from "@/views/ProfileEdit.vue";
 
 // Just like  urls.py
 const routes = [
@@ -28,9 +28,9 @@ const routes = [
         component: ActivityChat,
     },
     {
-        path: "/profile/edit",
-        name: "ProfileEditPage",
-        component: ProfileEdit,
+        path: "/profile/create",
+        name: "ProfileCretePage",
+        component: ProfileCreate,
     },
 ];
 
