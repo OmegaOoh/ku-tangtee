@@ -69,7 +69,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         new_message = chat_models.Message(message=message, sender=self.user, activity=self.activity)
         await sync.sync_to_async(new_message.save)()
 
-        attachment_urls = []
+        attachment_urls: list[str] = []
         # Limit images per message to be 5
         for image_data in image_urls[:5]:
             try:

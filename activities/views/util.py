@@ -72,7 +72,7 @@ def image_loader_64(image_data_list: list[str], act: models.Activity) -> None:
             # Separate the base64 header if it exists
             if "base64," in image_data:
                 image_data = image_data.split("base64,")[1]
-    
+
             # Decode the base64 string into binary data
             image_content = base64.b64decode(image_data)
 
@@ -83,5 +83,5 @@ def image_loader_64(image_data_list: list[str], act: models.Activity) -> None:
             image_file = ContentFile(image_content, name=file_name)
             models.Attachment.objects.create(activity=act, image=image_file)
 
-        except (base64.binascii.Error, ValueError) as e:
+        except Exception as e:
             print(f"Failed to decode image data: {e}")
