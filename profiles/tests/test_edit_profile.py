@@ -61,3 +61,11 @@ class EditActivityTest(django.test.TestCase):
 
         self.assertEqual(response.status_code, 403)
         self.assertEqual(response_dict["message"], "Cannot edit other profile.")
+
+    def test_not_logged_in(self):
+        """Show error message when not logged in."""
+        self.client.logout()
+
+        response = put_request_json_data(self.url, self.client, self.edited_data)
+        self.assertEqual(response.status_code, 403)
+        self.assertJSONEqual(response.content, {'message': 'Authentication credentials were not provided.'})
