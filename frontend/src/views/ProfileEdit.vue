@@ -112,10 +112,11 @@
                         </div>
                         <input
                             v-model='kuGen'
-                            type='numeric'
+                            type='number'
                             placeholder='e.g. 83'
                             class='input input-bordered input-primary w-full mb-4'
-                            :max="(Date().getFullYear) - 1940"
+                            :max="getCurrentYear() - 1940"
+                            min=1
                         />
                     </div>
 
@@ -157,7 +158,8 @@
 </template>
 
 <script setup>
-import {isAuth, login, email, fName, lName } from "@/functions/Authentications";
+import { isAuth, login, email, fName, lName } from "@/functions/Authentications";
+import { addAlert } from "@/functions/AlertManager";
 </script>
 
 <script>
@@ -178,7 +180,11 @@ export default {
              * Function to submit data from form to the backend
              * This function return nothing
              */
-            console.log('To be implement :-)')
+            addAlert('info', 'Profile Submission to be implemented');
+        },
+        getCurrentYear() {
+            const currentDate = new Date();
+            return currentDate.getFullYear()
         }
     },
 }
