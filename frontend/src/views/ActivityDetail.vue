@@ -150,6 +150,9 @@ import ImageCarousel from "@/component/ImageCarousel";
 
 <script>
 export default {
+    components: {
+        ImageCarousel,
+    },
     data() {
         return {
             activity: {},
@@ -205,14 +208,16 @@ export default {
                 this.activity = response.data;
                 this.people = this.activity.participant;
                 this.images = this.activity.images;
+                this.imageUrls = [];
                 this.baseUrl = process.env.VUE_APP_BASE_URL;
                 if (this.baseUrl.endsWith("/")) {
                     this.baseUrl = this.baseUrl.slice(0, -1);
                 }
                 for (const image of this.images) {
-                    const imageurl = this.baseUrl + image["url"];
+                    const imageurl = this.baseUrl + image.url;
                     this.imageUrls.push(imageurl);
                 }
+                console.log(this.imageUrls);
                 this.canJoin = this.activity.can_join;
                 this.hosts = JSON.stringify(response.data.host);
                 this.checkHost();

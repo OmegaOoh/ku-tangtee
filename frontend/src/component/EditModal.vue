@@ -17,6 +17,31 @@
             required
         />
     </div>
+    <div v-if="images.length > 0" class="flex flex-col justify-center">
+        <span class="text-base-content text-lg"> Preview Image </span>
+        <ImageCarousel
+            :images="images.map((image) => image.url)"
+            :removable="true"
+            @onRemove="handleRemove"
+        />
+    </div>
+
+    <div>
+        <label class="btn btn-primary">
+            Add Image
+            <input
+                type="file"
+                multiple
+                id="file-add"
+                accept="image/*"
+                @change="handleFileChange"
+                hidden
+            />
+        </label>
+        <span class="text-base-content text-sm ml-2 align-bottom"
+            >Up to {{ MAX_IMAGES_SIZE / 1e6 }} MB</span
+        >
+    </div>
     <div class="form-control w-full">
         <div class="label">
             <span class="text-base-content"> Activity Detail </span>
@@ -83,7 +108,14 @@
 import apiClient from "@/api";
 import { createPutRequest } from "@/functions/HttpRequest.js";
 import { addAlert } from "@/functions/AlertManager";
+import { loadImage } from "@/functions/Utils.";
+import ImageCarousel from "./ImageCarousel.vue";
+const MAX_IMAGE_COUNT = 10;
+const MAX_IMAGES_SIZE = 100e6; // 100 MB
 export default {
+    components: {
+        ImageCarousel,
+    },
     data() {
         return {
             id: this.activityId,
@@ -93,8 +125,11 @@ export default {
             maxPeople: 0,
             people: [],
             showMaxPeople: false,
-
+            images: [],
+            baseUrl: "",
             activity: {},
+            new_images: [],
+            remove_attachment: [],
         };
     },
     methods: {
@@ -113,6 +148,14 @@ export default {
                 this.date = this.formatActivityDate(
                     new Date(this.activity.date)
                 );
+                this.baseUrl = process.env.VUE_APP_BASE_URL;
+                if (this.baseUrl.endsWith("/")) {
+                    this.baseUrl = this.baseUrl.slice(0, -1);
+                }
+                this.images = this.activity.images.map((image) => ({
+                    id: image.id,
+                    url: `${this.baseUrl}${image.url}`,
+                }));
                 this.maxPeople =
                     this.activity.max_people || this.activity.people;
                 this.showMaxPeople = this.maxPeople > 0;
@@ -187,11 +230,16 @@ export default {
                 if (!this.showMaxPeople) {
                     this.maxPeople = null;
                 }
+                this.new_images = this.images
+                    .filter((image) => image.id === -1)
+                    .map((image) => image.url);
                 const data = {
                     name: this.activityName,
                     detail: this.activityDetail,
                     date: this.date,
                     max_people: this.maxPeople || null,
+                    new_images: this.new_images,
+                    remove_attachments: this.remove_attachment,
                 };
                 const response = await createPutRequest(
                     `/activities/${this.activityId}/`,
@@ -219,7 +267,66 @@ export default {
             return dateObj;
         },
         setMaxPeople() {
+            /*
+             * Swap value of showMaxPeople.
+             * Return nothing.
+             */
             this.showMaxPeople = !this.showMaxPeople;
+        },
+        handleFileChange(event) {
+            /*
+             * Push value into images.
+             * @params {image} image that uploads from input.
+             * Return nothing.
+             */
+            const files = event.target.files;
+            if (files.length > 0) {
+                if (files.length + this.images.length > MAX_IMAGE_COUNT) {
+                    addAlert(
+                        "warning",
+                        "You can add at most " + MAX_IMAGE_COUNT + " pictures"
+                    );
+                    return;
+                }
+                var totalSize = 0;
+                Array.from(this.images).forEach((file) => {
+                    totalSize += file.size;
+                });
+                Array.from(files).forEach((file) => {
+                    totalSize += file.size;
+                });
+                if (totalSize > MAX_IMAGES_SIZE) {
+                    addAlert(
+                        "warning",
+                        "You can add at most" + MAX_IMAGES_SIZE / 1e6 + "MB"
+                    );
+                }
+                Array.from(files).forEach((file) => {
+                    if (file.type.startsWith("image/")) {
+                        loadImage(file)
+                            .then((imageSrc) => {
+                                this.images.push({ id: -1, url: imageSrc }); // Store the image source in the array
+                            })
+                            .catch((error) => {
+                                console.error("Error loading image:", error);
+                            });
+                    } else {
+                        addAlert("warning", file.name + " is not images.");
+                    }
+                });
+            }
+        },
+        handleRemove(index) {
+            /*
+             * Remove image and push removed image id into array.
+             * @params {int} image that wants to be removed.
+             * Return nothing.
+             */
+            if (this.images[index].id != -1) {
+                this.remove_attachment.push(this.images[index].id);
+            }
+            // Remove the image from the images array
+            this.images.splice(index, 1);
         },
     },
     mounted() {
