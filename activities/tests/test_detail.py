@@ -13,7 +13,8 @@ class DetailTest(django.test.TestCase):
         """Past activities should not be accessible."""
         _, activity = create_activity(days_delta=-1)
         response = self.client.get(urls.reverse("activities:detail", args=[activity.id]))
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(response.content, activity_to_json(activity))
 
     def test_future_activity(self):
         """Future/Upcoming activity should be accessible."""

@@ -1,7 +1,7 @@
 """Module to test on index page of activities app."""
 import django.test
 from django import urls
-from .shortcuts import create_activity, activity_to_json, create_test_user
+from .shortcuts import create_activity, activity_to_json, create_test_user, convert_day_num
 import json
 
 
@@ -79,3 +79,61 @@ class IndexTest(django.test.TestCase):
 
         response = self.client.get(urls.reverse("activities:index") + "?keyword=Engarde")
         self.assertJSONEqual(response.content, [])
+
+    def test_search_by_day_of_week(self):
+        """GET req to index with day code (1 = Sunday), index should return list of activity on that day."""
+        _, activity1 = create_activity(
+            host=self.host_user,
+            client=self.client,
+            data={"name": "day1", "detail": "12"},
+            days_delta=1
+        )
+        act1_day = convert_day_num(activity1.date.weekday())
+
+        _, activity2 = create_activity(
+            host=self.host_user,
+            client=self.client,
+            data={"name": "day2", "detail": "en"},
+            days_delta=2
+        )
+        act2_day = convert_day_num(activity2.date.weekday())
+
+        _, activity3 = create_activity(
+            host=self.host_user,
+            client=self.client,
+            data={"name": "day3", "detail": "garde"},
+            days_delta=3
+        )
+        act3_day = convert_day_num(activity3.date.weekday())
+
+        _, activity4 = create_activity(
+            host=self.host_user,
+            client=self.client,
+            data={"name": "day4", "detail": "garde"},
+            days_delta=4
+        )
+        act4_day = convert_day_num(activity4.date.weekday())
+
+        res = self.client.get(urls.reverse("activities:index") + f"?day={act1_day}")
+        self.assertJSONEqual(res.content, [activity_to_json(activity1)])
+
+        res = self.client.get(urls.reverse("activities:index") + f"?day={act3_day},{act2_day}")
+        self.assertJSONEqual(res.content, [activity_to_json(activity2), activity_to_json(activity3)])
+
+        res = self.client.get(urls.reverse("activities:index") + f"?day={act1_day},{act2_day},{act3_day},{act4_day}")
+        self.assertJSONEqual(
+            res.content,
+            [activity_to_json(act) for act in [activity1, activity2, activity3, activity4]]
+        )
+
+        res = self.client.get(urls.reverse("activities:index") + "?day=invalid")
+        self.assertJSONEqual(
+            res.content,
+            [activity_to_json(act) for act in [activity1, activity2, activity3, activity4]]
+        )
+
+        res = self.client.get(urls.reverse("activities:index") + "?day=10,20,8")
+        self.assertJSONEqual(
+            res.content,
+            [activity_to_json(act) for act in [activity1, activity2, activity3, activity4]]
+        )
