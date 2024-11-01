@@ -196,11 +196,11 @@ export default {
             var validInput = true;
             if (this.kuGen != '')
                 if (this.kuGen < 1) {
-                    addAlert('warning', "Your KU Generation must be at least 1")
+                    addAlert('warning', "Your KU Generation must be at least 1");
                     validInput = false;
                 }
                 if (this.kuGen > this.getMaxKuGeneration()) {
-                    addAlert('warning', ("Your KU Generation must be less than or equal to " + this.getMaxKuGeneration()))
+                    addAlert('warning', ('Your KU Generation must be less than or equal to ' + this.getMaxKuGeneration()))
                     validInput = false;
                 }
             return validInput

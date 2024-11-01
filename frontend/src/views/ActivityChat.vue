@@ -13,57 +13,70 @@
             v-if="isAuth & isJoined"
             class="card bg-base-300 mx-10 border-2 border-primary"
         >
-            <ul
-                ref="messageList"
-                class="card-body overflow-y-auto h-[70vh] break-words"
-            >
-                <li v-for="(message, index) in messages" :key="index">
-                    <div
-                        :class="[
-                            'chat',
-                            Number(message.user_id) === currentUserId
-                                ? 'chat-end'
-                                : 'chat-start',
-                        ]"
-                    >
-                        <div class="chat-image avatar">
-                            <div class="w-10 rounded-full">
-                                <img
-                                    alt="No Profile Picture"
-                                    v-lazy="
-                                        getProfilePicture(
-                                            (userId = message.user_id)
-                                        )
-                                    "
-                                />
-                            </div>
-                        </div>
-                        <div class="chat-header">
-                            {{ getFullName(message.user_id) }}
-                            <time class="text-xs opacity-50">{{
-                                formatTimestamp(message.timestamp)
-                            }}</time>
-                        </div>
+            <div class="relative z">
+                <ul
+                    ref="messageList"
+                    class="card-body overflow-y-auto h-[70vh] break-words -z-10"
+                    @scroll="handleScroll"
+                >
+                    <li v-for="(message, index) in messages" :key="index">
                         <div
-                            class="chat-bubble chat-bubble-primary"
-                            v-html="formatMessage(message.message)"
-                        ></div>
-                    </div>
-                </li>
-            </ul>
-            <div class="flex justify-between items-center mt-2">
-                <textarea
-                    v-model="newMessage"
-                    placeholder="Start your chat"
-                    class="textarea textarea-primary w-full mb-2 mx-2"
-                    :maxlength="1024"
-                    @keydown.exact.enter.prevent="sendMessage"
-                    @keydown.shift.enter.prevent="insertNewLine"
-                    rows="1"
-                ></textarea>
-                <button class="btn btn-primary mx-2 mb-2" @click="sendMessage">
-                    Send
-                </button>
+                            :class="[
+                                'chat',
+                                Number(message.user_id) === currentUserId
+                                    ? 'chat-end'
+                                    : 'chat-start',
+                            ]"
+                        >
+                            <div class="chat-image avatar">
+                                <div class="w-10 rounded-full">
+                                    <img
+                                        alt="No Profile Picture"
+                                        v-lazy="
+                                            getProfilePicture(
+                                                (userId = message.user_id)
+                                            )
+                                        "
+                                    />
+                                </div>
+                            </div>
+                            <div class="chat-header">
+                                {{ getFullName(message.user_id) }}
+                                <time class="text-xs opacity-50">{{
+                                    formatTimestamp(message.timestamp)
+                                }}</time>
+                            </div>
+                            <div
+                                class="chat-bubble chat-bubble-primary"
+                                v-html="formatMessage(message.message)"
+                            ></div>
+                        </div>
+                    </li>
+                </ul>
+                <div class="absolute flex justify-center z-10 bottom-2 right-1 left-1">
+                    <button
+                        id="bottom-button"
+                        class="btn btn-accent size-fit text-xl transition-all duration-300 ease-in-out opacity-0"
+                        @click="() => { isAtBottom = true; scrollToBottom(); }"
+                    >
+                        ⇩
+                    </button>
+                </div>
+            </div>
+
+                <div class="flex justify-between items-center mt-2">
+                    <textarea
+                        v-model="newMessage"
+                        placeholder="Start your chat"
+                        class="textarea textarea-primary w-full mb-2 mx-2"
+                        :maxlength="1024"
+                        @keydown.exact.enter.prevent="sendMessage"
+                        @keydown.shift.enter.prevent="insertNewLine"
+                        rows="1"
+                    ></textarea>
+                    <button class="btn btn-primary mx-2 mb-2" @click="sendMessage">
+                        Send
+                    </button>
             </div>
         </div>
         <div
@@ -102,6 +115,7 @@ import apiClient from "@/api";
 import { format } from "date-fns";
 import  { watch } from 'vue'
 import { login, isAuth, userId as authUserId } from "@/functions/Authentications";
+
 </script>
 
 <script>
@@ -115,6 +129,7 @@ export default {
             people: [],
             currentUserId: null,
             isJoined: false,
+            isAtBottom: true,
         };
     },
     methods: {
@@ -238,9 +253,46 @@ export default {
             this.$nextTick(() => {
                 const messageList = this.$refs.messageList;
                 if (messageList) {
-                    messageList.scrollTop = messageList.scrollHeight;
+                    if (this.isAtBottom){
+                        messageList.scrollTo(0,messageList.scrollHeight);
+                        this.scrollButtonVisibility(false);}
+                    else {
+                        this.scrollButtonVisibility(true);
+                    }
                 }
             });
+        },
+        scrollButtonVisibility(visibility) {
+            /**
+             * Handle Opacity of scrollButton
+             * this function return nothing
+             */
+            const button = document.getElementById('bottom-button')
+            if (visibility)
+            {
+                button.classList.remove('opacity-0')
+            }
+            else if (!button.classList.contains('opacity-0')) {
+                button.classList.add('opacity-0');
+            }
+
+
+        },
+        handleScroll() {
+            /**
+             * Handle Scrolling events in message list.
+             * This function return nothing.
+             */
+            const messageList = this.$refs.messageList;
+            if (!messageList) { 
+                return; //messageList is null return early
+            }
+            const scrollTop = messageList.scrollTop;
+            const clientHeight = messageList.clientHeight;
+            const scrollHeight = messageList.scrollHeight;
+
+            // Check if the user is at the bottom
+            this.isAtBottom = scrollTop + clientHeight >= scrollHeight - 10;
         },
         formatTimestamp(timestamp) {
             /*
