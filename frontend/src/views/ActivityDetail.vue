@@ -30,28 +30,51 @@
             </div>
         </div>
         <div
+            class="modal backdrop-blur-sm"
+            :class="{ 'modal-open': showCheckInCode }"
+        >
+            <div class="modal-box shadow-xl">
+                <div class="sticky flex justify-end">
+                    <button
+                        class="btn btn-ghost btn-circle"
+                        @click="closeCheckInCodeModal"
+                    >
+                        x
+                    </button>
+                </div>
+                <CheckInModal
+                    @update-success="
+                        () => {
+                            this.closeModal();
+                            this.fetchDetail();
+                        }
+                    "
+                />
+            </div>
+        </div>
+        <div
             class="card p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6"
         >
             <div class="card-body p-4" style="border-radius: 8px">
                 <h1 class="text-4xl font-bold mb-4 ml-2 multi-line">
                     {{ activity.name }}
                     <button
-                        v-if="isHost"
+                        v-if="isHost && isAuth"
                         @click="openModal"
                         class="btn btn-ghost text-accent ml-2 mr-2"
                     >
                         Edit
                     </button>
                     <button
-                        v-if="isHost && !activity.check_in_allowed"
-                        @click="openModal"
+                        v-if="isHost && !activity.check_in_allowed && isAuth"
+                        @click="allowCheckIn"
                         class="btn btn-ghost text-accent ml-2 mr-2"
                     >
                         Allow Check-in
                     </button>
                     <button
-                        v-if="isHost && activity.check_in_allowed"
-                        @click="openModal"
+                        v-if="isHost && activity.check_in_allowed && isAuth"
+                        @click="closeCheckIn"
                         class="btn btn-ghost text-accent ml-2 mr-2"
                     >
                         Close Checkin
@@ -147,10 +170,13 @@ import apiClient from "@/api";
 import {
     createDeleteRequest,
     createPostRequest,
+    createPutRequest,
 } from "@/functions/HttpRequest.js";
 import { isAuth, login, userId } from "@/functions/Authentications";
 import { watch, ref } from "vue";
 import EditModal from "@/component/EditModal.vue";
+import CheckInModal from "@/component/CheckInModal.vue";
+
 </script>
 
 <script>
@@ -167,6 +193,7 @@ export default {
             isHost: false,
             isJoined: false,
             showModal: ref(false),
+            showCheckInCode: false
         };
     },
     methods: {
@@ -190,11 +217,67 @@ export default {
              */
             this.showModal = false;
         },
+        openCheckInCodeModal() {
+            /**
+             * Open Activity checkin code
+             */
+            this.showCheckInCode = true;
+        },
+        closeCheckInCodeModal() {
+            /**
+             * Open Activity checkin code
+             */
+            this.showCheckInCode = false;
+        },
         goToChat() {
             /*
              * Navigagte to Activity Chart page.
              */
             this.$router.push(`/chat/${this.activityId}`);
+        },
+        async allowCheckIn() {
+            /*
+             * Attempt to join activity.
+             */
+            try {
+                const response = await createPutRequest(
+                    `/activities/check-in/${this.activityId}/?status=open`,
+                    {}
+                );
+                this.checkInCode = response.checkInCode;
+                addAlert("success", response.data.message);
+                this.fetchDetail();
+                this.openCheckInCodeModal();
+            } catch (error) {
+                if (error.response && error.response.data) {
+                    addAlert("error", error.response.data.message); // Show error message from backend
+                } else {
+                    addAlert(
+                        "error",
+                        "An unexpected error occurred. Please try again later."
+                    );
+                }
+            }
+        },
+        async closeCheckIn() {
+            /**
+             * Make check-in unavailable.
+             */
+            // 
+            try {
+                const response = await createPutRequest(
+                    `/activities/check-in/${this.activityId}/?status=close`,
+                    {}
+                );
+                addAlert("success", response.data.message);
+                this.fetchDetail(); //Fetch Activity
+            } catch (error) {
+                console.error("Error fetching activity:", error);
+                addAlert(
+                    "warning",
+                    "Activity already started or No such activity."
+                );
+            }
         },
         async fetchDetail() {
             /*
