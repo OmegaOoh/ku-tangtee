@@ -42,6 +42,20 @@
                     >
                         Edit
                     </button>
+                    <button
+                        v-if="isHost && !activity.check_in_allowed"
+                        @click="openModal"
+                        class="btn btn-ghost text-accent ml-2 mr-2"
+                    >
+                        Allow Check-in
+                    </button>
+                    <button
+                        v-if="isHost && activity.check_in_allowed"
+                        @click="openModal"
+                        class="btn btn-ghost text-accent ml-2 mr-2"
+                    >
+                        Close Checkin
+                    </button>
                 </h1>
                 <p class="mb-2 ml-3 overflow-hidden multi-line">
                     {{ activity.detail }}
