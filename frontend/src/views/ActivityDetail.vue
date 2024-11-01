@@ -57,7 +57,10 @@
                     <span class="text-base-content text-lg ml-3 mb-2">
                         Preview Images
                     </span>
-                    <ImageCarousel :images="imageUrls" />
+                    <ImageCarousel
+                        carouselName="detail-carousel"
+                        :images="imageUrls"
+                    />
                 </div>
                 <p v-if="activity.max_people != null" class="mb-2 ml-3">
                     <strong class="text-base-content text-lg"
@@ -217,7 +220,6 @@ export default {
                     const imageurl = this.baseUrl + image.url;
                     this.imageUrls.push(imageurl);
                 }
-                console.log(this.imageUrls);
                 this.canJoin = this.activity.can_join;
                 this.hosts = JSON.stringify(response.data.host);
                 this.checkHost();

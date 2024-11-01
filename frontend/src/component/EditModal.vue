@@ -19,11 +19,14 @@
     </div>
     <div v-if="images.length > 0" class="flex flex-col justify-center">
         <span class="text-base-content text-lg"> Preview Image </span>
-        <ImageCarousel
-            :images="images.map((image) => image.url)"
-            :removable="true"
-            @onRemove="handleRemove"
-        />
+        <div class="">
+            <ImageCarousel
+                carouselName="edit-carousel"
+                :images="images.map((image) => image.url)"
+                :removable="true"
+                @onRemove="handleRemove"
+            />
+        </div>
     </div>
 
     <div>

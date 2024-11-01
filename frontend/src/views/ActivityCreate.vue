@@ -46,6 +46,7 @@
                     <ImageCarousel
                         :images="images"
                         :removable="true"
+                        carouselName="create-activity-carousel"
                         @onRemove="(index) => images.splice(index, 1)"
                     />
                 </div>
