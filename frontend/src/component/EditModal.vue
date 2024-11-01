@@ -39,7 +39,7 @@
             />
         </label>
         <span class="text-base-content text-sm ml-2 align-bottom"
-            >Up to {{ MAX_IMAGES_SIZE / 1e6 }} MB</span
+            >Up to {{ maxImageCompute() }} MB</span
         >
     </div>
     <div class="form-control w-full">
@@ -327,6 +327,14 @@ export default {
             }
             // Remove the image from the images array
             this.images.splice(index, 1);
+        },
+        maxImageCompute() {
+            /*
+             * Compute max image size.
+             *
+             * @returns {int} max image size in MB
+             */
+            return MAX_IMAGES_SIZE / 1e6;
         },
     },
     mounted() {
