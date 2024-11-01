@@ -28,6 +28,7 @@ REST_USE_JWT = True
 INSTALLED_APPS = [
     'activities.apps.ActivitiesConfig',
     'chat.apps.ChatConfig',
+    'profiles.apps.ProfilesConfig',
     'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
