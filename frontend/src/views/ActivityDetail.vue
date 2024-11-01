@@ -335,6 +335,7 @@ export default {
         window.addEventListener("keydown", (e) => {
             if (e.key == "Escape") {
                 this.closeModal();
+                this.fetchDetail();
             }
         });
     },
