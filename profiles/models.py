@@ -13,7 +13,7 @@ class Profile(models.Model):
     ku_generation = models.PositiveSmallIntegerField(null=True, blank=True)
     faculty = models.CharField(max_length=100)
     major = models.CharField(max_length=100)
-    about_me = models.CharField(max_length=1024, null=True, blank=True)
+    about_me = models.CharField(max_length=256, null=True, blank=True)
 
     def __str__(self) -> str:
         """Return user's username as string representative.
