@@ -1,9 +1,10 @@
 """Module for handle URL /activities."""
 import re
+from datetime import timedelta
 from activities.views.util import image_loader, image_loader_64
 from typing import Any
 from django.http import HttpRequest
-from django.utils import timezone
+from django.utils import timezone, dateparse
 from django.db.models import Q, QuerySet
 from rest_framework import generics, permissions, mixins, response
 from activities import models
@@ -35,6 +36,18 @@ class ActivityList(
         day = self.__parse_date(self.request.GET.get("day"))
         if day:
             queryset = queryset.filter(date__week_day__in=day)
+
+        try:
+            start_date = dateparse.parse_date(self.request.query_params.get("start_date"))
+            queryset = queryset.filter(date__gte=start_date)
+        except (ValueError, TypeError):
+            pass
+
+        try:
+            end_date = dateparse.parse_date(self.request.query_params.get("end_date")) + timedelta(days=1)
+            queryset = queryset.filter(date__lte=end_date)
+        except (ValueError, TypeError):
+            pass
 
         return queryset
 
