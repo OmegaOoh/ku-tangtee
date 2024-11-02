@@ -15,7 +15,7 @@ class ParticipantSerializer(serializers.ModelSerializer):
         """ParticipantSerializer Meta class."""
 
         model = models.Attend
-        fields = ('participant', 'is_host')
+        fields = ('participant', 'is_host', 'checked_in')
 
 
 class ActivitiesSerializer(serializers.ModelSerializer):
@@ -69,6 +69,7 @@ class ActivitiesSerializer(serializers.ModelSerializer):
 
         for participant in participants:
             participant['participant']['is_host'] = participant.get('is_host')
+            participant['participant']['checked_in'] = participant.get('checked_in')
             result.append(participant['participant'])
 
         return result
