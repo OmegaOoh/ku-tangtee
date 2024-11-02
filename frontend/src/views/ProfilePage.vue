@@ -36,7 +36,25 @@
                         </div>
                         <div class='flex-row ml-3 w-full'>
                             <span class="text-2xl font-semibold text-wrap break-words"> {{ user.first_name }} {{ user.last_name }} </span>
-                            <span class="text-xs font-light"> {{user.username}} </span> 
+                            <span class="text-xs font-light ml-3"> {{user.username}} </span> 
+                            <div v-if="!editMode" class="mt-2 align-top">
+                                <span class="text-sm text-secondary">{{ nickname }}</span>
+                                <span class="text-sm text-secondary ml-3"> {{ pronoun}} </span>
+                            </div>
+                            <div v-else class="flex flex-row mt-2">
+                                <input 
+                                    v-model="nickname" 
+                                    type="text" 
+                                    placeholder="Nickname"
+                                    maxlength="30"
+                                    class="w-[80%] h-fit rounded-md text-primary bg-base-200 border-1 px-2 mr-2 outline-primary focus:outline-double border-primary"/>
+                                <input 
+                                    v-model="pronoun" 
+                                    type="text" 
+                                    placeholder="Pronoun"
+                                    maxlength="20"
+                                    class="w-[80%] h-fit rounded-md text-accent bg-base-200 border-1 px-2 outline-accent focus:outline-double"/>
+                            </div>
                             <div v-if="!editMode">
                                 <p class=" text-primary break-words text-wrap"> {{ faculty }} </p>
                                 <p class="text-sm font-light text-accent break-words text-wrap"> {{ major }} </p>
@@ -46,11 +64,13 @@
                                     v-model="faculty" 
                                     type="text" 
                                     placeholder="Faculty"
+                                    maxlength="100"
                                     class="w-[80%] rounded-md text-primary bg-base-200 border-1 my-3 px-2 outline-primary focus:outline-double border-primary"/>
                                 <input 
                                     v-model="major" 
                                     type="text" 
                                     placeholder="Major"
+                                    maxlength="100"
                                     class="w-[80%] rounded-md text-accent bg-base-200 border-1 mb-3 px-2 outline-accent focus:outline-double"/>
                             </div>
                             <div v-if="bio || editMode">
@@ -61,6 +81,7 @@
                                     placeholder="Share a little about yourself" 
                                     class="text-xs w-full resize-none overflow-hidden break-normal bg-base-200 p-2 rounded-md outline-primary focus:outline-double" 
                                     rows="2"
+                                    maxlength="256"
                                 ></textarea>
                             </div>
                             <div v-if="editMode">
@@ -110,6 +131,8 @@ export default {
     data() {
         return {
             user: [],
+            nickname: '',
+            pronoun: '',
             faculty: '',
             major: '',
             bio: '',
@@ -128,6 +151,8 @@ export default {
              */
             const response = await apiClient.get(`/profile/${this.$route.params.username}`);
             this.user = response.data.user;
+            this.nickname = response.data.nick_name;
+            this.pronoun = response.data.pronoun;
             this.faculty = response.data.faculty;
             this.major = response.data.major;
             this.kuGen = response.data.ku_generation;
