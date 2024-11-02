@@ -108,7 +108,7 @@
                         Edit
                     </button>
                     <button
-                        v-if="isHost && isAuth && canJoin"
+                        v-if="isHost && isAuth"
                         @click="openCheckInCodeModal"
                         class="btn btn-ghost text-accent ml-2 mr-2"
                     >
@@ -509,6 +509,7 @@ export default {
         this.fetchDetail();
         this.checkHost();
         this.checkJoined();
+        this.checkCheckedIn();
         watch(userId, (newUserId) => {
             if (newUserId) {
                 this.checkHost();
