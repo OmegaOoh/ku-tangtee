@@ -3,7 +3,6 @@ from typing import Any
 from django.http import HttpRequest
 from django.db.models import QuerySet
 from django.contrib.auth import models as auth_models
-from allauth.socialaccount.models import SocialAccount
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions, mixins, response, status
 from profiles import models
@@ -27,6 +26,16 @@ class ProfileDetail(
         """Profile view returns a user's profile."""
         return models.Profile.objects.all()
 
+    def get_object(self):
+        """
+        Get profile objects base on lookup field ()
+
+        :return: _description__
+        """
+        username = self.kwargs.get("username")
+        user = get_object_or_404(auth_models.User, username=username)
+        return models.Profile.objects.get(user=user)
+
     def retrieve(self, request, *args, **kwargs):
         """Override retrieve to return only base profile if KU Tangtee not found in the database and return it"""
         username = kwargs.get('username')
@@ -34,7 +43,7 @@ class ProfileDetail(
         try:
             profile = models.Profile.objects.get(user=user)
             serializer = self.get_serializer(profile)
-            return response.Response({**serializer.data, "profile_picture_url": self.get_profile_picture(user)})
+            return response.Response({**serializer.data})
         except models.Profile.DoesNotExist:
             # return only base user detail if not found
             serializer = self.get_serializer(user)
@@ -50,15 +59,6 @@ class ProfileDetail(
             }
             return response.Response(user_data, status=status.HTTP_200_OK)
 
-    def get_profile_picture(self, user: auth_models.User) -> str:
-        """Return profile picture URL from the user's social account."""
-        try:
-            social_account = SocialAccount.objects.get(user=user)
-            print(social_account)
-            return social_account.extra_data.get('picture', '')
-        except SocialAccount.DoesNotExist:
-            return ''
-
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Handle get request by return detail of a profile.
 
@@ -73,10 +73,14 @@ class ProfileDetail(
         :param request: Http request object
         :return: Http response object
         """
-        print(kwargs)
         new_kwargs = kwargs.copy()
-        new_kwargs["user"] = auth_models.User.objects.get(username=new_kwargs.pop('username', None))
-        print(new_kwargs)
+        username = new_kwargs.pop('username', None)
+        user = get_object_or_404(auth_models.User, username=username)
+
+        if user != request.user:
+            return response.Response({'message': 'Cannot edit other profile.'}, status=403)
+
+        new_kwargs["user_id"] = user.id
         res = self.update(request, partial=True, *args, **new_kwargs)
         res_dict = res.data
         return response.Response(

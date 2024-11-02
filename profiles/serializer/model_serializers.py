@@ -1,6 +1,7 @@
 """Module for serializing data before respond a request."""
 from typing import Any
 from rest_framework import serializers
+from allauth.socialaccount.models import SocialAccount
 from .. import models
 from django.contrib.auth import models as auth_models
 
@@ -17,13 +18,25 @@ class UserSerializer(serializers.ModelSerializer):
 class ProfilesSerializer(serializers.ModelSerializer):
     """Serialized Profile model."""
     user = UserSerializer(read_only=True)
+    profile_picture_url = serializers.SerializerMethodField()
     username = serializers.CharField(source='user.username', read_only=True)
 
     class Meta:
         """Profile serializer META class."""
 
         model = models.Profile
-        fields = ('__all__')
+        fields = [
+            'id',
+            'user',
+            'username',
+            'nick_name',
+            'pronoun',
+            'ku_generation',
+            'faculty',
+            'major',
+            'about_me',
+            'profile_picture_url',
+        ]
 
     def create(self, validated_data: Any) -> None:
         """Create user profile and popped user id from data
@@ -33,3 +46,12 @@ class ProfilesSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         profile = models.Profile.objects.create(user_id=user.id, **validated_data)
         return profile
+    
+    def get_profile_picture_url(self, obj):
+        # Call the get_profile_picture method with the user from the profile
+        try:
+            social_account = SocialAccount.objects.get(user=obj.user)
+            return social_account.extra_data.get('picture', '')
+        except SocialAccount.DoesNotExist:
+            return ''
+
