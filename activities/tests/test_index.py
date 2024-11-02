@@ -149,6 +149,12 @@ class IndexTest(django.test.TestCase):
             [activity_to_json(act) for act in [activity1, activity2, activity3, activity4]]
         )
 
+        res = self.client.get(urls.reverse("activities:index") + "?day=1,2,3,1,2,3,1,2,3")
+        self.assertJSONEqual(
+            res.content,
+            [activity_to_json(act) for act in [activity1, activity2, activity3, activity4]]
+        )
+
     def test_search_by_date_range(self):
         """Only activities within the date range is shown on index page."""
         _, activity1 = create_activity(
