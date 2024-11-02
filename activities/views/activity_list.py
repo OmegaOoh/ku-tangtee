@@ -1,5 +1,6 @@
 """Module for handle URL /activities."""
 import re
+from activities.views.util import image_loader, image_loader_64
 from typing import Any
 from django.http import HttpRequest
 from django.utils import timezone
@@ -47,11 +48,18 @@ class ActivityList(
         :param request: Http request object
         :return: Http response object
         """
+        image_urls = request.data.pop('images', [])
         res = self.create(request, *args, **kwargs)
 
         res_dict = res.data
 
         new_act = models.Activity.objects.get(pk=res_dict.get("id"))
+
+        if image_urls:
+            if any("base64" in attachment for attachment in image_urls):
+                image_loader_64(image_urls, new_act)
+            else:
+                image_loader(image_urls, new_act)
 
         request.user.attend_set.create(
             activity=new_act,

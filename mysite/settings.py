@@ -1,5 +1,6 @@
 """Django settings for mysite project."""
 
+import os
 from pathlib import Path
 from decouple import config
 
@@ -27,6 +28,7 @@ REST_USE_JWT = True
 INSTALLED_APPS = [
     'activities.apps.ActivitiesConfig',
     'chat.apps.ChatConfig',
+    'profiles.apps.ProfilesConfig',
     'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -203,3 +205,7 @@ CHANNEL_LAYERS = {
         "BACKEND": "channels.layers.InMemoryChannelLayer"  # TODO Change this to redis before production
     }
 }
+
+# media storing
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

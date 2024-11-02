@@ -12,3 +12,5 @@ pytz >= 2022.7.1
 types-pytz >= 2024.2.0.20241003
 channels >= 4.1
 daphne >= 4.1
+types-requests >= 2.32.0
+Pillow >= 9.4.0

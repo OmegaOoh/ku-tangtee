@@ -25,6 +25,7 @@ class ActivitiesSerializer(serializers.ModelSerializer):
     can_join = serializers.ReadOnlyField()
     host = serializers.SerializerMethodField()
     participant = serializers.SerializerMethodField()
+    images = serializers.SerializerMethodField()
 
     class Meta:
         """Activity serializer META class."""
@@ -72,6 +73,16 @@ class ActivitiesSerializer(serializers.ModelSerializer):
             result.append(participant['participant'])
 
         return result
+
+    def get_images(self, activity: models.Activity) -> list[Any]:
+        """Return activity images.
+
+        :param obj: Activity model instance.
+        :return: List of serialized images.
+        """
+        act_images = models.Attachment.objects.filter(activity=activity)
+        images = [{"id": img.id, "url": img.image.url} for img in act_images]
+        return images
 
 
 class AttendSerializer(serializers.ModelSerializer):
