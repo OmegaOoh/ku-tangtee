@@ -11,12 +11,14 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         """User serializer META class."""
+
         model = auth_models.User
         fields = ['id', 'username', 'first_name', 'last_name', 'email']
 
 
 class ProfilesSerializer(serializers.ModelSerializer):
     """Serialized Profile model."""
+
     user = UserSerializer(read_only=True)
     profile_picture_url = serializers.SerializerMethodField()
     username = serializers.CharField(source='user.username', read_only=True)
@@ -39,7 +41,7 @@ class ProfilesSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data: Any) -> Any:
-        """Create user profile and popped user id from data
+        """Create user profile and popped user id from data.
 
         :param validated_data: full data to use to create the profile
         """
@@ -48,6 +50,11 @@ class ProfilesSerializer(serializers.ModelSerializer):
         return profile
 
     def get_profile_picture_url(self, obj: Any) -> Any:
+        """Get user profile picture to use as serializer fields.
+
+        :param obj: object to get the data from
+        :return: profile picture url
+        """
         # Call the get_profile_picture method with the user from the profile
         try:
             social_account = SocialAccount.objects.get(user=obj.user)

@@ -28,7 +28,7 @@ class ProfileDetail(
 
     def get_object(self) -> Any:
         """
-        Get profile objects base on lookup field
+        Get profile objects base on lookup field.
 
         :return: Data Model for profile
         """
@@ -37,7 +37,7 @@ class ProfileDetail(
         return models.Profile.objects.get(user=user)
 
     def retrieve(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
-        """Override retrieve to return only base profile if KU Tangtee not found in the database and return it"""
+        """Override retrieve to return only base profile if KU Tangtee not found in the database and return it."""
         username = kwargs.get('username')
         user = get_object_or_404(auth_models.User, username=username)
         try:
