@@ -2,7 +2,7 @@ import { ref } from 'vue';
 import apiClient from '@/api';
 import { googleTokenLogin } from 'vue3-google-login';
 import { createPostRequest } from './HttpRequest';
-import { getCookie, setCookie, deleteCookie } from './Cookies.js';
+import { getCookie, setCookie, deleteCookie } from './CookiesReadWrite.js';
 import router from '@/router'
 
 
