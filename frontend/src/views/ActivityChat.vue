@@ -156,7 +156,6 @@ import apiClient from "@/api";
 import { format } from "date-fns";
 import  { watch } from 'vue'
 import { login, isAuth, userId as authUserId } from "@/functions/Authentications";
-import { watch } from "vue";
 import { addAlert } from "@/functions/AlertManager";
 import { loadImage } from "@/functions/Utils.";
 import ImageGrid from "@/component/ImageGrid.vue";
@@ -164,7 +163,7 @@ import ImageGrid from "@/component/ImageGrid.vue";
 
 <script>
 const MAX_IMAGE_COUNT = 5;
-const MAX_IMAGES_SIZE = 50e6; // 60 MB
+const MAX_IMAGES_SIZE = 50e6; // 50 MB
 
 export default {
     data() {
