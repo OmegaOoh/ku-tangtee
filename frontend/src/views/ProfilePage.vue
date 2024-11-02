@@ -36,12 +36,12 @@
                         </div>
                         <div class='flex-row ml-3 w-full'>
                             <span class="text-2xl font-semibold text-wrap break-words"> {{ user.first_name }} {{ user.last_name }} </span>
-                            <span class="text-xs font-light ml-3"> {{user.username}} </span> 
-                            <div v-if="!editMode" class="mt-2 align-top">
+                            <span class="text-xs font-light text-primary ml-3"> {{user.username}} </span> 
+                            <div v-if="!editMode">
                                 <span class="text-sm text-secondary">{{ nickname }}</span>
                                 <span class="text-sm text-secondary ml-3"> {{ pronoun}} </span>
                             </div>
-                            <div v-else class="flex flex-row mt-2">
+                            <div v-else class="flex flex-row mt-2 w-[80%]">
                                 <input 
                                     v-model="nickname" 
                                     type="text" 
@@ -75,7 +75,7 @@
                             </div>
                             <div v-if="bio || editMode">
                                 <p class="pt-2 mb-2 text-sm font-semibold">Bio</p>
-                                <textarea v-if="!editMode" v-model='bio' class="text-xs w-full resize-none bg-inherit overflow-hidden break-normal" disabled rows="2"></textarea>
+                                <textarea v-if="!editMode" v-model='bio' class="text-xs w-full resize-none bg-inherit overflow-scroll break-normal" disabled rows="2"></textarea>
                                 <textarea v-else 
                                     v-model='bio' 
                                     placeholder="Share a little about yourself" 
