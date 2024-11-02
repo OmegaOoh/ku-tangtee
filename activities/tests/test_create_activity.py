@@ -3,11 +3,8 @@ import json
 import django.test
 import os
 from django import urls
-from activities.tests.constants import CAMERA_EXPECTED, CAMERA_IMAGE
-from django.conf import settings
-from django.core.files.uploadedfile import SimpleUploadedFile
+from activities.tests.constants import CAMERA_EXPECTED, CAMERA_IMAGE, BASE64_IMAGE, BROKEN_IMAGE, BROKEN_BASE64
 from .shortcuts import post_request_json_data, create_activity, create_test_user
-from activities import models
 
 
 class CreateActivityTest(django.test.TestCase):
@@ -142,6 +139,34 @@ class CreateActivityTest(django.test.TestCase):
         attachments = new_act.attachment_set.all()
         image = attachments.first()
         expected_url = CAMERA_EXPECTED
+        self.assertEqual(expected_url, image.image.url)
+
+        image.image.delete(save=False)
+        image.delete()
+
+    def test_valid_activity_with_images_base64(self):
+        """Create should decode base64 image and put in Attachment object."""
+        image_url = BASE64_IMAGE
+        data = {
+            "name": "Valid Activity",
+            "detail": "This is valid activity",
+            "images": [image_url]
+        }
+        response, new_act = create_activity(
+            client=self.client,
+            host=self.host_user,
+            days_delta=3,
+            data=data,
+        )
+        response_dict = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response_dict["message"], f"Your have successfully create activity {data.get('name')}")
+        self.assertEqual(new_act.name, data.get('name'))
+        self.assertEqual(new_act.people, 1)
+        attachments = new_act.attachment_set.all()
+        image = attachments.first()
+        expected_url = f"/media/activities/{new_act.id}_attachment_1.jpg"
         self.assertEqual(expected_url, image.image.url)
 
         image.image.delete(save=False)

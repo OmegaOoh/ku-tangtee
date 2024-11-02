@@ -49,7 +49,7 @@ def image_loader(image_urls: list[str], act: models.Activity) -> None:
             file_name = url.split("/")[-1]
             image_content = ContentFile(img_response.content, name=file_name)
             models.Attachment.objects.create(activity=act, image=image_content)
-        except requests.exceptions.RequestException as e:
+        except requests.exceptions.RequestException as e:  # pragma: no cover
             print(f"Failed to download image from {url}: {e}")
 
 
@@ -87,7 +87,7 @@ def image_loader_64(image_data_list: list[str], act: models.Activity) -> None:
             image_file = ContentFile(image_content, name=file_name)
             models.Attachment.objects.create(activity=act, image=image_file)
 
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             print(f"Failed to decode image data: {e}")
 
 

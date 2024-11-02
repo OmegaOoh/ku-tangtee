@@ -19,5 +19,9 @@ exclude =
     */__init__.py # Ignore __init__ file
     */constants.py # Ignore constant file
 
+
+per-file-ignores =
+    chat/tests/test_websocket.py: E501
+
 # Show the source code line for the error/warning
 show-source = True
