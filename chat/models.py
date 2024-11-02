@@ -16,3 +16,10 @@ class Message(models.Model):
         """Meta class for Message models."""
 
         ordering = ["timestamp"]
+
+
+class Attachment(models.Model):
+    """Image attachment for chat."""
+
+    image = models.ImageField('Chat', upload_to="chat/", height_field=None, width_field=None, max_length=None)
+    message = models.ForeignKey(Message, on_delete=models.CASCADE)

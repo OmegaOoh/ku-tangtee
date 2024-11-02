@@ -2,6 +2,7 @@
 import json
 import django.test
 from datetime import datetime
+from activities.tests.constants import SCHOOL_EXPECTED, SCHOOL_IMAGE, CAMERA_IMAGE, CAMERA_EXPECTED
 from django import urls
 from activities import models
 from .shortcuts import activity_to_json, time_formatter, create_activity, create_test_user, put_request_json_data
@@ -15,7 +16,7 @@ class EditActivityTest(django.test.TestCase):
         """Set up the common URL and create an activity."""
         data = {
             "name": "Test Activity",
-            "detail": "This is a test activity"
+            "detail": "This is a test activity",
         }
         self.host = create_test_user("host")
         _, self.activity = create_activity(host=self.host, data=data)
@@ -63,6 +64,43 @@ class EditActivityTest(django.test.TestCase):
         self.assertEqual(updated_act_json['date'], activity_date)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_dict["message"], f"You have successfully edited the activity {data.get('name')}")
+
+    def test_valid_activity_editing_images(self):
+        """Edit should return a success message with editing image."""
+        test_img = CAMERA_IMAGE
+        img_url = SCHOOL_IMAGE
+        data = {
+            "name": "Test Activity",
+            "detail": "This is a test activity",
+            "images": [test_img],
+        }
+        _, activity = create_activity(client=self.client, host=self.host, days_delta=3, data=data)
+        old_img = models.Attachment.objects.filter(activity=activity).first()
+        expected_url = CAMERA_EXPECTED
+        self.assertEqual(expected_url, old_img.image.url)
+        url = urls.reverse("activities:detail", args=[activity.id])
+        old_img_id = old_img.id
+        new_data = {
+            "name": "Updated Activity",
+            "detail": "Detail of updated activity",
+            "new_images": [img_url],
+            "remove_attachments": [old_img_id],
+        }
+        # Send PUT request with new activity data
+        response = put_request_json_data(url, self.client, new_data)
+        response_dict = json.loads(response.content)
+        updated_act = models.Activity.objects.get(pk=activity.id)
+        updated_act_json = activity_to_json(updated_act)
+        new_img = models.Attachment.objects.filter(activity=activity).first()
+        expected_url = SCHOOL_EXPECTED
+        self.assertEqual(new_img.image.url, expected_url)
+        self.assertEqual(len(updated_act_json['images']), 1)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_dict["message"], f"You have successfully edited the activity {new_data.get('name')}")
+        attachments = activity.attachment_set.all()
+        image = attachments.first()
+        image.image.delete(save=False)
+        image.delete()
 
     def test_invalid_activity_editing_with_too_long_activity_name(self):
         """Editing should return json with error message."""
