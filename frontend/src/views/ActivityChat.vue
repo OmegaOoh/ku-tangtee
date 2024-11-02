@@ -447,7 +447,10 @@ export default {
                                 }
                             })
                             .catch((error) => {
-                                console.error("Error loading image:", error);
+                                addAlert(
+                                    "error",
+                                    "Error loading image: " + error
+                                );
                             });
                     } else {
                         addAlert("warning", file.name + " is not an image.");
