@@ -77,13 +77,17 @@
                 <div class="flex flex-col">
                     <div class="card bg-base-200 w-full hover:border-2 border-primary transition-all ease-in-out duration-75 mb-4 cursor-pointer"
                         v-for="activity in recentActivity"
-                        :key="activity.id"
-                        @click="$router.push('/activities/activity.id')"
+                        :key="activity.activity_id"
+                        @click="$router.push(`/activities/${activity.activity_id}`)"
                     >
                         <div class="card-body">
                             <h2 class="card-title line-clamp-1">
                                 {{ activity.name }}
                             </h2>
+                            <p>
+                                <strong>Date and Time: </strong>
+                                {{ formatTimestamp(activity.activity_date) }}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -135,7 +139,7 @@ export default {
              * Fetch data of recently joined activity.
              * this function returns nothing.
              */
-            const response = await apiClient.get(`/activities/get-recently/${this.user.id}`);
+            const response = await apiClient.get(`/activities/get-recently/${this.user.id}?byDate=True`);
             this.recentActivity = response.data;
         },
         formatTimestamp(timestamp) {
@@ -146,7 +150,7 @@ export default {
              * @returns {string} formatted timestamp
              */
             if (timestamp) {
-                return format(new Date(timestamp), "EEE, MMM/dd/yyyy, hh:mm a");
+                return format(new Date(timestamp), "MMM/dd/yyyy, hh:mm a");
             } else {
                 return "No date provided";
             }
@@ -196,7 +200,7 @@ export default {
         },
         async submitData() {
             if (!this.validateInput()) {
-                return // Invalid input return early
+                return;// Invalid input return early
             }
             await createPutRequest(`/profile/${this.user.username}/`,
                 {

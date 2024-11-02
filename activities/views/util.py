@@ -28,11 +28,14 @@ def get_recent_activity(request: HttpRequest, *args, **kwargs) -> response.Respo
     :return: Response object contain activities that recently joined.
     """
     user = get_object_or_404(models.User, id=kwargs.get('id'))
-    records = None
-    if (request.GET.get('records')):
-        records = int(request.GET.get('records'))
-    activities = models.Attend.recently_joined(user, records)
-    recent_activities = [{"name": activity.name, "activity_id": activity.id} for activity in activities]
+    order_by_date = bool(request.GET.get('byDate', False))
+    records = request.GET.get('records', None)
+    if (records):
+        records = int()
+    activities = models.Attend.recently_joined(user, records, order_by_date)
+    recent_activities = [{"name": activity.name,
+                          "activity_id": activity.id,
+                          "activity_date": activity.date} for activity in activities]
     return response.Response(recent_activities)
 
 

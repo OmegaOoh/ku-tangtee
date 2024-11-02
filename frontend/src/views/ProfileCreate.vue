@@ -289,11 +289,12 @@ export default {
         },
         goNext() {
             const nextPath = this.$router.currentRoute.value.query.next;
-            if (nextPath != `/create-profile/` && nextPath != '') {
-                this.$router.push(nextPath)
+            console.log(nextPath)
+            if (nextPath == `/create-profile/` || nextPath == '' || !nextPath) {
+                this.$router.push('/')
             }
             else {
-                this.$router.push('/')
+                this.$router.push(nextPath)
             }
         }
     },
