@@ -1,12 +1,11 @@
 """Utility module."""
 
+from typing import Any
 from django.http import HttpRequest
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
 from activities import models
-from django.contrib.auth import models as auth_models
 from rest_framework import decorators, response
-from rest_framework.permissions import IsAuthenticated
 import random
 import string
 
@@ -21,7 +20,7 @@ def csrf_token_view(request: HttpRequest) -> response.Response:  # pragma: no co
 
 
 @decorators.api_view(['get'])
-def get_recent_activity(request: HttpRequest, *args, **kwargs) -> response.Response:  # pragma: no cover
+def get_recent_activity(request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:  # pragma: no cover
     """Return recently joined activities.
 
     :param request: Http request object

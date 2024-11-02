@@ -1,5 +1,5 @@
 """Database Model for activities app."""
-from typing import Any
+from typing import Any, Optional
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -102,7 +102,7 @@ class Attend(models.Model):
         return self.__str__()
 
     @classmethod
-    def recently_joined(cls, user: User, records: int = None, by_date: bool = False) -> list[Activity]:
+    def recently_joined(cls, user: User, records: Optional[int | None] = None, by_date: Optional[bool] = False) -> list[Activity]:
         """Class method that get recently joined activities of a user.
 
         :param user: the user to get activities for.

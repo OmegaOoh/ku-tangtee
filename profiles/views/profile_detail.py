@@ -26,17 +26,17 @@ class ProfileDetail(
         """Profile view returns a user's profile."""
         return models.Profile.objects.all()
 
-    def get_object(self):
+    def get_object(self) -> Any:
         """
-        Get profile objects base on lookup field ()
+        Get profile objects base on lookup field
 
-        :return: _description__
+        :return: Data Model for profile
         """
         username = self.kwargs.get("username")
         user = get_object_or_404(auth_models.User, username=username)
         return models.Profile.objects.get(user=user)
 
-    def retrieve(self, request, *args, **kwargs):
+    def retrieve(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Override retrieve to return only base profile if KU Tangtee not found in the database and return it"""
         username = kwargs.get('username')
         user = get_object_or_404(auth_models.User, username=username)

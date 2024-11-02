@@ -38,7 +38,7 @@ class ProfilesSerializer(serializers.ModelSerializer):
             'profile_picture_url',
         ]
 
-    def create(self, validated_data: Any) -> None:
+    def create(self, validated_data: Any) -> Any:
         """Create user profile and popped user id from data
 
         :param validated_data: full data to use to create the profile
@@ -47,7 +47,7 @@ class ProfilesSerializer(serializers.ModelSerializer):
         profile = models.Profile.objects.create(user_id=user.id, **validated_data)
         return profile
 
-    def get_profile_picture_url(self, obj):
+    def get_profile_picture_url(self, obj: Any) -> Any:
         # Call the get_profile_picture method with the user from the profile
         try:
             social_account = SocialAccount.objects.get(user=obj.user)
