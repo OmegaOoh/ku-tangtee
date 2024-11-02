@@ -108,7 +108,7 @@
                         Edit
                     </button>
                     <button
-                        v-if="isHost && isAuth"
+                        v-if="isHost && isAuth && canJoin"
                         @click="openCheckInCodeModal"
                         class="btn btn-ghost text-accent ml-2 mr-2"
                     >
