@@ -115,7 +115,7 @@ class Attend(models.Model):
         res = cls.objects.filter(user=user)
         # Ordering
         if by_date:
-            res = res.order_by('activity__date')
+            res = res.order_by('-activity__date')
         else:
             res = res.order_by('-id')
 

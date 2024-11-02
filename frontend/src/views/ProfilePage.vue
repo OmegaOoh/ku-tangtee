@@ -75,11 +75,11 @@
                             </div>
                             <div v-if="bio || editMode">
                                 <p class="pt-2 mb-2 text-sm font-semibold">Bio</p>
-                                <textarea v-if="!editMode" v-model='bio' class="text-xs w-full resize-none bg-inherit overflow-scroll break-normal" disabled rows="2"></textarea>
+                                <textarea v-if="!editMode" v-model='bio' class="text-xs w-full resize-none bg-inherit break-words" disabled rows="2"></textarea>
                                 <textarea v-else 
                                     v-model='bio' 
                                     placeholder="Share a little about yourself" 
-                                    class="text-xs w-full resize-none overflow-hidden break-normal bg-base-200 p-2 rounded-md outline-primary focus:outline-double" 
+                                    class="text-xs w-full resize-none overflow-hidden break-normal bg-base-200 p-2 rounded-md outline-primary break-words focus:outline-double" 
                                     rows="2"
                                     maxlength="256"
                                 ></textarea>
