@@ -2,7 +2,7 @@
 import io
 import sys
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.http import HttpResponse
 import django.test
 from django.utils import timezone
@@ -105,3 +105,12 @@ def convert_day_num(day_num: int) -> int:
         return 1
 
     return day_num + 2
+
+
+def date_from_now(day_delta: int = 0):
+    """Return the date after the next day_delta days in string format.
+
+    :param day_delta: Days from now
+    :return: Date after day_delta days
+    """
+    return (timezone.now() + timedelta(days=day_delta)).strftime("%Y-%m-%d")

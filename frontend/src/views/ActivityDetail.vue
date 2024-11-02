@@ -8,13 +8,13 @@
         </div>
         <div
             class="modal backdrop-blur-sm"
-            :class="{ 'modal-open': showModal }"
+            :class="{ 'modal-open': showEditModal }"
         >
             <div class="modal-box shadow-xl">
                 <div class="sticky flex justify-end">
                     <button
                         class="btn btn-ghost btn-circle absolute hover:text-error"
-                        @click="closeModal"
+                        @click="closeEditModal"
                     >
                         <svg
                             class="swap-on fill-current"
@@ -29,9 +29,74 @@
                 </div>
                 <EditModal
                     @update-success="
-                        () => {
-                            this.closeModal();
-                            this.fetchDetail();
+                        async () => {
+                            await fetchDetail();
+                            closeEditModal();
+                        }
+                    "
+                />
+            </div>
+        </div>
+        <div
+            class="modal backdrop-blur-sm"
+            :class="{ 'modal-open': showCheckInCode }"
+        >
+            <div class="modal-box shadow-xl">
+                <button
+                    class="btn btn-ghost btn-circle absolute right-6 top-6 hover:text-error"
+                    @click="closeCheckInCodeModal"
+                >
+                    <svg
+                        class="swap-on fill-current"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="32"
+                        height="32"
+                        viewBox="0 0 512 512">
+                        <polygon
+                        points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49" />
+                    </svg>
+                </button>
+                <CheckInCodeModal
+                    @closed-checked-in = "
+                        async () => {
+                            this.closeCheckInCodeModal();
+                            await this.fetchDetail();
+                        }
+                    "
+                    @allow-checked-in = "
+                        async () => {
+                            await this.fetchDetail();
+                        }
+                    "
+                />
+            </div>
+        </div>
+        <div
+            class="modal backdrop-blur-sm"
+            :class="{ 'modal-open': showCheckInModal }"
+        >
+            <div class="modal-box shadow-xl">
+                <div class="sticky flex justify-end">
+                    <button
+                        class="btn btn-ghost btn-circle absolute right-2 top-2 hover:text-error"
+                        @click="closeCheckInModal"
+                    >
+                    <svg
+                        class="swap-on fill-current"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="32"
+                        height="32"
+                        viewBox="0 0 512 512">
+                        <polygon
+                        points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49" />
+                    </svg>
+                </button>
+                </div>
+                <CheckInModal
+                    @check-in-success = "
+                        async () => {
+                            this.closeCheckInModal();
+                            await this.fetchDetail();
                         }
                     "
                 />
@@ -44,11 +109,29 @@
                 <h1 class="text-4xl font-bold mb-4 ml-2 multi-line">
                     {{ activity.name }}
                     <button
-                        v-if="isHost"
-                        @click="openModal"
+                        v-if="isHost && isAuth"
+                        @click="openEditModal"
                         class="btn btn-ghost text-accent ml-2 mr-2"
                     >
                         Edit
+                    </button>
+                    <button
+                        v-if="isHost && isAuth"
+                        @click="openCheckInCodeModal"
+                        class="btn btn-ghost text-accent ml-2 mr-2"
+                    >
+                        <div v-if="!activity.check_in_allowed">
+                            Allow Check-in
+                        </div>
+                        <div v-else>
+                            Show Check-In Code
+                        </div>
+                    </button>
+                    <button
+                        v-if="isJoined && isAuth && checkedIn && !isHost"
+                        class="btn btn-ghost text-accent ml-2 mr-2"
+                    >
+                        You've Checked-In
                     </button>
                 </h1>
                 <p class="mb-2 ml-3 overflow-hidden multi-line">
@@ -58,6 +141,19 @@
                     <strong class="text-base-content text-lg">Date and Time:</strong>
                     {{ formatTimestamp(activity.date) }}
                 </p>
+                <div
+                    v-if="imageUrls.length > 0"
+                    class="flex flex-col justify-center"
+                >
+                    <span class="text-base-content text-lg ml-3 mb-2">
+                        Preview Images
+                    </span>
+                    <ImageCarousel
+                        ref="imageCarousel"
+                        carouselName="detail-carousel"
+                        :images="imageUrls.map((image) => image.url)"
+                    />
+                </div>
                 <p v-if="activity.max_people != null" class="mb-2 ml-3">
                     <strong class="text-base-content text-lg"
                         >Max People:</strong
@@ -90,7 +186,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div
                     class="flex flex-col sm:flex-row justify-between items-center"
                 >
@@ -102,6 +197,13 @@
                     <div v-else-if="isJoined" class="flex">
                         <button class="btn btn-secondary" @click="goToChat">
                             Chat
+                        </button>
+                        <button
+                            v-if="isJoined && activity.check_in_allowed && isAuth && !checkedIn"
+                            @click="openCheckInModal"
+                            class="btn btn-secondary mx-4"
+                        >
+                            Check-In
                         </button>
                         <button
                             v-if="!isHost"
@@ -142,14 +244,23 @@ import apiClient from "@/api";
 import {
     createDeleteRequest,
     createPostRequest,
+    createPutRequest,
 } from "@/functions/HttpRequest.js";
 import { isAuth, login, userId } from "@/functions/Authentications";
 import { watch, ref } from "vue";
 import EditModal from "@/component/EditModal.vue";
+import ImageCarousel from "@/component/ImageCarousel";
+import CheckInCodeModal from "@/component/CheckInCodeModal.vue";
+import CheckInModal from "@/component/CheckInModal.vue";
+
+
 </script>
 
 <script>
 export default {
+    components: {
+        ImageCarousel,
+    },
     data() {
         return {
             activity: {},
@@ -161,7 +272,13 @@ export default {
             hosts: [],
             isHost: false,
             isJoined: false,
-            showModal: ref(false),
+            showEditModal: ref(false),
+            showCheckInCode: false,
+            showCheckInModal: false,
+            checkedIn: false,
+            baseUrl: "",
+            images: [],
+            imageUrls: [],
         };
     },
     methods: {
@@ -171,25 +288,94 @@ export default {
              */
             this.$router.push("/");
         },
-        openModal() {
+        openEditModal() {
             /**
              * Show Edit Activity Modal
              * This function return nothing.
              */
-            this.showModal = true;
+            this.showEditModal = true;
         },
-        closeModal() {
+        closeEditModal() {
             /**
              * Close Edit Activity Modal
              * This function return nothing.
              */
-            this.showModal = false;
+            this.showEditModal = false;
+        },
+        openCheckInCodeModal() {
+            /**
+             * Open Activity checkin code
+             */
+            this.showCheckInCode = true;
+        },
+        closeCheckInCodeModal() {
+            /**
+             * Open Activity checkin code
+             */
+            this.showCheckInCode = false;
+        },
+        openCheckInModal() {
+            /**
+             * Open participant check-in modal
+             */
+            this.showCheckInModal = true;
+        },
+        closeCheckInModal() {
+            /**
+             * Close participant check-in modal
+             */
+            this.showCheckInModal = false;
         },
         goToChat() {
             /*
              * Navigagte to Activity Chart page.
              */
             this.$router.push(`/chat/${this.activityId}`);
+        },
+        async allowCheckIn() {
+            /*
+             * Attempt to join activity.
+             */
+            try {
+                const response = await createPutRequest(
+                    `/activities/check-in/${this.activityId}/?status=open`,
+                    {}
+                );
+                this.checkInCode = response.checkInCode;
+                addAlert("success", response.data.message);
+                this.$emit("allow-checked-in")
+                this.fetchDetail();
+                this.openCheckInCodeModal();
+            } catch (error) {
+                if (error.response && error.response.data) {
+                    addAlert("error", error.response.data.message); // Show error message from backend
+                } else {
+                    addAlert(
+                        "error",
+                        "An unexpected error occurred. Please try again later."
+                    );
+                }
+            }
+        },
+        async closeCheckIn() {
+            /**
+             * Make check-in unavailable.
+             */
+            // 
+            try {
+                const response = await createPutRequest(
+                    `/activities/check-in/${this.activityId}/?status=close`,
+                    {}
+                );
+                addAlert("success", response.data.message);
+                this.fetchDetail(); //Fetch Activity
+            } catch (error) {
+                console.error("Error fetching activity:", error);
+                addAlert(
+                    "warning",
+                    "Activity already started or No such activity."
+                );
+            }
         },
         async fetchDetail() {
             /*
@@ -201,11 +387,29 @@ export default {
                 );
                 this.activity = response.data;
                 this.people = this.activity.participant;
+                this.images = this.activity.images;
+                this.imageUrls = [];
+                this.baseUrl = process.env.VUE_APP_BASE_URL;
+                if (this.baseUrl.endsWith("/")) {
+                    this.baseUrl = this.baseUrl.slice(0, -1);
+                }
+                for (const image of this.images) {
+                    const imageurl = this.baseUrl + image.url;
+                    this.imageUrls.push({ id: image.id, url: imageurl });
+                }
+                if (this.$refs.imageCarousel) {
+                    this.$refs.imageCarousel.images = this.imageUrls.map(
+                        (image) => image.url
+                    );
+                }
                 this.canJoin = this.activity.can_join;
                 this.hosts = JSON.stringify(response.data.host);
                 this.checkHost();
                 this.checkJoined();
+                this.checkCheckedIn();
+                console.log("I'm Ok");
             } catch (error) {
+                console.log("I'm not Ok");
                 console.error("Error fetching activity:", error);
                 addAlert(
                     "warning",
@@ -294,12 +498,27 @@ export default {
                 this.isHost = this.hosts.includes(userId.value);
             }
         },
+        checkCheckedIn() {
+            /**
+             * Check whether or not user is host of activity.
+             * return None
+             */
+            if (!isAuth || !this.isJoined) {
+                this.checkedIn = false;
+            } else {
+                const user = this.people.filter(
+                    (element) => element["id"] == userId.value
+                );
+                this.checkedIn = user[0].checked_in
+            }
+        },
     },
     mounted() {
         this.activityId = this.$route.params.id;
         this.fetchDetail();
         this.checkHost();
         this.checkJoined();
+        this.checkCheckedIn();
         watch(userId, (newUserId) => {
             if (newUserId) {
                 this.checkHost();
@@ -315,7 +534,7 @@ export default {
         );
         window.addEventListener("keydown", (e) => {
             if (e.key == "Escape") {
-                this.closeModal();
+                this.closeEditModal();
             }
         });
     },
