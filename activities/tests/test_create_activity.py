@@ -1,9 +1,8 @@
 """Module to test on activity creation."""
 import json
 import django.test
-import os
 from django import urls
-from activities.tests.constants import CAMERA_EXPECTED, CAMERA_IMAGE, BASE64_IMAGE, BROKEN_IMAGE, BROKEN_BASE64
+from activities.tests.constants import CAMERA_EXPECTED, CAMERA_IMAGE, BASE64_IMAGE
 from .shortcuts import post_request_json_data, create_activity, create_test_user
 
 
