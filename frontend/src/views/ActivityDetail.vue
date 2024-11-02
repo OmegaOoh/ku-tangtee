@@ -8,13 +8,13 @@
         </div>
         <div
             class="modal backdrop-blur-sm"
-            :class="{ 'modal-open': showModal }"
+            :class="{ 'modal-open': showEditModal }"
         >
             <div class="modal-box shadow-xl">
                 <div class="sticky flex justify-end">
                     <button
                         class="btn btn-ghost btn-circle"
-                        @click="closeModal"
+                        @click="closeEditModal"
                     >
                         x
                     </button>
@@ -22,7 +22,7 @@
                 <EditModal
                     @update-success="
                         () => {
-                            this.closeModal();
+                            this.closeEditModal();
                             this.fetchDetail();
                         }
                     "
@@ -49,10 +49,46 @@
                     </svg>
                 </button>
                 <CheckInCodeModal
-                    @update-success="
-                        () => {
-                            this.closeModal();
-                            this.fetchDetail();
+                    @closed-checked-in = "
+                        async () => {
+                            this.closeCheckInCodeModal();
+                            await this.fetchDetail();
+                        }
+                    "
+                    @allow-checked-in = "
+                        async () => {
+                            await this.fetchDetail();
+                        }
+                    "
+                />
+            </div>
+        </div>
+        <div
+            class="modal backdrop-blur-sm"
+            :class="{ 'modal-open': showCheckInModal }"
+        >
+            <div class="modal-box shadow-xl">
+                <div class="sticky flex justify-end">
+                    <button
+                        class="btn btn-ghost btn-circle absolute right-2 top-2 hover:text-error"
+                        @click="closeCheckInModal"
+                    >
+                    <svg
+                        class="swap-on fill-current"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="32"
+                        height="32"
+                        viewBox="0 0 512 512">
+                        <polygon
+                        points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49" />
+                    </svg>
+                </button>
+                </div>
+                <CheckInModal
+                    @check-in-success = "
+                        async () => {
+                            this.closeCheckInModal();
+                            await this.fetchDetail();
                         }
                     "
                 />
@@ -66,31 +102,28 @@
                     {{ activity.name }}
                     <button
                         v-if="isHost && isAuth"
-                        @click="openModal"
+                        @click="openEditModal"
                         class="btn btn-ghost text-accent ml-2 mr-2"
                     >
                         Edit
                     </button>
                     <button
-                        v-if="isHost && !activity.check_in_allowed && isAuth"
-                        @click="allowCheckIn"
-                        class="btn btn-ghost text-accent ml-2 mr-2"
-                    >
-                        Allow Check-in
-                    </button>
-                    <button
-                        v-if="isHost && activity.check_in_allowed && isAuth"
+                        v-if="isHost && isAuth"
                         @click="openCheckInCodeModal"
                         class="btn btn-ghost text-accent ml-2 mr-2"
                     >
-                        Show Check-In code
+                        <div v-if="!activity.check_in_allowed">
+                            Allow Check-in
+                        </div>
+                        <div v-else>
+                            Show Check-In Code
+                        </div>
                     </button>
                     <button
-                        v-if="isHost && activity.check_in_allowed && isAuth"
-                        @click="closeCheckIn"
+                        v-if="isJoined && isAuth && checkedIn && !isHost"
                         class="btn btn-ghost text-accent ml-2 mr-2"
                     >
-                        Close Checkin
+                        You've Checked-In
                     </button>
                 </h1>
                 <p class="mb-2 ml-3 overflow-hidden multi-line">
@@ -145,6 +178,13 @@
                             Chat
                         </button>
                         <button
+                            v-if="isJoined && activity.check_in_allowed && isAuth && !checkedIn"
+                            @click="openCheckInModal"
+                            class="btn btn-secondary mx-4"
+                        >
+                            Check-In
+                        </button>
+                        <button
                             v-if="!isHost"
                             @click="leaveActivity"
                             class="btn btn-accent mx-4"
@@ -189,6 +229,8 @@ import { isAuth, login, userId } from "@/functions/Authentications";
 import { watch, ref } from "vue";
 import EditModal from "@/component/EditModal.vue";
 import CheckInCodeModal from "@/component/CheckInCodeModal.vue";
+import CheckInModal from "@/component/CheckInModal.vue";
+
 
 </script>
 
@@ -205,8 +247,10 @@ export default {
             hosts: [],
             isHost: false,
             isJoined: false,
-            showModal: ref(false),
-            showCheckInCode: false
+            showEditModal: ref(false),
+            showCheckInCode: false,
+            showCheckInModal: false,
+            checkedIn: false
         };
     },
     methods: {
@@ -216,19 +260,19 @@ export default {
              */
             this.$router.push("/");
         },
-        openModal() {
+        openEditModal() {
             /**
              * Show Edit Activity Modal
              * This function return nothing.
              */
-            this.showModal = true;
+            this.showEditModal = true;
         },
-        closeModal() {
+        closeEditModal() {
             /**
              * Close Edit Activity Modal
              * This function return nothing.
              */
-            this.showModal = false;
+            this.showEditModal = false;
         },
         openCheckInCodeModal() {
             /**
@@ -241,6 +285,18 @@ export default {
              * Open Activity checkin code
              */
             this.showCheckInCode = false;
+        },
+        openCheckInModal() {
+            /**
+             * Open participant check-in modal
+             */
+            this.showCheckInModal = true;
+        },
+        closeCheckInModal() {
+            /**
+             * Close participant check-in modal
+             */
+            this.showCheckInModal = false;
         },
         goToChat() {
             /*
@@ -259,6 +315,7 @@ export default {
                 );
                 this.checkInCode = response.checkInCode;
                 addAlert("success", response.data.message);
+                this.$emit("allow-checked-in")
                 this.fetchDetail();
                 this.openCheckInCodeModal();
             } catch (error) {
@@ -306,7 +363,10 @@ export default {
                 this.hosts = JSON.stringify(response.data.host);
                 this.checkHost();
                 this.checkJoined();
+                this.checkCheckedIn();
+                console.log("I'm Ok");
             } catch (error) {
+                console.log("I'm not Ok");
                 console.error("Error fetching activity:", error);
                 addAlert(
                     "warning",
@@ -395,6 +455,20 @@ export default {
                 this.isHost = this.hosts.includes(userId.value);
             }
         },
+        checkCheckedIn() {
+            /**
+             * Check whether or not user is host of activity.
+             * return None
+             */
+            if (!isAuth || !this.isJoined) {
+                this.checkedIn = false;
+            } else {
+                const user = this.people.filter(
+                    (element) => element["id"] == userId.value
+                );
+                this.checkedIn = user[0].checked_in
+            }
+        },
     },
     mounted() {
         this.activityId = this.$route.params.id;
@@ -416,7 +490,7 @@ export default {
         );
         window.addEventListener("keydown", (e) => {
             if (e.key == "Escape") {
-                this.closeModal();
+                this.closeEditModal();
             }
         });
     },
