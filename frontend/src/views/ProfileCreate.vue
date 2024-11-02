@@ -15,7 +15,7 @@
         <div class="carousel-item w-full">
             <div class="card w-full h-fit p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6">
                 <div class="card-body">
-                    <h2 class="card-title flex justify-center">    
+                    <h2 class="card-title flex justify-center overflow-visible">    
                         <ul class="steps w-[30%] stroke-base-content">
                             <li class="step step-primary">User Information</li>
                             <li class="step step-neutral"></li>
@@ -98,8 +98,8 @@
         <div class="carousel-item w-full">
             <div class="card w-full h-fit p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6">
                 <div class="card-body">
-                    <h2 class="card-title flex justify-center">    
-                        <ul class="steps w-[30%]">
+                    <h2 class="card-title flex justify-center overflow-visible">    
+                        <ul class="steps w-fit overflow-visible">
                             <li class="step step-primary"></li>
                             <li class="step step-primary">Education Info</li>
                         </ul>
@@ -108,6 +108,7 @@
                     <div class="form-control w-full">
                         <div class="label"> 
                             <span class='text-base-content text-lg'> KU Generation </span>
+                            <span class='text-primary text-sm'> required </span>
                         </div>
                         <input
                             v-model='kuGen'
@@ -123,10 +124,12 @@
                     <div class="form-control w-full">
                         <div class="label"> 
                             <span class='text-base-content text-lg'> Faculty </span>
+                            <span class='text-primary text-sm'> required </span>
                         </div>
                         <input
                             v-model='faculty'
                             type='text'
+                            id="faculty-field"
                             placeholder='e.g. Engineering, Science'
                             class='input input-bordered input-primary w-full mb-4'
                             :maxlength='100'
@@ -158,8 +161,10 @@
 </template>
 
 <script setup>
-import { isAuth, login, email, fName, lName } from "@/functions/Authentications";
+import { isAuth, login, email, fName, lName, userId } from "@/functions/Authentications";
 import { addAlert } from "@/functions/AlertManager";
+import { createPostRequest } from "@/functions/HttpRequest";
+import apiClient from "@/api";
 </script>
 
 <script>
@@ -188,21 +193,71 @@ export default {
             const targetPixel = (carouselW * index) + 1;
             carousel.scrollTo(targetPixel, 0);
         },
+        kuGenError(isError) {
+            /**
+             * Set component of kuGen field to be error/ normal according to isErrorParameter
+             * @param isError: bool
+             * this function return nothing
+             */
+            const component = document.getElementById('ku-gen-field');
+            if (isError) {
+                component.classList.remove('textarea-primary');
+                if (!component.classList.contains('textarea-error')) {
+                    component.classList.add('textarea-error');
+                }
+                
+            }
+            else {
+                if (!component.classList.contains('textarea-primary')) {
+                    component.classList.add('textarea-primary');
+                }
+                component.classList.remove('textarea-error');
+            }
+        },
         validateInput() {
             /**
              * Function to validate the input.
-             * return true if all input were valid.
+             * @return true if all input were valid.
              */
             var validInput = true;
-            if (this.kuGen != '')
+            
+            if (this.kuGen == null || this.kuGen == '') {
+                this.kuGenError(true)
+                validInput = false
+            }
+            else {
+                this.kuGenError(false)
+            }
+            if (this.kuGen != ''){
                 if (this.kuGen < 1) {
+                    this.kuGenError(true)
                     addAlert('warning', "Your KU Generation must be at least 1");
                     validInput = false;
                 }
-                if (this.kuGen > this.getMaxKuGeneration()) {
+                else if (this.kuGen > this.getMaxKuGeneration()) {
+                    this.kuGenError(true)
                     addAlert('warning', ('Your KU Generation must be less than or equal to ' + this.getMaxKuGeneration()))
                     validInput = false;
                 }
+                else {
+                    this.kuGenError(false)
+                }
+            }
+            const component = document.getElementById('faculty-field')
+            if (this.faculty == '') {
+                validInput = false;
+                component.classList.remove('input-primary')
+                if (!component.classList.contains('input-error')) {
+                    component.classList.add('input-error')
+                }
+            }
+            else {
+                component.classList.remove('input-error')
+                if (!component.classList.contains('input-primary')) {
+                    component.classList.add('input-primary')
+                }
+
+            }
             return validInput
 
         },
@@ -212,14 +267,41 @@ export default {
              * This function return nothing
              */
             if (!this.validateInput()) {
-                return;
+                return
             }
-            addAlert('info', 'Profile Submission to be implemented');
+            await createPostRequest(`/profile/`,
+                {
+                    "user": userId,
+                    "nick_name": this.nickname,
+                    "pronoun": this.pronoun,
+                    "ku_generation": this.kuGen,
+                    "faculty": this.faculty,
+                    "major": this.major,
+                    "about_me": this.bio,
+                }
+            )
+            this.goNext()
         },
         getMaxKuGeneration() {
-            const currentYear =  (new Date()).getFullYear();
+            const currentYear = (new Date()).getFullYear();
             return currentYear - kuEstablishedYear;
+        },
+        goNext() {
+            const nextPath = this.$router.currentRoute.value.query.next;
+            if (nextPath != `/create-profile/` && nextPath != '') {
+                this.$router.push(nextPath)
+            }
+            else {
+                this.$router.push('/')
+            }
         }
     },
+    async mounted() {
+        const profileResponse = await apiClient.get(`profile/`)
+        if (profileResponse.data.has_profile) {
+            addAlert('info', "You already has the profile.")
+            this.goNext()
+        }
+    }
 }
 </script>

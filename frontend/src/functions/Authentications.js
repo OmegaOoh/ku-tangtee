@@ -3,6 +3,7 @@ import apiClient from '@/api';
 import { googleTokenLogin } from 'vue3-google-login';
 import { createPostRequest } from './HttpRequest';
 import { getCookie, setCookie, deleteCookie } from './Cookies';
+import router from '@/router'
 
 
 export var isAuth = ref(false);
@@ -31,6 +32,10 @@ export async function login() {
         setCookie('backend-token', response.data.access);
         isAuth.value = true;
         await getUserData();
+        const profileStatus = await apiClient.get(`/profile/`)
+        if(!profileStatus.data.has_profile) {
+            router.push(`/create-profile?next=${router.currentRoute.value.path}`);
+        }
     } catch (e) {
         console.error("error on login: ",e);
     }

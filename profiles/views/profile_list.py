@@ -23,7 +23,7 @@ class ProfileList(
         return models.Profile.objects.filter(user__id=self.request.user.id)
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
-        """Handle get request by return with list of activity."""
+        """Handle get request by return with list of profile."""
         return self.list(request, *args, **kwargs)
 
     def list(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
@@ -33,15 +33,10 @@ class ProfileList(
         :return: Http response object
         """
         queryset = self.filter_queryset(self.get_queryset())
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return response.Response(serializer.data + [{
-            "has_profile": models.Profile.has_profile(request.user)}])
+        serializer = self.get_serializer(queryset.first())
+        return response.Response({
+            "has_profile": models.Profile.has_profile(request.user), 'profile': serializer.data
+        })
 
     def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Handle post request by creating a profile.
@@ -60,8 +55,7 @@ class ProfileList(
         :param request: Http request object
         :return: Http response object
         """
-        data = {"user": request.user.id} | request.data
-        serializer = self.get_serializer(data=data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         new_profile = serializer.save()
         headers = self.get_success_headers(serializer.data)

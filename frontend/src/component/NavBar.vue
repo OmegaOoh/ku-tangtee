@@ -101,7 +101,7 @@ export default {
     },
     methods: {
         async getRecentActivity() {
-            const response = await apiClient.get(`/activities/get-recently/${userId}/?records=5`);
+            const response = await apiClient.get(`/activities/get-recently/${userId.value}/?records=5`);
             this.activities = response.data;
         },
     },

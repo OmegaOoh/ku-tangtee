@@ -17,7 +17,7 @@ class DetailTest(django.test.TestCase):
 
         self.client.force_login(user2)
 
-        response = self.client.get(urls.reverse("profiles:detail", args=[profile.id]))
+        response = self.client.get(urls.reverse("profiles:detail", args=[profile.user.username]))
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(response.content, ProfilesSerializer(profile).data)
 
@@ -27,6 +27,6 @@ class DetailTest(django.test.TestCase):
         self.client.force_login(user)
         _, profile = create_profile(user=user)
 
-        response = self.client.get(urls.reverse("profiles:detail", args=[profile.id]))
+        response = self.client.get(urls.reverse("profiles:detail", args=[profile.user.username]))
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(response.content, ProfilesSerializer(profile).data)

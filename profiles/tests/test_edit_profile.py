@@ -24,7 +24,7 @@ class EditActivityTest(django.test.TestCase):
         _, self.profile = create_profile(user=self.user, data=data)
 
         # Set the URL to the profile page
-        self.url = urls.reverse("profiles:detail", args=[self.profile.id])
+        self.url = urls.reverse("profiles:detail", args={self.profile.user.username})
 
         self.edited_data = {
             "nick_name": "Bruce",
@@ -40,7 +40,8 @@ class EditActivityTest(django.test.TestCase):
         # Send PUT request with new profile data
         response = put_request_json_data(self.url, self.client, self.edited_data)
         response_dict = json.loads(response.content)
-        updated_profile = models.Profile.objects.get(pk=self.profile.id)
+        self.profile.refresh_from_db()
+        updated_profile = self.profile
         # Compare the serialized profile with the expected data
         self.assertEqual(updated_profile.nick_name, self.edited_data['nick_name'])
         self.assertEqual(updated_profile.pronoun, self.edited_data['pronoun'])

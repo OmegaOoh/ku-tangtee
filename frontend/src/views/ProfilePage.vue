@@ -50,8 +50,6 @@
                             {{ activity.name }}
                         </h2>
                     </div>
-
-
                 </div>
             </div>
         </div>
@@ -95,7 +93,6 @@ export default {
              * this function returns nothing.
              */
             const response = await apiClient.get(`/activities/get-recently/${this.user.id}`);
-            console.log(response)
             this.recentActivity = response.data;
         },
         formatTimestamp(timestamp) {

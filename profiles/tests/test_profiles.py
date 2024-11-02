@@ -11,7 +11,7 @@ class TestActivityModel(django.test.TestCase):
         """__str__ returns Profile name."""
         data = {
             "faculty": "Engineering",
-            "major": "SKE"
+            "ku_generation": "83"
         }
         user = create_test_user('Alexa')
         _, profile = create_profile(user=user, data=data)
@@ -41,11 +41,11 @@ class TestActivityModel(django.test.TestCase):
     def test_has_profile(self):
         """has_profile() return True if and only if the user has created the profile."""
         user = create_test_user('Alexa')
-        _, profile = create_profile(user=user)
+        _, _ = create_profile(user=user)
         self.assertTrue(Profile.has_profile(user))
 
     def test_does_not_have_profile(self):
         """has_profile() return False if and only if the user has not created the profile."""
         user = create_test_user('Bruce')
-        _, profile = create_profile()
+        _, _ = create_profile()
         self.assertFalse(Profile.has_profile(user))

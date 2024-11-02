@@ -21,6 +21,7 @@ class ProfileDetail(
 
     serializer_class = model_serializers.ProfilesSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, OnlyOwnerCanEdit]
+    lookup_field = 'username'
 
     def get_queryset(self) -> QuerySet:
         """Profile view returns a user's profile."""
@@ -72,13 +73,15 @@ class ProfileDetail(
         :param request: Http request object
         :return: Http response object
         """
-        res = self.update(request, partial=True, *args, **kwargs)
-
+        print(kwargs)
+        new_kwargs = kwargs.copy()
+        new_kwargs["user"] = auth_models.User.objects.get(username=new_kwargs.pop('username', None))
+        print(new_kwargs)
+        res = self.update(request, partial=True, *args, **new_kwargs)
         res_dict = res.data
-
         return response.Response(
             {
                 "message": "You have successfully edited your KU Tangtee profile.",
-                "id": res_dict.get("id")
+                "id": res_dict.get("id"),
             }
         )
