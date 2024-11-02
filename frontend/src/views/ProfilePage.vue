@@ -123,7 +123,6 @@ export default {
              * this function return nothing.
              */
             const response = await apiClient.get(`/profile/${this.$route.params.username}`);
-            console.log(response.data)
             this.user = response.data.user;
             this.faculty = response.data.faculty;
             this.major = response.data.major;
@@ -227,6 +226,16 @@ export default {
                 }
             }
         )
+    },
+    watch: {
+        '$route.params.username': function(newUsername, oldUsername) {
+            if (newUsername != oldUsername) {
+                console.log('I was here');
+                this.fetchUserData();
+                this.fetchRecentActivities();
+                this.checkOwn();
+            }
+        }
     }
 }
 </script>

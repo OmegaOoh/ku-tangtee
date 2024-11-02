@@ -12,6 +12,7 @@ export var lName = ref('');
 export var email = ref('')
 export var pfp = ref('');
 export var userId = ref(-1);
+export var userName = ref("");
 
 export async function login() {
     /**
@@ -82,6 +83,7 @@ export async function logout() {
     email.value = '';
     pfp.value = '';
     userId.value = '';
+    userName.value = '';
     deleteCookie('backend-token');
 }
 
@@ -95,6 +97,7 @@ export async function getUserData() {
         fName.value = response.data.first_name;
         lName.value = response.data.last_name;
         email.value = response.data.email;
+        userName.value = response.data.username;
         const profilePic = await apiClient.get(`profile-pic/`);
         pfp.value = profilePic.data.profile_picture_url;
         userId.value = response.data.pk;
