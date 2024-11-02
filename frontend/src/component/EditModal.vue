@@ -356,6 +356,7 @@ export default {
             }
             // Remove the image from the images array
             this.images.splice(index, 1);
+						this.images = [...this.images];
         },
         maxImageCompute() {
             /*
