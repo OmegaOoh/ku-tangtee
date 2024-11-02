@@ -244,7 +244,6 @@ export default {
                     new_images: this.new_images,
                     remove_attachments: this.remove_attachment,
                 };
-                console.log(this.images);
                 const response = await createPutRequest(
                     `/activities/${this.activityId}/`,
                     data
@@ -281,6 +280,11 @@ export default {
             this.showMaxPeople = !this.showMaxPeople;
         },
         handleFileChange(event) {
+            /*
+             * Push value into images.
+             * @params {image} image that uploads from input.
+             * Return nothing.
+             */
             const files = event.target.files;
             if (files.length > 0) {
                 // Check total image count

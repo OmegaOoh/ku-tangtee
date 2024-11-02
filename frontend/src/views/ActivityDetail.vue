@@ -212,7 +212,6 @@ export default {
                 this.activity = response.data;
                 this.people = this.activity.participant;
                 this.images = this.activity.images;
-                console.log(this.images);
                 this.imageUrls = [];
                 this.baseUrl = process.env.VUE_APP_BASE_URL;
                 if (this.baseUrl.endsWith("/")) {

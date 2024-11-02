@@ -271,7 +271,6 @@ export default {
             );
             const activity = response.data;
             this.people = activity.participant;
-            console.log(this.people);
         },
         async fetchSingleProfile(userId) {
             /*
@@ -401,6 +400,7 @@ export default {
              */
             const files = event.target.files;
             if (files.length > 0) {
+                // Check total image count
                 if (files.length + this.images.length > MAX_IMAGE_COUNT) {
                     addAlert(
                         "warning",
@@ -408,32 +408,50 @@ export default {
                     );
                     return;
                 }
-                var totalSize = 0;
-                Array.from(this.images).forEach((file) => {
-                    totalSize += file.size;
-                });
+
+                // Calculate total size of current and new images
+                let totalSize = this.images.reduce(
+                    (sum, file) => sum + file.size,
+                    0
+                );
+
                 Array.from(files).forEach((file) => {
                     totalSize += file.size;
                 });
+
+                // Check if total size exceeds limit
                 if (totalSize > MAX_IMAGES_SIZE) {
                     addAlert(
                         "warning",
-                        "You can add at most" + MAX_IMAGES_SIZE / 1e6 + "MB"
+                        "You can add at most " + MAX_IMAGES_SIZE / 1e6 + " MB"
                     );
+                    return; // Return to prevent further execution
                 }
+
+                // Process each file
                 Array.from(files).forEach((file) => {
                     if (file.type.startsWith("image/")) {
                         loadImage(file)
                             .then((imageSrc) => {
-                                this.images.push(imageSrc); // Store the image source in the array
+                                // Check for duplicate image URL
+                                const isDuplicate = this.images.some(
+                                    (image) => image === imageSrc
+                                );
+                                if (!isDuplicate) {
+                                    this.images.push(imageSrc); // Store the image source in the array
+                                } else {
+                                    addAlert(
+                                        "warning",
+                                        "This image is already added."
+                                    );
+                                }
                             })
                             .catch((error) => {
                                 console.error("Error loading image:", error);
                             });
                     } else {
-                        addAlert("warning", file.name + " is not images.");
+                        addAlert("warning", file.name + " is not an image.");
                     }
-                    console.log(this.images);
                 });
             }
         },
