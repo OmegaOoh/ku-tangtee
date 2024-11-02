@@ -1,8 +1,8 @@
 """Module to test on index page of activities app."""
 import django.test
 from django import urls
-from .shortcuts import create_activity, activity_to_json, create_test_user, convert_day_num
-import json
+
+from .shortcuts import create_activity, activity_to_json, create_test_user, convert_day_num, date_from_now
 
 
 class IndexTest(django.test.TestCase):
@@ -56,10 +56,21 @@ class IndexTest(django.test.TestCase):
         self.assertJSONEqual(response.content, expected)
 
     def test_search_by_keyword(self):
-        """Only activities with keyword in its name or detail showed on index page."""
-        _, activity1 = create_activity(host=self.host_user, data={"name": "tes1", "detail": "12"})
-        _, activity2 = create_activity(host=self.host_user, data={"name": "test2", "detail": "en"})
-        _, activity3 = create_activity(host=self.host_user, data={"name": "12", "detail": "garde"})
+        """Only activities whose name or detail regex match with keyword is shown on index page."""
+        _, activity1 = create_activity(
+            host=self.host_user,
+            data={"name": "tes1", "detail": "12"}
+        )
+
+        _, activity2 = create_activity(
+            host=self.host_user,
+            data={"name": "test2", "detail": "en"}
+        )
+
+        _, activity3 = create_activity(
+            host=self.host_user,
+            data={"name": "12", "detail": "garde"}
+        )
 
         json_act1 = activity_to_json(activity1)
         json_act2 = activity_to_json(activity2)
@@ -137,3 +148,95 @@ class IndexTest(django.test.TestCase):
             res.content,
             [activity_to_json(act) for act in [activity1, activity2, activity3, activity4]]
         )
+
+    def test_search_by_date_range(self):
+        """Only activities within the date range is shown on index page."""
+        _, activity1 = create_activity(
+            host=self.host_user,
+            data={"name": "+1day", "detail": "+1day"},
+            days_delta=1
+        )
+        act1_day = date_from_now(1)
+
+        _, activity2 = create_activity(
+            host=self.host_user,
+            data={"name": "+2day", "detail": "+2day"},
+            days_delta=2
+        )
+        act2_day = date_from_now(2)
+
+        _, activity3 = create_activity(
+            host=self.host_user,
+            data={"name": "+3day", "detail": "+3day"},
+            days_delta=3
+        )
+        act3_day = date_from_now(3)
+
+        _, activity7 = create_activity(
+            host=self.host_user,
+            data={"name": "+7day", "detail": "+7day"},
+            days_delta=7
+        )
+        act7_day = date_from_now(7)
+
+        today = date_from_now(0)
+        next_year = date_from_now(365)
+
+        json_act1 = activity_to_json(activity1)
+        json_act2 = activity_to_json(activity2)
+        json_act3 = activity_to_json(activity3)
+        json_act7 = activity_to_json(activity7)
+
+        response = self.client.get(urls.reverse("activities:index") + f"?start_date={today}")
+        self.assertJSONEqual(response.content, [json_act1, json_act2, json_act3, json_act7])
+
+        response = self.client.get(urls.reverse("activities:index") + f"?start_date={act3_day}")
+        self.assertJSONEqual(response.content, [json_act3, json_act7])
+
+        response = self.client.get(urls.reverse("activities:index") + f"?start_date={next_year}")
+        self.assertJSONEqual(response.content, [])
+
+        response = self.client.get(urls.reverse("activities:index") + f"?end_date={next_year}")
+        self.assertJSONEqual(response.content, [json_act1, json_act2, json_act3, json_act7])
+
+        response = self.client.get(urls.reverse("activities:index") + f"?end_date={act3_day}")
+        self.assertJSONEqual(response.content, [json_act1, json_act2, json_act3])
+
+        response = self.client.get(urls.reverse("activities:index") + f"?end_date={today}")
+        self.assertJSONEqual(response.content, [])
+
+        response = self.client.get(urls.reverse("activities:index") + f"?start_date={act2_day}&end_date={act3_day}")
+        self.assertJSONEqual(response.content, [json_act2, json_act3])
+
+        response = self.client.get(urls.reverse("activities:index") + f"?start_date={act2_day}&end_date={act2_day}")
+        self.assertJSONEqual(response.content, [json_act2])
+
+        response = self.client.get(urls.reverse("activities:index") + f"?start_date={act7_day}&end_date={act1_day}")
+        self.assertJSONEqual(response.content, [])
+
+        response = self.client.get(urls.reverse("activities:index") + f"?start_date={act3_day}&end_date=invalid")
+        self.assertJSONEqual(response.content, [json_act3, json_act7])
+
+        response = self.client.get(urls.reverse("activities:index") + f"?start_date=invalid&end_date={act3_day}")
+        self.assertJSONEqual(response.content, [json_act1, json_act2, json_act3])
+
+        response = self.client.get(urls.reverse("activities:index") + "?start_date=9999-99-99&end_date=invalid")
+        self.assertJSONEqual(response.content, [json_act1, json_act2, json_act3, json_act7])
+
+        response = self.client.get(urls.reverse("activities:index") + "?start_date=invalid")
+        self.assertJSONEqual(response.content, [json_act1, json_act2, json_act3, json_act7])
+
+        response = self.client.get(urls.reverse("activities:index") + "?start_date=9999-99-99")
+        self.assertJSONEqual(response.content, [json_act1, json_act2, json_act3, json_act7])
+
+        response = self.client.get(urls.reverse("activities:index") + "?start_date=")
+        self.assertJSONEqual(response.content, [json_act1, json_act2, json_act3, json_act7])
+
+        response = self.client.get(urls.reverse("activities:index") + "?end_date=invalid")
+        self.assertJSONEqual(response.content, [json_act1, json_act2, json_act3, json_act7])
+
+        response = self.client.get(urls.reverse("activities:index") + "?end_date=9999-99-99")
+        self.assertJSONEqual(response.content, [json_act1, json_act2, json_act3, json_act7])
+
+        response = self.client.get(urls.reverse("activities:index") + "?end_date=")
+        self.assertJSONEqual(response.content, [json_act1, json_act2, json_act3, json_act7])
