@@ -2,6 +2,7 @@
 import json
 import django.test
 from django import urls
+from activities.tests.constants import CAMERA_EXPECTED, CAMERA_IMAGE, BASE64_IMAGE
 from .shortcuts import post_request_json_data, create_activity, create_test_user
 
 
@@ -113,3 +114,59 @@ class CreateActivityTest(django.test.TestCase):
         )
         self.assertEqual(response.status_code, 400)
         self.assertJSONEqual(response.content, {'message': 'Ensure this field has no more than 255 characters.'})
+
+    def test_valid_activity_with_images(self):
+        """Create should create a new object of Attachment."""
+        image_url = CAMERA_IMAGE
+        data = {
+            "name": "Valid Activity",
+            "detail": "This is valid activity",
+            "images": [image_url]
+        }
+        response, new_act = create_activity(
+            client=self.client,
+            host=self.host_user,
+            days_delta=3,
+            data=data,
+        )
+        response_dict = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response_dict["message"], f"Your have successfully create activity {data.get('name')}")
+        self.assertEqual(new_act.name, data.get('name'))
+        self.assertEqual(new_act.people, 1)
+        attachments = new_act.attachment_set.all()
+        image = attachments.first()
+        expected_url = CAMERA_EXPECTED
+        self.assertEqual(expected_url, image.image.url)
+
+        image.image.delete(save=False)
+        image.delete()
+
+    def test_valid_activity_with_images_base64(self):
+        """Create should decode base64 image and put in Attachment object."""
+        image_url = BASE64_IMAGE
+        data = {
+            "name": "Valid Activity",
+            "detail": "This is valid activity",
+            "images": [image_url]
+        }
+        response, new_act = create_activity(
+            client=self.client,
+            host=self.host_user,
+            days_delta=3,
+            data=data,
+        )
+        response_dict = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response_dict["message"], f"Your have successfully create activity {data.get('name')}")
+        self.assertEqual(new_act.name, data.get('name'))
+        self.assertEqual(new_act.people, 1)
+        attachments = new_act.attachment_set.all()
+        image = attachments.first()
+        expected_url = f"/media/activities/{new_act.id}"
+        self.assertTrue(image.image.url.startswith(expected_url), "Attachment URL does not start with the expected base URL.")
+
+        image.image.delete(save=False)
+        image.delete()

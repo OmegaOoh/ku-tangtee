@@ -13,57 +13,110 @@
             v-if="isAuth & isJoined"
             class="card bg-base-300 mx-10 border-2 border-primary"
         >
-            <ul
-                ref="messageList"
-                class="card-body overflow-y-auto h-[70vh] break-words"
-            >
-                <li v-for="(message, index) in messages" :key="index">
-                    <div
-                        :class="[
-                            'chat',
-                            Number(message.user_id) === currentUserId
-                                ? 'chat-end'
-                                : 'chat-start',
-                        ]"
-                    >
-                        <div class="chat-image avatar">
-                            <div class="w-10 rounded-full">
-                                <img
-                                    alt="No Profile Picture"
-                                    v-lazy="
-                                        getProfilePicture(
-                                            (userId = message.user_id)
-                                        )
+            <div class="flex flex-col h-[65vh]">
+                <ul
+                    ref="messageList"
+                    class="card-body overflow-y-auto break-words"
+                >
+                    <li v-for="(message, index) in messages" :key="index">
+                        <div
+                            :class="[
+                                'chat',
+                                Number(message.user_id) === currentUserId
+                                    ? 'chat-end'
+                                    : 'chat-start',
+                            ]"
+                        >
+                            <div class="chat-image avatar">
+                                <div class="w-10 rounded-full">
+                                    <img
+                                        alt="No Profile Picture"
+                                        v-lazy="
+                                            getProfilePicture(
+                                                (userId = message.user_id)
+                                            )
+                                        "
+                                    />
+                                </div>
+                            </div>
+                            <div class="chat-header">
+                                {{ getFullName(message.user_id) }}
+                                <time class="text-xs opacity-50">{{
+                                    formatTimestamp(message.timestamp)
+                                }}</time>
+                            </div>
+                            <div class="chat-bubble chat-bubble-primary">
+                                <div
+                                    v-html="formatMessage(message.message)"
+                                ></div>
+                                <div
+                                    v-if="
+                                        message.images &&
+                                        message.images.length > 0
                                     "
-                                />
+                                    class="image-grid mt-2"
+                                >
+                                    <ImageGrid
+                                        componentSize="h-[15vh] w-[15vh]"
+                                        :images="
+                                            message.images.map(
+                                                (image) => baseUrl + image
+                                            )
+                                        "
+                                    />
+                                </div>
                             </div>
                         </div>
-                        <div class="chat-header">
-                            {{ getFullName(message.user_id) }}
-                            <time class="text-xs opacity-50">{{
-                                formatTimestamp(message.timestamp)
-                            }}</time>
-                        </div>
-                        <div
-                            class="chat-bubble chat-bubble-primary"
-                            v-html="formatMessage(message.message)"
-                        ></div>
+                    </li>
+                </ul>
+                <div class="border-t-2 border-base-100 pt-2">
+                    <div
+                        v-if="images.length > 0"
+                        class="min-h-10 max-h-[15vh] mx-4 bottom-1 mb-2"
+                    >
+                        <ImageGrid
+                            componentSize="h-[15vh] w-1/12"
+                            :images="images"
+                            :removable="true"
+                            @onRemove="(index) => images.splice(index, 1)"
+                        />
                     </div>
-                </li>
-            </ul>
-            <div class="flex justify-between items-center mt-2">
-                <textarea
-                    v-model="newMessage"
-                    placeholder="Start your chat"
-                    class="textarea textarea-primary w-full mb-2 mx-2"
-                    :maxlength="1024"
-                    @keydown.exact.enter.prevent="sendMessage"
-                    @keydown.shift.enter.prevent="insertNewLine"
-                    rows="1"
-                ></textarea>
-                <button class="btn btn-primary mx-2 mb-2" @click="sendMessage">
-                    Send
-                </button>
+                    <div class="flex justify-between items-center my-3 mx-3">
+                        <div
+                            class="flex justify-start textarea textarea-primary w-full py-0 px-2 overflow-hidden pt-0.5"
+                        >
+                            <label
+                                class="text-base-content hover:text-primary transition-colors ease-in-out pb-1 text-3xl"
+                            >
+                                +
+                                <input
+                                    type="file"
+                                    multiple
+                                    id="file-add"
+                                    accept="image/*"
+                                    @change="handleFileChange"
+                                    hidden
+                                />
+                            </label>
+                            <textarea
+                                v-model="newMessage"
+                                placeholder="Start your chat"
+                                class="resize-none size-full bg-inherit focus:outline-none align-middle pt-1.5 px-2"
+                                :maxlength="1024"
+                                @keydown.exact.enter.prevent="sendMessage"
+                                @keydown.shift.enter.prevent="insertNewLine"
+                                rows="1"
+                            ></textarea>
+                        </div>
+
+                        <button
+                            class="btn btn-primary mx-2"
+                            @click="sendMessage"
+                        >
+                            Send
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
         <div
@@ -100,11 +153,21 @@
 <script setup>
 import apiClient from "@/api";
 import { format } from "date-fns";
-import  { watch } from 'vue'
-import { login, isAuth, userId as authUserId } from "@/functions/Authentications";
+import { watch } from "vue";
+import {
+    login,
+    isAuth,
+    userId as authUserId,
+} from "@/functions/Authentications";
+import { addAlert } from "@/functions/AlertManager";
+import { loadImage } from "@/functions/Utils.";
+import ImageGrid from "@/component/ImageGrid.vue";
 </script>
 
 <script>
+const MAX_IMAGE_COUNT = 5;
+const MAX_IMAGES_SIZE = 50e6; // 60 MB
+
 export default {
     data() {
         return {
@@ -115,6 +178,8 @@ export default {
             people: [],
             currentUserId: null,
             isJoined: false,
+            images: [],
+            baseUrl: "",
         };
     },
     methods: {
@@ -141,6 +206,7 @@ export default {
                         message: data.message,
                         timestamp: new Date(),
                         user_id: user_id,
+                        images: data.images,
                     });
                     this.scrollToBottom();
                     if (
@@ -162,7 +228,7 @@ export default {
              * Send message using text in text area.
              * Return Nothing
              */
-            let trimMessage = this.newMessage.trim()
+            let trimMessage = this.newMessage.trim();
             if (trimMessage === "") {
                 return;
             }
@@ -171,8 +237,10 @@ export default {
                     JSON.stringify({
                         message: trimMessage,
                         user_id: authUserId.value,
+                        images: this.images,
                     })
                 );
+                this.images = [];
                 this.newMessage = "";
             } else {
                 console.log("WebSocket is not open.");
@@ -203,7 +271,6 @@ export default {
             );
             const activity = response.data;
             this.people = activity.participant;
-            console.log(this.people);
         },
         async fetchSingleProfile(userId) {
             /*
@@ -225,6 +292,10 @@ export default {
                     `/chat/${this.activityId}/`
                 );
                 this.messages = response.data;
+                this.baseUrl = process.env.VUE_APP_BASE_URL;
+                if (this.baseUrl.endsWith("/")) {
+                    this.baseUrl = this.baseUrl.slice(0, -1);
+                }
                 this.scrollToBottom();
             } catch (error) {
                 console.error("Error fetching messages:", error);
@@ -313,8 +384,7 @@ export default {
             await this.fetchProfile();
             await this.checkJoined();
             if (this.isJoined) {
-                if (this.socket)
-                {
+                if (this.socket) {
                     this.socket.close();
                     this.connectWebSocket();
                 }
@@ -322,15 +392,85 @@ export default {
                 await this.fetchMessages();
             }
         },
+        handleFileChange(event) {
+            /*
+             * Push value into images.
+             * @params {image} image that uploads from input.
+             * Return nothing.
+             */
+            const files = event.target.files;
+            if (files.length > 0) {
+                // Check total image count
+                if (files.length + this.images.length > MAX_IMAGE_COUNT) {
+                    addAlert(
+                        "warning",
+                        "You can add at most " + MAX_IMAGE_COUNT + " pictures"
+                    );
+                    return;
+                }
+
+                // Calculate total size of current and new images
+                let totalSize = this.images.reduce(
+                    (sum, file) => sum + file.size,
+                    0
+                );
+
+                Array.from(files).forEach((file) => {
+                    totalSize += file.size;
+                });
+
+                // Check if total size exceeds limit
+                if (totalSize > MAX_IMAGES_SIZE) {
+                    addAlert(
+                        "warning",
+                        "You can add at most " + MAX_IMAGES_SIZE / 1e6 + " MB"
+                    );
+                    return; // Return to prevent further execution
+                }
+
+                // Process each file
+                Array.from(files).forEach((file) => {
+                    if (file.type.startsWith("image/")) {
+                        loadImage(file)
+                            .then((imageSrc) => {
+                                // Check for duplicate image URL
+                                const isDuplicate = this.images.some(
+                                    (image) => image === imageSrc
+                                );
+                                if (!isDuplicate) {
+                                    this.images.push(imageSrc); // Store the image source in the array
+                                } else {
+                                    addAlert(
+                                        "warning",
+                                        "This image is already added."
+                                    );
+                                }
+                            })
+                            .catch((error) => {
+                                addAlert(
+                                    "error",
+                                    "Error loading image: " + error
+                                );
+                            });
+                    } else {
+                        addAlert("warning", file.name + " is not an image.");
+                    }
+                });
+            }
+        },
     },
     mounted() {
         this.chatSetup();
         this.connectWebSocket();
-        watch(authUserId, (newUserId) => {
-            if (newUserId != this.currentUserId && isAuth) {
-                this.chatSetup();
-            }
-        }, { immediate: true })
+        watch(
+            authUserId,
+            (newUserId) => {
+                if (newUserId != this.currentUserId && isAuth) {
+                    this.chatSetup();
+                }
+            },
+            { immediate: true }
+        );
     },
     beforeUnmount() {
         if (this.socket) {

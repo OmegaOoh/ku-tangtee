@@ -21,9 +21,9 @@
                 </div>
                 <EditModal
                     @update-success="
-                        () => {
-                            this.closeModal();
-                            this.fetchDetail();
+                        async () => {
+                            await fetchDetail();
+                            closeModal();
                         }
                     "
                 />
@@ -50,6 +50,19 @@
                     <strong class="text-base-content text-lg">Date:</strong>
                     {{ formatTimestamp(activity.date) }}
                 </p>
+                <div
+                    v-if="imageUrls.length > 0"
+                    class="flex flex-col justify-center"
+                >
+                    <span class="text-base-content text-lg ml-3 mb-2">
+                        Preview Images
+                    </span>
+                    <ImageCarousel
+                        ref="imageCarousel"
+                        carouselName="detail-carousel"
+                        :images="imageUrls.map((image) => image.url)"
+                    />
+                </div>
                 <p v-if="activity.max_people != null" class="mb-2 ml-3">
                     <strong class="text-base-content text-lg"
                         >Max People:</strong
@@ -81,7 +94,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div
                     class="flex flex-col sm:flex-row justify-between items-center"
                 >
@@ -137,10 +149,14 @@ import {
 import { isAuth, login, userId } from "@/functions/Authentications";
 import { watch, ref } from "vue";
 import EditModal from "@/component/EditModal.vue";
+import ImageCarousel from "@/component/ImageCarousel";
 </script>
 
 <script>
 export default {
+    components: {
+        ImageCarousel,
+    },
     data() {
         return {
             activity: {},
@@ -153,6 +169,9 @@ export default {
             isHost: false,
             isJoined: false,
             showModal: ref(false),
+            baseUrl: "",
+            images: [],
+            imageUrls: [],
         };
     },
     methods: {
@@ -192,6 +211,21 @@ export default {
                 );
                 this.activity = response.data;
                 this.people = this.activity.participant;
+                this.images = this.activity.images;
+                this.imageUrls = [];
+                this.baseUrl = process.env.VUE_APP_BASE_URL;
+                if (this.baseUrl.endsWith("/")) {
+                    this.baseUrl = this.baseUrl.slice(0, -1);
+                }
+                for (const image of this.images) {
+                    const imageurl = this.baseUrl + image.url;
+                    this.imageUrls.push({ id: image.id, url: imageurl });
+                }
+                if (this.$refs.imageCarousel) {
+                    this.$refs.imageCarousel.images = this.imageUrls.map(
+                        (image) => image.url
+                    );
+                }
                 this.canJoin = this.activity.can_join;
                 this.hosts = JSON.stringify(response.data.host);
                 this.checkHost();
