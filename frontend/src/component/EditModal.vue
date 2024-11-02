@@ -159,7 +159,6 @@ export default {
                     id: image.id,
                     url: `${this.baseUrl}${image.url}`,
                 }));
-                console.log(this.images);
                 this.maxPeople =
                     this.activity.max_people || this.activity.people;
                 this.showMaxPeople = this.maxPeople > 0;
@@ -250,8 +249,11 @@ export default {
                     `/activities/${this.activityId}/`,
                     data
                 );
+                this.new_images = [];
+                this.remove_attachment = [];
                 addAlert("success", response.data.message);
                 this.$emit("update-success");
+                await this.fetchDetail();
             } catch (error) {
                 if (error.response && error.response.data) {
                     addAlert("error", error.response.data.message); // Show error message from backend
