@@ -44,22 +44,25 @@ class CheckInView(
         :param request: Http request object
         :return: Http response object
         """
-        code = request.POST.get('check_in_code', 'no')
+        code = request.data.get('check_in_code', 'no')
         act = self.get_object()
 
         if not act.is_participated(request.user):
             return response.Response(
-                {'message': "You're not member of this activity"}
+                {'message': "You're not member of this activity"},
+                status=403
             )
 
         if not act.check_in_allowed:
             return response.Response(
-                {'message': 'Check-in are not allow at the moment'}
+                {'message': 'Check-in are not allow at the moment'},
+                status=403
             )
 
         if not act.verified_check_in_code(code):
             return response.Response(
-                {'message': 'Check-in code invalid'}
+                {'message': 'Check-in code invalid'},
+                status=403
             )
 
         attend = act.attend_set.get(user=request.user)
