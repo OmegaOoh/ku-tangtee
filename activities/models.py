@@ -110,7 +110,7 @@ class Attend(models.Model):
         :param by_date: on True, make result order in activity date instead of join time
         :return: The latest activities joined by a user, order by join time(default).
         """
-        res = cls.objects.filter(user=user).order_by('-id')[:records]
+        res = cls.objects.filter(user=user)
         # Ordering
         if by_date:
             res = res.order_by('activity__date')
