@@ -30,7 +30,7 @@ def get_recent_activity(request: HttpRequest, *args: Any, **kwargs: Any) -> resp
     order_by_date = bool(request.GET.get('byDate', False))
     records = request.GET.get('records', None)
     if (records):
-        records = int()
+        records = int(records)
     activities = models.Attend.recently_joined(user, records, order_by_date)
     recent_activities = [{"name": activity.name,
                           "activity_id": activity.id,
