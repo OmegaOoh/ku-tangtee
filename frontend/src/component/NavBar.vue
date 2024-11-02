@@ -58,7 +58,7 @@
                 aria-label="close sidebar"
                 class="drawer-overlay"
             ></label>
-            <ul class="menu bg-base-200 text-base-content w-[15%] p-4">
+            <ul class="menu bg-base-200 text-base-content w-80 p-4">
                 <!-- Sidebar content here -->
                 <li v-for="(activity, index) in activities" :key="index" class="w-full overflow-hidden h-fit">
                         <router-link :to="`/activities/${activity.activity_id}`" class="w-full" >

@@ -82,7 +82,7 @@
                             <textarea
                                 v-model='bio'
                                 class='textarea textarea-primary w-full mb-4 resize-none'
-                                placeholder='Bio'
+                                placeholder='Share a little about yourself'
                                 :maxlength='256'
                                 rows="4"
                             >
@@ -169,7 +169,7 @@ import apiClient from "@/api";
 
 <script>
 
-const kuEstablishedYear = 1940
+const KU_ESTABLISHED_YEAR = 1940
 
 export default {
     data() {
@@ -281,10 +281,11 @@ export default {
                 }
             )
             this.goNext()
+            addAlert('success', 'Your profile has been created successfully! Welcome to KU Tangtee!')
         },
         getMaxKuGeneration() {
             const currentYear = (new Date()).getFullYear();
-            return currentYear - kuEstablishedYear;
+            return currentYear - KU_ESTABLISHED_YEAR;
         },
         goNext() {
             const nextPath = this.$router.currentRoute.value.query.next;

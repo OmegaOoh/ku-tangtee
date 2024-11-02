@@ -46,7 +46,7 @@ class ProfilesSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         profile = models.Profile.objects.create(user_id=user.id, **validated_data)
         return profile
-    
+
     def get_profile_picture_url(self, obj):
         # Call the get_profile_picture method with the user from the profile
         try:
@@ -54,4 +54,3 @@ class ProfilesSerializer(serializers.ModelSerializer):
             return social_account.extra_data.get('picture', '')
         except SocialAccount.DoesNotExist:
             return ''
-
