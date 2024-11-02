@@ -109,8 +109,8 @@ class ChatWebSocketTest(django.test.TransactionTestCase):
             self.assertEqual(response["message"], "Test Message along with base64")
             attachments = response['images'][0]
             message = await sync_to_async(lambda: Message.objects.filter(message="Test Message along with base64").first())()
-            expected_url = f"/media/chat/{message.id}_attachment_1.jpg"
-            self.assertEqual(expected_url, attachments)
+            expected_url = f"/media/chat/{message.id}"
+            self.assertTrue(attachments.startswith(expected_url), "Attachment URL does not start with the expected base URL.")
             attachment = await sync_to_async(lambda: Attachment.objects.filter(message__message="Test Message along with base64").first())()
             if attachment and attachment.image:
                 await sync_to_async(attachment.image.delete)()

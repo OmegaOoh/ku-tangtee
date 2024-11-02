@@ -1,6 +1,7 @@
 """Utility module."""
 import requests
 import base64
+import uuid
 from django.http import HttpRequest, JsonResponse
 from django.middleware.csrf import get_token
 from django.core.files.base import ContentFile
@@ -81,7 +82,7 @@ def image_loader_64(image_data_list: list[str], act: models.Activity) -> None:
             image_content = base64.b64decode(image_data)
 
             # Generate a unique name for the file, for example by using the message ID
-            file_name = f"{act.id}_attachment_{len(image_data_list)}.jpg"
+            file_name = f"{act.id}_attachment_{uuid.uuid4()}.jpg"
 
             # Create ContentFile and save the attachment
             image_file = ContentFile(image_content, name=file_name)

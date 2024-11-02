@@ -159,6 +159,7 @@ export default {
                     id: image.id,
                     url: `${this.baseUrl}${image.url}`,
                 }));
+                console.log(this.images);
                 this.maxPeople =
                     this.activity.max_people || this.activity.people;
                 this.showMaxPeople = this.maxPeople > 0;
@@ -244,6 +245,7 @@ export default {
                     new_images: this.new_images,
                     remove_attachments: this.remove_attachment,
                 };
+                console.log(this.images);
                 const response = await createPutRequest(
                     `/activities/${this.activityId}/`,
                     data
@@ -277,13 +279,9 @@ export default {
             this.showMaxPeople = !this.showMaxPeople;
         },
         handleFileChange(event) {
-            /*
-             * Push value into images.
-             * @params {image} image that uploads from input.
-             * Return nothing.
-             */
             const files = event.target.files;
             if (files.length > 0) {
+                // Check total image count
                 if (files.length + this.images.length > MAX_IMAGE_COUNT) {
                     addAlert(
                         "warning",
@@ -291,30 +289,49 @@ export default {
                     );
                     return;
                 }
-                var totalSize = 0;
-                Array.from(this.images).forEach((file) => {
-                    totalSize += file.size;
-                });
+
+                // Calculate total size of current and new images
+                let totalSize = this.images.reduce(
+                    (sum, file) => sum + file.size,
+                    0
+                );
+
                 Array.from(files).forEach((file) => {
                     totalSize += file.size;
                 });
+
+                // Check if total size exceeds limit
                 if (totalSize > MAX_IMAGES_SIZE) {
                     addAlert(
                         "warning",
-                        "You can add at most" + MAX_IMAGES_SIZE / 1e6 + "MB"
+                        "You can add at most " + MAX_IMAGES_SIZE / 1e6 + " MB"
                     );
+                    return; // Return to prevent further execution
                 }
+
+                // Process each file
                 Array.from(files).forEach((file) => {
                     if (file.type.startsWith("image/")) {
                         loadImage(file)
                             .then((imageSrc) => {
-                                this.images.push({ id: -1, url: imageSrc }); // Store the image source in the array
+                                // Check for duplicate image URL
+                                const isDuplicate = this.images.some(
+                                    (image) => image.url === imageSrc
+                                );
+                                if (!isDuplicate) {
+                                    this.images.push({ id: -1, url: imageSrc }); // Store the image source in the array
+                                } else {
+                                    addAlert(
+                                        "warning",
+                                        "This image is already added."
+                                    );
+                                }
                             })
                             .catch((error) => {
                                 console.error("Error loading image:", error);
                             });
                     } else {
-                        addAlert("warning", file.name + " is not images.");
+                        addAlert("warning", file.name + " is not an image.");
                     }
                 });
             }

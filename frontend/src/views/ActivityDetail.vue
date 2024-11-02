@@ -21,9 +21,9 @@
                 </div>
                 <EditModal
                     @update-success="
-                        () => {
-                            this.closeModal();
-                            this.fetchDetail();
+                        async () => {
+                            await fetchDetail();
+                            closeModal();
                         }
                     "
                 />
@@ -58,8 +58,9 @@
                         Preview Images
                     </span>
                     <ImageCarousel
+                        ref="imageCarousel"
                         carouselName="detail-carousel"
-                        :images="imageUrls"
+                        :images="imageUrls.map((image) => image.url)"
                     />
                 </div>
                 <p v-if="activity.max_people != null" class="mb-2 ml-3">
@@ -211,6 +212,7 @@ export default {
                 this.activity = response.data;
                 this.people = this.activity.participant;
                 this.images = this.activity.images;
+                console.log(this.images);
                 this.imageUrls = [];
                 this.baseUrl = process.env.VUE_APP_BASE_URL;
                 if (this.baseUrl.endsWith("/")) {
@@ -218,7 +220,12 @@ export default {
                 }
                 for (const image of this.images) {
                     const imageurl = this.baseUrl + image.url;
-                    this.imageUrls.push(imageurl);
+                    this.imageUrls.push({ id: image.id, url: imageurl });
+                }
+                if (this.$refs.imageCarousel) {
+                    this.$refs.imageCarousel.images = this.imageUrls.map(
+                        (image) => image.url
+                    );
                 }
                 this.canJoin = this.activity.can_join;
                 this.hosts = JSON.stringify(response.data.host);
@@ -335,7 +342,6 @@ export default {
         window.addEventListener("keydown", (e) => {
             if (e.key == "Escape") {
                 this.closeModal();
-                this.fetchDetail();
             }
         });
     },

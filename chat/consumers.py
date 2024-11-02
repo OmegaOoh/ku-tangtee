@@ -1,6 +1,7 @@
 """Module contains websocket consumers implementation."""
 import json
 import base64
+import uuid
 import requests
 from django.core.files.base import ContentFile
 from typing import Any, Dict
@@ -78,7 +79,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     # Handle base64 image
                     image_data = image_data.split("base64,")[1]
                     image_content = base64.b64decode(image_data)
-                    file_name = f"{new_message.id}_attachment_{len(attachment_urls) + 1}.jpg"
+                    file_name = f"{new_message.id}_attachment_{uuid.uuid4()}.jpg"
                     image_content = ContentFile(image_content, name=file_name)
                 else:
                     # Handle URL image

@@ -165,8 +165,8 @@ class CreateActivityTest(django.test.TestCase):
         self.assertEqual(new_act.people, 1)
         attachments = new_act.attachment_set.all()
         image = attachments.first()
-        expected_url = f"/media/activities/{new_act.id}_attachment_1.jpg"
-        self.assertEqual(expected_url, image.image.url)
+        expected_url = f"/media/activities/{new_act.id}"
+        self.assertTrue(image.image.url.startswith(expected_url), "Attachment URL does not start with the expected base URL.")
 
         image.image.delete(save=False)
         image.delete()
