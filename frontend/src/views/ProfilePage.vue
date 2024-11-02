@@ -218,8 +218,14 @@ export default {
         
     },
     async mounted() {
-        await this.fetchUserData();
-        this.fetchRecentActivities();
+        try{
+            await this.fetchUserData();
+            this.fetchRecentActivities();
+        } catch (e) {
+            this.$router.push('/')
+            addAlert('error', 'The profile does not exists.')
+        }
+
         this.checkOwn();
         watch(userId, () => {
                 if (isAuth) {

@@ -2,7 +2,6 @@
 import django.test
 from django import urls
 from .shortcuts import create_activity, activity_to_json, create_test_user, convert_day_num
-import json
 
 
 class IndexTest(django.test.TestCase):
