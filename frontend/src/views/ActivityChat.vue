@@ -1,3 +1,4 @@
+
 <template>
     <div class="w-screen overflow-x-hidden">
         <div class="breadcrumbs text-lm size-fit ml-10 my-6">
@@ -16,7 +17,7 @@
             <div class="relative flex flex-col h-[65vh]">
                 <ul
                     ref="messageList"
-                    class="card-body overflow-y-auto h-[70vh] break-words -z-10"
+                    class="card-body overflow-y-auto h-[70vh] break-words"
                     @scroll="handleScroll"
                 >
                     <li v-for="(message, index) in messages" :key="index">
@@ -70,6 +71,16 @@
                         </div>
                     </li>
                 </ul>
+                <div class="absolute flex justify-center z-10 bottom-2 right-1 left-1">
+                    <button
+                        id="bottom-button"
+                        class="btn btn-accent size-fit text-xl transition-all duration-300 ease-in-out opacity-0"
+                        @click="() => { isAtBottom = true; scrollToBottom(); }"
+                    >
+                        ⇩
+                    </button>
+                </div>
+            </div>
                 <div class="border-t-2 border-base-100 pt-2">
                     <div
                         v-if="images.length > 0"
@@ -118,7 +129,7 @@
                         </button>
                     </div>
                 </div>
-            </div>
+
         </div>
         <div
             v-else-if="isAuth & !isJoined"
@@ -227,8 +238,11 @@ export default {
              * Return Nothing
              */
             let trimMessage = this.newMessage.trim();
-            if (trimMessage === "") {
+            if (trimMessage === ''  && !this.images) {
                 return;
+            }
+            if (trimMessage == '') {
+                trimMessage = ' ';
             }
             if (this.socket.readyState === WebSocket.OPEN) {
                 this.socket.send(
