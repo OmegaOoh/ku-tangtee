@@ -44,7 +44,7 @@
                             tabindex="0"
                             class="menu dropdown-content bg-base-300 rounded-box z-20 w-52 p-2 shadow"
                         >
-                            <li class="p-2 hover:text-primary" @click="$router.push(`/profile/${userName}`)">{{ fName }} {{ lName }}</li>
+                            <li class="p-2 hover:text-primary cursor-pointer" @click="$router.push(`/profile/${userName}`)">{{ fName }} {{ lName }}</li>
                             <li @click="logout"><a> Logout </a></li>
                         </ul>
                     </div>
