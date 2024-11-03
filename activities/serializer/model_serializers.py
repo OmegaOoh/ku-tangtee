@@ -19,7 +19,7 @@ class ParticipantDetailSerializer(serializers.ModelSerializer):
 
 
 class ActivitiesSerializer(serializers.ModelSerializer):
-    """Serialized Activity and created activity from data."""
+    """Serialized Activity and created activity from validated data."""
 
     people = serializers.ReadOnlyField()
     can_join = serializers.ReadOnlyField()
