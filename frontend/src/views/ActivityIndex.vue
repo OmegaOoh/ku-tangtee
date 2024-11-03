@@ -29,33 +29,55 @@
                     class="input input-bordered gap-2 rounded-r-none"
                     placeholder="Search"
                 />
-                <VueDatePicker
-                    v-model="dateRange"
-                    id="date-field"
-                    type="text"
-                    placeholder="Filter by date range"
-                    :min-date="null"
-                    :max-date="null"
-                    :dark="isDarkTheme"
-                    range
-                    :partial-range="false"
-                    class="input input-bordered rounded-none object-full"
-                />
-                <select
-                    v-model="selectedDay"
-                    class="input input-bordered rounded-none"
-                >
-                    <option value="">All Days</option>
-                    <option value="1">Sunday</option>
-                    <option value="2">Monday</option>
-                    <option value="3">Tuesday</option>
-                    <option value="4">Wednesday</option>
-                    <option value="5">Thursday</option>
-                    <option value="6">Friday</option>
-                    <option value="7">Saturday</option>
-                    <option value="1,7">Weekend</option>
-                    <option value="2,3,4,5,6">Weekdays</option>
-                </select>
+                <div>
+                    <div class="relative">
+                        <button @click="toggleFilter" class="btn btn-primary rounded-none">filter</button>
+                        <div v-if="isFilterOpen" class=" right-0 absolute dropdown-content bg-base-200 rounded-box w-fit z-[1] p-4 shadow">
+                            <VueDatePicker
+                                v-model="dateRange"
+                                id="date-field"
+                                type="text"
+                                placeholder="Filter by date range"
+                                :min-date="null"
+                                :max-date="null"
+                                :dark="isDarkTheme"
+                                range
+                                :partial-range="false"
+                                class="mb-3"
+                            />
+                            <div class="flex flex-row justify-between">
+                                <label class="cursor-pointer flex flex-col items-center  mr-3">
+                                    <input type="checkbox" class="checkbox" value="1" :checked="isChecked(1)" @change="toggleDay(1)" />
+                                    <span>Sa</span>
+                                </label>
+                                <label class="cursor-pointer flex flex-col items-center  mr-3">
+                                    <input type="checkbox" class="checkbox" value="2" :checked="isChecked(2)" @change="toggleDay(2)" />
+                                    <span>Mo</span>
+                                </label>
+                                <label class="cursor-pointer flex flex-col items-center  mr-3">
+                                    <input type="checkbox" class="checkbox" value="3" :checked="isChecked(3)" @change="toggleDay(3)" />
+                                    <span>Tu</span>
+                                </label>
+                                <label class="cursor-pointer flex flex-col items-center  mr-3">
+                                    <input type="checkbox" class="checkbox" value="4" :checked="isChecked(4)" @change="toggleDay(4)" />
+                                    <span>We</span>
+                                </label>
+                                <label class="cursor-pointer flex flex-col items-center  mr-3">
+                                    <input type="checkbox" class="checkbox" value="5" :checked="isChecked(5)" @change="toggleDay(5)" />
+                                    <span>Th</span>
+                                </label>
+                                <label class="cursor-pointer flex flex-col items-center  mr-3">
+                                    <input type="checkbox" class="checkbox" value="6" :checked="isChecked(6)" @change="toggleDay(6)" />
+                                    <span>Fr</span>
+                                </label>
+                                <label class="cursor-pointer flex flex-col items-center  mr-3">
+                                    <input type="checkbox" class="checkbox" value="7" :checked="isChecked(7)" @change="toggleDay(7)" />
+                                    <span>Su</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <button
                     @click="fetchActivities"
                     class="btn btn-secondary rounded-l-none"
@@ -128,7 +150,8 @@ export default {
             startDate: null,
             endDate: null,
             dateRange: null,
-            selectedDay: null,
+            selectedDay: [1,2,3,4,5,6,7],
+            isFilterOpen: false,
         };
     },
     mounted() {
@@ -163,9 +186,8 @@ export default {
                     params.end_date = format(this.endDate, "yyyy-MM-dd");
                 }
                 if (this.selectedDay) {
-                    params.day = this.selectedDay;
+                    params.day = this.selectedDay.toString();
                 }
-                console.log(params);
                 response = await apiClient.get("/activities/", { params });
                 this.activities = response.data;
                 window.scrollTo(0, 0);
@@ -234,6 +256,32 @@ export default {
                 }
             };
         },
+        toggleFilter() {
+            /**
+             * Function to toggle filter dropdown status
+             */
+            this.isFilterOpen = !this.isFilterOpen;
+        },
+        toggleDay(value) {
+            /**
+             * Toggle value inside selectedDay array
+             */
+            value = Number(value);
+            const index = this.selectedDay.indexOf(value);
+            if (index === -1) {
+                this.selectedDay.push(value)
+            }
+            else {
+                this.selectedDay.splice(index,1);
+            }
+        },
+        isChecked(value) {
+            /**
+             * Check if the selectedDays is include the value.
+             * @return boolean
+             */
+            return this.selectedDay.includes(Number(value))
+        }
     },
     beforeUnmount() {
         if (this.socket) {
