@@ -29,6 +29,55 @@
                     class="input input-bordered gap-2 rounded-r-none"
                     placeholder="Search"
                 />
+                <div>
+                    <div class="relative">
+                        <button @click="toggleFilter" class="btn btn-primary rounded-none">filter</button>
+                        <div v-if="isFilterOpen" class=" right-0 absolute dropdown-content bg-base-200 rounded-box w-fit z-[1] p-4 shadow">
+                            <VueDatePicker
+                                v-model="dateRange"
+                                id="date-field"
+                                type="text"
+                                placeholder="Filter by date range"
+                                :min-date="null"
+                                :max-date="null"
+                                :dark="isDarkTheme"
+                                range
+                                :partial-range="false"
+                                class="mb-3"
+                            />
+                            <div class="flex flex-row justify-between">
+                                <label class="cursor-pointer flex flex-col items-center  mr-3">
+                                    <input type="checkbox" class="checkbox" value="1" :checked="isChecked(1)" @change="toggleDay(1)" />
+                                    <span>Su</span>
+                                </label>
+                                <label class="cursor-pointer flex flex-col items-center  mr-3">
+                                    <input type="checkbox" class="checkbox" value="2" :checked="isChecked(2)" @change="toggleDay(2)" />
+                                    <span>Mo</span>
+                                </label>
+                                <label class="cursor-pointer flex flex-col items-center  mr-3">
+                                    <input type="checkbox" class="checkbox" value="3" :checked="isChecked(3)" @change="toggleDay(3)" />
+                                    <span>Tu</span>
+                                </label>
+                                <label class="cursor-pointer flex flex-col items-center  mr-3">
+                                    <input type="checkbox" class="checkbox" value="4" :checked="isChecked(4)" @change="toggleDay(4)" />
+                                    <span>We</span>
+                                </label>
+                                <label class="cursor-pointer flex flex-col items-center  mr-3">
+                                    <input type="checkbox" class="checkbox" value="5" :checked="isChecked(5)" @change="toggleDay(5)" />
+                                    <span>Th</span>
+                                </label>
+                                <label class="cursor-pointer flex flex-col items-center  mr-3">
+                                    <input type="checkbox" class="checkbox" value="6" :checked="isChecked(6)" @change="toggleDay(6)" />
+                                    <span>Fr</span>
+                                </label>
+                                <label class="cursor-pointer flex flex-col items-center  mr-3">
+                                    <input type="checkbox" class="checkbox" value="7" :checked="isChecked(7)" @change="toggleDay(7)" />
+                                    <span>Sa</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <button
                     @click="fetchActivities"
                     class="btn btn-secondary rounded-l-none"
@@ -98,11 +147,24 @@ export default {
             timeZoneOffset: 0,
             searchKeyword: "",
             socket: null,
+            startDate: null,
+            endDate: null,
+            dateRange: null,
+            selectedDay: [1,2,3,4,5,6,7],
+            isFilterOpen: false,
         };
     },
     mounted() {
         this.fetchActivities();
         this.setupSocket();
+        this.isDarkTheme = window.matchMedia(
+            "(prefers-color-scheme: dark)"
+        ).matches;
+        window
+            .matchMedia("(prefers-color-scheme: dark)")
+            .addEventListener("change", (e) => {
+                this.isDarkTheme = e.matches;
+            });
     },
     methods: {
         async fetchActivities() {
@@ -111,13 +173,22 @@ export default {
              */
             try {
                 let response;
-                if (this.searchKeyword == "" || this.searchKeyword == null) {
-                    response = await apiClient.get("/activities/");
-                } else {
-                    response = await apiClient.get("/activities/", {
-                        params: { keyword: this.searchKeyword },
-                    });
+                const params = {};
+
+                // Add parameters only if they have values
+                if (this.searchKeyword) {
+                    params.keyword = this.searchKeyword;
                 }
+                if (this.startDate) {
+                    params.start_date = format(this.startDate, "yyyy-MM-dd");
+                }
+                if (this.endDate) {
+                    params.end_date = format(this.endDate, "yyyy-MM-dd");
+                }
+                if (this.selectedDay) {
+                    params.day = this.selectedDay.toString();
+                }
+                response = await apiClient.get("/activities/", { params });
                 this.activities = response.data;
                 window.scrollTo(0, 0);
                 // Hide reload button
@@ -185,11 +256,43 @@ export default {
                 }
             };
         },
+        toggleFilter() {
+            /**
+             * Function to toggle filter dropdown status
+             */
+            this.isFilterOpen = !this.isFilterOpen;
+        },
+        toggleDay(value) {
+            /**
+             * Toggle value inside selectedDay array
+             */
+            value = Number(value);
+            const index = this.selectedDay.indexOf(value);
+            if (index === -1) {
+                this.selectedDay.push(value)
+            }
+            else {
+                this.selectedDay.splice(index,1);
+            }
+        },
+        isChecked(value) {
+            /**
+             * Check if the selectedDays is include the value.
+             * @return boolean
+             */
+            return this.selectedDay.includes(Number(value))
+        }
     },
     beforeUnmount() {
         if (this.socket) {
             this.socket.close();
         }
+    },
+    watch: {
+        dateRange(newRange) {
+            this.startDate = newRange ? newRange[0] : null;
+            this.endDate = newRange ? newRange[1] : null;
+        },
     },
 };
 </script>
