@@ -48,7 +48,7 @@
                             <div class="flex flex-row justify-between">
                                 <label class="cursor-pointer flex flex-col items-center  mr-3">
                                     <input type="checkbox" class="checkbox" value="1" :checked="isChecked(1)" @change="toggleDay(1)" />
-                                    <span>Sa</span>
+                                    <span>Su</span>
                                 </label>
                                 <label class="cursor-pointer flex flex-col items-center  mr-3">
                                     <input type="checkbox" class="checkbox" value="2" :checked="isChecked(2)" @change="toggleDay(2)" />
@@ -72,7 +72,7 @@
                                 </label>
                                 <label class="cursor-pointer flex flex-col items-center  mr-3">
                                     <input type="checkbox" class="checkbox" value="7" :checked="isChecked(7)" @change="toggleDay(7)" />
-                                    <span>Su</span>
+                                    <span>Sa</span>
                                 </label>
                             </div>
                         </div>
