@@ -3,7 +3,7 @@
         <input id="my-drawer" type="checkbox" class="drawer-toggle" />
         <div class="drawer-content flex flex-col">
             <div
-                class="flex items-center p-2 sticky z-10 top-0 left-0 right-0 justify-between bg-base-300 w-screen h-fit border-b-2 border-primary backdrop-blur-md bg-opacity-50"
+                class="flex items-center p-2 sticky z-50 top-0 left-0 right-0 justify-between bg-base-300 w-screen h-fit border-b-2 border-primary backdrop-blur-md bg-opacity-50"
             >
                 <div class="flex justify-start items-center">
                     <label
@@ -44,7 +44,7 @@
                             tabindex="0"
                             class="menu dropdown-content bg-base-300 rounded-box z-20 w-52 p-2 shadow"
                         >
-                            <li class="p-2">{{ fName }} {{ lName }}</li>
+                            <li class="p-2 hover:text-primary cursor-pointer" @click="$router.push(`/profile/${userName}`)">{{ fName }} {{ lName }}</li>
                             <li @click="logout"><a> Logout </a></li>
                         </ul>
                     </div>
@@ -58,15 +58,16 @@
                 aria-label="close sidebar"
                 class="drawer-overlay"
             ></label>
-            <ul class="menu bg-base-200 text-base-content w-64 p-4">
+            <ul class="menu bg-base-200 text-base-content w-80 p-4">
                 <!-- Sidebar content here -->
-                <li v-for="(activity, index) in activities" :key="index">
-                    <router-link :to="`/activities/${activity.activity_id}`">{{
-                        activity.name
-                    }}</router-link>
-                </li>
+                <li v-for="(activity, index) in activities" :key="index" class="w-full overflow-hidden h-fit">
+                        <router-link :to="`/activities/${activity.activity_id}`" class="w-full" >
+                            <p class="w-full h-fit text-ellipsis overflow-hidden"> {{ activity.name }} </p>
+                        </router-link>
 
-                <li>
+                </li>
+                <div class="divider w-full"></div>
+                <li class="w-full">
                     <router-link to="/create">Create Activity</router-link>
                 </li>
             </ul>
@@ -83,6 +84,8 @@ import {
     pfp,
     fName,
     lName,
+    userId,
+    userName,
 } from "@/functions/Authentications";
 import apiClient from "@/api";
 </script>
@@ -99,7 +102,7 @@ export default {
     },
     methods: {
         async getRecentActivity() {
-            const response = await apiClient.get("/activities/get-recently/");
+            const response = await apiClient.get(`/activities/get-recently/${userId.value}/?records=5`);
             this.activities = response.data;
         },
     },
@@ -116,3 +119,15 @@ export default {
     },
 };
 </script>
+
+<style scoped>
+.line-ellipsis {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    word-wrap:break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+</style>

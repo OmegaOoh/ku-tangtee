@@ -1,7 +1,6 @@
 """Module to test on index page of activities app."""
 import django.test
 from django import urls
-
 from .shortcuts import create_activity, activity_to_json, create_test_user, convert_day_num, date_from_now
 
 
@@ -40,7 +39,7 @@ class IndexTest(django.test.TestCase):
         create_activity(host=self.host_user, days_delta=-1)
         response = self.client.get(urls.reverse("activities:index"))
         expected = [
-            activity_to_json(activity)
+            activity_to_json(activity),
         ]
         self.assertJSONEqual(response.content, expected)
 

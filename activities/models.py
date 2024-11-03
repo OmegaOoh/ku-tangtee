@@ -1,5 +1,5 @@
 """Database Model for activities app."""
-from typing import Any
+from typing import Any, Optional
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -102,13 +102,26 @@ class Attend(models.Model):
         return self.__str__()
 
     @classmethod
-    def recently_joined(cls, user: User) -> list[Activity]:
-        """Class method that get 3 most recently joined activities of a user.
+    def recently_joined(cls, user: User,
+                        records: Optional[int | None] = None,
+                        by_date: Optional[bool] = False) -> list[Activity]:
+        """Class method that get recently joined activities of a user.
 
         :param user: the user to get activities for.
-        :return: The latest 3 activities joined by a user, order by join time.
+        :param records: the number of record needed for return
+        :param by_date: on True, make result order in activity date instead of join time
+        :return: The latest activities joined by a user, order by join time(default).
         """
-        return [a.activity for a in cls.objects.filter(user=user).order_by('-id')[:3]]
+        res = cls.objects.filter(user=user)
+        # Ordering
+        if by_date:
+            res = res.order_by('-activity__date')
+        else:
+            res = res.order_by('-id')
+
+        if records:
+            res = res[:records]
+        return [a.activity for a in res]
 
     @classmethod
     def active_joined_activity(cls, user: User) -> list[Activity]:

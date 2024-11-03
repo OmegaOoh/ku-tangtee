@@ -1,5 +1,4 @@
 """Module to test on profile creation handler."""
-import json
 import django.test
 from .shortcuts import create_profile, create_test_user
 
@@ -27,6 +26,6 @@ class CreateProfileTest(django.test.TestCase):
 
     def test_not_logged_in(self):
         """Show error message when not logged in."""
-        response, profile = create_profile(log_in=False)
+        response, _ = create_profile(log_in=False)
         self.assertEqual(response.status_code, 403)
         self.assertJSONEqual(response.content, {'message': 'Authentication credentials were not provided.'})

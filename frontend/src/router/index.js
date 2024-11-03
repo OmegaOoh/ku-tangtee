@@ -1,8 +1,10 @@
 import { createRouter, createWebHistory } from "vue-router";
-import ActivityIndex from "../views/ActivityIndex.vue";
-import ActivityDetail from "../views/ActivityDetail.vue";
-import ActivityCreate from "../views/ActivityCreate.vue";
+import ActivityIndex from "@/views/ActivityIndex.vue";
+import ActivityDetail from "@/views/ActivityDetail.vue";
+import ActivityCreate from "@/views/ActivityCreate.vue";
 import ActivityChat from "@/views/ActivityChat.vue";
+import ProfileCreate from "@/views/ProfileCreate.vue";
+import ProfilePage from "@/views/ProfilePage.vue";
 
 // Just like  urls.py
 const routes = [
@@ -25,6 +27,16 @@ const routes = [
         path: "/chat/:id",
         name: "ActivityChatPage",
         component: ActivityChat,
+    },
+    {
+        path: "/create-profile",
+        name: "ProfileCretePage",
+        component: ProfileCreate,
+    },
+    {
+        path: "/profile/:username",
+        name: "ProfilePage",
+        component: ProfilePage,
     },
 ];
 

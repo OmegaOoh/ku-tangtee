@@ -2,14 +2,17 @@ import { ref } from 'vue';
 import apiClient from '@/api';
 import { googleTokenLogin } from 'vue3-google-login';
 import { createPostRequest } from './HttpRequest';
-import { getCookie, setCookie, deleteCookie } from './cookies';
+import { getCookie, setCookie, deleteCookie } from './CookiesReadWrite.js';
+import router from '@/router'
 
 
 export var isAuth = ref(false);
 export var fName = ref('');
 export var lName = ref('');
+export var email = ref('')
 export var pfp = ref('');
 export var userId = ref(-1);
+export var userName = ref("");
 
 export async function login() {
     /**
@@ -30,6 +33,10 @@ export async function login() {
         setCookie('backend-token', response.data.access);
         isAuth.value = true;
         await getUserData();
+        const profileStatus = await apiClient.get(`/profile/`)
+        if(!profileStatus.data.has_profile) {
+            router.push(`/create-profile?next=${router.currentRoute.value.path}`);
+        }
     } catch (e) {
         console.error("error on login: ",e);
     }
@@ -73,8 +80,10 @@ export async function logout() {
     isAuth.value = false;
     fName.value = '';
     lName.value = '';
+    email.value = '';
     pfp.value = '';
     userId.value = '';
+    userName.value = '';
     deleteCookie('backend-token');
 }
 
@@ -87,6 +96,8 @@ export async function getUserData() {
         const response = await apiClient.get(`rest-auth/user/`);
         fName.value = response.data.first_name;
         lName.value = response.data.last_name;
+        email.value = response.data.email;
+        userName.value = response.data.username;
         const profilePic = await apiClient.get(`profile-pic/`);
         pfp.value = profilePic.data.profile_picture_url;
         userId.value = response.data.pk;

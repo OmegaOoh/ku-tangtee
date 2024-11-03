@@ -1,3 +1,4 @@
+
 <template>
     <div class="w-screen overflow-x-hidden">
         <div class="breadcrumbs text-lm size-fit ml-10 my-6">
@@ -13,10 +14,11 @@
             v-if="isAuth & isJoined"
             class="card bg-base-300 mx-10 border-2 border-primary"
         >
-            <div class="flex flex-col h-[65vh]">
+            <div class="relative flex flex-col h-[65vh]">
                 <ul
                     ref="messageList"
-                    class="card-body overflow-y-auto break-words"
+                    class="card-body overflow-y-auto h-[70vh] break-words"
+                    @scroll="handleScroll"
                 >
                     <li v-for="(message, index) in messages" :key="index">
                         <div
@@ -69,6 +71,16 @@
                         </div>
                     </li>
                 </ul>
+                <div class="absolute flex justify-center z-10 bottom-2 right-1 left-1">
+                    <button
+                        id="bottom-button"
+                        class="btn btn-accent size-fit text-xl transition-all duration-300 ease-in-out opacity-0"
+                        @click="() => { isAtBottom = true; scrollToBottom(); }"
+                    >
+                        ⇩
+                    </button>
+                </div>
+            </div>
                 <div class="border-t-2 border-base-100 pt-2">
                     <div
                         v-if="images.length > 0"
@@ -117,7 +129,7 @@
                         </button>
                     </div>
                 </div>
-            </div>
+
         </div>
         <div
             v-else-if="isAuth & !isJoined"
@@ -153,12 +165,8 @@
 <script setup>
 import apiClient from "@/api";
 import { format } from "date-fns";
-import { watch } from "vue";
-import {
-    login,
-    isAuth,
-    userId as authUserId,
-} from "@/functions/Authentications";
+import  { watch } from 'vue'
+import { login, isAuth, userId as authUserId } from "@/functions/Authentications";
 import { addAlert } from "@/functions/AlertManager";
 import { loadImage } from "@/functions/Utils.";
 import ImageGrid from "@/component/ImageGrid.vue";
@@ -166,7 +174,7 @@ import ImageGrid from "@/component/ImageGrid.vue";
 
 <script>
 const MAX_IMAGE_COUNT = 5;
-const MAX_IMAGES_SIZE = 50e6; // 60 MB
+const MAX_IMAGES_SIZE = 50e6; // 50 MB
 
 export default {
     data() {
@@ -178,6 +186,7 @@ export default {
             people: [],
             currentUserId: null,
             isJoined: false,
+            isAtBottom: true,
             images: [],
             baseUrl: "",
         };
@@ -229,8 +238,11 @@ export default {
              * Return Nothing
              */
             let trimMessage = this.newMessage.trim();
-            if (trimMessage === "") {
+            if (trimMessage === ''  && !this.images) {
                 return;
+            }
+            if (trimMessage == '') {
+                trimMessage = ' ';
             }
             if (this.socket.readyState === WebSocket.OPEN) {
                 this.socket.send(
@@ -309,9 +321,46 @@ export default {
             this.$nextTick(() => {
                 const messageList = this.$refs.messageList;
                 if (messageList) {
-                    messageList.scrollTop = messageList.scrollHeight;
+                    if (this.isAtBottom){
+                        messageList.scrollTo(0,messageList.scrollHeight);
+                        this.scrollButtonVisibility(false);}
+                    else {
+                        this.scrollButtonVisibility(true);
+                    }
                 }
             });
+        },
+        scrollButtonVisibility(visibility) {
+            /**
+             * Handle Opacity of scrollButton
+             * this function return nothing
+             */
+            const button = document.getElementById('bottom-button')
+            if (visibility)
+            {
+                button.classList.remove('opacity-0')
+            }
+            else if (!button.classList.contains('opacity-0')) {
+                button.classList.add('opacity-0');
+            }
+
+
+        },
+        handleScroll() {
+            /**
+             * Handle Scrolling events in message list.
+             * This function return nothing.
+             */
+            const messageList = this.$refs.messageList;
+            if (!messageList) { 
+                return; //messageList is null return early
+            }
+            const scrollTop = messageList.scrollTop;
+            const clientHeight = messageList.clientHeight;
+            const scrollHeight = messageList.scrollHeight;
+
+            // Check if the user is at the bottom
+            this.isAtBottom = scrollTop + clientHeight >= scrollHeight - 10;
         },
         formatTimestamp(timestamp) {
             /*

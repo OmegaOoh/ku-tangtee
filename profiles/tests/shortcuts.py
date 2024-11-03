@@ -21,7 +21,7 @@ def create_test_user(username: str = "test_user") -> User:
 def create_profile(
     user: User = None,
     client: django.test.Client = django.test.Client(),
-    data: dict = {"faculty": "Faculty", "major": "Major"},
+    data: dict = {"faculty": "Faculty", "ku_generation": "80"},
     log_in: bool = True,
 ):
     """Return response and created profile with given parameters."""

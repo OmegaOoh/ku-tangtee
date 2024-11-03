@@ -11,14 +11,24 @@ class IndexTest(django.test.TestCase):
 
     def setUp(self):
         """Set up test cases."""
-        self.has_profile = [{'has_profile': True}]
-        self.not_have_profile = [{'has_profile': False}]
+        self.has_profile = {'has_profile': True}
+        self.not_have_profile = {
+            'has_profile': False,
+            "profile": {
+                "nick_name": "",
+                "pronoun": "",
+                "ku_generation": None,
+                "faculty": "",
+                "major": "",
+                "about_me": ""
+            }
+        }
 
     def test_index_does_not_have_profile(self):
         """Show only has_profile status."""
         user1 = create_test_user("Bruce")
         user2 = create_test_user("Clark")
-        _, profile = create_profile(user=user1)
+        _, _ = create_profile(user=user1)
         self.client.force_login(user2)
 
         response = self.client.get(urls.reverse("profiles:index"))
@@ -35,4 +45,9 @@ class IndexTest(django.test.TestCase):
 
         response = self.client.get(urls.reverse("profiles:index"))
         self.assertEqual(response.status_code, 200)
-        self.assertJSONEqual(response.content, [ProfilesSerializer(profile).data] + self.has_profile)
+        profile_data = ProfilesSerializer(profile).data
+        expected_response = {
+            'has_profile': True,  # Assuming the user has a profile
+            'profile': profile_data
+        }
+        self.assertJSONEqual(response.content, expected_response)

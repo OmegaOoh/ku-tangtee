@@ -1,13 +1,15 @@
 """Utility module."""
+
+from typing import Any
+from django.http import HttpRequest
+from django.middleware.csrf import get_token
+from django.shortcuts import get_object_or_404
 import requests
 import base64
 import uuid
-from django.http import HttpRequest, JsonResponse
-from django.middleware.csrf import get_token
 from django.core.files.base import ContentFile
 from activities import models
 from rest_framework import decorators, response
-from rest_framework.permissions import IsAuthenticated
 import random
 import string
 
@@ -22,16 +24,21 @@ def csrf_token_view(request: HttpRequest) -> response.Response:  # pragma: no co
 
 
 @decorators.api_view(['get'])
-@decorators.permission_classes([IsAuthenticated])
-def get_recent_activity(request: HttpRequest) -> response.Response:  # pragma: no cover
+def get_recent_activity(request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:  # pragma: no cover
     """Return recently joined activities.
 
     :param request: Http request object
     :return: Response object contain activities that recently joined.
     """
-    user = request.user
-    activities = models.Attend.recently_joined(user)
-    recent_activities = [{"name": activity.name, "activity_id": activity.id} for activity in activities]
+    user = get_object_or_404(models.User, id=kwargs.get('id'))
+    order_by_date = bool(request.GET.get('byDate', False))
+    records = request.GET.get('records', None)
+    if (records):
+        records = int(records)
+    activities = models.Attend.recently_joined(user, records, order_by_date)
+    recent_activities = [{"name": activity.name,
+                          "activity_id": activity.id,
+                          "activity_date": activity.date} for activity in activities]
     return response.Response(recent_activities)
 
 

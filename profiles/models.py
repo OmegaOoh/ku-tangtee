@@ -10,9 +10,9 @@ class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     nick_name = models.CharField(max_length=30, null=True, blank=True)
     pronoun = models.CharField(max_length=20, null=True, blank=True)
-    ku_generation = models.PositiveSmallIntegerField(null=True, blank=True)
-    faculty = models.CharField(max_length=100)
-    major = models.CharField(max_length=100)
+    ku_generation = models.PositiveSmallIntegerField()
+    faculty = models.CharField(max_length=100,)
+    major = models.CharField(max_length=100, null=True, blank=True)
     about_me = models.CharField(max_length=256, null=True, blank=True)
 
     def __str__(self) -> str:
