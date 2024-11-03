@@ -6,8 +6,8 @@ from . import custom_validator
 from auth import serializer
 
 
-class ParticipantSerializer(serializers.ModelSerializer):
-    """Serialize participant detail."""
+class ParticipantDetailSerializer(serializers.ModelSerializer):
+    """Serialize participant detail for combine with activity detail."""
 
     participant = serializer.UserSerializer(source='user')
 
@@ -64,7 +64,7 @@ class ActivitiesSerializer(serializers.ModelSerializer):
         :return: List of serialized participant detail
         """
         attend = activity.attend_set.all()
-        participants = ParticipantSerializer(attend, many=True).data
+        participants = ParticipantDetailSerializer(attend, many=True).data
         result = []
 
         for participant in participants:
@@ -86,7 +86,7 @@ class ActivitiesSerializer(serializers.ModelSerializer):
 
 
 class AttendSerializer(serializers.ModelSerializer):
-    """Serialized Attend model."""
+    """Validated data and create attend model instance from it."""
 
     class Meta:
         """Attend serializer META class."""
