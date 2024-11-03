@@ -41,11 +41,17 @@
 
 14. Scroll down and add 2 URI.
 
+    Add 2 Authorized JavaScript origins 
+
+    First: `http://localhost:8080`
+
+    Second: `http://127.0.0.1:8080`
+
+    (optional) add 2 more Authorized redirect URIs if you want to login from backend
+
     First: `http://127.0.0.1:8000`
 
     Second: `http://127.0.0.1:8000/accounts/google/login/callback/`
-
-    (optional) add 2 more URI by replace `127.0.0.1` with `localhost`
 
     ![add uri](./google_oauth_guide_pic/Add_uri.png)
 
