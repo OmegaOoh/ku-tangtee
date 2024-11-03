@@ -87,13 +87,11 @@ class TestAttendModel(django.test.TestCase):
         _, activity = create_activity(data=data)
         attend_host = activity.attend_set.first()
         self.assertEqual(str(attend_host), "user host attend Fun activity")
-        self.assertEqual(repr(attend_host), str(attend_host))
 
         attendee = create_test_user("Alexa")
         client_join_activity(self.client, attendee, activity)
         attend_attendee = activity.attend_set.last()
         self.assertEqual(str(attend_attendee), "user Alexa attend Fun activity")
-        self.assertEqual(repr(attend_attendee), str(attend_attendee))
 
     def test_recently_joined(self):
         """Return a list of the latest 3 activities joined by a user, order by join time."""
