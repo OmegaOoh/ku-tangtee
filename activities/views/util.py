@@ -24,7 +24,7 @@ def csrf_token_view(request: HttpRequest) -> response.Response:  # pragma: no co
 
 
 @decorators.api_view(['get'])
-def get_recent_activity(request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:  # pragma: no cover
+def get_recent_activity(request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
     """Return recently joined activities.
 
     :param request: Http request object
