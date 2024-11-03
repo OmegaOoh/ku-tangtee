@@ -78,7 +78,7 @@ class TestActivityModel(django.test.TestCase):
 class TestAttendModel(django.test.TestCase):
     """TestCase Class for Attend model."""
 
-    def test_str_repr(self):
+    def test_str(self):
         """__str__ returns attendance info and __repr__ returns __str__."""
         data = {
             "name": "Fun activity",
