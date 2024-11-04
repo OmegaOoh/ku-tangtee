@@ -6,15 +6,47 @@
                 <li>Activity {{ activity.id }}</li>
             </ul>
         </div>
-        <div
+        <div v-if="isHost && isAuth">
+            <div
             class="modal backdrop-blur-sm"
             :class="{ 'modal-open': showEditModal }"
-        >
-            <div class="modal-box shadow-xl">
-                <div class="sticky flex justify-end">
+            >
+                <div class="modal-box shadow-xl">
+                    <div class="sticky flex justify-end">
+                        <button
+                            class="btn btn-ghost btn-circle absolute hover:text-error"
+                            @click="closeEditModal"
+                        >
+                            <svg
+                                class="swap-on fill-current"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="32"
+                                height="32"
+                                viewBox="0 0 512 512">
+                                <polygon
+                                points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49" />
+                            </svg>
+                        </button>
+                    </div>
+                    <EditModal
+                        @update-success="
+                            async () => {
+                                await fetchDetail();
+                                closeEditModal();
+                            }
+                        "
+                    />
+                </div>
+            </div>
+        
+            <div
+                class="modal backdrop-blur-sm"
+                :class="{ 'modal-open': showCheckInCode }"
+            >
+                <div class="modal-box shadow-xl">
                     <button
-                        class="btn btn-ghost btn-circle absolute hover:text-error"
-                        @click="closeEditModal"
+                        class="btn btn-ghost btn-circle absolute right-6 top-6 hover:text-error"
+                        @click="closeCheckInCodeModal"
                     >
                         <svg
                             class="swap-on fill-current"
@@ -26,50 +58,22 @@
                             points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49" />
                         </svg>
                     </button>
+                    <CheckInCodeModal
+                        @closed-checked-in = "
+                            async () => {
+                                this.closeCheckInCodeModal();
+                                await this.fetchDetail();
+                            }
+                        "
+                        @allow-checked-in = "
+                            async () => {
+                                await this.fetchDetail();
+                            }
+                        "
+                    />
                 </div>
-                <EditModal
-                    @update-success="
-                        async () => {
-                            await fetchDetail();
-                            closeEditModal();
-                        }
-                    "
-                />
             </div>
-        </div>
-        <div
-            class="modal backdrop-blur-sm"
-            :class="{ 'modal-open': showCheckInCode }"
-        >
-            <div class="modal-box shadow-xl">
-                <button
-                    class="btn btn-ghost btn-circle absolute right-6 top-6 hover:text-error"
-                    @click="closeCheckInCodeModal"
-                >
-                    <svg
-                        class="swap-on fill-current"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="32"
-                        height="32"
-                        viewBox="0 0 512 512">
-                        <polygon
-                        points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49" />
-                    </svg>
-                </button>
-                <CheckInCodeModal
-                    @closed-checked-in = "
-                        async () => {
-                            this.closeCheckInCodeModal();
-                            await this.fetchDetail();
-                        }
-                    "
-                    @allow-checked-in = "
-                        async () => {
-                            await this.fetchDetail();
-                        }
-                    "
-                />
-            </div>
+            <CheckInQRCodeModal :code="activity.check_in_code" :is-open="showQRModal" @close="() => {showQRModal = false;}"/>
         </div>
         <div
             class="modal backdrop-blur-sm"
@@ -111,14 +115,14 @@
                     <button
                         v-if="isHost && isAuth"
                         @click="openEditModal"
-                        class="btn btn-ghost text-accent ml-2 mr-2"
+                        class="btn btn-ghost text-accent mx-2"
                     >
                         Edit
                     </button>
                     <button
                         v-if="isHost && isAuth"
                         @click="openCheckInCodeModal"
-                        class="btn btn-ghost text-accent ml-2 mr-2"
+                        class="btn btn-ghost text-accent mx-2"
                     >
                         <div v-if="!activity.check_in_allowed">
                             Allow Check-in
@@ -128,11 +132,18 @@
                         </div>
                     </button>
                     <button
+                        v-if="isHost && isAuth && activity.check_in_allowed"
+                        class="btn btn-ghost text-accent mx-2"
+                        @click="() => { showQRModal = true; console.log(activity.check_in_code)}"
+                        >
+                        QR CODE
+                    </button>
+                    <p
                         v-if="isJoined && isAuth && checkedIn && !isHost"
-                        class="btn btn-ghost text-accent ml-2 mr-2"
+                        class="btn btn-ghost text-accent mx-2"
                     >
                         You've Checked-In
-                    </button>
+                    </p>
                 </h1>
                 <p class="mb-2 ml-3 overflow-hidden multi-line">
                     {{ activity.detail }}
@@ -173,16 +184,25 @@
                         @click="$router.push('/profile/'+ participant.username)"
                     >
                         <div class="flex items-center space-x-4">
-                            <img
-                                v-lazy="participant.profile_picture_url"
-                                alt="Profile Picture"
-                                class="w-12 h-12 rounded-full"
-                                @error="handleImageError"
-                            />
+                            <div class="indicator">
+                                <img
+                                    v-lazy="participant.profile_picture_url"
+                                    alt="Profile Picture"
+                                    class="w-12 h-12 rounded-full"
+                                    @error="handleImageError"
+                                />
+                                <p 
+                                    v-if="this.hosts.includes(participant.id)" 
+                                    class="indicator-item indicator-bottom indicator-center badge badge-secondary"
+                                >
+                                    Host
+                                </p>
+                            </div>
                             <p class="font-medium">
                                 {{ participant.first_name }}
                                 {{ participant.last_name }}
                             </p>
+                            
                         </div>
                     </div>
                 </div>
@@ -252,7 +272,7 @@ import EditModal from "@/component/EditModal.vue";
 import ImageCarousel from "@/component/ImageCarousel";
 import CheckInCodeModal from "@/component/CheckInCodeModal.vue";
 import CheckInModal from "@/component/CheckInModal.vue";
-
+import CheckInQRCodeModal from "@/component/CheckInQRCodeModal.vue";
 
 </script>
 
@@ -275,6 +295,7 @@ export default {
             showEditModal: ref(false),
             showCheckInCode: false,
             showCheckInModal: false,
+            showQRModal: false,
             checkedIn: false,
             baseUrl: "",
             images: [],
@@ -382,11 +403,15 @@ export default {
              * Get data from specific activity including participant detail.
              */
             try {
+                if (!this.activityId) {
+                    return // undefined activity id, return early
+                }
                 const response = await apiClient.get(
                     `/activities/${this.activityId}`
                 );
                 this.activity = response.data;
                 this.people = this.activity.participant;
+                console.log(this.people)
                 this.images = this.activity.images;
                 this.imageUrls = [];
                 this.baseUrl = process.env.VUE_APP_BASE_URL;
