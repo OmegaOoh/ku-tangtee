@@ -27,18 +27,7 @@ class ProfilesSerializer(serializers.ModelSerializer):
         """Profile serializer META class."""
 
         model = models.Profile
-        fields = [
-            'id',
-            'user',
-            'username',
-            'nick_name',
-            'pronoun',
-            'ku_generation',
-            'faculty',
-            'major',
-            'about_me',
-            'profile_picture_url',
-        ]
+        fields = ("__all__")
 
     def create(self, validated_data: Any) -> Any:
         """Create user profile and popped user id from data.
