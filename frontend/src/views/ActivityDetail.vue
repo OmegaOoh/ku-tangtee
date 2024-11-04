@@ -328,7 +328,7 @@ export default {
         },
         goToChat() {
             /*
-             * Navigagte to Activity Chart page.
+             * Navigate to Activity Chart page.
              */
             this.$router.push(`/chat/${this.activityId}`);
         },
@@ -407,9 +407,7 @@ export default {
                 this.checkHost();
                 this.checkJoined();
                 this.checkCheckedIn();
-                console.log("I'm Ok");
             } catch (error) {
-                console.log("I'm not Ok");
                 console.error("Error fetching activity:", error);
                 addAlert(
                     "warning",
@@ -512,17 +510,29 @@ export default {
                 this.checkedIn = user[0].checked_in
             }
         },
+        checkDefaultCode() {
+            const code = this.$route.query.code;
+            console.log(isAuth.value, this.isJoined, !this.checkCheckedIn, code)
+            if (isAuth.value && this.isJoined && !this.checkedIn && code) {
+                console.log("checkDefault Code", code)
+                this.openCheckInModal();
+            }
+        }
     },
-    mounted() {
+    async mounted() {
         this.activityId = this.$route.params.id;
-        this.fetchDetail();
+        await this.fetchDetail();
         this.checkHost();
         this.checkJoined();
         this.checkCheckedIn();
+        this.checkDefaultCode();
+
         watch(userId, (newUserId) => {
             if (newUserId) {
                 this.checkHost();
                 this.checkJoined();
+                this.checkCheckedIn();
+                this.checkDefaultCode();
             }
         });
         watch(
