@@ -73,7 +73,7 @@
                     />
                 </div>
             </div>
-            <CheckInQRCodeModal :code="activity.check_in_code" :is-open="showQRModal" @close="() => {showQRModal = false;}"/>
+            <CheckInQRCodeModal :code="getCheckInCode()" :is-open="showQRModal" @close="() => {showQRModal = false;}"/>
         </div>
         <div
             class="modal backdrop-blur-sm"
@@ -264,10 +264,9 @@ import apiClient from "@/api";
 import {
     createDeleteRequest,
     createPostRequest,
-    createPutRequest,
 } from "@/functions/HttpRequest.js";
 import { isAuth, login, userId } from "@/functions/Authentications";
-import { watch, ref } from "vue";
+import { watch } from "vue";
 import EditModal from "@/component/EditModal.vue";
 import ImageCarousel from "@/component/ImageCarousel";
 import CheckInCodeModal from "@/component/CheckInCodeModal.vue";
@@ -292,7 +291,7 @@ export default {
             hosts: [],
             isHost: false,
             isJoined: false,
-            showEditModal: ref(false),
+            showEditModal: false,
             showCheckInCode: false,
             showCheckInModal: false,
             showQRModal: false,
@@ -352,51 +351,6 @@ export default {
              * Navigate to Activity Chart page.
              */
             this.$router.push(`/chat/${this.activityId}`);
-        },
-        async allowCheckIn() {
-            /*
-             * Attempt to join activity.
-             */
-            try {
-                const response = await createPutRequest(
-                    `/activities/check-in/${this.activityId}/?status=open`,
-                    {}
-                );
-                this.checkInCode = response.checkInCode;
-                addAlert("success", response.data.message);
-                this.$emit("allow-checked-in")
-                this.fetchDetail();
-                this.openCheckInCodeModal();
-            } catch (error) {
-                if (error.response && error.response.data) {
-                    addAlert("error", error.response.data.message); // Show error message from backend
-                } else {
-                    addAlert(
-                        "error",
-                        "An unexpected error occurred. Please try again later."
-                    );
-                }
-            }
-        },
-        async closeCheckIn() {
-            /**
-             * Make check-in unavailable.
-             */
-            // 
-            try {
-                const response = await createPutRequest(
-                    `/activities/check-in/${this.activityId}/?status=close`,
-                    {}
-                );
-                addAlert("success", response.data.message);
-                this.fetchDetail(); //Fetch Activity
-            } catch (error) {
-                console.error("Error fetching activity:", error);
-                addAlert(
-                    "warning",
-                    "Activity already started or No such activity."
-                );
-            }
         },
         async fetchDetail() {
             /*
@@ -520,6 +474,16 @@ export default {
             } else {
                 this.isHost = this.hosts.includes(userId.value);
             }
+        },
+        getCheckInCode() {
+            /**
+             * Get Current Check In code
+             * @returns string of check in code
+             */
+            if (!isAuth || !this.isHost) {
+                return "None" // No permission to see
+            }
+            return this.activity.check_in_code;
         },
         checkCheckedIn() {
             /**
