@@ -502,9 +502,13 @@ export default {
             }
         },
         checkDefaultCode() {
+            if (!(isAuth.value)) {
+                // Force user to login
+                login();
+                return;
+            }
             const code = this.$route.query.code;
-            console.log(isAuth.value, this.isJoined, !this.checkCheckedIn, code)
-            if (isAuth.value && this.isJoined && !this.checkedIn && code) {
+            if (this.isJoined && !this.checkedIn && code) {
                 console.log("checkDefault Code", code)
                 this.openCheckInModal();
             }
@@ -536,6 +540,9 @@ export default {
         window.addEventListener("keydown", (e) => {
             if (e.key == "Escape") {
                 this.closeEditModal();
+                this.closeCheckInCodeModal();
+                this.closeCheckInModal();
+                this.showQRModal = false;
             }
         });
     },

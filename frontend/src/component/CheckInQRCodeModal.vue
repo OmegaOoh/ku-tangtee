@@ -23,7 +23,7 @@ const props = defineProps({
     },
 });
 
-const fullUrl = ref(`${window.location.origin}?code=${props.code}`);
+const fullUrl = ref(`${window.location.href}?code=${props.code}`);
 
 const emit = defineEmits(['close']);
 
