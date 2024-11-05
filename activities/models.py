@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 class Activity(models.Model):
     """Activity model to store data of activity detail."""
 
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     detail = models.CharField(max_length=1024)
     date = models.DateTimeField(default=timezone.now)

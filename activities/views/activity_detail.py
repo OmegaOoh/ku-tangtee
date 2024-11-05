@@ -41,7 +41,7 @@ class ActivityDetail(mixins.RetrieveModelMixin,
                  "id": activity.id
                  },
             )
-        res = self.update(request, *args, **kwargs)
+        res = self.update(request, partial=True, *args, **kwargs)
         res_dict = res.data
 
         attachment_ids_to_remove = request.data.get("remove_attachments", [])
