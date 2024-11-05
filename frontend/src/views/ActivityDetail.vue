@@ -111,39 +111,41 @@
         >
             <div class="card-body p-4" style="border-radius: 8px">
                 <h1 class="text-4xl font-bold mb-4 ml-2 multi-line">
-                    {{ activity.name }}
-                    <button
-                        v-if="isHost && isAuth"
-                        @click="openEditModal"
-                        class="btn btn-ghost text-accent mx-2"
-                    >
-                        Edit
-                    </button>
-                    <button
-                        v-if="isHost && isAuth"
-                        @click="openCheckInCodeModal"
-                        class="btn btn-ghost text-accent mx-2"
-                    >
-                        <div v-if="!activity.check_in_allowed">
-                            Allow Check-in
-                        </div>
-                        <div v-else>
-                            Show Check-In Code
-                        </div>
-                    </button>
-                    <button
-                        v-if="isHost && isAuth && activity.check_in_allowed"
-                        class="btn btn-ghost text-accent mx-2"
-                        @click="() => { showQRModal = true; console.log(activity.check_in_code)}"
+                    <span>
+                        {{ activity.name }}
+                        <button
+                            v-if="isHost && isAuth"
+                            @click="openEditModal"
+                            class="btn btn-ghost text-accent mx-2"
                         >
-                        QR CODE
-                    </button>
-                    <p
-                        v-if="isJoined && isAuth && checkedIn && !isHost"
-                        class="btn btn-ghost text-accent mx-2"
-                    >
-                        You've Checked-In
-                    </p>
+                            Edit
+                        </button>
+                        <button
+                            v-if="isHost && isAuth"
+                            @click="openCheckInCodeModal"
+                            class="btn btn-ghost text-accent mx-2"
+                        >
+                            <div v-if="!activity.check_in_allowed">
+                                Allow Check-in
+                            </div>
+                            <div v-else>
+                                Show Check-In Code
+                            </div>
+                        </button>
+                        <button
+                            v-if="isHost && isAuth && activity.check_in_allowed"
+                            class="btn btn-ghost text-accent mx-2"
+                            @click="() => { showQRModal = true; console.log(activity.check_in_code)}"
+                            >
+                            QR CODE
+                        </button>
+                    </span> 
+                    <span
+                            v-if="isJoined && isAuth && checkedIn && !isHost"
+                            class="text-sm text-accent mx-2"
+                        >
+                            Checked-In
+                    </span>
                 </h1>
                 <p class="mb-2 ml-3 overflow-hidden multi-line">
                     {{ activity.detail }}
@@ -207,38 +209,42 @@
                     </div>
                 </div>
                 <div
-                    class="flex flex-col sm:flex-row justify-between items-center"
+                    class="flex flex-col md:flex-row items-center justify-between"
                 >
                     <div v-if="!isAuth">
                         <button class="btn btn-accent" @click="login">
                             Please Login before join
                         </button>
                     </div>
-                    <div v-else-if="isJoined" class="flex">
-                        <button class="btn btn-secondary" @click="goToChat">
-                            Chat
-                        </button>
-                        <button
-                            v-if="isJoined && activity.check_in_allowed && isAuth && !checkedIn"
-                            @click="openCheckInModal"
-                            class="btn btn-secondary mx-4"
-                        >
-                            Check-In
-                        </button>
-                        <button
-                            v-if="!isHost"
-                            @click="leaveActivity"
-                            class="btn btn-accent mx-4"
-                        >
-                            Leave Activity
-                        </button>
+                    <div v-else-if="isJoined" class="w-full flex">
+                        <div class="flex w-1/2 justify-start">
+                            <button class="btn btn-secondary " @click="goToChat">
+                                Chat
+                            </button>
+                            <button
+                                v-if="isJoined && activity.check_in_allowed && isAuth && !checkedIn"
+                                @click="openCheckInModal"
+                                class="btn btn-secondary mx-4 "
+                            >
+                                Check-In
+                            </button>
+                        </div>
+                        <div class="flex justify-end w-full">
+                            <button
+                                v-if="!isHost"
+                                @click="leaveActivity"
+                                class="btn btn-accent mx-4"
+                            >
+                                Leave Activity
+                            </button>
+                        </div>
                     </div>
                     <div v-else>
                         <button
                             v-if="canJoin"
                             id="join-button"
                             @click="joinActivity"
-                            class="btn btn-primary ml-2 mr-2"
+                            class="btn btn-primary "
                         >
                             Join Activity
                         </button>
