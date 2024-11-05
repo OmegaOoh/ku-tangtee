@@ -37,12 +37,24 @@ class Activity(models.Model):
         """
         return self.is_active() and (not self.max_people or self.people < self.max_people)
 
-    def host(self) -> User:
-        """Find user that is host of the activity (is_host is True).
+    def host(self) -> list[User]|User:
+        """Find all user that is host of the activity (is_host is True), owner included.
+        if there is only 1 host, return User instance instead.
 
-        :return: the host of the activity
+        :return: a host or list of hosts of the activity
         """
-        return self.attend_set.filter(is_host=True).first().user
+        host_list = [a.user for a in self.attend_set.filter(is_host=True)]
+        if len(host_list) == 1:
+            return host_list[0]
+        return host_list
+
+    def is_hosts(self, user: User) -> bool:
+        """Return boolean value which tell that are given user is host of the activity or not.
+
+        :param user: User
+        :return: True if the user is host of the activity, False otherwise
+        """
+        return user in self.host()
 
     def participants(self) -> list[User]:
         """Find all participants user of the activity (host excluded).
