@@ -161,7 +161,8 @@
 </template>
 
 <script setup>
-import { isAuth, login, email, fName, lName, userId } from "@/functions/Authentications";
+import { watch } from 'vue';
+import { isAuth, login, email, fName, lName, userId, logout } from "@/functions/Authentications";
 import { addAlert } from "@/functions/AlertManager";
 import { createPostRequest } from "@/functions/HttpRequest";
 import apiClient from "@/api";
@@ -180,6 +181,7 @@ export default {
             kuGen: '',
             faculty: '',
             major: '',
+            watchUserId: null,
         }
     },
     methods: {
@@ -289,9 +291,8 @@ export default {
         },
         goNext() {
             const nextPath = this.$router.currentRoute.value.query.next;
-            console.log(nextPath)
-            if (nextPath == `/create-profile/` || nextPath == '' || !nextPath) {
-                this.$router.push('/')
+            if (nextPath == `/create-profile` || nextPath == '' || !nextPath) {
+                this.$router.push('')
             }
             else {
                 this.$router.push(nextPath)
@@ -304,6 +305,23 @@ export default {
             addAlert('info', "You already has the profile.")
             this.goNext()
         }
-    }
+        this.watchUserId = watch(userId, (newUserId) => {
+            if (newUserId){
+                addAlert('info', "You already has the profile.")
+                this.goNext()
+            }
+        })
+    },
+    async beforeUnmount() {
+        if (this.watchUserId){
+            this.watchUserId();
+        }
+        // Check the user profile status on dismount
+        const profileResponse = await apiClient.get(`profile/`)
+        if (!profileResponse.data.has_profile) {
+            logout();
+            addAlert('warning', "you don't successfully create the profile. Log out.")
+        }
+    },
 }
 </script>
