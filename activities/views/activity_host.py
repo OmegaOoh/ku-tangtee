@@ -1,10 +1,10 @@
 """Module for handle URL activities/host/<str:action>/<int:activity_id>/<int:user_id>/."""
 from typing import Any
 from django.http import HttpRequest
-from rest_framework import generics, permissions, mixins, response, status
+from rest_framework import generics, permissions, mixins, response
 from rest_framework.generics import get_object_or_404
 from django.contrib.auth import models as auth_models
-from activities.serializer.permissions import MustBeOwner, MustBeMember, OnlyHostCanEdit
+from activities.serializer.permissions import MustBeOwner
 
 from activities import models
 from activities.serializer import model_serializers
