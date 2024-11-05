@@ -7,7 +7,7 @@
         <button 
             @click="closeCheckIn"
             type="button" 
-            class="btn btn-error"
+            class="btn btn-error hover:brightness-50"
         >
             Close Check-in
         </button>
@@ -99,6 +99,7 @@ export default {
                     "Activity already started or No such activity."
                 );
             }
+            
         },
     },
     mounted() {
