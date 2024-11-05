@@ -6,7 +6,11 @@
         </ul>
     </div>
     <div v-if="isAuth && isHost">
-        <EditModal v-if="showEditModal" @update-success="handleEditSuccess" />
+        <EditModal 
+            :id="activityId"
+            :isOpen="showEditModal"
+            @close="closeEditModal"
+            @update-success="handleEditSuccess" />
 
         <CheckInCodeModal
             v-if="showCheckInCode"
@@ -39,7 +43,7 @@
 
             <div v-if="imageUrls.length > 0" class="flex flex-col justify-center">
                 <span class="text-base-content text-lg ml-3 mb-2">Preview Images</span>
-                <ImageCarousel ref="imageCarousel" :images="imageUrls.map(image => image.url)" />
+                <ImageCarousel ref="imageCarousel" :images="imagesUrl" />
             </div>
 
             <p v-if="activity.max_people != null" class="mb-2 ml-3"><strong>Max People:</strong> {{ activity.max_people }}</p>
@@ -132,6 +136,13 @@ import ImageCarousel from "@/component/ImageCarousel";
 import CheckInCodeModal from "@/component/CheckInCodeModal.vue";
 import CheckInModal from "@/component/CheckInModal.vue";
 import { useRoute, useRouter } from "vue-router";
+const BASE_URL = (() => {
+    let url = process.env.VUE_APP_BASE_URL
+    if (url.endsWith("/")) {
+        url = url.slice(0, -1);
+    }
+    return url;
+})()
 
 const router = useRouter();
 const route = useRoute();
@@ -154,7 +165,7 @@ const fetchDetail = async () => {
         people.value = activity.value.participant;
         imageUrls.value = activity.value.images.map(image => ({
             id: image.id,
-            url: `${process.env.VUE_APP_BASE_URL}${image.url}`
+            url: `${BASE_URL}${image.url}`
         }));
         canJoin.value = activity.value.can_join;
         hosts.value = response.data.host;
@@ -254,6 +265,11 @@ const isJoined = computed(() => {
     return isAuth && people.value.some(participant => participant.id === userId.value);
 });
 
+const imagesUrl = computed(() => {
+    console.log(imageUrls.value.map(image => image.url))
+    return imageUrls.value.map(image => image.url)
+})
+
 onMounted(() => {
     activityId.value = route.params.id;
     fetchDetail();
@@ -267,6 +283,8 @@ onMounted(() => {
         }
     });
 });
+
+
 </script>
 
 <style scoped>
