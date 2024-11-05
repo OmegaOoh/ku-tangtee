@@ -138,14 +138,21 @@ class CheckinTest(django.test.TestCase):
         self.open()
 
         self.client.force_login(self.attendee)
+        
+        user_profile = self.attendee.profile_set.first()
+        rep_before = user_profile.reputation_score
+        
         res = self.client.post(
             self.url(self.activity.id),
             data={
                 'check_in_code': self.activity.check_in_code
             }
         )
+        
+        user_profile.refresh_from_db()
         self.assertJSONEqual(res.content, {'message': f"You've successfully check-in to {self.activity.name}"})
         self.assertTrue(self.attendee.attend_set.get(activity=self.activity).checked_in)
+        self.assertEqual(rep_before + 1, user_profile.reputation_score)
 
     def open(self):
         """Open for check-in."""

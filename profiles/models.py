@@ -12,6 +12,7 @@ class Profile(models.Model):
     BASE_ACTIVITY_LIMIT = 3
     MAX_ACTIVITY_LIMIT = 10
     REP_SCORE_PER_1_LIMIT = 10
+    CHECK_IN_REPUTATION_INCREASE = 1
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     nick_name = models.CharField(max_length=30, null=True, blank=True)
