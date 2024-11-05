@@ -23,6 +23,7 @@ def create_profile(
     client: django.test.Client = django.test.Client(),
     data: dict = {"faculty": "Faculty", "ku_generation": "80"},
     log_in: bool = True,
+    rep_score: int = 0
 ):
     """Return response and created profile with given parameters."""
     if not user:
@@ -30,6 +31,8 @@ def create_profile(
 
     if log_in:
         client.force_login(user)
+        
+    data['reputation_score'] = rep_score
 
     url = urls.reverse("profiles:index")
     res = post_request_json_data(url, client, data)
@@ -40,6 +43,7 @@ def create_profile(
     except KeyError:
         profile = None
 
+    client.logout()
     return res, profile
 
 
