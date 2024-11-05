@@ -1,107 +1,112 @@
 <template>
-    <div class="form-control w-full">
-        <div class="label"> 
-            <span class="text-base-content text-4xl">Check-In Code: </span>
+    <div v-if="isOpen" id='check-in-modal' 
+        class="fixed inset-0 flex items-center justify-center backdrop-blur-md bg-black bg-opacity-40 z-10 transition-all ease-in-out duration-200" 
+        @click="closeModal">
+    <div class="rounded-lg p-4 relative card bg-base-300 border-2 border-primary h-fit w-2/3" @click.stop>
+        <div class="card-body">
+            <div class="form-control w-full">
+                <h1 class="card-title text-base-content text-4xl font-semibold">Check-In Code: </h1>
+                <div class="label"> 
+                    <span id="code-field" class="text-error text-lg" hidden>
+                        Check-in code must have 6 characters
+                    </span>
+                    <span id="invalid-code" class="text-error text-lg" hidden>
+                        Invalid Check-In code
+                    </span>
+                </div>
+                <input
+                    v-model="checkInCode"
+                    id="check-in-code-fields"
+                    type="text"
+                    class="input input-bordered input-primary w-full mb-4 text-8xl h-fit text-accent"
+                    :maxlength="6"
+                    required
+                />
+            </div>
+            <br>
+            <div class="flex justify-end">
+                <button class="btn btn-accent" @click="postCheckIn">
+                    Check-In
+                </button>
+            </div>
         </div>
-        <div class="label"> 
-            <span id="code-field-must-6" class="text-error text-sm" hidden>
-                Check-in code must have 6 characters
-            </span>
-            <span id="invalid-code" class="text-error text-sm" hidden>
-                Invalid Check-In code
-            </span>
-        </div>
-        <input
-            v-model="checkInCode"
-            id="check-in-code-fields"
-            type="text"
-            class="input input-bordered input-primary w-full mb-4 text-8xl h-fit text-accent"
-            :maxlength="6"
-            required
-        />
     </div>
-    <br>
-    <div class="flex justify-end">
-        <button class="btn btn-accent" @click="postCheckIn">
-            Check-In
-        </button>
-    </div>
+</div>
 </template>
 
-<script>
+<script setup>
+import { ref, defineProps, defineEmits } from 'vue';
 import { addAlert } from "@/functions/AlertManager";
 import { createPostRequest } from "@/functions/HttpRequest.js";
 
-export default {
-    data() {
-        return {
-            id: this.activityId,
-            checkInCode: "",
-            activity: {}
-        };
+const props = defineProps({
+    id: {
+        type: String,
+        required: true,
     },
-    methods: {
-        async postCheckIn() {
-            if (this.validateCheckInCode()){
-                try {
-                    const response = await createPostRequest(
-                        `/activities/check-in/${this.activityId}/`,
-                        {
-                            'check_in_code': this.checkInCode
-                        }
-                    );
-                    addAlert("success", response.data.message);
-                    this.$emit("check-in-success");
-                } catch (error) {
-                    if (error.response && error.response.data) {
-                        if (error.response.data.message == "Check-in code invalid"){
-                            const checkInCodeField = document.getElementById("check-in-code-fields");
-                            const invalidCodeError = document.getElementById("invalid-code");
-                            checkInCodeField.classList.remove("input-primary");
-                            checkInCodeField.classList.add("input-error");
-                            invalidCodeError.removeAttribute("hidden")
-                        } else {
-                            addAlert("error", error.response.data.message); // Show error message from backend
-                        }
+    isOpen: {
+        type: Boolean,
+        required: true,
+    }
+})
 
-                    } else {
-                        addAlert(
-                            "error",
-                            "An unexpected error occurred. Please try again later."
-                        );
-                    }
+const emit = defineEmits(['close', 'check-in-success']);
+
+const checkInCode = ref("");
+
+const postCheckIn = async () => {
+    if (validateCheckInCode()){
+        try {
+            const response = await createPostRequest(
+                `/activities/check-in/${props.id}/`,
+                {
+                    'check_in_code': checkInCode.value
                 }
+            );
+            addAlert("success", response.data.message);
+            emit("check-in-success");
+        } catch (error) {
+            if (error.response && error.response.data) {
+                if (error.response.data.message == "Check-in code invalid"){
+                    const checkInCodeField = document.getElementById("check-in-code-fields");
+                    const invalidCodeError = document.getElementById("invalid-code");
+                    checkInCodeField.classList.remove("input-primary");
+                    checkInCodeField.classList.add("input-error");
+                    invalidCodeError.removeAttribute("hidden")
+                } else {
+                    addAlert("error", error.response.data.message); // Show error message from backend
+                }
+            } else {
+                addAlert(
+                    "error",
+                    "An unexpected error occurred. Please try again later."
+                );
             }
-        },
-        validateCheckInCode() {
-            /**
-             * Validate input in the forms
-             * @return input validity in boolean
-             */
+        }
+    }
+}
 
-            const checkInCodeField = document.getElementById("check-in-code-fields");
-            var result = true;
-            var checkInCodeError = document.getElementById("code-field-must-6");
-            if (this.checkInCode.length != 6) {
-                checkInCodeField.classList.remove("input-primary");
-                checkInCodeField.classList.add("input-error");
+const validateCheckInCode = () => {
+    /**
+     * Validate input in the forms
+     * @return input validity in boolean
+     */
 
-                checkInCodeError.removeAttribute("hidden");
-                result = false;
-            }
-            return result
-        },
-    },
-    mounted() {
-        this.activityId = this.$route.params.id;
-        this.isDarkTheme = window.matchMedia(
-            "(prefers-color-scheme: dark)"
-        ).matches;
-        window
-            .matchMedia("(prefers-color-scheme: dark)")
-            .addEventListener("change", (e) => {
-                this.isDarkTheme = e.matches;
-            });
-    },
+        const checkInCodeField = document.getElementById("check-in-code-fields");
+    var checkInCodeError = document.getElementById("code-field");
+    if (checkInCode.value.length != 6) {
+        checkInCodeField.classList.remove("input-primary");
+        checkInCodeField.classList.add("input-error");
+
+        checkInCodeError.removeAttribute("hidden");
+        return false
+    }
+    return true
+}
+
+const closeModal = () => {
+    const modal = document.getElementById('check-in-modal')
+    modal.classList.add('opacity-0')
+    setTimeout(() => { emit('close') }, 200)
 };
 </script>

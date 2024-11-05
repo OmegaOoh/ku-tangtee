@@ -14,12 +14,13 @@
             @allow-checked-in="fetchDetail"
         />
     </div>
-    <div v-if="isAuth && isJoined && !isHost">
-        <CheckInModal
-            v-if="showCheckInModal"
-            @check-in-success="handleCheckInSuccess"
-        />
-    </div>
+    <CheckInModal
+        v-if="isAuth && isJoined && !isHost"
+        :id="activityId"
+        :isOpen="showCheckInModal"
+        @close="closeCheckInModal"
+        @check-in-success="handleCheckInSuccess"
+    />
     
 
     <div class="card p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6">
