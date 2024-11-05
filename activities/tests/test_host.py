@@ -41,14 +41,18 @@ class GrantRemoveHostTest(django.test.TestCase):
         response_dict = json.loads(response.content)
         self.assertEqual(self.activity.host(), [self.owner, self.participant])
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response_dict["message"], f"You have successfully granted host access to user {self.participant.username} for activity {self.activity.name}.")
+        self.assertEqual(
+            response_dict["message"],
+            f"You have successfully granted host access to user {self.participant.username} for activity {self.activity.name}.")
 
         # Send PUT request for remove
         response = put_request_json_data(self.remove_url(self.participant), self.client, {})
         response_dict = json.loads(response.content)
         self.assertEqual(self.activity.host(), [self.owner])
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response_dict["message"], f"You have successfully removed host access to user {self.participant.username} for activity {self.activity.name}.")
+        self.assertEqual(
+            response_dict["message"],
+            f"You have successfully removed host access to user {self.participant.username} for activity {self.activity.name}.")
 
     def test_remove_host(self):
         """Return a success message and user host access for activity is removed."""
@@ -56,7 +60,9 @@ class GrantRemoveHostTest(django.test.TestCase):
         response_dict = json.loads(response.content)
         self.assertEqual(self.activity.host(), [self.owner])
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response_dict["message"], f"You have successfully removed host access to user {self.participant.username} for activity {self.activity.name}.")
+        self.assertEqual(
+            response_dict["message"],
+            f"You have successfully removed host access to user {self.participant.username} for activity {self.activity.name}.")
 
     def test_grant_host_for_non_participants(self):
         """Return an error message when grant host for non-participants."""

@@ -21,6 +21,11 @@ class GrantRemoveHostView(
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, MustBeOwner]
 
     def put(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
+        """Handle put request by edit host access according to the arguments.
+
+        :param request: Http request object
+        :return: Http response object
+        """
         new_kwargs = kwargs.copy()
         action = new_kwargs.pop('action', None)
         user_id = new_kwargs.pop('user_id', None)
@@ -52,7 +57,8 @@ class GrantRemoveHostView(
 
         return response.Response(
             {
-                "message": f"You have successfully {action_text} host access to user {user.username} for activity {activity.name}.",
+                "message": f"You have successfully {action_text} host access "
+                           f"to user {user.username} for activity {activity.name}.",
                 "id": attend.id,
             }
         )
