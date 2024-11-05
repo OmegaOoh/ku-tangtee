@@ -22,7 +22,7 @@ class OnlyHostCanEdit(permissions.BasePermission):
             return True
 
         # Edit permissions are only allowed to the host.
-        return request.user == obj.host()
+        return request.user in obj.host()
 
 
 class MustBeMember(permissions.BasePermission):
@@ -40,3 +40,20 @@ class MustBeMember(permissions.BasePermission):
         """
         # Edit permissions are only allowed to activity member.
         return obj.is_participated(request.user)
+
+
+class MustBeOwner(permissions.BasePermission):
+    """Custom permission to only allow owner of an activity to perform action."""
+
+    message = 'You must be the owner of this activity to perform this action.'
+
+    def has_object_permission(self, request: HttpRequest, view: generics.GenericAPIView, obj: models.Activity) -> Any:
+        """Check such that user is activity owner or not.
+
+        :param request: Http request object
+        :param view: APIView object
+        :param obj: Activity model object
+        :return: boolean value that signify that user has permission to perform action or not.
+        """
+        # Only allowed to activity owner.
+        return request.user == obj.owner
