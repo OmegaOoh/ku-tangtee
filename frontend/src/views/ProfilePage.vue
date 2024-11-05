@@ -39,7 +39,8 @@
                             <span class="text-xs font-light text-primary ml-3"> {{user.username}} </span> 
                             <div v-if="!editMode">
                                 <span class="text-sm text-secondary">{{ nickname }}</span>
-                                <span class="text-sm text-secondary ml-3"> {{ pronoun}} </span>
+                                <span v-if="nickname && pronoun" class="mx-2"> </span>
+                                <span class="text-sm text-secondary"> {{ pronoun }} </span>
                             </div>
                             <div v-else class="flex flex-row mt-2 w-[80%]">
                                 <input 
