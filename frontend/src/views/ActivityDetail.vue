@@ -140,8 +140,15 @@
                             QR CODE
                         </button>
                     </span> 
+                    <button
+                                v-if="isJoined && activity.check_in_allowed && isAuth && !checkedIn"
+                                @click="openCheckInModal"
+                                class="btn btn-secondary mt-4"
+                            >
+                                Check-In
+                    </button>
                     <span
-                            v-if="isJoined && isAuth && checkedIn && !isHost"
+                            v-else-if="isJoined && isAuth && checkedIn && !isHost"
                             class="text-sm text-accent mx-2"
                         >
                             Checked-In
@@ -216,28 +223,17 @@
                             Please Login before join
                         </button>
                     </div>
-                    <div v-else-if="isJoined" class="w-full flex">
-                        <div class="flex w-1/2 justify-start">
-                            <button class="btn btn-secondary " @click="goToChat">
-                                Chat
-                            </button>
-                            <button
-                                v-if="isJoined && activity.check_in_allowed && isAuth && !checkedIn"
-                                @click="openCheckInModal"
-                                class="btn btn-secondary mx-4 "
-                            >
-                                Check-In
-                            </button>
-                        </div>
-                        <div class="flex justify-end w-full">
-                            <button
-                                v-if="!isHost"
-                                @click="leaveActivity"
-                                class="btn btn-accent mx-4"
-                            >
-                                Leave Activity
-                            </button>
-                        </div>
+                    <div v-else-if="isJoined" class="w-full flex flex-row justify-between px-3 my-2">
+                        <button class="btn btn-secondary size-fit" @click="goToChat">
+                            Chat
+                        </button>
+                        <button
+                            v-if="!isHost"
+                            @click="leaveActivity"
+                            class="btn btn-accent mx-4"
+                        >
+                            Leave Activity
+                        </button>
                     </div>
                     <div v-else>
                         <button
