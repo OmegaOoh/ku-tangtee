@@ -502,13 +502,18 @@ export default {
             }
         },
         checkDefaultCode() {
+            const code = this.$route.query.code;
+            if (!code) {
+                return; // Nothing to do
+            }
+
             if (!(isAuth.value)) {
                 // Force user to login
                 login();
                 return;
             }
-            const code = this.$route.query.code;
-            if (this.isJoined && !this.checkedIn && code) {
+            
+            if (this.isJoined && !this.checkedIn) {
                 console.log("checkDefault Code", code)
                 this.openCheckInModal();
             }

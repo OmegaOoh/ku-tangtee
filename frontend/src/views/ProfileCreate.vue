@@ -271,17 +271,17 @@ export default {
             if (!this.validateInput()) {
                 return
             }
-            await createPostRequest(`/profile/`,
-                {
-                    "user": userId,
-                    "nick_name": this.nickname,
-                    "pronoun": this.pronoun,
-                    "ku_generation": this.kuGen,
-                    "faculty": this.faculty,
-                    "major": this.major,
-                    "about_me": this.bio,
-                }
-            )
+
+            const profileData = {
+                "user": userId.value, // Ensure this is a plain value
+                "nick_name": this.nickname,
+                "pronoun": this.pronoun,
+                "ku_generation": this.kuGen,
+                "faculty": this.faculty,
+                "major": this.major,
+                "about_me": this.bio,
+            };
+            await createPostRequest(`/profile/`, profileData)
             this.goNext()
             addAlert('success', 'Your profile has been created successfully! Welcome to KU Tangtee!')
         },
@@ -306,6 +306,10 @@ export default {
             this.goNext()
         }
         this.watchUserId = watch(userId, (newUserId) => {
+            if (!(isAuth.value)) {
+                this.goNext()
+                addAlert("warning", "You didn't log in")
+            } 
             if (newUserId){
                 addAlert('info', "You already has the profile.")
                 this.goNext()
@@ -317,10 +321,12 @@ export default {
             this.watchUserId();
         }
         // Check the user profile status on dismount
-        const profileResponse = await apiClient.get(`profile/`)
-        if (!profileResponse.data.has_profile) {
-            logout();
-            addAlert('warning', "you don't successfully create the profile. Log out.")
+        if (isAuth.value && userId){
+            const profileResponse = await apiClient.get(`profile/`)
+            if (!profileResponse.data.has_profile) {
+                logout();
+                addAlert('warning', "you don't successfully create the profile. Log out.")
+            }
         }
     },
 }
