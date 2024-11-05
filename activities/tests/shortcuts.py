@@ -42,7 +42,7 @@ def create_activity(
     client.force_login(host)
     url = urls.reverse("activities:index")
     res = post_request_json_data(url, client, data_with_date)
-
+        
     try:
         response_dict = json.loads(res.content)
         # print(response_dict)

@@ -17,11 +17,24 @@ class JoinTest(django.test.TestCase):
     def test_logout_join(self):
         """Join should respond with error if user are not authenticated."""
         _, new_act = create_activity(host=self.host)
-
         self.client.logout()
+        
         response = self.client.post(self.url(new_act.id))
         self.assertEqual(response.status_code, 403)
         self.assertJSONEqual(response.content, {'message': 'Authentication credentials were not provided.'})
+        
+    def test_join_without_profile(self):
+        """User without profile will unable to join an activity."""
+        _, new_act = create_activity(host=self.host)
+        self.client.logout()
+        
+        attendee = create_test_user("attendee", with_profile=False)
+        self.client.force_login(attendee)
+
+        response = self.client.post(self.url(new_act.id))
+        self.assertEqual(response.status_code, 403)
+        self.assertJSONEqual(response.content, {'message': 'User must have profile page before joining an activity'})
+
 
     def test_join(self):
         """Join will increase number of people in activity."""
@@ -135,9 +148,27 @@ class JoinTest(django.test.TestCase):
         """User should not leave activity that the haven't join."""
         _, new_act = create_activity(host=self.host)
 
-        attender = create_test_user("Attend")
-        self.client.force_login(attender)
+        attendee = create_test_user("Attend")
+        self.client.force_login(attendee)
 
         response = self.client.delete(self.url(new_act.id))
 
         self.assertJSONEqual(response.content, {'message': "You've never join this activity"})
+        
+    def test_join_limit_exceed(self):
+        """User shouldn't able to join activity if their limit is met."""
+        _, new_act1 = create_activity(host=self.host)
+        _, new_act2 = create_activity(host=self.host)
+        _, new_act3 = create_activity(host=self.host)
+        _, new_act4 = create_activity(host=self.host)
+        
+        attendee = create_test_user("Attend")
+        self.client.force_login(attendee)
+        
+        for act in [new_act1, new_act2, new_act3]:
+            self.client.post(self.url(act.id))
+            
+        res = self.client.post(self.url(new_act4.id))
+        
+        self.assertEqual(res.status_code, 403)
+        self.assertJSONEqual(res.content, {"message": "The number of activities you have joined has reached the limit"})

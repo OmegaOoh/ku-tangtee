@@ -37,7 +37,7 @@ class JoinLeaveView(
         if not user_profile:
             return response.Response(
                 {
-                    'message': 'User must have profile page before joining ac activity',
+                    'message': 'User must have profile page before joining an activity',
                 },
                 status=status.HTTP_403_FORBIDDEN
             )
@@ -45,7 +45,7 @@ class JoinLeaveView(
         if not user_profile.able_to_join_more:
             return response.Response(
                 {
-                    'message': "The number of activities you have joined has reached the limit.",
+                    'message': "The number of activities you have joined has reached the limit",
                 },
                 status=status.HTTP_403_FORBIDDEN
             )
