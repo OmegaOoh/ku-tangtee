@@ -85,17 +85,20 @@ class CheckInView(
         :param request: Http request object
         :return: Http response object
         """
-        request.data.update(
-            {
-                'check_in_allowed': True,
-                'check_in_code': util.get_checkin_code()
-            }
-        )
-        super().update(request, partial=True, *args, **kwargs)
-        return response.Response({
-            'message': 'Activity check-in are open',
-            'check_in_code': request.data.get('check_in_code')
-        })
+        act = self.get_object()
+        if act.is_checkin_period():
+            request.data.update(
+                {
+                    'check_in_allowed': True,
+                    'check_in_code': util.get_checkin_code()
+                }
+            )
+            super().update(request, partial=True, *args, **kwargs)
+            return response.Response({
+                'message': 'Activity check-in are open',
+                'check_in_code': request.data.get('check_in_code')
+            })
+        return response.Response({'message': 'Now, it is not in check-in period.'})
 
     def close_check_in(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Close for check-in.

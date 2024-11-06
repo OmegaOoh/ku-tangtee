@@ -5,12 +5,22 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 
+def get_end_registration_date():
+    return timezone.now() + timezone.timedelta(days=5)
+
+
+def get_end_date():
+    return timezone.now() + timezone.timedelta(days=7)
+
+
 class Activity(models.Model):
     """Activity model to store data of activity detail."""
 
     name = models.CharField(max_length=255)
     detail = models.CharField(max_length=1024)
     date = models.DateTimeField(default=timezone.now)
+    end_date = models.DateTimeField(default=get_end_date)
+    end_registration_date = models.DateTimeField(default=get_end_registration_date)
     max_people = models.IntegerField(null=True, blank=True)
     check_in_allowed = models.BooleanField(default=False)
     check_in_code = models.CharField(max_length=6, null=True, default=None)
@@ -25,9 +35,9 @@ class Activity(models.Model):
     def is_active(self) -> Any:
         """Check if activity is active.
 
-        :return: True if activity is active.
+        :return: True if activity is in joining period.
         """
-        return self.date >= timezone.now()
+        return self.end_registration_date >= timezone.now()
 
     def can_join(self) -> Any:
         """Check if max_people doesn't reach and date doesn't past.
@@ -58,6 +68,13 @@ class Activity(models.Model):
         """
         return user in self.participants()
 
+    def is_checkin_period(self) -> bool:
+        """Return boolean value which tell that are given user can check-in in activity or not.
+
+        :return: True if user can still check-in in this activity, False otherwise.
+        """
+        return (timezone.now() > self.date) and (timezone.now() < self.end_date)
+
     def verified_check_in_code(self, attempt: str) -> Any:
         """Verify that given check-in code are match actual check-in code or not.
 
@@ -86,6 +103,7 @@ class Attend(models.Model):
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
     is_host = models.BooleanField(default=False)
     checked_in = models.BooleanField(default=False)
+    rep_decrease = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         """Return activity attendance information.

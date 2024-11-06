@@ -1,6 +1,7 @@
 """Database Model for profile app."""
 from typing import Any
 from django.db import models
+from activities.models import Activity, Attend
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
 from django.utils import timezone
@@ -13,6 +14,7 @@ class Profile(models.Model):
     MAX_ACTIVITY_LIMIT = 10
     REP_SCORE_PER_1_LIMIT = 10
     CHECK_IN_REPUTATION_INCREASE = 1
+    CHECK_IN_REPUTATION_DECREASE = 1
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     nick_name = models.CharField(max_length=30, null=True, blank=True)
@@ -27,7 +29,7 @@ class Profile(models.Model):
         default=0,
         validators=[MaxValueValidator(100)]
     )
-    
+
     @property
     def active_activity_count(self) -> int:
         """Get number of active activity
@@ -60,6 +62,29 @@ class Profile(models.Model):
         :return: string containing user's username
         """
         return f"{self.user.username}'s profile"
+
+    def decrease_reputation(self, attend: Attend) -> None:
+        """Decrease reputation score when user misses a check-in and mark that reputation is already decreased."""
+        if not attend.rep_decrease:
+            self.reputation_score -= self.CHECK_IN_REPUTATION_DECREASE
+            self.reputation_score = max(0, self.reputation_score)
+            self.save(update_fields=['reputation_score'])
+            attend.rep_decrease = True
+            attend.save(update_fields=['rep_decrease'])
+
+    @classmethod
+    def check_missed_check_ins(cls) -> None:
+        """Check for users who missed check-ins and decrease their reputation."""
+        now = timezone.now()
+        activities = Activity.objects.filter(end_date__lt=now)
+
+        for activity in activities:
+            attendees = activity.attend_set.filter(is_host=False)
+            
+            for attendee in attendees:
+                profile = cls.objects.get(user=attendee.user)
+                if not attendee.checked_in and not attendee.rep_decrease:
+                    profile.decrease_reputation(attendee)
 
     @classmethod
     def has_profile(cls, user: User) -> Any:

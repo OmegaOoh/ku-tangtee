@@ -35,10 +35,17 @@ def create_activity(
     """Return response and created activity with given parameters."""
     if not host:
         host = create_test_user("host")
+    new_date = (timezone.now() + timezone.timedelta(days=days_delta)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    data_with_date = data.copy()
+    if "date" not in data_with_date:
+        data_with_date["date"] = new_date
 
-    data_with_date = data | {
-        "date": (timezone.now() + timezone.timedelta(days=days_delta)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-    }
+    if "end_date" not in data_with_date:
+        data_with_date["end_date"] = new_date
+
+    if "end_registration_date" not in data_with_date:
+        data_with_date["end_registration_date"] = new_date
+
     client.force_login(host)
     url = urls.reverse("activities:index")
     res = post_request_json_data(url, client, data_with_date)
