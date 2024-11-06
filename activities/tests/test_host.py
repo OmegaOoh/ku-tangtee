@@ -2,11 +2,7 @@
 import json
 import django.test
 from django import urls
-from activities import models
-from .shortcuts import activity_to_json, client_join_activity, create_activity, create_test_user, put_request_json_data
-from django.utils import timezone
-
-from ..models import Attend
+from .shortcuts import client_join_activity, create_activity, create_test_user, put_request_json_data
 
 
 class GrantRemoveHostTest(django.test.TestCase):
@@ -28,46 +24,41 @@ class GrantRemoveHostTest(django.test.TestCase):
 
         self.client.force_login(self.owner)
 
-        # Set the URL to the host access edit page
-        self.grant_url = lambda user: urls.reverse("activities:host", args=["grant", self.activity.id, user.id])
-        self.remove_url = lambda user: urls.reverse("activities:host", args=["remove", self.activity.id, user.id])
+        # Set the URL to the detail page
+        self.url = urls.reverse("activities:detail", args=[self.activity.id,])
+
+        self.grant = lambda user: put_request_json_data(self.url, self.client, {"grant_host": [user.id]})
+        self.remove = lambda user: put_request_json_data(self.url, self.client, {"remove_host": [user.id]})
 
     def test_grant_and_remove_host(self):
         """Return a success message and user gain and lose host access for activity accordingly."""
         self.assertEqual(self.activity.host(), [self.owner])
 
         # Send PUT request for grant
-        response = put_request_json_data(self.grant_url(self.participant), self.client, {})
+        response = self.grant(self.participant)
         response_dict = json.loads(response.content)
         self.assertEqual(self.activity.host(), [self.owner, self.participant])
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response_dict["message"],
-            f"You have successfully granted host access to user {self.participant.username} for activity {self.activity.name}.")
+        self.assertEqual(response_dict["message"], f"You have successfully edited the activity {self.activity.name}")
 
         # Send PUT request for remove
-        response = put_request_json_data(self.remove_url(self.participant), self.client, {})
+        response = self.remove(self.participant)
         response_dict = json.loads(response.content)
         self.assertEqual(self.activity.host(), [self.owner])
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response_dict["message"],
-            f"You have successfully removed host access to user {self.participant.username} for activity {self.activity.name}.")
+        self.assertEqual(response_dict["message"], f"You have successfully edited the activity {self.activity.name}")
 
     def test_remove_host(self):
         """Return a success message and user host access for activity is removed."""
-        response = put_request_json_data(self.remove_url(self.participant), self.client, {})
+        response = self.remove(self.participant)
         response_dict = json.loads(response.content)
         self.assertEqual(self.activity.host(), [self.owner])
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response_dict["message"],
-            f"You have successfully removed host access to user {self.participant.username} for activity {self.activity.name}.")
+        self.assertEqual(response_dict["message"], f"You have successfully edited the activity {self.activity.name}")
 
     def test_grant_host_for_non_participants(self):
         """Return an error message when grant host for non-participants."""
-        # Send PUT request with new activity data
-        response = put_request_json_data(self.grant_url(self.user), self.client, {})
+        response = self.grant(self.user)
         response_dict = json.loads(response.content)
         self.assertEqual(self.activity.host(), [self.owner])
         self.assertEqual(response.status_code, 403)
@@ -75,8 +66,7 @@ class GrantRemoveHostTest(django.test.TestCase):
 
     def test_remove_host_for_non_participants(self):
         """Return an error message when remove host for non-participants."""
-        # Send PUT request with new activity data
-        response = put_request_json_data(self.remove_url(self.user), self.client, {})
+        response = self.remove(self.user)
         response_dict = json.loads(response.content)
         self.assertEqual(self.activity.host(), [self.owner])
         self.assertEqual(response.status_code, 403)
@@ -84,8 +74,7 @@ class GrantRemoveHostTest(django.test.TestCase):
 
     def test_grant_host_owner(self):
         """Return an error message when grant host for owner."""
-        # Send PUT request with new activity data
-        response = put_request_json_data(self.grant_url(self.owner), self.client, {})
+        response = self.grant(self.owner)
         response_dict = json.loads(response.content)
         self.assertEqual(self.activity.host(), [self.owner])
         self.assertEqual(response.status_code, 403)
@@ -93,8 +82,7 @@ class GrantRemoveHostTest(django.test.TestCase):
 
     def test_remove_host_owner(self):
         """Return an error message when remove host for owner."""
-        # Send PUT request with new activity data
-        response = put_request_json_data(self.remove_url(self.owner), self.client, {})
+        response = self.remove(self.owner)
         response_dict = json.loads(response.content)
         self.assertEqual(self.activity.host(), [self.owner])
         self.assertEqual(response.status_code, 403)
@@ -102,9 +90,16 @@ class GrantRemoveHostTest(django.test.TestCase):
 
     def test_not_owner(self):
         """Return an error message when user is not owner."""
-        self.client.logout()
+        self.grant(self.participant)
+
         self.client.force_login(self.participant)
-        response = put_request_json_data(self.grant_url(self.participant), self.client, {})
+
+        response = self.grant(self.participant)
+        response_dict = json.loads(response.content)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response_dict["message"], "You must be the owner of this activity to perform this action.")
+
+        response = self.remove(self.participant)
         response_dict = json.loads(response.content)
         self.assertEqual(response.status_code, 403)
         self.assertEqual(response_dict["message"], "You must be the owner of this activity to perform this action.")
@@ -112,7 +107,13 @@ class GrantRemoveHostTest(django.test.TestCase):
     def test_not_logged_in(self):
         """Return an error message when user is logged in."""
         self.client.logout()
-        response = put_request_json_data(self.remove_url(self.participant), self.client, {})
+
+        response = self.grant(self.participant)
+        response_dict = json.loads(response.content)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response_dict["message"], "Authentication credentials were not provided.")
+
+        response = self.remove(self.participant)
         response_dict = json.loads(response.content)
         self.assertEqual(response.status_code, 403)
         self.assertEqual(response_dict["message"], "Authentication credentials were not provided.")
