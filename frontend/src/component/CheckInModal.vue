@@ -28,80 +28,77 @@
     </div>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted, defineEmits } from 'vue';
+import { useRoute } from 'vue-router';
 import { addAlert } from "@/functions/AlertManager";
 import { createPostRequest } from "@/functions/HttpRequest.js";
+const emit = defineEmits(['checkInSuccess'])
 
-export default {
-    data() {
-        return {
-            id: this.activityId,
-            checkInCode: "",
-            activity: {}
-        };
-    },
-    methods: {
-        async postCheckIn() {
-            if (this.validateCheckInCode()){
-                try {
-                    const response = await createPostRequest(
-                        `/activities/check-in/${this.activityId}/`,
-                        {
-                            'check_in_code': this.checkInCode
-                        }
-                    );
-                    addAlert("success", response.data.message);
-                    this.$emit("check-in-success");
-                } catch (error) {
-                    if (error.response && error.response.data) {
-                        if (error.response.data.message == "Check-in code invalid"){
-                            const checkInCodeField = document.getElementById("check-in-code-fields");
-                            const invalidCodeError = document.getElementById("invalid-code");
-                            checkInCodeField.classList.remove("input-primary");
-                            checkInCodeField.classList.add("input-error");
-                            invalidCodeError.removeAttribute("hidden")
-                        } else {
-                            addAlert("error", error.response.data.message); // Show error message from backend
-                        }
+const checkInCode = ref("");
+const activityId = ref(null);
 
-                    } else {
-                        addAlert(
-                            "error",
-                            "An unexpected error occurred. Please try again later."
-                        );
-                    }
+onMounted(() => {
+    activityId.value = route.params.id;
+    checkInCode.value = route.query.code;
+});
+
+const route = useRoute();
+activityId.value = route.params.id;
+
+
+async function postCheckIn() {
+    if (validateCheckInCode()) {
+        try {
+            const response = await createPostRequest(
+                `/activities/check-in/${activityId.value}/`,
+                {
+                    'check_in_code': checkInCode.value
                 }
-            }
-        },
-        validateCheckInCode() {
-            /**
-             * Validate input in the forms
-             * @return input validity in boolean
-             */
+            );
+            addAlert("success", response.data.message);
+            emit("check-in-success");
+        } catch (error) {
+            handleError(error);
+        }
+    }
+}
 
-            const checkInCodeField = document.getElementById("check-in-code-fields");
-            var result = true;
-            var checkInCodeError = document.getElementById("code-field-must-6");
-            if (this.checkInCode.length != 6) {
-                checkInCodeField.classList.remove("input-primary");
-                checkInCodeField.classList.add("input-error");
 
-                checkInCodeError.removeAttribute("hidden");
-                result = false;
-            }
-            return result
-        },
-    },
-    mounted() {
-        this.activityId = this.$route.params.id;
-        this.isDarkTheme = window.matchMedia(
-            "(prefers-color-scheme: dark)"
-        ).matches;
-        window
-            .matchMedia("(prefers-color-scheme: dark)")
-            .addEventListener("change", (e) => {
-                this.isDarkTheme = e.matches;
-            });
-    },
-};
+async function validateCheckInCode() {
+    const checkInCodeField = document.getElementById("check-in-code-fields");
+    const checkInCodeError = document.getElementById("code-field-must-6");
+    let result = true;
+
+    if (checkInCode.value.length !== 6) {
+        checkInCodeField.classList.remove("input-primary");
+        checkInCodeField.classList.add("input-error");
+        checkInCodeError.removeAttribute("hidden");
+        result = false;
+    } else {
+        checkInCodeField.classList.remove("input-error");
+        checkInCodeField.classList.add("input-primary");
+        checkInCodeError.setAttribute("hidden", true);
+    }
+
+    return result;
+}
+
+
+async function handleError(error) {
+    const checkInCodeField = document.getElementById("check-in-code-fields");
+    const invalidCodeError = document.getElementById("invalid-code");
+
+    if (error.response && error.response.data) {
+        if (error.response.data.message === "Check-in code invalid") {
+            checkInCodeField.classList.remove("input-primary");
+            checkInCodeField.classList.add("input-error");
+            invalidCodeError.removeAttribute("hidden");
+        } else {
+            addAlert("error", error.response.data.message); // Show error message from backend
+        }
+    } else {
+        addAlert("error", "An unexpected error occurred. Please try again later.");
+    }
+}
 </script>
