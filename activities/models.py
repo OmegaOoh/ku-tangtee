@@ -112,13 +112,6 @@ class Attend(models.Model):
         """
         return f"user {self.user.username} attend {self.activity.name}"
 
-    def __repr__(self) -> str:
-        """Return activity attendance information.
-
-        :return: user's username and the activity they've joined
-        """
-        return self.__str__()
-
     @classmethod
     def recently_joined(cls, user: User,
                         records: Optional[int | None] = None,

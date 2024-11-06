@@ -161,7 +161,8 @@
 </template>
 
 <script setup>
-import { isAuth, login, email, fName, lName, userId } from "@/functions/Authentications";
+import { watch } from 'vue';
+import { isAuth, login, email, fName, lName, userId, logout } from "@/functions/Authentications";
 import { addAlert } from "@/functions/AlertManager";
 import { createPostRequest } from "@/functions/HttpRequest";
 import apiClient from "@/api";
@@ -180,6 +181,7 @@ export default {
             kuGen: '',
             faculty: '',
             major: '',
+            watchUserId: null,
         }
     },
     methods: {
@@ -269,17 +271,17 @@ export default {
             if (!this.validateInput()) {
                 return
             }
-            await createPostRequest(`/profile/`,
-                {
-                    "user": userId,
-                    "nick_name": this.nickname,
-                    "pronoun": this.pronoun,
-                    "ku_generation": this.kuGen,
-                    "faculty": this.faculty,
-                    "major": this.major,
-                    "about_me": this.bio,
-                }
-            )
+
+            const profileData = {
+                "user": userId.value, // Ensure this is a plain value
+                "nick_name": this.nickname,
+                "pronoun": this.pronoun,
+                "ku_generation": this.kuGen,
+                "faculty": this.faculty,
+                "major": this.major,
+                "about_me": this.bio,
+            };
+            await createPostRequest(`/profile/`, profileData)
             this.goNext()
             addAlert('success', 'Your profile has been created successfully! Welcome to KU Tangtee!')
         },
@@ -289,9 +291,8 @@ export default {
         },
         goNext() {
             const nextPath = this.$router.currentRoute.value.query.next;
-            console.log(nextPath)
-            if (nextPath == `/create-profile/` || nextPath == '' || !nextPath) {
-                this.$router.push('/')
+            if (nextPath == `/create-profile` || nextPath == '' || !nextPath) {
+                this.$router.push('')
             }
             else {
                 this.$router.push(nextPath)
@@ -304,6 +305,29 @@ export default {
             addAlert('info', "You already has the profile.")
             this.goNext()
         }
-    }
+        this.watchUserId = watch(userId, (newUserId) => {
+            if (!(isAuth.value)) {
+                this.goNext()
+                addAlert("warning", "You didn't log in")
+            } 
+            if (newUserId){
+                addAlert('info', "You already has the profile.")
+                this.goNext()
+            }
+        })
+    },
+    async beforeUnmount() {
+        if (this.watchUserId){
+            this.watchUserId();
+        }
+        // Check the user profile status on dismount
+        if (isAuth.value && userId){
+            const profileResponse = await apiClient.get(`profile/`)
+            if (!profileResponse.data.has_profile) {
+                logout();
+                addAlert('warning', "you don't successfully create the profile. Log out.")
+            }
+        }
+    },
 }
 </script>
