@@ -31,9 +31,8 @@ class JoinLeaveView(
         :param request: Http request object
         :return: Http response object
         """
-        
         user_profile = request.user.profile_set.first()
-        
+
         if not user_profile:
             return response.Response(
                 {
@@ -41,7 +40,7 @@ class JoinLeaveView(
                 },
                 status=status.HTTP_403_FORBIDDEN
             )
-            
+
         if not user_profile.able_to_join_more:
             return response.Response(
                 {
@@ -49,7 +48,7 @@ class JoinLeaveView(
                 },
                 status=status.HTTP_403_FORBIDDEN
             )
-        
+
         serializer = self.get_serializer(
             data={
                 "user": request.user.id,

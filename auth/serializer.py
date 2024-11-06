@@ -18,9 +18,9 @@ class UserSerializer(serializers.ModelSerializer):
 
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'profile_picture_url', 'id', 'user_profile')
-        
-    def get_user_profile(self, user: User) -> dict[Any, Any]:
-        
+
+    def get_user_profile(self, user: User) -> Any:
+        """Get user profile."""
         try:
             profile = Profile.objects.get(user=user)
             return ProfilesSerializer(instance=profile).data

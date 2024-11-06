@@ -5,11 +5,13 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 
-def get_end_registration_date():
+def get_end_registration_date() -> Any:
+    """Get default end registration date."""
     return timezone.now() + timezone.timedelta(days=5)
 
 
-def get_end_date():
+def get_end_date() -> Any:
+    """Get default end date."""
     return timezone.now() + timezone.timedelta(days=7)
 
 
@@ -60,7 +62,7 @@ class Activity(models.Model):
         """
         return [a.user for a in self.attend_set.filter(is_host=False)]
 
-    def is_participated(self, user: User) -> bool:
+    def is_participated(self, user: User) -> Any:
         """Return boolean value which tell that are given user are participate in activity or not.
 
         :param user: _description_
@@ -68,7 +70,7 @@ class Activity(models.Model):
         """
         return user in self.participants()
 
-    def is_checkin_period(self) -> bool:
+    def is_checkin_period(self) -> Any:
         """Return boolean value which tell that are given user can check-in in activity or not.
 
         :return: True if user can still check-in in this activity, False otherwise.

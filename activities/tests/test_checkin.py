@@ -18,8 +18,8 @@ class CheckinTest(django.test.TestCase):
 
         self.host = create_test_user('Host')
         DAYSDELTA = 7
-        data = {'name': 'test activity', 'detail': 'hello', 'date': (timezone.now()).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-                , 'end_date': (timezone.now() + timezone.timedelta(days=DAYSDELTA)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')}
+        data = {'name': 'test activity', 'detail': 'hello', 'date': (timezone.now()).strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+                'end_date': (timezone.now() + timezone.timedelta(days=DAYSDELTA)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')}
         _, self.activity = create_activity(host=self.host, client=self.client, data=data)
 
         self.attendee = create_test_user('Attendee')
@@ -143,17 +143,17 @@ class CheckinTest(django.test.TestCase):
         self.open()
 
         self.client.force_login(self.attendee)
-        
+
         user_profile = self.attendee.profile_set.first()
         rep_before = user_profile.reputation_score
-        
+
         res = self.client.post(
             self.url(self.activity.id),
             data={
                 'check_in_code': self.activity.check_in_code
             }
         )
-        
+
         user_profile.refresh_from_db()
         self.assertJSONEqual(res.content, {'message': f"You've successfully check-in to {self.activity.name}"})
         self.assertTrue(self.attendee.attend_set.get(activity=self.activity).checked_in)
@@ -170,7 +170,8 @@ class CheckinTest(django.test.TestCase):
         Profile.check_missed_check_ins()
 
         user_profile = self.attendee.profile_set.first()
-        self.assertEqual(user_profile.reputation_score, max(0, user_profile.reputation_score - Profile.CHECK_IN_REPUTATION_DECREASE))
+        self.assertEqual(user_profile.reputation_score,
+                         max(0, user_profile.reputation_score - Profile.CHECK_IN_REPUTATION_DECREASE))
 
         attendee_record = Attend.objects.get(user=self.attendee, activity=self.activity)
         self.assertTrue(attendee_record.rep_decrease)

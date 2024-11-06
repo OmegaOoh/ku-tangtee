@@ -65,11 +65,11 @@ class CheckInView(
                 {'message': 'Check-in code invalid'},
                 status=403
             )
-            
+
         attend = act.attend_set.get(user=request.user)
         attend.checked_in = True
         attend.save()
-        
+
         user_profile = request.user.profile_set.first()
         user_profile.increase_reputation()
 
@@ -96,8 +96,8 @@ class CheckInView(
                 'message': 'Activity check-in are open',
                 'check_in_code': request.data.get('check_in_code')
             })
-        return response.Response({'message': 'Check-in period is in between Start date and End date of the activity.'}
-                                 , status=403)
+        return response.Response({'message': 'Check-in period is in between Start date and End date of the activity.'},
+                                 status=403)
 
     def close_check_in(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Close for check-in.

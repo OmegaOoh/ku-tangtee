@@ -15,16 +15,16 @@ from profiles.tests.shortcuts import create_profile
 
 def create_test_user(username: str = "test_user", with_profile=True, rep_score=0) -> User:
     """Return a test user."""
-    
     new_user = User.objects.create_user(
         username=username,
         password="password",
     )
-    
+
     if with_profile:
         create_profile(user=new_user, rep_score=rep_score)
 
     return new_user
+
 
 def create_activity(
     host: User = None,
@@ -49,7 +49,7 @@ def create_activity(
     client.force_login(host)
     url = urls.reverse("activities:index")
     res = post_request_json_data(url, client, data_with_date)
-        
+
     try:
         response_dict = json.loads(res.content)
         # print(response_dict)
