@@ -1,5 +1,5 @@
 """Module for handle URL /activities/<activity_id>."""
-from activities.views.util import image_loader, image_deleter, image_loader_64
+from activities.views.util import image_loader, image_deleter, image_loader_64, edit_host_access
 from typing import Any
 from django.http import HttpRequest
 from django.utils import timezone
@@ -43,6 +43,18 @@ class ActivityDetail(mixins.RetrieveModelMixin,
             )
         res = self.update(request, partial=True, *args, **kwargs)
         res_dict = res.data
+
+        grant_host_user_ids = request.data.get("grant_host", [])
+        if grant_host_user_ids:
+            res = edit_host_access(grant_host_user_ids, activity, request.user, remove=False)
+            if res:
+                return res
+
+        remove_host_user_ids = request.data.get("remove_host", [])
+        if remove_host_user_ids:
+            res = edit_host_access(remove_host_user_ids, activity, request.user, remove=True)
+            if res:
+                return res
 
         attachment_ids_to_remove = request.data.get("remove_attachments", [])
 

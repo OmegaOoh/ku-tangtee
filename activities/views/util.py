@@ -4,6 +4,7 @@ from typing import Any
 from django.http import HttpRequest
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
+from django.contrib.auth import models as auth_models
 import requests
 import base64
 import uuid
@@ -40,6 +41,38 @@ def get_recent_activity(request: HttpRequest, *args: Any, **kwargs: Any) -> resp
                           "activity_id": activity.id,
                           "activity_date": activity.date} for activity in activities]
     return response.Response(recent_activities)
+
+
+def edit_host_access(
+        user_ids: list[int],
+        act: models.Activity,
+        request_user: auth_models.User,
+        remove: bool = True) -> response.Response | None:
+    """Save is_host value according to the given query into the Attend objects.
+
+    :param user_ids: List of user_ids
+    :param act: Activity object to query Attend object
+    :param request_user: User object to query Attend object
+    :param remove: True if granting host access, False if removing host access
+    """
+    if request_user != act.owner:
+        return response.Response({'message': "You must be the owner of this activity to perform this action."},
+                                 status=403)
+    for user_id in user_ids:
+        user = get_object_or_404(auth_models.User, id=user_id)
+
+        if not act.is_participated(user) and not act.is_hosts(user):
+            return response.Response({'message': f'Cannot find user {user.username} in this activity.'}, status=403)
+
+        attend = get_object_or_404(models.Attend, activity=act, user=user)
+
+        if user == act.owner:
+            return response.Response({'message': 'Cannot modify access of your own activity.'}, status=403)
+
+        attend.is_host = not remove
+        attend.save()
+
+    return None
 
 
 def image_loader(image_urls: list[str], act: models.Activity) -> None:
