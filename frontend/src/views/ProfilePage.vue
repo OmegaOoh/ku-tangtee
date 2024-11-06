@@ -52,7 +52,16 @@
                                     max="10"
                                 ></progress>
                                 <p class="text-xs text-gray-500 mt-1">
-                                    {{ reputation_progress }} / 10
+                                    Progress: {{ reputation_progress }} / 10
+                                </p>
+                                <progress
+                                    class="progress progress-warning w-full"
+                                    :value="concurrent_act"
+                                    :max="join_limit"
+                                ></progress>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Ongoing:
+                                    {{ concurrent_act }} / {{ join_limit }}
                                 </p>
                             </div>
                         </div>
@@ -202,6 +211,8 @@ export default {
             reputation: 0,
             reputation_level: 1,
             reputation_progress: 0,
+            join_limit: 0,
+            concurrent_act: 0,
         };
     },
     methods: {
@@ -223,10 +234,11 @@ export default {
             this.bio = response.data.about_me;
             this.pfp = response.data.profile_picture_url;
             this.reputation = response.data.reputation_score;
-            this.reputation_level =
-                this.reputation === 0 ? 1 : Math.floor(this.reputation / 10);
+            this.reputation_level = Math.floor(this.reputation / 10);
             this.reputation_progress =
                 this.reputation === 100 ? 10 : this.reputation % 10;
+            this.join_limit = response.data.join_limit;
+            this.concurrent_act = response.data.concurrent_activities;
         },
         async fetchRecentActivities() {
             /**

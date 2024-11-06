@@ -22,6 +22,8 @@ class ProfilesSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     profile_picture_url = serializers.SerializerMethodField()
     username = serializers.CharField(source='user.username', read_only=True)
+    join_limit = serializers.IntegerField(read_only=True)
+    concurrent_activities = serializers.IntegerField(read_only=True)
 
     class Meta:
         """Profile serializer META class."""

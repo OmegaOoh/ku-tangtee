@@ -50,12 +50,24 @@ class Profile(models.Model):
         :return: Maximum number of activity that user able to join.
         """
         limit = self.BASE_ACTIVITY_LIMIT + (self.reputation_score // self.REP_SCORE_PER_1_LIMIT)
-        return limit if limit < self.MAX_ACTIVITY_LIMIT else self.MAX_ACTIVITY_LIMIT
+        return min(self.MAX_ACTIVITY_LIMIT, limit)
     
     @property
     def able_to_join_more(self) -> bool:
         return bool(self.active_activity_count < self.join_limit)
+
+    @property
+    def concurrent_activities(self) -> int:
+        """Get number of concurrent activities the user has joined.
         
+        :return: Current number of concurrent activities.
+        """
+        now = timezone.now()
+        return self.user.attend_set.filter(
+            activity__end_date__gte=now,
+            checked_in=False
+        ).count()
+
     def __str__(self) -> str:
         """Return user's username as string representative.
 
