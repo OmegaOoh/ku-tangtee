@@ -161,149 +161,166 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router'
 import { isAuth, login, email, fName, lName, userId } from "@/functions/Authentications";
 import { addAlert } from "@/functions/AlertManager";
 import { createPostRequest } from "@/functions/HttpRequest";
 import apiClient from "@/api";
-</script>
-
-<script>
 
 const KU_ESTABLISHED_YEAR = 1940
 
-export default {
-    data() {
-        return {
-            nickname: '',
-            pronoun: '',
-            bio: '',
-            kuGen: '',
-            faculty: '',
-            major: '',
-        }
-    },
-    methods: {
-        scrollCarousel(index) {
-            /**
-             * Function to scroll the carousel using index
-             * This function return nothing
-             */
-            const carousel = document.getElementById('carousel');
-            let carouselW = carousel.clientWidth;
-            const targetPixel = (carouselW * index) + 1;
-            carousel.scrollTo(targetPixel, 0);
-        },
-        kuGenError(isError) {
-            /**
-             * Set component of kuGen field to be error/ normal according to isErrorParameter
-             * @param isError: bool
-             * this function return nothing
-             */
-            const component = document.getElementById('ku-gen-field');
-            if (isError) {
-                component.classList.remove('textarea-primary');
-                if (!component.classList.contains('textarea-error')) {
-                    component.classList.add('textarea-error');
-                }
-                
-            }
-            else {
-                if (!component.classList.contains('textarea-primary')) {
-                    component.classList.add('textarea-primary');
-                }
-                component.classList.remove('textarea-error');
-            }
-        },
-        validateInput() {
-            /**
-             * Function to validate the input.
-             * @return true if all input were valid.
-             */
-            var validInput = true;
-            
-            if (this.kuGen == null || this.kuGen == '') {
-                this.kuGenError(true)
-                validInput = false
-            }
-            else {
-                this.kuGenError(false)
-            }
-            if (this.kuGen != ''){
-                if (this.kuGen < 1) {
-                    this.kuGenError(true)
-                    addAlert('warning', "Your KU Generation must be at least 1");
-                    validInput = false;
-                }
-                else if (this.kuGen > this.getMaxKuGeneration()) {
-                    this.kuGenError(true)
-                    addAlert('warning', ('Your KU Generation must be less than or equal to ' + this.getMaxKuGeneration()))
-                    validInput = false;
-                }
-                else {
-                    this.kuGenError(false)
-                }
-            }
-            const component = document.getElementById('faculty-field')
-            if (this.faculty == '') {
-                validInput = false;
-                component.classList.remove('input-primary')
-                if (!component.classList.contains('input-error')) {
-                    component.classList.add('input-error')
-                }
-            }
-            else {
-                component.classList.remove('input-error')
-                if (!component.classList.contains('input-primary')) {
-                    component.classList.add('input-primary')
-                }
+// Router
+const router = useRouter();
 
-            }
-            return validInput
 
-        },
-        async submitProfile() {
-            /**
-             * Function to submit data from form to the backend
-             * This function return nothing
-             */
-            if (!this.validateInput()) {
-                return
-            }
-            await createPostRequest(`/profile/`,
-                {
-                    "user": userId,
-                    "nick_name": this.nickname,
-                    "pronoun": this.pronoun,
-                    "ku_generation": this.kuGen,
-                    "faculty": this.faculty,
-                    "major": this.major,
-                    "about_me": this.bio,
-                }
-            )
-            this.goNext()
-            addAlert('success', 'Your profile has been created successfully! Welcome to KU Tangtee!')
-        },
-        getMaxKuGeneration() {
-            const currentYear = (new Date()).getFullYear();
-            return currentYear - KU_ESTABLISHED_YEAR;
-        },
-        goNext() {
-            const nextPath = this.$router.currentRoute.value.query.next;
-            console.log(nextPath)
-            if (nextPath == `/create-profile/` || nextPath == '' || !nextPath) {
-                this.$router.push('/')
-            }
-            else {
-                this.$router.push(nextPath)
-            }
+// Variable
+const nickname= ref('');
+const pronoun= ref('');
+const bio= ref('');
+const kuGen= ref('');
+const faculty= ref('');
+const major= ref('');
+
+
+const scrollCarousel = (index) => {
+    /**
+     * Function to scroll the carousel using index
+     * This function return nothing
+     */
+    const carousel = document.getElementById('carousel');
+    let carouselW = carousel.clientWidth;
+    const targetPixel = (carouselW * index) + 1;
+    carousel.scrollTo(targetPixel, 0);
+}
+
+/**
+ *  Validator
+ */
+
+const kuGenError = (isError) => {
+    /**
+     * Set component of kuGen field to be error/ normal according to isErrorParameter
+     * @param isError: bool
+     * this function return nothing
+     */
+    const component = document.getElementById('ku-gen-field');
+    if (isError) {
+        component.classList.remove('textarea-primary');
+        if (!component.classList.contains('textarea-error')) {
+            component.classList.add('textarea-error');
         }
-    },
-    async mounted() {
-        const profileResponse = await apiClient.get(`profile/`)
-        if (profileResponse.data.has_profile) {
-            addAlert('info', "You already has the profile.")
-            this.goNext()
+        
+    }
+    else {
+        if (!component.classList.contains('textarea-primary')) {
+            component.classList.add('textarea-primary');
         }
+        component.classList.remove('textarea-error');
     }
 }
+
+const validateInput = () => {
+    /**
+     * Function to validate the input.
+     * @return true if all input were valid.
+     */
+    var validInput = true;
+    
+    if (kuGen.value == null || kuGen.value == '') {
+        kuGenError(true)
+        validInput = false
+    }
+    else {
+        kuGenError(false)
+    }
+    if (kuGen.value != ''){
+        if (kuGen.value < 1) {
+            kuGenError(true)
+            addAlert('warning', "Your KU Generation must be at least 1");
+            validInput = false;
+        }
+        else if (kuGen.value > getMaxKuGeneration()) {
+            kuGenError(true)
+            addAlert('warning', ('Your KU Generation must be less than or equal to ' + this.getMaxKuGeneration()))
+            validInput = false;
+        }
+        else {
+            kuGenError(false)
+        }
+    }
+    const component = document.getElementById('faculty-field')
+    if (faculty.value == '') {
+        validInput = false;
+        component.classList.remove('input-primary')
+        if (!component.classList.contains('input-error')) {
+            component.classList.add('input-error')
+        }
+    }
+    else {
+        component.classList.remove('input-error')
+        if (!component.classList.contains('input-primary')) {
+            component.classList.add('input-primary')
+        }
+    }
+    return validInput
+}
+
+/**
+ * Utils
+ */
+
+const getMaxKuGeneration = () => {
+    /**
+     * Get Maximum possible KU generation
+     */
+    const currentYear = (new Date()).getFullYear();
+    return currentYear - KU_ESTABLISHED_YEAR;
+}
+
+
+const goNext = () => {
+    /**
+     * Redirect user to page in next params
+     */
+    const nextPath = router.currentRoute.value.query.next;
+    if (nextPath == `/create-profile/` || nextPath == '' || !nextPath) {
+        router.push('/')
+    }
+    else {
+        router.push(nextPath)
+    }
+}
+
+const submitProfile = async() => {
+    /**
+     * Function to submit data from form to the backend
+     * This function return nothing
+     */
+    if (!validateInput()) {
+        return
+    }
+    await createPostRequest(`/profile/`,
+        {
+            "user": userId,
+            "nick_name": nickname.value,
+            "pronoun": pronoun.value,
+            "ku_generation": kuGen.value,
+            "faculty": faculty.value,
+            "major": major.value,
+            "about_me": bio.value,
+        }
+    )
+    goNext()
+    addAlert('success', 'Your profile has been created successfully! Welcome to KU Tangtee!')
+}
+
+onMounted(async () => {
+    const profileResponse = await apiClient.get(`profile/`)
+    if (profileResponse.data.has_profile) {
+        addAlert('info', "You already has the profile.")
+        this.goNext()
+    }
+})
+
 </script>
