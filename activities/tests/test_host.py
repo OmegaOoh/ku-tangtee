@@ -27,6 +27,7 @@ class GrantRemoveHostTest(django.test.TestCase):
 
         # Set the URL to the detail page
         self.url = urls.reverse("activities:detail", args=[self.activity.id,])
+        self.checkin_url = urls.reverse("activities:checkin", args=[self.activity.id])
 
         self.attend = lambda user: self.activity.attend_set.filter(user=user).first()
 
@@ -52,6 +53,26 @@ class GrantRemoveHostTest(django.test.TestCase):
         self.assertFalse(self.attend(self.participant).checked_in)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_dict["message"], f"You have successfully edited the activity {self.activity.name}")
+
+    def test_checked_in_grant_remove_host_when_allow_checkin(self):
+        """If allow checkin, user auto check-in when grant host access, and remain the same even if got removed access."""
+        self.client.put(self.checkin_url + '?status=open')
+
+        self.grant(self.participant)
+        self.assertTrue(self.attend(self.participant).checked_in)
+
+        self.remove(self.participant)
+        self.assertTrue(self.attend(self.participant).checked_in)
+
+    def test_checked_in_grant_remove_host_when_not_allow_checkin(self):
+        """If not allow checkin, user auto check-in when grant host access, and lose checked-in state if got removed access."""
+        self.client.put(self.checkin_url + '?status=close')
+
+        self.grant(self.participant)
+        self.assertTrue(self.attend(self.participant).checked_in)
+
+        self.remove(self.participant)
+        self.assertFalse(self.attend(self.participant).checked_in)
 
     def test_co_host_activity_editing(self):
         """Co-host should be able to edit activity."""
