@@ -98,7 +98,8 @@ class CheckInView(
                 'message': 'Activity check-in are open',
                 'check_in_code': request.data.get('check_in_code')
             })
-        return response.Response({'message': 'Now, it is not in check-in period.'})
+        return response.Response({'message': 'Check-in period is in between Start date and End date of the activity.'}
+                                 , status=403)
 
     def close_check_in(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Close for check-in.
