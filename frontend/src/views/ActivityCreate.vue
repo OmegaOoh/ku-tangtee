@@ -91,7 +91,9 @@
                 </div>
                 <div class="form-control w-full">
                     <div class="label">
-                        <span class="text-base-content"> Activity Date </span>
+                        <span class="text-base-content">
+                            Activity Start Date
+                        </span>
                         <span
                             id="date-field-error"
                             class="text-error text-sm"
@@ -104,7 +106,51 @@
                         v-model="date"
                         id="date-field"
                         type="text"
-                        placeholder="Select Date"
+                        placeholder="Select Start Date"
+                        :min-date="new Date()"
+                        :dark="isDarkTheme"
+                    />
+                </div>
+                <div class="form-control w-full">
+                    <div class="label">
+                        <span class="text-base-content">
+                            Activity End Registration Date
+                        </span>
+                        <span
+                            id="end-reg-date-field-error"
+                            class="text-error text-sm"
+                            hidden
+                        >
+                            required
+                        </span>
+                    </div>
+                    <VueDatePicker
+                        v-model="end_registration_date"
+                        id="end-reg-date-field"
+                        type="text"
+                        placeholder="Select End Registration Date"
+                        :min-date="new Date()"
+                        :dark="isDarkTheme"
+                    />
+                </div>
+                <div class="form-control w-full">
+                    <div class="label">
+                        <span class="text-base-content">
+                            Activity End Date
+                        </span>
+                        <span
+                            id="end-date-field-error"
+                            class="text-error text-sm"
+                            hidden
+                        >
+                            required
+                        </span>
+                    </div>
+                    <VueDatePicker
+                        v-model="end_date"
+                        id="end-date-field"
+                        type="text"
+                        placeholder="Select End Date"
                         :min-date="new Date()"
                         :dark="isDarkTheme"
                     />
@@ -159,6 +205,8 @@ export default {
             activityName: "",
             activityDetail: "",
             date: "",
+            end_registration_date: "",
+            end_date: "",
             maxPeople: 1,
             showMaxPeople: false,
             isDarkTheme: false,
@@ -214,12 +262,45 @@ export default {
             } else {
                 dateFieldError.setAttribute("hidden", "true");
             }
+            const endRegFieldError = document.getElementById(
+                "end-reg-date-field-error"
+            );
+            if (!this.end_registration_date.length <= 0) {
+                endRegFieldError.removeAttribute("hidden");
+                result = false;
+            } else {
+                endRegFieldError.setAttribute("hidden", "true");
+            }
+
+            // Validate end_date
+            const endDateFieldError = document.getElementById(
+                "end-date-field-error"
+            );
+            if (this.end_date.length <= 0) {
+                endDateFieldError.removeAttribute("hidden");
+                result = false;
+            } else {
+                endDateFieldError.setAttribute("hidden", "true");
+            }
             if (this.maxPeople <= 0 && this.showMaxPeople) {
                 addAlert(
                     "warning",
                     "Max People must be positive and not zeroes."
                 );
                 this.maxPeople = 1;
+                result = false;
+            }
+            const dateObj = new Date(this.date);
+            const regDate = new Date(this.end_registration_date);
+            const endDate = new Date(this.end_date);
+            if (
+                dateObj >= regDate ||
+                regDate >= endDate ||
+                dateObj >= endDate
+            ) {
+                dateFieldError.removeAttribute("hidden");
+                dateFieldError.textContent =
+                    "Start Date must be before End Registration Date, which must be before End Date.";
                 result = false;
             }
             return result;
@@ -234,7 +315,11 @@ export default {
             try {
                 // Construct data to create POST request
                 const dateObj = new Date(this.date);
+                const regDate = new Date(this.end_registration_date);
+                const endDate = new Date(this.end_date);
                 const formattedDate = dateObj.toISOString();
+                const formattedRegDate = regDate.toISOString();
+                const formattedEndDate = endDate.toISOString();
                 if (!this.showMaxPeople) {
                     this.maxPeople = null;
                 }
@@ -242,9 +327,12 @@ export default {
                     name: this.activityName,
                     detail: this.activityDetail,
                     date: formattedDate,
+                    end_registration_date: formattedRegDate,
+                    end_date: formattedEndDate,
                     max_people: this.maxPeople || null,
                     images: this.images,
                 };
+                console.log(data);
                 const response = await createPostRequest(`/activities/`, data);
                 addAlert("success", response.data.message);
                 this.$router.push(`/activities/${response.data.id}`);

@@ -63,7 +63,7 @@
     </div>
     <div class="form-control w-full my-1">
         <div class="label">
-            <span class="text-base-content"> Activity Date </span>
+            <span class="text-base-content"> Activity Start Date </span>
             <span id="date-field-error" class="text-error text-sm" hidden>
                 required
             </span>
@@ -72,7 +72,45 @@
             v-model="date"
             id="date-field"
             type="text"
-            placeholder="Select Date"
+            placeholder="Select Start Date"
+            :min-date="new Date()"
+            :dark="isDarkTheme"
+        />
+    </div>
+    <div class="form-control w-full">
+        <div class="label">
+            <span class="text-base-content">
+                Activity End Registration Date
+            </span>
+            <span
+                id="end-reg-date-field-error"
+                class="text-error text-sm"
+                hidden
+            >
+                required
+            </span>
+        </div>
+        <VueDatePicker
+            v-model="end_registration_date"
+            id="end-reg-date-field"
+            type="text"
+            placeholder="Select End Registration Date"
+            :min-date="new Date()"
+            :dark="isDarkTheme"
+        />
+    </div>
+    <div class="form-control w-full">
+        <div class="label">
+            <span class="text-base-content"> Activity End Date </span>
+            <span id="end-date-field-error" class="text-error text-sm" hidden>
+                required
+            </span>
+        </div>
+        <VueDatePicker
+            v-model="end_date"
+            id="end-date-field"
+            type="text"
+            placeholder="Select End Date"
             :min-date="new Date()"
             :dark="isDarkTheme"
         />
@@ -125,6 +163,8 @@ export default {
             activityName: "",
             activityDetail: "",
             date: "",
+            end_registration_date: "",
+            end_date: "",
             maxPeople: 0,
             people: [],
             showMaxPeople: false,
@@ -150,6 +190,12 @@ export default {
                 this.activityDetail = this.activity.detail;
                 this.date = this.formatActivityDate(
                     new Date(this.activity.date)
+                );
+                this.end_date = this.formatActivityDate(
+                    new Date(this.activity.end_date)
+                );
+                this.end_registration_date = this.formatActivityDate(
+                    new Date(this.activity.end_registration_date)
                 );
                 this.baseUrl = process.env.VUE_APP_BASE_URL;
                 if (this.baseUrl.endsWith("/")) {
@@ -217,6 +263,47 @@ export default {
                 this.maxPeople = this.activity.people;
                 result = false;
             }
+            const endRegFieldError = document.getElementById(
+                "end-reg-date-field-error"
+            );
+            if (!this.end_registration_date.length <= 0) {
+                endRegFieldError.removeAttribute("hidden");
+                result = false;
+            } else {
+                endRegFieldError.setAttribute("hidden", "true");
+            }
+
+            // Validate end_date
+            const endDateFieldError = document.getElementById(
+                "end-date-field-error"
+            );
+            if (this.end_date.length <= 0) {
+                endDateFieldError.removeAttribute("hidden");
+                result = false;
+            } else {
+                endDateFieldError.setAttribute("hidden", "true");
+            }
+            if (this.maxPeople <= 0 && this.showMaxPeople) {
+                addAlert(
+                    "warning",
+                    "Max People must be positive and not zeroes."
+                );
+                this.maxPeople = 1;
+                result = false;
+            }
+            const dateObj = new Date(this.date);
+            const regDate = new Date(this.end_registration_date);
+            const endDate = new Date(this.end_date);
+            if (
+                dateObj >= regDate ||
+                regDate >= endDate ||
+                dateObj >= endDate
+            ) {
+                dateFieldError.removeAttribute("hidden");
+                dateFieldError.textContent =
+                    "Start Date must be before End Registration Date, which must be before End Date.";
+                result = false;
+            }
             return result;
         },
         async postUpdate() {
@@ -240,6 +327,8 @@ export default {
                     name: this.activityName,
                     detail: this.activityDetail,
                     date: this.date,
+                    end_date: this.end_date,
+                    end_registration_date: this.end_registration_date,
                     max_people: this.maxPeople || null,
                     new_images: this.new_images,
                     remove_attachments: this.remove_attachment,
@@ -356,7 +445,7 @@ export default {
             }
             // Remove the image from the images array
             this.images.splice(index, 1);
-						this.images = [...this.images];
+            this.images = [...this.images];
         },
         maxImageCompute() {
             /*
