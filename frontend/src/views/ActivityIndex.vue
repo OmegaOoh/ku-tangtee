@@ -135,166 +135,176 @@
     </div>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { useRouter } from 'vue-router'
 import { format } from "date-fns";
-import apiClient from "@/api"; // Get API
+import apiClient from "@/api";
 
-export default {
-    data() {
-        return {
-            activities: [],
-            isDarkTheme: false,
-            timeZoneOffset: 0,
-            searchKeyword: "",
-            socket: null,
-            startDate: null,
-            endDate: null,
-            dateRange: null,
-            selectedDay: [1,2,3,4,5,6,7],
-            isFilterOpen: false,
-        };
-    },
-    mounted() {
-        this.fetchActivities();
-        this.setupSocket();
-        this.isDarkTheme = window.matchMedia(
-            "(prefers-color-scheme: dark)"
-        ).matches;
-        window
-            .matchMedia("(prefers-color-scheme: dark)")
-            .addEventListener("change", (e) => {
-                this.isDarkTheme = e.matches;
-            });
-    },
-    methods: {
-        async fetchActivities() {
-            /*
-             * Get data for all activities from API.
-             */
+const router = useRouter();
+
+// Variable
+const activities= ref([]);
+const isDarkTheme= ref(false);
+const searchKeyword= ref("");
+const socket= ref(null);
+const startDate= ref(null);
+const endDate= ref(null);
+const dateRange= ref(null);
+const selectedDay= ref([1,2,3,4,5,6,7]);
+const isFilterOpen= ref(false);
+
+/**
+ * Fetch Data
+ */
+const fetchActivities = async() => {
+    /*
+     * Get data for all activities from API.
+     */
+    try {
+        let response;
+        const params = {};
+
+        // Add parameters only if they have values
+        if (searchKeyword.value) {
+            params.keyword = searchKeyword.value;
+        }
+        if (startDate.value) {
+            params.start_date = format(startDate.value, "yyyy-MM-dd");
+        }
+        if (endDate.value) {
+            params.end_date = format(endDate.value, "yyyy-MM-dd");
+        }
+        if (selectedDay.value) {
+            params.day = selectedDay.value.toString();
+        }
+        response = await apiClient.get("/activities/", { params });
+        activities.value = response.data;
+        window.scrollTo(0, 0);
+        // Hide reload button
+        const reloadButton = document.getElementById("reload");
+        reloadButton.classList.remove("translate-y-0");
+        reloadButton.classList.remove("translate-y-[100%]");
+        setTimeout(reloadButton.setAttribute("hidden", "true"));
+    } catch (error) {
+        console.error("Error fetching activities:", error);
+        if (error.response) {
+            console.error("Response data:", error.response.data);
+            console.error("Response status:", error.response.status);
+        }
+    }
+}
+
+/**
+ * Redirect
+ */
+
+const viewActivity = (activityId) => {
+    /*
+     * Navigate to specific activity detail page.
+     */
+    router.push(`/activities/${activityId}`);
+}
+
+const formatTimestamp = (timestamp) => {
+    /*
+     * Format the timestamp into (Oct 22, 2024, 9:00 AM).
+     *
+     * @params {string} not yet formatted timestamp
+     * @returns {string} formatted timestamp
+     */
+    if (timestamp) {
+        return format(new Date(timestamp), "EEE, MMM/dd/yyyy, hh:mm a");
+    } else {
+        return "No date provided";
+    }
+}
+
+/**
+ * Websocket
+ */
+
+const setupSocket = () => {
+        /*
+            * Connect to websocket to observe the change of index.
+            */
+        const new_socket = new WebSocket(
+            `${process.env.VUE_APP_BASE_URL.replace(/^http/, "ws").replace(
+                /^https/,
+                "wss"
+            )}ws/index/`
+        );
+        socket.value = new_socket;
+
+        socket.value.onmessage = (event) => {
             try {
-                let response;
-                const params = {};
-
-                // Add parameters only if they have values
-                if (this.searchKeyword) {
-                    params.keyword = this.searchKeyword;
+                var parsedData = JSON.parse(event.data);
+                if (parsedData["type"] === "new_act") {
+                    // Show reload button
+                    const reloadButton = document.getElementById("reload");
+                    reloadButton.removeAttribute("hidden"); // Show the button
+                    reloadButton.classList.remove("translate-y-[-100%]"); // Remove off-screen class
+                    reloadButton.classList.add("translate-y-0"); // Slide in
                 }
-                if (this.startDate) {
-                    params.start_date = format(this.startDate, "yyyy-MM-dd");
-                }
-                if (this.endDate) {
-                    params.end_date = format(this.endDate, "yyyy-MM-dd");
-                }
-                if (this.selectedDay) {
-                    params.day = this.selectedDay.toString();
-                }
-                response = await apiClient.get("/activities/", { params });
-                this.activities = response.data;
-                window.scrollTo(0, 0);
-                // Hide reload button
-                const reloadButton = document.getElementById("reload");
-                reloadButton.classList.remove("translate-y-0");
-                reloadButton.classList.remove("translate-y-[100%]");
-                setTimeout(reloadButton.setAttribute("hidden", "true"));
             } catch (error) {
-                console.error("Error fetching activities:", error);
-                if (error.response) {
-                    console.error("Response data:", error.response.data);
-                    console.error("Response status:", error.response.status);
-                }
+                console.log("Parsing Error: ", error);
             }
-        },
-        search() {
-            /**
-             * Handle Search using search bar
-             * this function return nothing.
-             */
-        },
-        viewActivity(activityId) {
-            /*
-             * Navigate to specific activity detail page.
-             */
-            this.$router.push(`/activities/${activityId}`);
-        },
-        formatTimestamp(timestamp) {
-            /*
-             * Format the timestamp into (Oct 22, 2024, 9:00 AM).
-             *
-             * @params {string} not yet formatted timestamp
-             * @returns {string} formatted timestamp
-             */
-            if (timestamp) {
-                return format(new Date(timestamp), "EEE, MMM/dd/yyyy, hh:mm a");
-            } else {
-                return "No date provided";
-            }
-        },
-        setupSocket() {
-            /*
-             * Connect to websocket to observe the change of index.
-             */
-            const socket = new WebSocket(
-                `${process.env.VUE_APP_BASE_URL.replace(/^http/, "ws").replace(
-                    /^https/,
-                    "wss"
-                )}ws/index/`
-            );
-            this.socket = socket;
+        };
+    }
 
-            this.socket.onmessage = (event) => {
-                try {
-                    var parsedData = JSON.parse(event.data);
-                    if (parsedData["type"] === "new_act") {
-                        // Show reload button
-                        const reloadButton = document.getElementById("reload");
-                        reloadButton.removeAttribute("hidden"); // Show the button
-                        reloadButton.classList.remove("translate-y-[-100%]"); // Remove off-screen class
-                        reloadButton.classList.add("translate-y-0"); // Slide in
-                    }
-                } catch (error) {
-                    console.log("Parsing Error: ", error);
-                }
-            };
-        },
-        toggleFilter() {
-            /**
-             * Function to toggle filter dropdown status
-             */
-            this.isFilterOpen = !this.isFilterOpen;
-        },
-        toggleDay(value) {
-            /**
-             * Toggle value inside selectedDay array
-             */
-            value = Number(value);
-            const index = this.selectedDay.indexOf(value);
-            if (index === -1) {
-                this.selectedDay.push(value)
-            }
-            else {
-                this.selectedDay.splice(index,1);
-            }
-        },
-        isChecked(value) {
-            /**
-             * Check if the selectedDays is include the value.
-             * @return boolean
-             */
-            return this.selectedDay.includes(Number(value))
-        }
-    },
-    beforeUnmount() {
-        if (this.socket) {
-            this.socket.close();
-        }
-    },
-    watch: {
-        dateRange(newRange) {
-            this.startDate = newRange ? newRange[0] : null;
-            this.endDate = newRange ? newRange[1] : null;
-        },
-    },
-};
+/**
+ * Utils
+ */
+
+const toggleFilter = () => {
+    /**
+     * Function to toggle filter dropdown status
+     */
+        isFilterOpen.value = !(isFilterOpen.value);
+    }
+
+
+
+onMounted(() => {
+    fetchActivities();
+    setupSocket();
+    isDarkTheme.value = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+    ).matches;
+    window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", (e) => {
+            isDarkTheme.value = e.matches;
+        });
+})
+
+const toggleDay = (value) => {
+    /**
+     * Toggle value inside selectedDay array
+     */
+    value = Number(value);
+    const index = selectedDay.value.indexOf(value);
+    if (index === -1) {
+        selectedDay.value.push(value)
+    }
+    else {
+        selectedDay.value.splice(index,1);
+    }
+}
+
+const isChecked = (value) => {
+    /**
+     * Check if the selectedDays is include the value.
+     * @return boolean
+     */
+    return selectedDay.value.includes(Number(value))
+}
+
+onBeforeUnmount(() => {
+    if(socket.value)
+        socket.value.close();
+    }
+)
 </script>
 
 <style scoped>
