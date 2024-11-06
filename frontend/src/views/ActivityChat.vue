@@ -422,8 +422,6 @@ const checkJoined = () => {
     );
 }
 
-
-
 /**
  * Formatting
  */
