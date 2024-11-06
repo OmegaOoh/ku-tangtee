@@ -70,6 +70,12 @@ def edit_host_access(
             return response.Response({'message': 'Cannot modify access of your own activity.'}, status=403)
 
         attend.is_host = not remove
+
+        if not remove:
+            attend.checked_in = True
+        elif not act.check_in_allowed:
+            attend.checked_in = False
+
         attend.save()
 
     return None

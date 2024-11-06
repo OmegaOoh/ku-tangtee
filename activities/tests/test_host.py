@@ -2,7 +2,8 @@
 import json
 import django.test
 from django import urls
-from .shortcuts import client_join_activity, create_activity, create_test_user, put_request_json_data
+from .shortcuts import client_join_activity, create_activity, create_test_user, put_request_json_data, activity_to_json
+from .. import models
 
 
 class GrantRemoveHostTest(django.test.TestCase):
@@ -27,6 +28,8 @@ class GrantRemoveHostTest(django.test.TestCase):
         # Set the URL to the detail page
         self.url = urls.reverse("activities:detail", args=[self.activity.id,])
 
+        self.attend = lambda user: self.activity.attend_set.filter(user=user).first()
+
         self.grant = lambda user: put_request_json_data(self.url, self.client, {"grant_host": [user.id]})
         self.remove = lambda user: put_request_json_data(self.url, self.client, {"remove_host": [user.id]})
 
@@ -38,6 +41,7 @@ class GrantRemoveHostTest(django.test.TestCase):
         response = self.grant(self.participant)
         response_dict = json.loads(response.content)
         self.assertEqual(self.activity.host(), [self.owner, self.participant])
+        self.assertTrue(self.attend(self.participant).checked_in)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_dict["message"], f"You have successfully edited the activity {self.activity.name}")
 
@@ -45,8 +49,31 @@ class GrantRemoveHostTest(django.test.TestCase):
         response = self.remove(self.participant)
         response_dict = json.loads(response.content)
         self.assertEqual(self.activity.host(), [self.owner])
+        self.assertFalse(self.attend(self.participant).checked_in)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_dict["message"], f"You have successfully edited the activity {self.activity.name}")
+
+    def test_co_host_activity_editing(self):
+        """Co-host should be able to edit activity."""
+        self.grant(self.participant)
+        self.client.force_login(self.participant)
+
+        data = {
+            "name": "Updated Activity",
+            "detail": "This is an updated activity",
+            "max_people": 50,
+        }
+        # Send PUT request with new activity data
+        response = put_request_json_data(self.url, self.client, data)
+        response_dict = json.loads(response.content)
+        updated_act = models.Activity.objects.get(pk=self.activity.id)
+        updated_act_json = activity_to_json(updated_act)
+        # Compare the serialized activity with the expected data
+        self.assertEqual(updated_act_json['name'], data['name'])
+        self.assertEqual(updated_act_json['detail'], data['detail'])
+        self.assertEqual(updated_act_json['max_people'], data['max_people'])
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_dict["message"], f"You have successfully edited the activity {data.get('name')}")
 
     def test_remove_host(self):
         """Return a success message and user host access for activity is removed."""
