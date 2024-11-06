@@ -76,6 +76,7 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
 import {
     login,
     logout,
@@ -88,36 +89,17 @@ import {
     userName,
 } from "@/functions/Authentications";
 import apiClient from "@/api";
-</script>
 
-<script>
-export default {
-    name: "App",
-    data() {
-        return {
-            isDarkTheme: false,
-            closeDelay: null,
-            activities: [],
-        };
-    },
-    methods: {
-        async getRecentActivity() {
-            const response = await apiClient.get(`/activities/get-recently/${userId.value}/?records=5`);
-            this.activities = response.data;
-        },
-    },
-    mounted() {
-        authStatus();
-        this.isDarkTheme = window.matchMedia(
-            "(prefers-color-scheme: dark)"
-        ).matches;
-        window
-            .matchMedia("(prefers-color-scheme: dark)")
-            .addEventListener("change", (e) => {
-                this.isDarkTheme = e.matches;
-            });
-    },
-};
+const activities = ref([]);
+
+const getRecentActivity = async() => {
+    const response = await apiClient.get(`/activities/get-recently/${userId.value}/?records=5`);
+    activities.value = response.data;
+}
+
+onMounted(() => {
+    authStatus();
+})
 </script>
 
 <style scoped>
