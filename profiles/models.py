@@ -72,6 +72,12 @@ class Profile(models.Model):
             attend.rep_decrease = True
             attend.save(update_fields=['rep_decrease'])
 
+    def increase_reputation(self) -> None:
+        """Increase reputation score after user check-in."""
+        self.reputation_score += self.CHECK_IN_REPUTATION_INCREASE
+        self.reputation_score = min(100, self.reputation_score)
+        self.save(update_fields=['reputation_score'])
+
     @classmethod
     def check_missed_check_ins(cls) -> None:
         """Check for users who missed check-ins and decrease their reputation."""

@@ -71,9 +71,7 @@ class CheckInView(
         attend.save()
         
         user_profile = request.user.profile_set.first()
-        user_profile.reputation_score += Profile.CHECK_IN_REPUTATION_INCREASE
-        
-        user_profile.save()
+        user_profile.increase_reputation()
 
         return response.Response(
             {'message': f"You've successfully check-in to {act.name}"}

@@ -42,6 +42,19 @@
                                     <img v-lazy="pfp" />
                                 </div>
                             </div>
+                            <div class="my-2">
+                                <p class="font-semibold text-sm">
+                                    Level: {{ reputation_level }}
+                                </p>
+                                <progress
+                                    class="progress progress-primary w-full"
+                                    :value="reputation_progress"
+                                    max="10"
+                                ></progress>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    {{ reputation_progress }} / 10
+                                </p>
+                            </div>
                         </div>
                         <div class="flex-row ml-3 w-full">
                             <span
@@ -124,19 +137,7 @@
                                     maxlength="256"
                                 ></textarea>
                             </div>
-                            <div class="flex my-2">
-                                <p class="font-semibold text-sm mb-2">
-                                    Profile Reputation
-                                </p>
-                                <progress
-                                    class="progress progress-primary w-full"
-                                    :value="reputation"
-                                    max="100"
-                                ></progress>
-                                <p class="text-xs text-gray-500 mt-1">
-                                    {{ reputation }} / 100
-                                </p>
-                            </div>
+
                             <div v-if="editMode">
                                 <button
                                     class="btn btn-secondary rounded-md absolute top-2 right-2 w-fit h-fit py-1"
@@ -199,6 +200,8 @@ export default {
             editMode: false,
             isOwner: false,
             reputation: 0,
+            reputation_level: 1,
+            reputation_progress: 0,
         };
     },
     methods: {
@@ -220,6 +223,10 @@ export default {
             this.bio = response.data.about_me;
             this.pfp = response.data.profile_picture_url;
             this.reputation = response.data.reputation_score;
+            this.reputation_level =
+                this.reputation === 0 ? 1 : Math.floor(this.reputation / 10);
+            this.reputation_progress =
+                this.reputation === 100 ? 10 : this.reputation % 10;
         },
         async fetchRecentActivities() {
             /**
