@@ -118,9 +118,9 @@
                     type="number"
                     placeholder="Enter Max People (Optional)"
                     class="input input-bordered input-primary w-full mb-4"
-                    :min="1"
+                    min="1"
                 />
-                <div class="flex flex-col sm:flex-row justify-between">
+                <div class="flex flex-col sm = ref(flex-row justify-between">
                     <button
                         v-if="!isAuth"
                         class="btn btn-primary"
@@ -130,7 +130,7 @@
                     </button>
                     <button
                         v-else
-                        class="btn btn-primary sm:my-0 my-6"
+                        class="btn btn-primary sm = ref(my-0 my-6"
                         @click="postCreateActivity"
                     >
                         Create Activity
@@ -147,200 +147,212 @@ import { createPostRequest } from "@/functions/HttpRequest";
 import { isAuth, login } from "@/functions/Authentications";
 import { loadImage } from "@/functions/Utils.";
 import ImageCarousel from "@/component/ImageCarousel";
-</script>
+import { useRouter } from "vue-router";
 
-<script>
 const MAX_IMAGE_COUNT = 10;
 const MAX_IMAGES_SIZE = 100e6; // 100 MB
 
-export default {
-    data() {
-        return {
-            activityName: "",
-            activityDetail: "",
-            date: "",
-            maxPeople: 1,
-            showMaxPeople: false,
-            isDarkTheme: false,
-            images: [],
-        };
-    },
-    methods: {
-        goBack() {
-            /*
-             * Navigate back to Activity Index page.
-             */
-            this.$router.push("/");
-        },
-        validateInput() {
-            /**
-             * Validate input in the forms
-             * @return input validity in boolean
-             */
-            var result = true;
-            const nameField = document.getElementById("name-field");
-            const nameFieldError = document.getElementById("name-field-error");
-            if (this.activityName.length <= 0) {
-                nameField.classList.remove("input-primary");
-                nameField.classList.add("input-error");
+router = useRouter();
 
-                nameFieldError.removeAttribute("hidden");
-                result = false;
-            } else {
-                nameFieldError.setAttribute("hidden", "true");
-                nameField.classList.remove("input-error");
-                if (!nameField.classList.contains("textarea-primary"))
-                    nameField.classList.add("textarea-primary");
-            }
-            const detailField = document.getElementById("detail-field");
-            const detailFieldError =
-                document.getElementById("detail-field-error");
-            if (this.activityDetail.length <= 0) {
-                detailField.classList.remove("textarea-primary");
-                detailField.classList.add("input-error");
+activityName = ref("");
+activityDetail = ref("");
+date = ref("");
+maxPeople = ref(1);
+showMaxPeople = ref(false);
+isDarkTheme = ref(false);
+images = ref([]);
 
-                detailFieldError.removeAttribute("hidden");
-                result = false;
-            } else {
-                detailFieldError.setAttribute("hidden", "true");
-                detailField.classList.remove("input-error");
-                if (!detailField.classList.contains("textarea-primary"))
-                    detailField.classList.add("textarea-primary");
-            }
-            const dateFieldError = document.getElementById("date-field-error");
-            if (this.date.length <= 0) {
-                dateFieldError.removeAttribute("hidden");
-                result = false;
-            } else {
-                dateFieldError.setAttribute("hidden", "true");
-            }
-            if (this.maxPeople <= 0 && this.showMaxPeople) {
-                addAlert(
-                    "warning",
-                    "Max People must be positive and not zeroes."
-                );
-                this.maxPeople = 1;
-                result = false;
-            }
-            return result;
-        },
-        async postCreateActivity() {
-            /*
-             * Attempt to create activity.
-             */
-            if (!this.validateInput()) {
-                return null;
-            }
-            try {
-                // Construct data to create POST request
-                const dateObj = new Date(this.date);
-                const formattedDate = dateObj.toISOString();
-                if (!this.showMaxPeople) {
-                    this.maxPeople = null;
-                }
-                const data = {
-                    name: this.activityName,
-                    detail: this.activityDetail,
-                    date: formattedDate,
-                    max_people: this.maxPeople || null,
-                    images: this.images,
-                };
-                const response = await createPostRequest(`/activities/`, data);
-                addAlert("success", response.data.message);
-                this.$router.push(`/activities/${response.data.id}`);
-            } catch (error) {
-                if (error.response && error.response.data) {
-                    addAlert("error", error.response.data.message); // Show error message from backend
-                } else {
+/**
+ * Redirection
+ */
+
+const goBack =() => {
+    /*
+     * Navigate back to Activity Index page.
+     */
+    router.push("/");
+}
+
+/**
+ * Validator
+ */
+
+const validateInput = () => {
+    /**
+     * Validate input in the forms
+     * @return input validity in boolean
+     */
+    var result = true;
+    const nameField = document.getElementById("name-field");
+    const nameFieldError = document.getElementById("name-field-error");
+    if (activityName.value.length <= 0) {
+        nameField.classList.remove("input-primary");
+        nameField.classList.add("input-error");
+        nameFieldError.removeAttribute("hidden");
+        result = false;
+    } else {
+        nameFieldError.setAttribute("hidden", "true");
+        nameField.classList.remove("input-error");
+        if (!nameField.classList.contains("textarea-primary"))
+            nameField.classList.add("textarea-primary");
+    }
+    const detailField = document.getElementById("detail-field");
+    const detailFieldError =
+        document.getElementById("detail-field-error");
+    if (activityDetail.value.length <= 0) {
+        detailField.classList.remove("textarea-primary");
+        detailField.classList.add("input-error");
+
+        detailFieldError.removeAttribute("hidden");
+        result = false;
+    } else {
+        detailFieldError.setAttribute("hidden", "true");
+        detailField.classList.remove("input-error");
+        if (!detailField.classList.contains("textarea-primary"))
+            detailField.classList.add("textarea-primary");
+    }
+    const dateFieldError = document.getElementById("date-field-error");
+    if (date.value.length <= 0) {
+        dateFieldError.removeAttribute("hidden");
+        result = false;
+    } else {
+        dateFieldError.setAttribute("hidden", "true");
+    }
+    if (maxPeople.value <= 0 && showMaxPeople.value) {
+        addAlert(
+            "warning",
+            "Max People must be positive and not zeroes."
+        );
+        this.maxPeople = 1;
+        result = false;
+    }
+    return result;
+}
+
+const setMaxPeople = () => {
+    /*
+     * Switch the flag of setting max people.
+     */
+    showMaxPeople.value = !(showMaxPeople.value);
+}
+
+const handleFileChange = (event) => {
+    /*
+     * Push value into images.
+     * @params {image} image that uploads from input.
+     * Return nothing.
+     */
+    const files = event.target.files;
+    if (file.length <= 0) return; // No file to process
+
+    // Check total image count
+    if (files.length + images.value.length > MAX_IMAGE_COUNT) {
+        addAlert(
+            "warning",
+            "You can add at most " + MAX_IMAGE_COUNT + " pictures"
+        );
+        return;
+    }
+
+    // Calculate total size of current and new images
+    let totalSize = images.value.reduce(
+        (sum, file) => sum + file.size,
+        0
+    );
+
+    Array.from(files).forEach((file) => {
+            totalSize += file.size
+        });
+
+    // Check if total size exceeds limit
+    if (totalSize > MAX_IMAGES_SIZE) {
+        addAlert(
+            "warning",
+            "You can add at most " + MAX_IMAGES_SIZE / 1e6 + " MB"
+        );
+        return; // Return to prevent further execution
+    }
+
+    // Process each file
+    Array.from(files).forEach((file) => {
+        if (file.type.startsWith("image/")) {
+            loadImage(file)
+                .then((imageSrc) => {
+                    // Check for duplicate image URL
+                    const isDuplicate = this.images.some(
+                        (image) => image === imageSrc
+                    );
+                    if (!isDuplicate) {
+                        this.images.push(imageSrc); // Store the image source in the array
+                    } else {
+                        addAlert(
+                            "warning",
+                            "This image is already added."
+                        );
+                    }
+                })
+                .catch((error) => {
                     addAlert(
                         "error",
-                        "An unexpected error occurred. Please try again later."
+                        "Error loading image = ref( " + error
                     );
-                }
-            }
-        },
-        setMaxPeople() {
-            /*
-             * Switch the flag of setting max people.
-             */
-            this.showMaxPeople = !this.showMaxPeople;
-        },
-        handleFileChange(event) {
-            /*
-             * Push value into images.
-             * @params {image} image that uploads from input.
-             * Return nothing.
-             */
-            const files = event.target.files;
-            if (files.length > 0) {
-                // Check total image count
-                if (files.length + this.images.length > MAX_IMAGE_COUNT) {
-                    addAlert(
-                        "warning",
-                        "You can add at most " + MAX_IMAGE_COUNT + " pictures"
-                    );
-                    return;
-                }
-
-                // Calculate total size of current and new images
-                let totalSize = this.images.reduce(
-                    (sum, file) => sum + file.size,
-                    0
-                );
-
-                Array.from(files).forEach((file) => {
-                    totalSize += file.size;
                 });
+        } else {
+            addAlert("warning",file.name + " is not an image.");
+        }
+    });
+}
 
-                // Check if total size exceeds limit
-                if (totalSize > MAX_IMAGES_SIZE) {
-                    addAlert(
-                        "warning",
-                        "You can add at most " + MAX_IMAGES_SIZE / 1e6 + " MB"
-                    );
-                    return; // Return to prevent further execution
-                }
 
-                // Process each file
-                Array.from(files).forEach((file) => {
-                    if (file.type.startsWith("image/")) {
-                        loadImage(file)
-                            .then((imageSrc) => {
-                                // Check for duplicate image URL
-                                const isDuplicate = this.images.some(
-                                    (image) => image === imageSrc
-                                );
-                                if (!isDuplicate) {
-                                    this.images.push(imageSrc); // Store the image source in the array
-                                } else {
-                                    addAlert(
-                                        "warning",
-                                        "This image is already added."
-                                    );
-                                }
-                            })
-                            .catch((error) => {
-                                addAlert(
-                                    "error",
-                                    "Error loading image: " + error
-                                );
-                            });
-                    } else {
-                        addAlert("warning", file.name + " is not an image.");
-                    }
-                });
-            }
-        },
-    },
-    mounted() {
-        this.isDarkTheme = window.matchMedia(
-            "(prefers-color-scheme: dark)"
-        ).matches;
-        window
-            .matchMedia("(prefers-color-scheme: dark)")
-            .addEventListener("change", (e) => {
-                this.isDarkTheme = e.matches;
-            });
-    },
-};
+/**
+ * Submit
+ */
+const postCreateActivity = async() => {
+    /*
+     * Attempt to create activity.
+     */
+    if (!validateInput()) {
+        return;
+    }
+    try {
+        // Construct data to create POST request
+        const dateObj = new Date(date.value);
+        const formattedDate = dateObj.toISOString();
+        if (!(showMaxPeople.value)) {
+            maxPeople.value = null;
+        }
+        const data = {
+            name:activityName,
+            detail:activityDetail,
+            date:formattedDate,
+            max_people: maxPeople.value || null,
+            images: images.value,
+        };
+        const response = await createPostRequest(`/activities/`, data);
+        addAlert("success", response.data.message);
+        router.push(`/activities/${response.data.id}`);
+    } catch (error) {
+        if (error.response && error.response.data) {
+            addAlert("error", error.response.data.message); // Show error message from backend
+        } else {
+            addAlert(
+                "error",
+                "An unexpected error occurred. Please try again later."
+            );
+        }
+    }
+}
+
+onMounted(() => {
+    isDarkTheme.value = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+    ).matches;
+    window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", (e) => {
+            isDarkTheme.value = e.matches;
+        });
+    fetchCheckInCode();
+})
+
 </script>
