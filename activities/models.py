@@ -6,12 +6,18 @@ from django.contrib.auth.models import User
 
 
 def get_end_registration_date() -> Any:
-    """Get default end registration date."""
+    """Get default end registration date.
+
+    :return: default datetime of end registration date (5 days from now)
+    """
     return timezone.now() + timezone.timedelta(days=5)
 
 
 def get_end_date() -> Any:
-    """Get default end date."""
+    """Get default end date.
+
+    :return: default datetime of end date (7 days from now)
+    """
     return timezone.now() + timezone.timedelta(days=7)
 
 
