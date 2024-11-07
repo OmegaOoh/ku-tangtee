@@ -80,7 +80,7 @@ class ActivityDetail(mixins.RetrieveModelMixin,
             }
         )
 
-    def search_participants(self, request, *args, **kwargs) -> response.Response:
+    def search_participants(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Search for participants by keyword.
 
         :param request: Http request object
