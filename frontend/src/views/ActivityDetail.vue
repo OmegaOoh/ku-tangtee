@@ -62,7 +62,7 @@
 
                 <div v-if="imageUrls.length > 0" class="flex flex-col justify-center">
                     <span class="text-base-content text-lg ml-3 mb-2">Preview Images</span>
-                    <ImageCarousel ref="imageCarousel" :images="imagesUrl" />
+                    <ImageCarousel ref="imageCarousel" carouselName="detail-carousel" :images="imagesUrl" />
                 </div>
 
                 <p v-if="activity.max_people != null" class="mb-2 ml-3"><strong>Max People:</strong> {{ activity.max_people }}</p>
