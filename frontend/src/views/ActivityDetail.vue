@@ -18,6 +18,8 @@
             :isOpen="showCheckInCode"
             @close = 'closeCheckInCodeModal'
         />
+
+        <CheckInQRCodeModal :id="activityId" :isOpen="showQRCode" @close="() => {showQRCode = false}"/>
     </div>
     <CheckInModal
         v-if="isAuth && isJoined && !isHost"
@@ -38,14 +40,27 @@
             </div>
 
             <!--Owner action set-->
-            <div v-if="isHost && isAuth" class=" flex-auto">
+            <div v-if="isHost && isAuth" class="flex-auto">
                 <button @click="() => {showEditModal = true;}" class="btn btn-ghost text-accent ml-2 mr-2">Edit</button>    
-                <button v-if="activity.check_in_allowed" @click="() => {showCheckInCode = true}" class="btn btn-ghost text-accent ml-2 mr-2">
-                    Show Check-In Code
-                </button>
-                <button v-else @click="allowCheckIn" class="btn btn-ghost text-accent ml-2 mr-2">
-                    Allow Check-in
-                </button>
+                <div>
+
+                </div>
+                <div v-if="activity.check_in_allowed" class="flex-auto">
+                    <button @click="() => {showCheckInCode = true}" class="btn btn-ghost text-accent ml-2 mr-2">
+                        Show Check-In Code
+                    </button>
+                    <button @click="() => {showQRCode = true}" class="btn btn-ghost text-accent ml-2 mr-2">
+                        QR Code
+                    </button>
+                </div>
+
+                <div v-else class="flex-auto">
+                    <button @click="allowCheckIn" class="btn btn-ghost text-accent ml-2 mr-2">
+                        Allow Check-in
+                    </button>
+                </div>
+
+                
             </div>
 
             <p class="mb-2 ml-3 overflow-hidden multi-line">{{ activity.detail }}</p>
@@ -67,12 +82,20 @@
                     @click="$router.push('/profile/'+ participant.username)"
                 >
                     <div class="flex items-center space-x-4">
-                        <img
-                            v-lazy="participant.profile_picture_url"
-                            alt="Profile Picture"
-                            class="w-12 h-12 rounded-full"
-                            @error="handleImageError"
-                        />
+                        <div class="indicator">
+                            <img
+                                v-lazy="participant.profile_picture_url"
+                                alt="Profile Picture"
+                                class="w-12 h-12 rounded-full"
+                                @error="handleImageError"
+                            />
+                            <p 
+                                v-if="hosts.includes(participant.id)" 
+                                class="indicator-item indicator-bottom indicator-center badge badge-secondary"
+                            >
+                                Host
+                            </p>
+                        </div>
                         <p class="font-medium">
                             {{ participant.first_name }}
                             {{ participant.last_name }}
@@ -139,14 +162,16 @@ import apiClient from "@/api";
 import {
     createDeleteRequest,
     createPostRequest,
-    createPutRequest,
+    createPutRequest
 } from "@/functions/HttpRequest.js";
 import { isAuth, login, userId } from "@/functions/Authentications";
 import EditModal from "@/component/EditModal.vue";
 import ImageCarousel from "@/component/ImageCarousel";
 import CheckInCodeModal from "@/component/CheckInCodeModal.vue";
 import CheckInModal from "@/component/CheckInModal.vue";
+import CheckInQRCodeModal from "@/component/CheckInQRCodeModal.vue";
 import { useRoute, useRouter } from "vue-router";
+
 const BASE_URL = (() => {
     let url = process.env.VUE_APP_BASE_URL
     if (url.endsWith("/")) {
@@ -164,6 +189,7 @@ const imageUrls = ref([]);
 const showEditModal = ref(false);
 const showCheckInCode = ref(false);
 const showCheckInModal = ref(false);
+const showQRCode = ref(false);
 const people = ref([]);
 const checkedIn = ref(false);
 const canJoin = ref(true);

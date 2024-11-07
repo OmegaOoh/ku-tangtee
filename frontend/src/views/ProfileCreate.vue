@@ -161,9 +161,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router'
-import { isAuth, login, email, fName, lName, userId } from "@/functions/Authentications";
+import { watch } from 'vue';
+import { isAuth, login, email, fName, lName, userId, logout } from "@/functions/Authentications";
 import { addAlert } from "@/functions/AlertManager";
 import { createPostRequest } from "@/functions/HttpRequest";
 import apiClient from "@/api";
@@ -181,6 +182,7 @@ const bio= ref('');
 const kuGen= ref('');
 const faculty= ref('');
 const major= ref('');
+let watchUserId = null
 
 
 const scrollCarousel = (index) => {
@@ -284,8 +286,8 @@ const goNext = () => {
      * Redirect user to page in next params
      */
     const nextPath = router.currentRoute.value.query.next;
-    if (nextPath == `/create-profile/` || nextPath == '' || !nextPath) {
-        router.push('/')
+    if (nextPath == `/create-profile` || nextPath == '' || !nextPath) {
+        router.push('')
     }
     else {
         router.push(nextPath)
@@ -302,7 +304,7 @@ const submitProfile = async() => {
     }
     await createPostRequest(`/profile/`,
         {
-            "user": userId,
+            "user": userId.value,
             "nick_name": nickname.value,
             "pronoun": pronoun.value,
             "ku_generation": kuGen.value,
@@ -315,11 +317,38 @@ const submitProfile = async() => {
     addAlert('success', 'Your profile has been created successfully! Welcome to KU Tangtee!')
 }
 
+
+
 onMounted(async () => {
     const profileResponse = await apiClient.get(`profile/`)
     if (profileResponse.data.has_profile) {
         addAlert('info', "You already has the profile.")
         this.goNext()
+    }
+    watchUserId = watch(userId, (newUserId) => {
+            if (!(isAuth.value)) {
+                this.goNext()
+                addAlert("warning", "You didn't log in")
+            } 
+            if (newUserId){
+                addAlert('info', "You already has the profile.")
+                this.goNext()
+            }
+        })
+    }
+)
+
+onBeforeUnmount(async () => {
+    if (watchUserId){
+        watchUserId();
+    }
+    // Check the user profile status on dismount
+    if (isAuth.value && userId){
+        const profileResponse = await apiClient.get(`profile/`)
+        if (!profileResponse.data.has_profile) {
+            logout();
+            addAlert('warning', "you don't successfully create the profile. Logged out.")
+        }
     }
 })
 
