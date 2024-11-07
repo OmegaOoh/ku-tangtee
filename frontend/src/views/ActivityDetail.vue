@@ -8,8 +8,8 @@
         </div>
         <div v-if="isHost && isAuth">
             <div
-            class="modal backdrop-blur-sm"
-            :class="{ 'modal-open': showEditModal }"
+                class="modal backdrop-blur-sm"
+                :class="{ 'modal-open': showEditModal }"
             >
                 <div class="modal-box shadow-xl">
                     <div class="sticky flex justify-end">
@@ -22,9 +22,11 @@
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="32"
                                 height="32"
-                                viewBox="0 0 512 512">
+                                viewBox="0 0 512 512"
+                            >
                                 <polygon
-                                points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49" />
+                                    points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49"
+                                />
                             </svg>
                         </button>
                     </div>
@@ -38,7 +40,7 @@
                     />
                 </div>
             </div>
-        
+
             <div
                 class="modal backdrop-blur-sm"
                 :class="{ 'modal-open': showCheckInCode }"
@@ -53,19 +55,21 @@
                             xmlns="http://www.w3.org/2000/svg"
                             width="32"
                             height="32"
-                            viewBox="0 0 512 512">
+                            viewBox="0 0 512 512"
+                        >
                             <polygon
-                            points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49" />
+                                points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49"
+                            />
                         </svg>
                     </button>
                     <CheckInCodeModal
-                        @closed-checked-in = "
+                        @closed-checked-in="
                             async () => {
                                 this.closeCheckInCodeModal();
                                 await this.fetchDetail();
                             }
                         "
-                        @allow-checked-in = "
+                        @allow-checked-in="
                             async () => {
                                 await this.fetchDetail();
                             }
@@ -73,7 +77,15 @@
                     />
                 </div>
             </div>
-            <CheckInQRCodeModal :code="getCheckInCode()" :is-open="showQRModal" @close="() => {showQRModal = false;}"/>
+            <CheckInQRCodeModal
+                :code="getCheckInCode()"
+                :is-open="showQRModal"
+                @close="
+                    () => {
+                        showQRModal = false;
+                    }
+                "
+            />
         </div>
         <div
             class="modal backdrop-blur-sm"
@@ -85,25 +97,62 @@
                         class="btn btn-ghost btn-circle absolute right-2 top-2 hover:text-error"
                         @click="closeCheckInModal"
                     >
-                    <svg
-                        class="swap-on fill-current"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="32"
-                        height="32"
-                        viewBox="0 0 512 512">
-                        <polygon
-                        points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49" />
-                    </svg>
-                </button>
+                        <svg
+                            class="swap-on fill-current"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="32"
+                            height="32"
+                            viewBox="0 0 512 512"
+                        >
+                            <polygon
+                                points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49"
+                            />
+                        </svg>
+                    </button>
                 </div>
                 <CheckInModal
-                    @check-in-success = "
+                    @check-in-success="
                         async () => {
                             this.closeCheckInModal();
                             await this.fetchDetail();
                         }
                     "
                 />
+            </div>
+        </div>
+        <div v-if="isOwner && isAuth">
+            <div
+                class="modal backdrop-blur-sm"
+                :class="{ 'modal-open': showEditPermModal }"
+            >
+                <div class="modal-box shadow-xl">
+                    <div class="sticky flex justify-end">
+                        <button
+                            class="btn btn-ghost btn-circle absolute hover:text-error"
+                            @click="closeEditPermModal"
+                        >
+                            <svg
+                                class="swap-on fill-current"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="32"
+                                height="32"
+                                viewBox="0 0 512 512"
+                            >
+                                <polygon
+                                    points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49"
+                                />
+                            </svg>
+                        </button>
+                    </div>
+                    <EditPermModal
+                        @update-success="
+                            async () => {
+                                await fetchDetail();
+                                closeEditPermModal();
+                            }
+                        "
+                    />
+                </div>
             </div>
         </div>
         <div
@@ -121,6 +170,13 @@
                             Edit
                         </button>
                         <button
+                            v-if="isOwner && isAuth"
+                            @click="openEditPermModal"
+                            class="btn btn-ghost text-accent mx-2"
+                        >
+                            Manage participants
+                        </button>
+                        <button
                             v-if="isHost && isAuth"
                             @click="openCheckInCodeModal"
                             class="btn btn-ghost text-accent mx-2"
@@ -128,37 +184,47 @@
                             <div v-if="!activity.check_in_allowed">
                                 Allow Check-in
                             </div>
-                            <div v-else>
-                                Show Check-In Code
-                            </div>
+                            <div v-else>Show Check-In Code</div>
                         </button>
                         <button
                             v-if="isHost && isAuth && activity.check_in_allowed"
                             class="btn btn-ghost text-accent mx-2"
-                            @click="() => { showQRModal = true; console.log(activity.check_in_code)}"
-                            >
+                            @click="
+                                () => {
+                                    showQRModal = true;
+                                    console.log(activity.check_in_code);
+                                }
+                            "
+                        >
                             QR CODE
                         </button>
-                    </span> 
+                    </span>
                     <button
-                                v-if="isJoined && activity.check_in_allowed && isAuth && !checkedIn"
-                                @click="openCheckInModal"
-                                class="btn btn-secondary mt-4"
-                            >
-                                Check-In
+                        v-if="
+                            isJoined &&
+                            activity.check_in_allowed &&
+                            isAuth &&
+                            !checkedIn
+                        "
+                        @click="openCheckInModal"
+                        class="btn btn-secondary mt-4"
+                    >
+                        Check-In
                     </button>
                     <span
-                            v-else-if="isJoined && isAuth && checkedIn && !isHost"
-                            class="text-sm text-accent mx-2"
-                        >
-                            Checked-In
+                        v-else-if="isJoined && isAuth && checkedIn && !isHost"
+                        class="text-sm text-accent mx-2"
+                    >
+                        Checked-In
                     </span>
                 </h1>
                 <p class="mb-2 ml-3 overflow-hidden multi-line">
                     {{ activity.detail }}
                 </p>
                 <p class="mb-2 ml-3">
-                    <strong class="text-base-content text-lg">Date and Time:</strong>
+                    <strong class="text-base-content text-lg"
+                        >Date and Time:</strong
+                    >
                     {{ formatTimestamp(activity.date) }}
                 </p>
                 <div
@@ -190,7 +256,9 @@
                         v-for="participant in people"
                         :key="participant.id"
                         class="card bg-base-100 shadow-lg p-4 rounded-lg border-primary hover:border-2 cursor-pointer transition-all duration-75 ease-in-out"
-                        @click="$router.push('/profile/'+ participant.username)"
+                        @click="
+                            $router.push('/profile/' + participant.username)
+                        "
                     >
                         <div class="flex items-center space-x-4">
                             <div class="indicator">
@@ -200,8 +268,8 @@
                                     class="w-12 h-12 rounded-full"
                                     @error="handleImageError"
                                 />
-                                <p 
-                                    v-if="this.hosts.includes(participant.id)" 
+                                <p
+                                    v-if="this.hosts.includes(participant.id)"
                                     class="indicator-item indicator-bottom indicator-center badge badge-secondary"
                                 >
                                     Host
@@ -211,7 +279,6 @@
                                 {{ participant.first_name }}
                                 {{ participant.last_name }}
                             </p>
-                            
                         </div>
                     </div>
                 </div>
@@ -223,8 +290,14 @@
                             Please Login before join
                         </button>
                     </div>
-                    <div v-else-if="isJoined" class="w-full flex flex-row justify-between px-3 my-2">
-                        <button class="btn btn-secondary size-fit" @click="goToChat">
+                    <div
+                        v-else-if="isJoined"
+                        class="w-full flex flex-row justify-between px-3 my-2"
+                    >
+                        <button
+                            class="btn btn-secondary size-fit"
+                            @click="goToChat"
+                        >
                             Chat
                         </button>
                         <button
@@ -240,7 +313,7 @@
                             v-if="canJoin"
                             id="join-button"
                             @click="joinActivity"
-                            class="btn btn-primary "
+                            class="btn btn-primary"
                         >
                             Join Activity
                         </button>
@@ -270,11 +343,11 @@ import {
 import { isAuth, login, userId } from "@/functions/Authentications";
 import { watch } from "vue";
 import EditModal from "@/component/EditModal.vue";
+import EditPermModal from "@/component/EditPermModal.vue";
 import ImageCarousel from "@/component/ImageCarousel";
 import CheckInCodeModal from "@/component/CheckInCodeModal.vue";
 import CheckInModal from "@/component/CheckInModal.vue";
 import CheckInQRCodeModal from "@/component/CheckInQRCodeModal.vue";
-
 </script>
 
 <script>
@@ -293,14 +366,17 @@ export default {
             hosts: [],
             isHost: false,
             isJoined: false,
+            isOwner: false,
             showEditModal: false,
             showCheckInCode: false,
             showCheckInModal: false,
             showQRModal: false,
+            showEditPermModal: false,
             checkedIn: false,
             baseUrl: "",
             images: [],
             imageUrls: [],
+            owner: 0,
         };
     },
     methods: {
@@ -323,6 +399,20 @@ export default {
              * This function return nothing.
              */
             this.showEditModal = false;
+        },
+        openEditPermModal() {
+            /**
+             * Show Edit participant perm Modal
+             * This function return nothing.
+             */
+            this.showEditPermModal = true;
+        },
+        closeEditPermModal() {
+            /**
+             * Close Edit participant perm Modal
+             * This function return nothing.
+             */
+            this.showEditPermModal = false;
         },
         openCheckInCodeModal() {
             /**
@@ -360,14 +450,13 @@ export default {
              */
             try {
                 if (!this.activityId) {
-                    return // undefined activity id, return early
+                    return; // undefined activity id, return early
                 }
                 const response = await apiClient.get(
                     `/activities/${this.activityId}`
                 );
                 this.activity = response.data;
                 this.people = this.activity.participant;
-                console.log(this.people)
                 this.images = this.activity.images;
                 this.imageUrls = [];
                 this.baseUrl = process.env.VUE_APP_BASE_URL;
@@ -385,7 +474,9 @@ export default {
                 }
                 this.canJoin = this.activity.can_join;
                 this.hosts = JSON.stringify(response.data.host);
+                this.owner = this.activity.owner;
                 this.checkHost();
+                this.checkOwner();
                 this.checkJoined();
                 this.checkCheckedIn();
             } catch (error) {
@@ -477,13 +568,25 @@ export default {
                 this.isHost = this.hosts.includes(userId.value);
             }
         },
+        checkOwner() {
+            /**
+             * Check whether or not user is owner of activity.
+             * return None
+             */
+            if (!isAuth) {
+                this.isOwner = false;
+            } else {
+                this.isOwner = userId.value === this.owner;
+                console.log(this.isOwner);
+            }
+        },
         getCheckInCode() {
             /**
              * Get Current Check In code
              * @returns string of check in code
              */
             if (!isAuth || !this.isHost) {
-                return "None" // No permission to see
+                return "None"; // No permission to see
             }
             return this.activity.check_in_code;
         },
@@ -498,7 +601,7 @@ export default {
                 const user = this.people.filter(
                     (element) => element["id"] == userId.value
                 );
-                this.checkedIn = user[0].checked_in
+                this.checkedIn = user[0].checked_in;
             }
         },
         checkDefaultCode() {
@@ -507,23 +610,24 @@ export default {
                 return; // Nothing to do
             }
 
-            if (!(isAuth.value)) {
+            if (!isAuth.value) {
                 // Force user to login
                 login();
                 return;
             }
-            
+
             if (this.isJoined && !this.checkedIn) {
-                console.log("checkDefault Code", code)
+                console.log("checkDefault Code", code);
                 this.openCheckInModal();
             }
-        }
+        },
     },
     async mounted() {
         this.activityId = this.$route.params.id;
         await this.fetchDetail();
         this.checkHost();
         this.checkJoined();
+        this.checkOwner();
         this.checkCheckedIn();
         this.checkDefaultCode();
 
@@ -531,6 +635,7 @@ export default {
             if (newUserId) {
                 this.checkHost();
                 this.checkJoined();
+                this.checkOwner();
                 this.checkCheckedIn();
                 this.checkDefaultCode();
             }
