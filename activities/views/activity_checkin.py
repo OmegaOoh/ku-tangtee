@@ -5,7 +5,7 @@ from django.http import HttpRequest
 from django.utils import timezone
 from rest_framework import generics, permissions, mixins, response
 from activities import models
-from activities.serializer.permissions import OnlyHostCanEdit
+from activities.serializer.permissions import OnlyHostCanEdit, OnlyHostCanGet
 from activities.serializer import model_serializers
 from . import util
 
@@ -18,7 +18,7 @@ class CheckInView(
 
     queryset = models.Activity.objects.filter(date__gte=timezone.now())
     serializer_class = model_serializers.ActivitiesSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, OnlyHostCanEdit]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, OnlyHostCanEdit, OnlyHostCanGet]
 
     def __init__(self, **kwargs: Any) -> None:
         """Set up function for handling open/close checkin."""
@@ -27,6 +27,24 @@ class CheckInView(
             'close': self.close_check_in
         }
         super().__init__(**kwargs)
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
+        """Handle get request by return activity check-in code or error message is check-in are not allow.
+
+        :param request: Http request object
+        :return: Http response object
+        """
+        activity = self.get_object()
+
+        if not activity.check_in_allowed:
+            return response.Response(
+                {'message': 'Check-in are not allow at the moment'},
+                status=403
+            )
+
+        return response.Response(
+            {"check_in_code": activity.check_in_code}
+        )
 
     def put(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Handle put request by call method associated to query param.
@@ -45,32 +63,32 @@ class CheckInView(
         :return: Http response object
         """
         code = request.data.get('check_in_code', 'no')
-        act = self.get_object()
+        activity = self.get_object()
 
-        if not act.is_participated(request.user):
+        if not activity.is_participated(request.user):
             return response.Response(
                 {'message': "You're not member of this activity"},
                 status=403
             )
 
-        if not act.check_in_allowed:
+        if not activity.check_in_allowed:
             return response.Response(
                 {'message': 'Check-in are not allow at the moment'},
                 status=403
             )
 
-        if not act.verified_check_in_code(code):
+        if not activity.verified_check_in_code(code):
             return response.Response(
                 {'message': 'Check-in code invalid'},
                 status=403
             )
 
-        attend = act.attend_set.get(user=request.user)
+        attend = activity.attend_set.get(user=request.user)
         attend.checked_in = True
         attend.save()
 
         return response.Response(
-            {'message': f"You've successfully check-in to {act.name}"}
+            {'message': f"You've successfully check-in to {activity.name}"}
         )
 
     def open_check_in(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
