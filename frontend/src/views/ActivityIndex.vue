@@ -247,7 +247,7 @@ const setupSocket = () => {
                     reloadButton.classList.add("translate-y-0"); // Slide in
                 }
             } catch (error) {
-                console.log("Parsing Error: ", error);
+                console.error("Parsing Error: ", error);
             }
         };
     }

@@ -1,152 +1,147 @@
 <template>
-    <div class="breadcrumbs text-lm size-fit my-6 mx-10 overflow-visible">
-        <ul>
-            <li><a @click="goBack">Home</a></li>
-            <li>Activity {{ activity.id }}</li>
-        </ul>
-    </div>
-    <div v-if="isAuth && isHost">
-        <EditModal 
-            :id="activityId"
-            :isOpen="showEditModal"
-            @close="() => {showEditModal = false}"
-            @update-success="handleEditSuccess" />
+    <div class="overflow-x-hidden">
+        <div class="breadcrumbs text-lm size-fit my-6 mx-10 overflow-visible">
+            <ul>
+                <li><a @click="goBack">Home</a></li>
+                <li>Activity {{ activity.id }}</li>
+            </ul>
+        </div>
+        <div v-if="isAuth && isHost">
+            <EditModal
+                :id="activityId"
+                :isOpen="showEditModal"
+                @close="() => {showEditModal = false}"
+                @update-success="handleEditSuccess" />
 
-        <CheckInCodeModal
-            v-if="showCheckInCode"
+            <CheckInCodeModal
+                v-if="showCheckInCode"
+                :id="activityId"
+                :isOpen="showCheckInCode"
+                @close = 'closeCheckInCodeModal'
+            />
+
+            <CheckInQRCodeModal :id="activityId" :isOpen="showQRCode" @close="() => {showQRCode = false}"/>
+        </div>
+        <CheckInModal
+            v-if="isAuth && isJoined && !isHost"
             :id="activityId"
-            :isOpen="showCheckInCode"
-            @close = 'closeCheckInCodeModal'
+            :isOpen="showCheckInModal"
+            @close="() => {showCheckInModal = false;}"
+            @check-in-success="handleCheckInSuccess"
         />
 
-        <CheckInQRCodeModal :id="activityId" :isOpen="showQRCode" @close="() => {showQRCode = false}"/>
-    </div>
-    <CheckInModal
-        v-if="isAuth && isJoined && !isHost"
-        :id="activityId"
-        :isOpen="showCheckInModal"
-        @close="() => {showCheckInModal = false;}"
-        @check-in-success="handleCheckInSuccess"
-    />
-    
 
-    <div class="card p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6">
-        <div class="card-body p-4">
-            <div class="indicator h-fit">
-                <p v-if="isJoined && isAuth && checkedIn && !isHost" class="indicator-item indicator-start indicator-middle font-semibold text-primary">✓</p>
+        <div class="card p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6">
+            <div class="card-body p-4">
                 <h1 class="text-4xl font-bold mb-4 ml-2 multi-line">
-                    {{ activity.name }}
+                    <span>  {{ activity.name }} </span>
+                    <span v-if="isJoined && isAuth && checkedIn && !isHost" class="text-xl text-primary">
+                        ✓
+                    </span>
                 </h1>
-            </div>
 
-            <!--Owner action set-->
-            <div v-if="isHost && isAuth" class="flex-auto">
-                <button @click="() => {showEditModal = true;}" class="btn btn-ghost text-accent ml-2 mr-2">Edit</button>    
-                <div>
+                <!--Owner action set-->
+                <div v-if="isHost && isAuth" class="flex-auto">
+                    <button @click="() => {showEditModal = true;}" class="btn btn-ghost text-accent ml-2 mr-2">Edit</button>
 
-                </div>
-                <div v-if="activity.check_in_allowed" class="flex-auto">
                     <button @click="() => {showCheckInCode = true}" class="btn btn-ghost text-accent ml-2 mr-2">
                         Show Check-In Code
                     </button>
-                    <button @click="() => {showQRCode = true}" class="btn btn-ghost text-accent ml-2 mr-2">
+
+                    <button v-if="activity.check_in_allowed" @click="() => {showQRCode = true}" class="btn btn-ghost text-accent ml-2 mr-2">
                         QR Code
                     </button>
-                </div>
 
-                <div v-else class="flex-auto">
-                    <button @click="allowCheckIn" class="btn btn-ghost text-accent ml-2 mr-2">
+                    <button v-else @click="allowCheckIn" class="btn btn-ghost text-accent ml-2 mr-2">
                         Allow Check-in
                     </button>
                 </div>
 
-                
-            </div>
+                <p class="mb-2 ml-3 overflow-hidden multi-line">{{ activity.detail }}</p>
+                <p class="mb-2 ml-3"><strong>Date and Time:</strong> {{ formatTimestamp(activity.date) }}</p>
 
-            <p class="mb-2 ml-3 overflow-hidden multi-line">{{ activity.detail }}</p>
-            <p class="mb-2 ml-3"><strong>Date and Time:</strong> {{ formatTimestamp(activity.date) }}</p>
+                <div v-if="imageUrls.length > 0" class="flex flex-col justify-center">
+                    <span class="text-base-content text-lg ml-3 mb-2">Preview Images</span>
+                    <ImageCarousel ref="imageCarousel" :images="imagesUrl" />
+                </div>
 
-            <div v-if="imageUrls.length > 0" class="flex flex-col justify-center">
-                <span class="text-base-content text-lg ml-3 mb-2">Preview Images</span>
-                <ImageCarousel ref="imageCarousel" :images="imagesUrl" />
-            </div>
+                <p v-if="activity.max_people != null" class="mb-2 ml-3"><strong>Max People:</strong> {{ activity.max_people }}</p>
+                <p class="mb-2 ml-3"><strong>Joined People:</strong></p>
 
-            <p v-if="activity.max_people != null" class="mb-2 ml-3"><strong>Max People:</strong> {{ activity.max_people }}</p>
-            <p class="mb-2 ml-3"><strong>Joined People:</strong></p>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 ml-3">
-                <div
-                    v-for="participant in people"
-                    :key="participant.id"
-                    class="card bg-base-100 shadow-lg p-4 rounded-lg border-primary hover:border-2 cursor-pointer transition-all duration-75 ease-in-out"
-                    @click="$router.push('/profile/'+ participant.username)"
-                >
-                    <div class="flex items-center space-x-4">
-                        <div class="indicator">
-                            <img
-                                v-lazy="participant.profile_picture_url"
-                                alt="Profile Picture"
-                                class="w-12 h-12 rounded-full"
-                                @error="handleImageError"
-                            />
-                            <p 
-                                v-if="hosts.includes(participant.id)" 
-                                class="indicator-item indicator-bottom indicator-center badge badge-secondary"
-                            >
-                                Host
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 ml-3">
+                    <div
+                        v-for="participant in people"
+                        :key="participant.id"
+                        class="card bg-base-100 shadow-lg p-4 rounded-lg border-primary hover:border-2 cursor-pointer transition-all duration-75 ease-in-out"
+                        @click="$router.push('/profile/'+ participant.username)"
+                    >
+                        <div class="flex items-center space-x-4">
+                            <div class="indicator">
+                                <img
+                                    v-lazy="participant.profile_picture_url"
+                                    alt="Profile Picture"
+                                    class="w-12 h-12 rounded-full"
+                                    @error="handleImageError"
+                                />
+                                <p
+                                    v-if="hosts.includes(participant.id)"
+                                    class="indicator-item indicator-bottom indicator-center badge badge-secondary"
+                                >
+                                    Host
+                                </p>
+                            </div>
+                            <p class="font-medium">
+                                {{ participant.first_name }}
+                                {{ participant.last_name }}
                             </p>
                         </div>
-                        <p class="font-medium">
-                            {{ participant.first_name }}
-                            {{ participant.last_name }}
-                        </p>
                     </div>
                 </div>
-            </div>
-            <div
-                class="flex flex-col sm:flex-row justify-between items-center"
-            >
-                <div v-if="!isAuth">
-                    <button class="btn btn-accent" @click="login">
-                        Please Login before join
-                    </button>
-                </div>
-                <div v-else-if="isJoined" class="flex">
-                    <button class="btn btn-secondary" @click="goToChat">
-                        Chat
-                    </button>
-                    <button
-                        v-if="isJoined && activity.check_in_allowed && isAuth && !checkedIn"
-                        @click="() => {showCheckInModal = true}"
-                        class="btn btn-secondary mx-4"
-                    >
-                        Check-In
-                    </button>
-                    <button
-                        v-if="!isHost"
-                        @click="leaveActivity"
-                        class="btn btn-accent mx-4"
-                    >
-                        Leave Activity
-                    </button>
-                </div>
-                <div v-else>
-                    <button
-                        v-if="canJoin"
-                        id="join-button"
-                        @click="joinActivity"
-                        class="btn btn-primary ml-2 mr-2"
-                    >
-                        Join Activity
-                    </button>
-                    <button
-                        v-else
-                        id="join-button"
-                        @click="joinActivity"
-                        class="btn btn-disabled ml-2 mr-2"
-                    >
-                        Join Activity
-                    </button>
+                <div
+                    class="flex flex-col sm:flex-row justify-between items-center"
+                >
+                    <div v-if="!isAuth">
+                        <button class="btn btn-accent" @click="login">
+                            Please Login before join
+                        </button>
+                    </div>
+                    <div v-else-if="isJoined" class="flex">
+                        <button class="btn btn-secondary" @click="goToChat">
+                            Chat
+                        </button>
+                        <button
+                            v-if="isJoined && activity.check_in_allowed && isAuth && !checkedIn && !isHost"
+                            @click="() => {showCheckInModal = true}"
+                            class="btn btn-secondary mx-4"
+                        >
+                            Check-In
+                        </button>
+                        <button
+                            v-if="!isHost"
+                            @click="leaveActivity"
+                            class="btn btn-accent mx-4"
+                        >
+                            Leave Activity
+                        </button>
+                    </div>
+                    <div v-else>
+                        <button
+                            v-if="canJoin"
+                            id="join-button"
+                            @click="joinActivity"
+                            class="btn btn-primary ml-2 mr-2"
+                        >
+                            Join Activity
+                        </button>
+                        <button
+                            v-else
+                            id="join-button"
+                            @click="joinActivity"
+                            class="btn btn-disabled ml-2 mr-2"
+                        >
+                            Join Activity
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -309,7 +304,6 @@ const isJoined = computed(() => {
 });
 
 const imagesUrl = computed(() => {
-    console.log(imageUrls.value.map(image => image.url))
     return imageUrls.value.map(image => image.url)
 })
 

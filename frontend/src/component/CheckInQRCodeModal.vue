@@ -35,7 +35,6 @@ const emit = defineEmits(['close']);
 const updateUrl = async () => {
     let code = await fetchCheckInCode();
     fullUrl.value = CHECK_IN_LOCATION + '?code=' + code; // Update the reactive reference
-    console.log(fullUrl.value);
 }
 
 const fetchCheckInCode = async () => {
