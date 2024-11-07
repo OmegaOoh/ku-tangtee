@@ -142,6 +142,7 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
 import { addAlert } from "@/functions/AlertManager";
 import { createPostRequest } from "@/functions/HttpRequest";
 import { isAuth, login } from "@/functions/Authentications";
@@ -152,15 +153,15 @@ import { useRouter } from "vue-router";
 const MAX_IMAGE_COUNT = 10;
 const MAX_IMAGES_SIZE = 100e6; // 100 MB
 
-router = useRouter();
+const router = useRouter();
 
-activityName = ref("");
-activityDetail = ref("");
-date = ref("");
-maxPeople = ref(1);
-showMaxPeople = ref(false);
-isDarkTheme = ref(false);
-images = ref([]);
+const activityName = ref("");
+const activityDetail = ref("");
+const date = ref("");
+const maxPeople = ref(1);
+const showMaxPeople = ref(false);
+const isDarkTheme = ref(false);
+const images = ref([]);
 
 /**
  * Redirection
@@ -223,7 +224,7 @@ const validateInput = () => {
             "warning",
             "Max People must be positive and not zeroes."
         );
-        this.maxPeople = 1;
+        maxPeople.value = 1;
         result = false;
     }
     return result;
@@ -243,7 +244,7 @@ const handleFileChange = (event) => {
      * Return nothing.
      */
     const files = event.target.files;
-    if (file.length <= 0) return; // No file to process
+    if (files.length <= 0) return; // No file to process
 
     // Check total image count
     if (files.length + images.value.length > MAX_IMAGE_COUNT) {
@@ -279,11 +280,11 @@ const handleFileChange = (event) => {
             loadImage(file)
                 .then((imageSrc) => {
                     // Check for duplicate image URL
-                    const isDuplicate = this.images.some(
+                    const isDuplicate = images.value.some(
                         (image) => image === imageSrc
                     );
                     if (!isDuplicate) {
-                        this.images.push(imageSrc); // Store the image source in the array
+                        images.value.push(imageSrc); // Store the image source in the array
                     } else {
                         addAlert(
                             "warning",
@@ -294,7 +295,7 @@ const handleFileChange = (event) => {
                 .catch((error) => {
                     addAlert(
                         "error",
-                        "Error loading image = ref( " + error
+                        "Error loading image: " + error
                     );
                 });
         } else {
@@ -322,11 +323,11 @@ const postCreateActivity = async() => {
             maxPeople.value = null;
         }
         const data = {
-            name:activityName,
-            detail:activityDetail,
-            date:formattedDate,
-            max_people: maxPeople.value || null,
-            images: images.value,
+            'name': activityName.value,
+            'detail': activityDetail.value,
+            'date': formattedDate,
+            'max_people': maxPeople.value || null,
+            'images': images.value,
         };
         const response = await createPostRequest(`/activities/`, data);
         addAlert("success", response.data.message);
@@ -335,6 +336,7 @@ const postCreateActivity = async() => {
         if (error.response && error.response.data) {
             addAlert("error", error.response.data.message); // Show error message from backend
         } else {
+            console.error(error)
             addAlert(
                 "error",
                 "An unexpected error occurred. Please try again later."
@@ -352,7 +354,6 @@ onMounted(() => {
         .addEventListener("change", (e) => {
             isDarkTheme.value = e.matches;
         });
-    fetchCheckInCode();
 })
 
 </script>

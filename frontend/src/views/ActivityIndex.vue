@@ -263,21 +263,6 @@ const toggleFilter = () => {
         isFilterOpen.value = !(isFilterOpen.value);
     }
 
-
-
-onMounted(() => {
-    fetchActivities();
-    setupSocket();
-    isDarkTheme.value = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-    ).matches;
-    window
-        .matchMedia("(prefers-color-scheme: dark)")
-        .addEventListener("change", (e) => {
-            isDarkTheme.value = e.matches;
-        });
-})
-
 const toggleDay = (value) => {
     /**
      * Toggle value inside selectedDay array
@@ -299,6 +284,21 @@ const isChecked = (value) => {
      */
     return selectedDay.value.includes(Number(value))
 }
+
+
+
+onMounted(() => {
+    fetchActivities();
+    setupSocket();
+    isDarkTheme.value = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+    ).matches;
+    window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", (e) => {
+            isDarkTheme.value = e.matches;
+        });
+})
 
 onBeforeUnmount(() => {
     if(socket.value)
