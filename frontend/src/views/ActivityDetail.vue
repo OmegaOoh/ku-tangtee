@@ -44,7 +44,7 @@
                 <div v-if="isHost && isAuth" class="flex-auto">
                     <button @click="() => {showEditModal = true;}" class="btn btn-ghost text-accent ml-2 mr-2">Edit</button>
 
-                    <button @click="() => {showCheckInCode = true}" class="btn btn-ghost text-accent ml-2 mr-2">
+                    <button v-if="activity.check_in_allowed" @click="() => {showCheckInCode = true}" class="btn btn-ghost text-accent ml-2 mr-2">
                         Show Check-In Code
                     </button>
 
