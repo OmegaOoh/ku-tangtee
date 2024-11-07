@@ -4,6 +4,7 @@ from typing import Any
 from django.http import HttpRequest
 from django.utils import timezone
 from rest_framework import generics, permissions, mixins, response
+from django.db.models import Q
 from activities import models
 from activities.serializer.permissions import OnlyHostCanEdit
 from activities.serializer import model_serializers
@@ -24,6 +25,8 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         :param request: Http request object
         :return: Http response object
         """
+        if 'search-participants' in request.path:
+            return self.search_participants(request)
         return self.retrieve(request, *args, **kwargs)
 
     def put(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
@@ -76,3 +79,23 @@ class ActivityDetail(mixins.RetrieveModelMixin,
                 "id": res_dict.get("id")
             }
         )
+
+    def search_participants(self, request, *args, **kwargs) -> response.Response:
+        """Search for participants by keyword.
+
+        :param request: Http request object
+        :return: Http response object
+        """
+        activity = self.get_object()
+        keyword = request.GET.get("keyword", "")
+        if keyword:
+            participants = activity.attend_set.filter(
+                Q(user__username__iregex=rf"{keyword}") |
+                Q(user__first_name__iregex=rf"{keyword}") |
+                Q(user__last_name__iregex=rf"{keyword}")
+            )
+        else:
+            participants = activity.attend_set.all()
+
+        serializer = model_serializers.ParticipantDetailSerializer(participants, many=True)
+        return response.Response(serializer.data)

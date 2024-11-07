@@ -2,6 +2,17 @@
     <h2 class="card-title text-2xl mr-2 text-base-content mb-2">
         Manage Participant Permissions
     </h2>
+    <div class="flex my-5 w-full">
+        <input
+            v-model="searchKeyword"
+            @keydown.enter="fetchProfile"
+            class="input input-bordered w-full gap-2 rounded-r-none"
+            placeholder="Search"
+        />
+        <button @click="fetchProfile" class="btn btn-secondary rounded-l-none">
+            Search
+        </button>
+    </div>
     <div class="grid grid-cols-1 md:grid-cols-1 gap-4 mb-2 ml-3">
         <div
             v-for="participant in people"
@@ -9,11 +20,12 @@
             class="card bg-base-100 shadow-lg p-4 rounded-lg border-primary hover:border-2 cursor-pointer transition-all duration-75 ease-in-out"
         >
             <div class="flex items-center space-x-4">
-                <div class="indicator">
+                <!-- Profile Picture Container -->
+                <div class="indicator w-12 h-12 flex-shrink-0">
                     <img
                         v-lazy="participant.profile_picture_url"
                         alt="Profile Picture"
-                        class="w-12 h-12 rounded-full"
+                        class="w-full h-full rounded-full object-cover"
                         @error="handleImageError"
                     />
                     <p
@@ -23,34 +35,54 @@
                         Host
                     </p>
                 </div>
-                <p class="font-medium">
-                    {{ participant.first_name }}
-                    {{ participant.last_name }}
-                </p>
-                <p
-                    v-if="
-                        !checkHost(participant.id) &&
-                        !this.grantHost.includes(participant.id)
-                    "
-                    class="btn btn-primary"
-                    @click="handlePromote(participant.id)"
-                >
-                    Promote
-                </p>
-                <p
-                    v-if="
-                        checkHost(participant.id) &&
-                        !checkOwner(participant.id) &&
-                        !this.removeHost.includes(participant.id)
-                    "
-                    class="btn btn-warning"
-                    @click="handleDemote(participant.id)"
-                >
-                    Demote
-                </p>
-                <p v-if="!checkHost(participant.id)" class="btn btn-error">
-                    Kick
-                </p>
+
+                <!-- Name and Action Buttons -->
+                <div class="flex-1 min-w-0">
+                    <p class="font-medium truncate">
+                        {{ participant.first_name }} {{ participant.last_name }}
+                    </p>
+                    <div class="flex space-x-2">
+                        <button
+                            v-if="
+                                !checkHost(participant.id) &&
+                                !grantHost.includes(participant.id)
+                            "
+                            class="btn btn-primary"
+                            @click="handlePromote(participant.id)"
+                        >
+                            Promote
+                        </button>
+                        <button
+                            v-if="
+                                checkHost(participant.id) &&
+                                !checkOwner(participant.id) &&
+                                !removeHost.includes(participant.id)
+                            "
+                            class="btn btn-warning"
+                            @click="handleDemote(participant.id)"
+                        >
+                            Demote
+                        </button>
+                        <button
+                            v-if="
+                                !checkHost(participant.id) &&
+                                !grantHost.includes(participant.id)
+                            "
+                            class="btn btn-error"
+                        >
+                            Kick
+                        </button>
+                        <p
+                            v-if="
+                                removeHost.includes(participant.id) ||
+                                grantHost.includes(participant.id)
+                            "
+                            class="text-warning"
+                        >
+                            Pending Update
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -75,6 +107,7 @@ export default {
             people: [],
             hosts: [],
             name: "",
+            searchKeyword: "",
         };
     },
     methods: {
@@ -126,6 +159,24 @@ export default {
                         "An unexpected error occurred. Please try again later."
                     );
                 }
+            }
+        },
+        async fetchProfile() {
+            /*
+             * Attempt to update search participant.
+             * This function does not return anything.
+             */
+            try {
+                let response;
+                response = await apiClient.get(
+                    `/activities/${this.activityId}/search-participants/?keyword=${this.searchKeyword}`
+                );
+                this.people = response.data.map(
+                    (participant) => participant.participant
+                );
+                console.log(this.people);
+            } catch (error) {
+                console.error("Error searching participant:", error);
             }
         },
         checkHost(userId) {
