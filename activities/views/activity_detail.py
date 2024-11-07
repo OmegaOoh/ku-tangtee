@@ -35,25 +35,24 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         """
         return self.update(request, *args, **kwargs)
 
-    def update(self, request, *args, **kwargs):
+    def update(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Update an activity with new information provided.
 
         :param request: Http request object
         :return: Http response object
         """
-        
         # Checking number of people join
         check_max_error = self.__check_max_people(request)
         if check_max_error:
             return check_max_error
-        
+
         # Update activity information
         res = super().update(request, *args, **kwargs)
         res_dict = res.data
 
         # Deal with attachment.
         self.__add_remove_attachment(request)
-        
+
         # Kick attendee
         self.__kick_attendee(request)
 
@@ -63,9 +62,9 @@ class ActivityDetail(mixins.RetrieveModelMixin,
                 "id": res_dict.get("id")
             }
         )
-        
+
     def __check_max_people(self, request: HttpRequest) -> response.Response | None:
-        
+
         activity = self.get_object()
         max_people = request.data.get("max_people")
         current_people = activity.people
@@ -77,9 +76,9 @@ class ActivityDetail(mixins.RetrieveModelMixin,
                 },
             )
         return None
-    
+
     def __add_remove_attachment(self, request: HttpRequest) -> None:
-        
+
         activity = self.get_object()
         attachment_ids_to_remove = request.data.get("remove_attachments", [])
 
@@ -94,11 +93,11 @@ class ActivityDetail(mixins.RetrieveModelMixin,
                 image_loader(attachment_to_add, activity)
 
     def __kick_attendee(self, request: HttpRequest) -> None:
-        
-        activity = self.get_object()        
-        
+
+        activity = self.get_object()
+
         attendee_ids_to_remove = request.data.get("attendee_to_remove", [])
         attendee_to_remove = activity.attend_set.filter(user__id__in=attendee_ids_to_remove, is_host=False)
-    
+
         print(attendee_ids_to_remove)
-        attendee_to_remove.delete()            
+        attendee_to_remove.delete()
