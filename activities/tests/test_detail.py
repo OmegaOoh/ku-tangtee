@@ -15,6 +15,7 @@ class DetailTest(django.test.TestCase):
         response = self.client.get(urls.reverse("activities:detail", args=[activity.id]))
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(response.content, activity_to_json(activity))
+        self.assertNotContains(response, activity.check_in_code)
 
     def test_future_activity(self):
         """Future/Upcoming activity should be accessible."""
@@ -22,6 +23,7 @@ class DetailTest(django.test.TestCase):
         response = self.client.get(urls.reverse("activities:detail", args=[activity.id]))
 
         self.assertJSONEqual(response.content, activity_to_json(activity))
+        self.assertNotContains(response, activity.check_in_code)
 
     def test_with_max(self):
         """Maximum number of participant should be shown in detail page if it has been set."""

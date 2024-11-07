@@ -26,6 +26,7 @@ class IndexTest(django.test.TestCase):
             activity_to_json(activity)
         ]
         self.assertJSONEqual(response.content, expected)
+        self.assertNotContains(response, activity.check_in_code)
 
     def test_past_activity(self):
         """Activities take places in the past showed on the index page."""

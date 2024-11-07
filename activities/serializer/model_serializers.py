@@ -33,6 +33,13 @@ class ActivitiesSerializer(serializers.ModelSerializer):
         model = models.Activity
         fields = ('__all__')
 
+    def get_fields(self) -> Any:
+        """Modify get fields to exclude check-in code."""
+        fields = super().get_fields()
+        fields.pop("check_in_code")
+
+        return fields
+
     def create(self, validated_data: dict[str, Any]) -> models.Activity:
         """Override create function to prevent pre-created check-in code.
 
