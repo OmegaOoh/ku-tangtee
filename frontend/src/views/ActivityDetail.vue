@@ -1,5 +1,5 @@
 <template>
-    <div class="breadcrumbs text-lm size-fit my-6 mx-10 back">
+    <div class="breadcrumbs text-lm size-fit my-6 mx-10 overflow-visible">
         <ul>
             <li><a @click="goBack">Home</a></li>
             <li>Activity {{ activity.id }}</li>
@@ -9,7 +9,7 @@
         <EditModal 
             :id="activityId"
             :isOpen="showEditModal"
-            @close="() => {showEditModal.value = false}"
+            @close="() => {showEditModal = false}"
             @update-success="handleEditSuccess" />
 
         <CheckInCodeModal
@@ -23,27 +23,30 @@
         v-if="isAuth && isJoined && !isHost"
         :id="activityId"
         :isOpen="showCheckInModal"
-        @close="() => {showCheckInModal.value = false;}"
+        @close="() => {showCheckInModal = false;}"
         @check-in-success="handleCheckInSuccess"
     />
     
 
     <div class="card p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6">
         <div class="card-body p-4">
-            <h1 class="text-4xl font-bold mb-4 ml-2 multi-line">
-                {{ activity.name }}
-                <button v-if="isHost && isAuth" @click="() => {showEditModal = true;}" class="btn btn-ghost text-accent ml-2 mr-2">Edit</button>
-                <div v-if="isHost && isAuth">
-                    <button v-if="activity.check_in_allowed" @click="() => {showCheckInCode = true}" class="btn btn-ghost text-accent ml-2 mr-2">
-                        Show Check-In Code
-                    </button>
-                    <button v-else @click="allowCheckIn" class="btn btn-ghost text-accent ml-2 mr-2">
-                        Allow Check-in
-                    </button>
-                </div>
-                
-                <button v-if="isJoined && isAuth && checkedIn && !isHost" class="btn btn-ghost text-accent ml-2 mr-2">You've Checked-In</button>
-            </h1>
+            <div class="indicator h-fit">
+                <p v-if="isJoined && isAuth && checkedIn && !isHost" class="indicator-item indicator-start indicator-middle font-semibold text-primary">✓</p>
+                <h1 class="text-4xl font-bold mb-4 ml-2 multi-line">
+                    {{ activity.name }}
+                </h1>
+            </div>
+
+            <!--Owner action set-->
+            <div v-if="isHost && isAuth" class=" flex-auto">
+                <button @click="() => {showEditModal = true;}" class="btn btn-ghost text-accent ml-2 mr-2">Edit</button>    
+                <button v-if="activity.check_in_allowed" @click="() => {showCheckInCode = true}" class="btn btn-ghost text-accent ml-2 mr-2">
+                    Show Check-In Code
+                </button>
+                <button v-else @click="allowCheckIn" class="btn btn-ghost text-accent ml-2 mr-2">
+                    Allow Check-in
+                </button>
+            </div>
 
             <p class="mb-2 ml-3 overflow-hidden multi-line">{{ activity.detail }}</p>
             <p class="mb-2 ml-3"><strong>Date and Time:</strong> {{ formatTimestamp(activity.date) }}</p>
@@ -91,7 +94,7 @@
                     </button>
                     <button
                         v-if="isJoined && activity.check_in_allowed && isAuth && !checkedIn"
-                        @click="() => {showCheckInModal.value = true}"
+                        @click="() => {showCheckInModal = true}"
                         class="btn btn-secondary mx-4"
                     >
                         Check-In
