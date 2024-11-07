@@ -9,20 +9,21 @@
         <EditModal 
             :id="activityId"
             :isOpen="showEditModal"
-            @close="closeEditModal"
+            @close="() => {showEditModal.value = false}"
             @update-success="handleEditSuccess" />
 
         <CheckInCodeModal
             v-if="showCheckInCode"
-            @closed-checked-in="handleCheckInClosed"
-            @allow-checked-in="fetchDetail"
+            :id="activityId"
+            :isOpen="showCheckInCode"
+            @close = 'closeCheckInCodeModal'
         />
     </div>
     <CheckInModal
         v-if="isAuth && isJoined && !isHost"
         :id="activityId"
         :isOpen="showCheckInModal"
-        @close="closeCheckInModal"
+        @close="() => {showCheckInModal.value = false;}"
         @check-in-success="handleCheckInSuccess"
     />
     
@@ -31,10 +32,16 @@
         <div class="card-body p-4">
             <h1 class="text-4xl font-bold mb-4 ml-2 multi-line">
                 {{ activity.name }}
-                <button v-if="isHost && isAuth" @click="openEditModal" class="btn btn-ghost text-accent ml-2 mr-2">Edit</button>
-                <button v-if="isHost && isAuth" @click="openCheckInCodeModal" class="btn btn-ghost text-accent ml-2 mr-2">
-                    {{ activity.check_in_allowed ? 'Show Check-In Code' : 'Allow Check-in' }}
-                </button>
+                <button v-if="isHost && isAuth" @click="() => {showEditModal = true;}" class="btn btn-ghost text-accent ml-2 mr-2">Edit</button>
+                <div v-if="isHost && isAuth">
+                    <button v-if="activity.check_in_allowed" @click="() => {showCheckInCode = true}" class="btn btn-ghost text-accent ml-2 mr-2">
+                        Show Check-In Code
+                    </button>
+                    <button v-else @click="allowCheckIn" class="btn btn-ghost text-accent ml-2 mr-2">
+                        Allow Check-in
+                    </button>
+                </div>
+                
                 <button v-if="isJoined && isAuth && checkedIn && !isHost" class="btn btn-ghost text-accent ml-2 mr-2">You've Checked-In</button>
             </h1>
 
@@ -84,7 +91,7 @@
                     </button>
                     <button
                         v-if="isJoined && activity.check_in_allowed && isAuth && !checkedIn"
-                        @click="openCheckInModal"
+                        @click="() => {showCheckInModal.value = true}"
                         class="btn btn-secondary mx-4"
                     >
                         Check-In
@@ -129,6 +136,7 @@ import apiClient from "@/api";
 import {
     createDeleteRequest,
     createPostRequest,
+    createPutRequest,
 } from "@/functions/HttpRequest.js";
 import { isAuth, login, userId } from "@/functions/Authentications";
 import EditModal from "@/component/EditModal.vue";
@@ -176,6 +184,30 @@ const fetchDetail = async () => {
     }
 };
 
+async function allowCheckIn() {
+    /*
+     * Attempt to join activity.
+     */
+    try {
+        const response = await createPutRequest(
+            `/activities/check-in/${activityId.value}/?status=open`,
+            {}
+        );
+        addAlert("success", response.data.message);
+        showCheckInCode.value = true;
+    } catch (error) {
+        if (error.response && error.response.data) {
+            addAlert("error", error.response.data.message); // Show error message from backend
+        } else {
+            console.error(error)
+            addAlert(
+                "error",
+                "An unexpected error occurred. Please try again later."
+            );
+        }
+    }
+}
+
 const checkCheckedIn = () => {
     if (isAuth && isJoined.value) {
         const user = people.value.find(participant => participant.id === userId.value);
@@ -194,39 +226,21 @@ const handleEditSuccess = async () => {
     closeEditModal();
 };
 
-const handleCheckInClosed = async () => {
-    await fetchDetail();
-    closeCheckInCodeModal();
-};
-
 const handleCheckInSuccess = async () => {
     await fetchDetail();
-    closeCheckInModal();
-};
-
-const openEditModal = () => {
-    showEditModal.value = true;
+    showCheckInModal.value = false;
 };
 
 const closeEditModal = () => {
     showEditModal.value = false;
-};
+}; true;
 
-const openCheckInCodeModal = () => {
-    showCheckInCode.value = true;
-};
 
-const closeCheckInCodeModal = () => {
+const closeCheckInCodeModal = (allowed) => {
+    activity.value.check_in_allowed = allowed
     showCheckInCode.value = false;
 };
 
-const openCheckInModal = () => {
-    showCheckInModal.value = true;
-};
-
-const closeCheckInModal = () => {
-    showCheckInModal.value = false;
-};
 
 const goBack = () => {
     router.push("/");
