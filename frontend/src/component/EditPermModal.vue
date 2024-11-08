@@ -143,21 +143,21 @@
 </template>
 
 <script setup>
-import apiClient from "@/api";
-import { ref, defineProps, defineEmits, onMounted } from "vue";
-import { createPutRequest } from "@/functions/HttpRequest.js";
-import { addAlert } from "@/functions/AlertManager";
+import apiClient from '@/api';
+import { ref, defineProps, defineEmits, onMounted } from 'vue';
+import { createPutRequest } from '@/functions/HttpRequest.js';
+import { addAlert } from '@/functions/AlertManager';
 
-const emit = defineEmits(["update-success", "close"]);
+const emit = defineEmits(['update-success', 'close']);
 const removeHost = ref([]);
 const grantHost = ref([]);
 const kickedParticipant = ref([]);
 const activity = ref({});
 const people = ref([]);
 const hosts = ref([]);
-const name = ref("");
-const searchKeyword = ref("");
-const detail = ref("");
+const name = ref('');
+const searchKeyword = ref('');
+const detail = ref('');
 const owner = ref(0);
 const isDarkTheme = ref(false);
 
@@ -186,7 +186,7 @@ const fetchDetail = async () => {
         owner.value = response.data.owner;
         detail.value = activity.value.detail;
     } catch (error) {
-        console.error("Error fetching activity:", error);
+        console.error('Error fetching activity:', error);
     }
 };
 const postUpdate = async () => {
@@ -211,17 +211,17 @@ const postUpdate = async () => {
         removeHost.value = [];
         grantHost.value = [];
         kickedParticipant.value = [];
-        addAlert("success", response.data.message);
-        emit("update-success");
+        addAlert('success', response.data.message);
+        emit('update-success');
         await fetchDetail();
     } catch (error) {
         console.error(error);
         if (error.response && error.response.data) {
-            addAlert("error", error.response.data.message); // Show error message from backend
+            addAlert('error', error.response.data.message); // Show error message from backend
         } else {
             addAlert(
-                "error",
-                "An unexpected error occurred. Please try again later."
+                'error',
+                'An unexpected error occurred. Please try again later.'
             );
         }
     }
@@ -241,7 +241,7 @@ const fetchProfile = async () => {
         );
         console.log(people.value);
     } catch (error) {
-        console.error("Error searching participant:", error);
+        console.error('Error searching participant:', error);
     }
 };
 
@@ -285,19 +285,19 @@ const closeModal = () => {
      * Close the modal.
      * return None
      */
-    const modal = document.getElementById("edit-perm");
-    modal.classList.add("opacity-0");
+    const modal = document.getElementById('edit-perm');
+    modal.classList.add('opacity-0');
     setTimeout(() => {
-        emit("close");
+        emit('close');
     }, 200);
 };
 onMounted(() => {
     isDarkTheme.value = window.matchMedia(
-        "(prefers-color-scheme: dark)"
+        '(prefers-color-scheme: dark)'
     ).matches;
     window
-        .matchMedia("(prefers-color-scheme: dark)")
-        .addEventListener("change", (e) => {
+        .matchMedia('(prefers-color-scheme: dark)')
+        .addEventListener('change', (e) => {
             isDarkTheme.value = e.matches;
         });
     fetchDetail();

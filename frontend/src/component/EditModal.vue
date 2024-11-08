@@ -154,18 +154,18 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits, onMounted } from "vue";
-import apiClient from "@/api";
-import { createPutRequest } from "@/functions/HttpRequest.js";
-import { addAlert } from "@/functions/AlertManager";
-import { loadImage } from "@/functions/Utils.";
-import ImageCarousel from "./ImageCarousel.vue";
+import { ref, defineProps, defineEmits, onMounted } from 'vue';
+import apiClient from '@/api';
+import { createPutRequest } from '@/functions/HttpRequest.js';
+import { addAlert } from '@/functions/AlertManager';
+import { loadImage } from '@/functions/Utils.';
+import ImageCarousel from './ImageCarousel.vue';
 const MAX_IMAGE_COUNT = 10;
 const MAX_IMAGES_SIZE = 100e6; // 100 MB
 
 const BASE_URL = (() => {
     let url = process.env.VUE_APP_BASE_URL;
-    if (url.endsWith("/")) {
+    if (url.endsWith('/')) {
         url = url.slice(0, -1);
     }
     return url;
@@ -182,11 +182,11 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(["update-success", "close"]);
+const emit = defineEmits(['update-success', 'close']);
 
-const activityName = ref("");
-const activityDetail = ref("");
-const date = ref("");
+const activityName = ref('');
+const activityDetail = ref('');
+const date = ref('');
 const maxPeople = ref(0);
 const people = ref([]);
 const showMaxPeople = ref(false);
@@ -205,8 +205,8 @@ const fetchDetail = async () => {
     try {
         const response = await apiClient.get(`/activities/${props.id}`);
         activity.value = response.data;
-        activityName.value = response.data.name || "";
-        activityDetail.value = response.data.detail || "";
+        activityName.value = response.data.name || '';
+        activityDetail.value = response.data.detail || '';
         date.value = formatActivityDate(new Date(response.data.date));
         images.value = activity.value.images.map((image) => ({
             id: image.id,
@@ -217,7 +217,7 @@ const fetchDetail = async () => {
         showMaxPeople.value = maxPeople.value > 0;
         people.value = activity.value.participant;
     } catch (error) {
-        console.error("Error fetching activity:", error);
+        console.error('Error fetching activity:', error);
     }
 };
 
@@ -227,45 +227,45 @@ const validateInput = () => {
      * @return input validity in boolean
      */
     var result = true;
-    const nameField = document.getElementById("name-field");
-    const nameFieldError = document.getElementById("name-field-error");
+    const nameField = document.getElementById('name-field');
+    const nameFieldError = document.getElementById('name-field-error');
     if (activityName.value.length <= 0) {
-        nameField.classList.remove("input-primary");
-        nameField.classList.add("input-error");
+        nameField.classList.remove('input-primary');
+        nameField.classList.add('input-error');
 
-        nameFieldError.removeAttribute("hidden");
+        nameFieldError.removeAttribute('hidden');
         result = false;
     } else {
-        nameFieldError.setAttribute("hidden", "true");
-        nameField.classList.remove("input-error");
-        if (!nameField.classList.contains("textarea-primary"))
-            nameField.classList.add("textarea-primary");
+        nameFieldError.setAttribute('hidden', 'true');
+        nameField.classList.remove('input-error');
+        if (!nameField.classList.contains('textarea-primary'))
+            nameField.classList.add('textarea-primary');
     }
-    const detailField = document.getElementById("detail-field");
-    const detailFieldError = document.getElementById("detail-field-error");
+    const detailField = document.getElementById('detail-field');
+    const detailFieldError = document.getElementById('detail-field-error');
     if (activityDetail.value.length <= 0) {
-        detailField.classList.remove("textarea-primary");
-        detailField.classList.add("input-error");
+        detailField.classList.remove('textarea-primary');
+        detailField.classList.add('input-error');
 
-        detailFieldError.removeAttribute("hidden");
+        detailFieldError.removeAttribute('hidden');
         result = false;
     } else {
-        detailFieldError.setAttribute("hidden", "true");
-        detailField.classList.remove("input-error");
-        if (!detailField.classList.contains("textarea-primary"))
-            detailField.classList.add("textarea-primary");
+        detailFieldError.setAttribute('hidden', 'true');
+        detailField.classList.remove('input-error');
+        if (!detailField.classList.contains('textarea-primary'))
+            detailField.classList.add('textarea-primary');
     }
-    const dateFieldError = document.getElementById("date-field-error");
+    const dateFieldError = document.getElementById('date-field-error');
     if (date.value.length <= 0) {
-        dateFieldError.removeAttribute("hidden");
+        dateFieldError.removeAttribute('hidden');
         result = false;
     } else {
-        dateFieldError.setAttribute("hidden", "true");
+        dateFieldError.setAttribute('hidden', 'true');
     }
     if (maxPeople.value < activity.value.people) {
         addAlert(
-            "warning",
-            "Max People must be higher or equal to current participants."
+            'warning',
+            'Max People must be higher or equal to current participants.'
         );
         maxPeople.value = activity.value.people;
         result = false;
@@ -305,17 +305,17 @@ const postUpdate = async () => {
         );
         new_images.value = [];
         remove_attachment.value = [];
-        addAlert("success", response.data.message);
-        emit("update-success");
+        addAlert('success', response.data.message);
+        emit('update-success');
         await fetchDetail();
     } catch (error) {
         console.error(error);
         if (error.response && error.response.data) {
-            addAlert("error", error.response.data.message); // Show error message from backend
+            addAlert('error', error.response.data.message); // Show error message from backend
         } else {
             addAlert(
-                "error",
-                "An unexpected error occurred. Please try again later."
+                'error',
+                'An unexpected error occurred. Please try again later.'
             );
         }
     }
@@ -349,8 +349,8 @@ const handleFileChange = (e) => {
         // Check total image count
         if (files.length + images.value.length > MAX_IMAGE_COUNT) {
             addAlert(
-                "warning",
-                "You can add at most " + MAX_IMAGE_COUNT + " pictures"
+                'warning',
+                'You can add at most ' + MAX_IMAGE_COUNT + ' pictures'
             );
             return;
         }
@@ -365,15 +365,15 @@ const handleFileChange = (e) => {
         // Check if total size exceeds limit
         if (totalSize > MAX_IMAGES_SIZE) {
             addAlert(
-                "warning",
-                "You can add at most " + MAX_IMAGES_SIZE / 1e6 + " MB"
+                'warning',
+                'You can add at most ' + MAX_IMAGES_SIZE / 1e6 + ' MB'
             );
             return; // Return to prevent further execution
         }
 
         // Process each file
         Array.from(files).forEach((file) => {
-            if (file.type.startsWith("image/")) {
+            if (file.type.startsWith('image/')) {
                 loadImage(file)
                     .then((imageSrc) => {
                         // Check for duplicate image URL
@@ -383,14 +383,14 @@ const handleFileChange = (e) => {
                         if (!isDuplicate) {
                             images.value.push({ id: -1, url: imageSrc }); // Store the image source in the array
                         } else {
-                            addAlert("warning", "This image is already added.");
+                            addAlert('warning', 'This image is already added.');
                         }
                     })
                     .catch((error) => {
-                        addAlert("error", "Error loading image: " + error);
+                        addAlert('error', 'Error loading image: ' + error);
                     });
             } else {
-                addAlert("warning", file.name + " is not an image.");
+                addAlert('warning', file.name + ' is not an image.');
             }
         });
     }
@@ -420,20 +420,20 @@ const maxImageCompute = () => {
 };
 
 const closeModal = () => {
-    const modal = document.getElementById("edit-modal");
-    modal.classList.add("opacity-0");
+    const modal = document.getElementById('edit-modal');
+    modal.classList.add('opacity-0');
     setTimeout(() => {
-        emit("close");
+        emit('close');
     }, 200);
 };
 
 onMounted(() => {
     isDarkTheme.value = window.matchMedia(
-        "(prefers-color-scheme: dark)"
+        '(prefers-color-scheme: dark)'
     ).matches;
     window
-        .matchMedia("(prefers-color-scheme: dark)")
-        .addEventListener("change", (e) => {
+        .matchMedia('(prefers-color-scheme: dark)')
+        .addEventListener('change', (e) => {
             isDarkTheme.value = e.matches;
         });
     fetchDetail();

@@ -142,23 +142,23 @@
 </template>
 
 <script setup>
-import { userId } from "@/functions/Authentications";
-import { ref, onMounted } from "vue";
-import { addAlert } from "@/functions/AlertManager";
-import { createPostRequest } from "@/functions/HttpRequest";
-import { isAuth, login } from "@/functions/Authentications";
-import { loadImage } from "@/functions/Utils.";
-import ImageCarousel from "@/component/ImageCarousel";
-import { useRouter } from "vue-router";
+import { userId } from '@/functions/Authentications';
+import { ref, onMounted } from 'vue';
+import { addAlert } from '@/functions/AlertManager';
+import { createPostRequest } from '@/functions/HttpRequest';
+import { isAuth, login } from '@/functions/Authentications';
+import { loadImage } from '@/functions/Utils.';
+import ImageCarousel from '@/component/ImageCarousel';
+import { useRouter } from 'vue-router';
 
 const MAX_IMAGE_COUNT = 10;
 const MAX_IMAGES_SIZE = 100e6; // 100 MB
 
 const router = useRouter();
 
-const activityName = ref("");
-const activityDetail = ref("");
-const date = ref("");
+const activityName = ref('');
+const activityDetail = ref('');
+const date = ref('');
 const maxPeople = ref(1);
 const showMaxPeople = ref(false);
 const isDarkTheme = ref(false);
@@ -172,7 +172,7 @@ const goBack = () => {
     /*
      * Navigate back to Activity Index page.
      */
-    router.push("/");
+    router.push('/');
 };
 
 /**
@@ -185,42 +185,42 @@ const validateInput = () => {
      * @return input validity in boolean
      */
     var result = true;
-    const nameField = document.getElementById("name-field");
-    const nameFieldError = document.getElementById("name-field-error");
+    const nameField = document.getElementById('name-field');
+    const nameFieldError = document.getElementById('name-field-error');
     if (activityName.value.length <= 0) {
-        nameField.classList.remove("input-primary");
-        nameField.classList.add("input-error");
-        nameFieldError.removeAttribute("hidden");
+        nameField.classList.remove('input-primary');
+        nameField.classList.add('input-error');
+        nameFieldError.removeAttribute('hidden');
         result = false;
     } else {
-        nameFieldError.setAttribute("hidden", "true");
-        nameField.classList.remove("input-error");
-        if (!nameField.classList.contains("textarea-primary"))
-            nameField.classList.add("textarea-primary");
+        nameFieldError.setAttribute('hidden', 'true');
+        nameField.classList.remove('input-error');
+        if (!nameField.classList.contains('textarea-primary'))
+            nameField.classList.add('textarea-primary');
     }
-    const detailField = document.getElementById("detail-field");
-    const detailFieldError = document.getElementById("detail-field-error");
+    const detailField = document.getElementById('detail-field');
+    const detailFieldError = document.getElementById('detail-field-error');
     if (activityDetail.value.length <= 0) {
-        detailField.classList.remove("textarea-primary");
-        detailField.classList.add("input-error");
+        detailField.classList.remove('textarea-primary');
+        detailField.classList.add('input-error');
 
-        detailFieldError.removeAttribute("hidden");
+        detailFieldError.removeAttribute('hidden');
         result = false;
     } else {
-        detailFieldError.setAttribute("hidden", "true");
-        detailField.classList.remove("input-error");
-        if (!detailField.classList.contains("textarea-primary"))
-            detailField.classList.add("textarea-primary");
+        detailFieldError.setAttribute('hidden', 'true');
+        detailField.classList.remove('input-error');
+        if (!detailField.classList.contains('textarea-primary'))
+            detailField.classList.add('textarea-primary');
     }
-    const dateFieldError = document.getElementById("date-field-error");
+    const dateFieldError = document.getElementById('date-field-error');
     if (date.value.length <= 0) {
-        dateFieldError.removeAttribute("hidden");
+        dateFieldError.removeAttribute('hidden');
         result = false;
     } else {
-        dateFieldError.setAttribute("hidden", "true");
+        dateFieldError.setAttribute('hidden', 'true');
     }
     if (maxPeople.value <= 0 && showMaxPeople.value) {
-        addAlert("warning", "Max People must be positive and not zeroes.");
+        addAlert('warning', 'Max People must be positive and not zeroes.');
         maxPeople.value = 1;
         result = false;
     }
@@ -246,8 +246,8 @@ const handleFileChange = (event) => {
     // Check total image count
     if (files.length + images.value.length > MAX_IMAGE_COUNT) {
         addAlert(
-            "warning",
-            "You can add at most " + MAX_IMAGE_COUNT + " pictures"
+            'warning',
+            'You can add at most ' + MAX_IMAGE_COUNT + ' pictures'
         );
         return;
     }
@@ -262,15 +262,15 @@ const handleFileChange = (event) => {
     // Check if total size exceeds limit
     if (totalSize > MAX_IMAGES_SIZE) {
         addAlert(
-            "warning",
-            "You can add at most " + MAX_IMAGES_SIZE / 1e6 + " MB"
+            'warning',
+            'You can add at most ' + MAX_IMAGES_SIZE / 1e6 + ' MB'
         );
         return; // Return to prevent further execution
     }
 
     // Process each file
     Array.from(files).forEach((file) => {
-        if (file.type.startsWith("image/")) {
+        if (file.type.startsWith('image/')) {
             loadImage(file)
                 .then((imageSrc) => {
                     // Check for duplicate image URL
@@ -280,14 +280,14 @@ const handleFileChange = (event) => {
                     if (!isDuplicate) {
                         images.value.push(imageSrc); // Store the image source in the array
                     } else {
-                        addAlert("warning", "This image is already added.");
+                        addAlert('warning', 'This image is already added.');
                     }
                 })
                 .catch((error) => {
-                    addAlert("error", "Error loading image: " + error);
+                    addAlert('error', 'Error loading image: ' + error);
                 });
         } else {
-            addAlert("warning", file.name + " is not an image.");
+            addAlert('warning', file.name + ' is not an image.');
         }
     });
 };
@@ -318,16 +318,16 @@ const postCreateActivity = async () => {
             owner: userId.value,
         };
         const response = await createPostRequest(`/activities/`, data);
-        addAlert("success", response.data.message);
+        addAlert('success', response.data.message);
         router.push(`/activities/${response.data.id}`);
     } catch (error) {
         if (error.response && error.response.data) {
-            addAlert("error", error.response.data.message); // Show error message from backend
+            addAlert('error', error.response.data.message); // Show error message from backend
         } else {
             console.error(error);
             addAlert(
-                "error",
-                "An unexpected error occurred. Please try again later."
+                'error',
+                'An unexpected error occurred. Please try again later.'
             );
         }
     }
@@ -335,11 +335,11 @@ const postCreateActivity = async () => {
 
 onMounted(() => {
     isDarkTheme.value = window.matchMedia(
-        "(prefers-color-scheme: dark)"
+        '(prefers-color-scheme: dark)'
     ).matches;
     window
-        .matchMedia("(prefers-color-scheme: dark)")
-        .addEventListener("change", (e) => {
+        .matchMedia('(prefers-color-scheme: dark)')
+        .addEventListener('change', (e) => {
             isDarkTheme.value = e.matches;
         });
 });

@@ -43,10 +43,10 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref } from "vue";
-import ImagePreview from "./ImagePreview.vue";
+import { defineProps, defineEmits, ref } from 'vue';
+import ImagePreview from './ImagePreview.vue';
 
-const emit = defineEmits("onRemove");
+const emit = defineEmits('onRemove');
 
 defineProps({
     images: {
@@ -64,7 +64,7 @@ defineProps({
 });
 
 const isModalOpen = ref(false);
-const selectedImage = ref("");
+const selectedImage = ref('');
 
 const openModal = (imageSrc) => {
     selectedImage.value = imageSrc;
@@ -73,6 +73,6 @@ const openModal = (imageSrc) => {
 
 const closeModal = () => {
     isModalOpen.value = false;
-    selectedImage.value = "";
+    selectedImage.value = '';
 };
 </script>
