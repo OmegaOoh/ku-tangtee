@@ -41,6 +41,10 @@ export function markdownFormatter(string) {
         return `<li class="ml-3 ${type}"> ${token.text}</li>`
     }
 
+    renderer.code = (token) => {
+        return `<pre v-highlightjs><code class="${token.lang}">${token.text}</code></pre>`
+    }
+
     let parsed_msg = marked(string, { renderer });
     
     parsed_msg = parsed_msg.replace(/\n/g, '<br>')

@@ -47,8 +47,8 @@ c
                                     formatTimestamp(message.timestamp)
                                 }}</time>
                             </div>
-                            <div class="chat-bubble chat-bubble-secondary text-wrap">
-                                <div
+                            <div class="chat-bubble chat-bubble-secondary">
+                                <div class='overflow-x-auto'
                                     v-html="markdownFormatter(message.message)"
                                 ></div>
                                 <div
