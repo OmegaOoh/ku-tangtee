@@ -15,7 +15,7 @@
             <button
                 v-if="removable"
                 class="hover:opacity-50 absolute top-2 right-2"
-                @click="$emit('onRemove', index)"
+                @click="emit('onRemove', index)"
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -46,6 +46,8 @@
 import { defineProps, defineEmits, ref } from "vue";
 import ImagePreview from "./ImagePreview.vue";
 
+const emit = defineEmits("onRemove");
+
 defineProps({
     images: {
         type: Array,
@@ -60,8 +62,6 @@ defineProps({
         required: true,
     },
 });
-
-defineEmits("onRemove");
 
 const isModalOpen = ref(false);
 const selectedImage = ref("");
