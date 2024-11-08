@@ -175,9 +175,8 @@ import {
     userId as authUserId,
 } from '@/functions/Authentications';
 import { addAlert } from '@/functions/AlertManager';
-import { loadImage } from '@/functions/Utils';
+import { loadImage, markdownFormatter } from '@/functions/Utils';
 import ImageGrid from '@/component/ImageGrid.vue';
-import {markdownFormatter} from '@/functions/Utils';
 
 const router = useRouter();
 const route = useRoute();
@@ -450,16 +449,6 @@ const formatTimestamp = (timestamp) => {
      * @returns {string} formatted timestamp
      */
     return format(new Date(timestamp), 'PPp');
-};
-
-const formatMessage = (message) => {
-    /*
-     * Format message to be html format with <br> instead of \n.
-     *
-     * @params {string} not yet formatted message
-     * @returns {string} formatted message
-     */
-    return message.replace(/\n/g, '<br>');
 };
 
 /**

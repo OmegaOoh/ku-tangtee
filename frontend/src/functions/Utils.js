@@ -23,7 +23,7 @@ export function markdownFormatter(string) {
      * @params {string} not yet formatted message
      * @returns {string} formatted message
      */
-
+    if (!string || string.trim() == '') return ''
     const renderer = new marked.Renderer();
 
     // Set style to link

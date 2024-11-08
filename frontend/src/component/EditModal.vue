@@ -158,7 +158,7 @@ import { ref, defineProps, defineEmits, onMounted } from 'vue';
 import apiClient from '@/api';
 import { createPutRequest } from '@/functions/HttpRequest.js';
 import { addAlert } from '@/functions/AlertManager';
-import { loadImage } from '@/functions/Utils.';
+import { loadImage } from '@/functions/Utils';
 import ImageCarousel from './ImageCarousel.vue';
 const MAX_IMAGE_COUNT = 10;
 const MAX_IMAGES_SIZE = 100e6; // 100 MB
