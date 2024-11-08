@@ -118,162 +118,168 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import apiClient from '@/api';
-import { watch } from 'vue';
-import { isAuth, userId } from '@/functions/Authentications';
+import { watch, ref, computed, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { userId } from '@/functions/Authentications';
 import { format } from "date-fns";
 import { addAlert } from '@/functions/AlertManager';
 import { createPutRequest } from '@/functions/HttpRequest';
 
 const KU_ESTABLISHED_YEAR = 1940
 
-export default {
-    data() {
-        return {
-            user: [],
-            nickname: '',
-            pronoun: '',
-            faculty: '',
-            major: '',
-            bio: '',
-            kuGen: '',
-            pfp: '',
-            recentActivity: [],
-            editMode: false,
-            isOwner: false,
-        }
-    },
-    methods: {
-        async fetchUserData() {
-            /**
-             * Function to fetch data of user from backend.
-             * this function return nothing.
-             */
-            const response = await apiClient.get(`/profile/${this.$route.params.username}`);
-            this.user = response.data.user;
-            this.nickname = response.data.nick_name;
-            this.pronoun = response.data.pronoun;
-            this.faculty = response.data.faculty;
-            this.major = response.data.major;
-            this.kuGen = response.data.ku_generation;
-            this.bio = response.data.about_me;
-            this.pfp = response.data.profile_picture_url;
-        },
-        async fetchRecentActivities() {
-            /**
-             * Fetch data of recently joined activity.
-             * this function returns nothing.
-             */
-            const response = await apiClient.get(`/activities/get-recently/${this.user.id}?byDate=True`);
-            this.recentActivity = response.data;
-        },
-        formatTimestamp(timestamp) {
-            /*
-             * Format the timestamp into (Oct 22, 2024, 9:00 AM).
-             *
-             * @params {string} not yet formatted timestamp
-             * @returns {string} formatted timestamp
-             */
-            if (timestamp) {
-                return format(new Date(timestamp), "MMM/dd/yyyy, hh:mm a");
-            } else {
-                return "No date provided";
-            }
-        },
-        checkOwn() {
-            console.log(userId.value, this.user.id)
-            if (this.user.id == userId.value) {
-                this.isOwner = true;
-            } else {
-                this.isOwner = false;
-            }
-        },
-        validateInput() {
-            /**
-             * Function to validate the input.
-             * @return true if all input were valid.
-             */
-            var validInput = true;
-            
-            if (this.kuGen == null || this.kuGen == '') {
-                validInput = false
-                addAlert('error', 'KU Generation is required');
-            }
-            if (this.kuGen != ''){
-                if (this.kuGen < 1) {
-                    addAlert('warning', "Your KU Generation must be at least 1");
-                    validInput = false;
-                }
-                if (this.kuGen > this.getMaxKuGeneration()) {
-                    addAlert('warning', ('Your KU Generation must be less than or equal to ' + this.getMaxKuGeneration()))
-                    validInput = false;
-                }
-            }
-            if (this.faculty == '') {
-                validInput = false;
-                addAlert('error', 'Faculty is required')
-            }
-            return validInput;
-        },
-        getMaxKuGeneration() {
-            /**
-             * Get current max Ku Generation
-             * @returns maximum ku generation (current years - established year)
-             */
-            const currentYear = (new Date()).getFullYear();
-            return currentYear - KU_ESTABLISHED_YEAR;
-        },
-        async submitData() {
-            if (!this.validateInput()) {
-                return;// Invalid input return early
-            }
-            await createPutRequest(`/profile/${this.user.username}/`,
-                {
-                    "nick_name": this.nickname,
-                    "pronoun": this.pronoun,
-                    "ku_generation": this.kuGen,
-                    "faculty": this.faculty,
-                    "major": this.major,
-                    "about_me": this.bio,
-                }
-            )
-            addAlert('success', 'Your Profile has been edited successfully!')
-            this.editMode=false
-        }
-        
-    },
-    async mounted() {
-        try{
-            await this.fetchUserData();
-            this.fetchRecentActivities();
-        } catch (e) {
-            this.$router.push('/')
-            addAlert('error', 'The profile does not exists.')
-        }
+// Router
+const route = useRoute();
+const router = useRouter();
 
-        this.checkOwn();
-        watch(userId, () => {
-                if (isAuth) {
-                    this.checkOwn();
-                }
-                else {
-                    this.isOwner = false;
-                }
-            }
-        )
-    },
-    watch: {
-        '$route.params.username': function(newUsername, oldUsername) {
-            if (newUsername != oldUsername) {
-                console.log('I was here');
-                this.fetchUserData();
-                this.fetchRecentActivities();
-                this.checkOwn();
-            }
-        }
+// Variable
+const user = ref({});
+const nickname = ref('');
+const pronoun = ref('');
+const faculty = ref('');
+const major = ref('');
+const bio = ref('');
+const kuGen = ref('');
+const pfp = ref('')
+const recentActivity = ref([]);
+const editMode = ref(false);
+
+// Computed Properties
+const isOwner = computed(() => {
+        return user.value.id == userId.value;
+})
+
+/**
+ * Fetch Data
+ */
+const fetchUserData = async() => {
+    /**
+     * Function to fetch data of user from backend.
+     * this function return nothing.
+     */
+    const response = await apiClient.get(`/profile/${route.params.username}`);
+    user.value = response.data.user;
+    nickname.value = response.data.nick_name;
+    pronoun.value = response.data.pronoun;
+    faculty.value = response.data.faculty;
+    major.value = response.data.major;
+    kuGen.value = response.data.ku_generation;
+    bio.value = response.data.about_me;
+    pfp.value = response.data.profile_picture_url;
+}
+
+const fetchRecentActivities = async() => {
+    /**
+     * Fetch data of recently joined activity.
+     * this function returns nothing.
+     */
+    const response = await apiClient.get(`/activities/get-recently/${user.value.id}?byDate=True`);
+    recentActivity.value = response.data;
+    }
+
+const onUserChange = (newUsername, oldUsername) => {
+    if (newUsername != oldUsername) {
+        fetchUserData();
+        fetchRecentActivities();
     }
 }
+
+
+/**
+ * Formatter
+ */
+
+const formatTimestamp = (timestamp) => {
+    /*
+     * Format the timestamp into (Oct 22, 2024, 9:00 AM).
+     *
+     * @params {string} not yet formatted timestamp
+     * @returns {string} formatted timestamp
+     */
+    if (timestamp) {
+        return format(new Date(timestamp), "MMM/dd/yyyy, hh:mm a");
+    } else {
+        return "No date provided";
+    }
+}
+
+/**
+ * Validator
+ */
+
+const validateInput = () => {
+    /**
+     * Function to validate the input.
+     * @return true if all input were valid.
+     */
+    var validInput = true;
+    
+    if (kuGen.value == null || kuGen.value == '') {
+        validInput = false
+        addAlert('error', 'KU Generation is required');
+    }
+    if (kuGen.value != ''){
+        if (kuGen.value < 1) {
+            addAlert('warning', "Your KU Generation must be at least 1");
+            validInput = false;
+        }
+        if (kuGen.value > getMaxKuGeneration()) {
+            addAlert('warning', ('Your KU Generation must be less than or equal to ' + getMaxKuGeneration()))
+            validInput = false;
+        }
+    }
+    if (faculty.value == '') {
+        validInput = false;
+        addAlert('error', 'Faculty is required')
+    }
+    return validInput;
+}
+
+const getMaxKuGeneration = () => {
+    /**
+     * Get current max Ku Generation
+     * @returns maximum ku generation (current years - established year)
+     */
+    const currentYear = (new Date()).getFullYear();
+    return currentYear - KU_ESTABLISHED_YEAR;
+}
+
+/**
+ * Data sender
+ */
+
+const submitData = async() => {
+    if (!validateInput()) {
+        return;// Invalid input return early
+    }
+    await createPutRequest(`/profile/${user.value.username}/`,
+        {
+            "nick_name": nickname.value,
+            "pronoun": pronoun.value,
+            "ku_generation": kuGen.value,
+            "faculty": faculty.value,
+            "major": major.value,
+            "about_me": bio.value,
+        }
+    )
+    addAlert('success', 'Your Profile has been edited successfully!')
+    editMode.value = false
+}
+
+watch(() => route.params.username, (newUsername, oldUsername) => {
+    onUserChange(newUsername, oldUsername);
+});
+
+onMounted(async () => {
+    try{
+        await fetchUserData();
+        fetchRecentActivities();
+    } catch (e) {
+        router.push('/')
+        addAlert('error', 'The profile does not exists.')
+    }
+})
 </script>
 
 <style scoped>
