@@ -184,6 +184,7 @@ const BASE_URL = (() => {
     }
     return url;
 })()
+const MAX_CONSECUTIVE_SAME_MSG  = 5
 
 
 // Variables
@@ -199,6 +200,9 @@ const images = ref([])
 
 // Element Variables
 const messageList = ref(null)
+
+let last_msg = {};
+let streak = 0;
 
 /**
  * Message Websocket
@@ -251,19 +255,35 @@ const sendMessage = () => {
     if (trimMessage == '') {
         trimMessage = ' ';
     }
-    if (socket.value.readyState === WebSocket.OPEN) {
-        socket.value.send(
-            JSON.stringify({
+
+    let msg = JSON.stringify({
                 message: trimMessage,
                 user_id: authUserId.value,
                 images: images.value,
             })
-        );
+
+    if (msg != last_msg) {
+        last_msg = msg;
+        streak = 1;
+    }
+    else {
+        streak++;
+    }
+
+    if (streak >= MAX_CONSECUTIVE_SAME_MSG) {
+        socket.value.close()
+        addAlert('warning', 'You are spamming, BAD USER!')
+        return;
+    }
+
+    if (socket.value.readyState === WebSocket.OPEN) {
+        socket.value.send(msg);
         images.value = [];
         newMessage.value = '';
         // 
         handleScrollToBottom() // Scroll to bottom unconditionally
     } else {
+        addAlert('error', 'Chat is not connected, please refresh.')
         console.log("WebSocket is not open.");
     }
 }
