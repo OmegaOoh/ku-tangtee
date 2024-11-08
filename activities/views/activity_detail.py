@@ -123,6 +123,8 @@ class ActivityDetail(mixins.RetrieveModelMixin,
             if res:
                 return res
 
+        return None
+
     def __kick_attendee(self, request: HttpRequest) -> None:
         """Handle kick attendee from activity.
 
