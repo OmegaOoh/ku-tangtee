@@ -50,15 +50,18 @@ class ActivityDetail(mixins.RetrieveModelMixin,
             return check_max_error
 
         # Update activity information
-        res = super().update(request, *args, **kwargs)
+        res = super().update(request, partial=True, *args, **kwargs)
         res_dict = res.data
 
         # Deal with attachment.
         self.__add_remove_attachment(request)
-        # Deal with participants
-        self.__grant_host_remove_host(request)
         # Kick attendee
         self.__kick_attendee(request)
+
+        # Deal with participants
+        err_res = self.__grant_host_remove_host(request)
+        if err_res:
+            return err_res
 
         return response.Response(
             {
@@ -102,7 +105,7 @@ class ActivityDetail(mixins.RetrieveModelMixin,
             else:
                 image_loader(attachment_to_add, activity)
 
-    def __grant_host_remove_host(self, request: HttpRequest) -> Any:
+    def __grant_host_remove_host(self, request: HttpRequest) -> response.Response | None:
         """Grant host and remove host from activity.
 
         :param request: HttpRequest object
