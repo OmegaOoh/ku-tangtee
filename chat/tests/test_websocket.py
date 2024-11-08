@@ -19,6 +19,7 @@ class ChatWebSocketTest(django.test.TransactionTestCase):
         """Create test users and activity."""
         self.user = User.objects.create_user(username='testuser', password='password123')
         self.activity = Activity.objects.create(
+            owner=self.user,
             name="Test Activity",
             detail="This is a test activity",
             date=timezone.now(),

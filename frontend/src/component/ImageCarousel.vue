@@ -92,7 +92,7 @@ function scrollCarousel(index) {
      * This function return nothing
      */
     const carousel = document.getElementById(props.carouselName);
-
+    
     let carouselW = carousel.clientWidth;
     let actualIndex = index < 0 ? props.images.length - 1 : index;
     actualIndex = actualIndex >= props.images.length ? 0 : actualIndex;
