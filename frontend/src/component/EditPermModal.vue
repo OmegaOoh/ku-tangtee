@@ -63,7 +63,10 @@
                                 <button
                                     v-if="
                                         !checkHost(participant.id) &&
-                                        !grantHost.includes(participant.id)
+                                        !grantHost.includes(participant.id) &&
+                                        !kickedParticipant.includes(
+                                            participant.id
+                                        )
                                     "
                                     class="btn btn-primary"
                                     @click="handlePromote(participant.id)"
@@ -74,7 +77,10 @@
                                     v-if="
                                         checkHost(participant.id) &&
                                         !checkOwner(participant.id) &&
-                                        !removeHost.includes(participant.id)
+                                        !removeHost.includes(participant.id) &&
+                                        !kickedParticipant.includes(
+                                            participant.id
+                                        )
                                     "
                                     class="btn btn-warning"
                                     @click="handleDemote(participant.id)"
@@ -84,16 +90,23 @@
                                 <button
                                     v-if="
                                         !checkHost(participant.id) &&
-                                        !grantHost.includes(participant.id)
+                                        !grantHost.includes(participant.id) &&
+                                        !kickedParticipant.includes(
+                                            participant.id
+                                        )
                                     "
                                     class="btn btn-error"
+                                    @click="handleKick(participant.id)"
                                 >
                                     Kick
                                 </button>
                                 <p
                                     v-if="
                                         removeHost.includes(participant.id) ||
-                                        grantHost.includes(participant.id)
+                                        grantHost.includes(participant.id) ||
+                                        kickedParticipant.includes(
+                                            participant.id
+                                        )
                                     "
                                     class="text-warning"
                                 >
@@ -138,11 +151,13 @@ import { addAlert } from "@/functions/AlertManager";
 const emit = defineEmits(["update-success", "close"]);
 const removeHost = ref([]);
 const grantHost = ref([]);
+const kickedParticipant = ref([]);
 const activity = ref({});
 const people = ref([]);
 const hosts = ref([]);
 const name = ref("");
 const searchKeyword = ref("");
+const detail = ref("");
 const owner = ref(0);
 const isDarkTheme = ref(false);
 
@@ -169,6 +184,7 @@ const fetchDetail = async () => {
         name.value = activity.value.name;
         people.value = activity.value.participant;
         owner.value = response.data.owner;
+        detail.value = activity.value.detail;
     } catch (error) {
         console.error("Error fetching activity:", error);
     }
@@ -183,6 +199,10 @@ const postUpdate = async () => {
         const data = {
             remove_host: removeHost.value,
             grant_host: grantHost.value,
+            attendee_to_remove: kickedParticipant.value,
+            owner: owner.value,
+            detail: detail.value,
+            name: name.value,
         };
         const response = await createPutRequest(
             `/activities/${props.id}/`,
@@ -190,6 +210,7 @@ const postUpdate = async () => {
         );
         removeHost.value = [];
         grantHost.value = [];
+        kickedParticipant.value = [];
         addAlert("success", response.data.message);
         emit("update-success");
         await fetchDetail();
@@ -251,6 +272,13 @@ const handleDemote = (userId) => {
      * return None
      */
     removeHost.value.push(userId);
+};
+const handleKick = (userId) => {
+    /**
+     * Update remove host list.
+     * return None
+     */
+    kickedParticipant.value.push(userId);
 };
 const closeModal = () => {
     /**

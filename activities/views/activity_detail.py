@@ -55,7 +55,8 @@ class ActivityDetail(mixins.RetrieveModelMixin,
 
         # Deal with attachment.
         self.__add_remove_attachment(request)
-
+        # Deal with participants
+        self.__grant_host_remove_host(request)
         # Kick attendee
         self.__kick_attendee(request)
 
@@ -83,21 +84,6 @@ class ActivityDetail(mixins.RetrieveModelMixin,
     def __add_remove_attachment(self, request: HttpRequest) -> None:
 
         activity = self.get_object()
-        res = self.update(request, partial=True, *args, **kwargs)
-        res_dict = res.data
-
-        grant_host_user_ids = request.data.get("grant_host", [])
-        if grant_host_user_ids:
-            res = edit_host_access(grant_host_user_ids, activity, request.user, remove=False)
-            if res:
-                return res
-
-        remove_host_user_ids = request.data.get("remove_host", [])
-        if remove_host_user_ids:
-            res = edit_host_access(remove_host_user_ids, activity, request.user, remove=True)
-            if res:
-                return res
-
         attachment_ids_to_remove = request.data.get("remove_attachments", [])
 
         if attachment_ids_to_remove:
@@ -110,6 +96,22 @@ class ActivityDetail(mixins.RetrieveModelMixin,
             else:
                 image_loader(attachment_to_add, activity)
 
+    def __grant_host_remove_host(self, request: HttpRequest) -> None:
+        activity = self.get_object()
+        grant_host_user_ids = request.data.get("grant_host", [])
+        if grant_host_user_ids:
+            res = edit_host_access(grant_host_user_ids, activity, request.user, remove=False)
+            if res:
+                return res
+
+        remove_host_user_ids = request.data.get("remove_host", [])
+        if remove_host_user_ids:
+            res = edit_host_access(remove_host_user_ids, activity, request.user, remove=True)
+            if res:
+                return res
+
+
+
     def __kick_attendee(self, request: HttpRequest) -> None:
 
         activity = self.get_object()
@@ -119,12 +121,7 @@ class ActivityDetail(mixins.RetrieveModelMixin,
 
         print(attendee_ids_to_remove)
         attendee_to_remove.delete()
-        return response.Response(
-            {
-                "message": f"You have successfully edited the activity {res_dict.get('name')}",
-                "id": res_dict.get("id")
-            }
-        )
+        return
 
     def search_participants(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Search for participants by keyword.
