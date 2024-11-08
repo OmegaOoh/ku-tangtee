@@ -1,4 +1,4 @@
-
+c
 <template>
     <div class="w-screen overflow-x-hidden">
         <div class="breadcrumbs text-lm size-fit ml-10 my-6">
@@ -47,7 +47,7 @@
                                     formatTimestamp(message.timestamp)
                                 }}</time>
                             </div>
-                            <div class="chat-bubble chat-bubble-primary">
+                            <div class="chat-bubble chat-bubble-secondary text-wrap">
                                 <div
                                     v-html="formatMessage(message.message)"
                                 ></div>
@@ -95,7 +95,7 @@
                     </div>
                     <div class="flex justify-between items-center my-3 mx-3">
                         <div
-                            class="flex justify-start textarea textarea-primary w-full py-0 px-2 overflow-hidden pt-0.5"
+                            class="flex justify-start textarea textarea-primary w-full h-fit py-0 px-2 overflow-hidden pt-0.5"
                         >
                             <label
                                 class="text-base-content hover:text-primary transition-colors ease-in-out pb-1 text-3xl"
@@ -113,11 +113,10 @@
                             <textarea
                                 v-model="newMessage"
                                 placeholder="Start your chat"
-                                class=" resize-none size-full bg-inherit focus:outline-none align-middle pt-1.5 px-2"
+                                class=" resize-none h-fit size-full bg-inherit focus:outline-none align-middle pt-1.5 px-2"
                                 :maxlength="1024"
                                 @keydown.exact.enter.prevent="sendMessage"
                                 @keydown.shift.enter.prevent="insertNewLine"
-                                rows="1"
                             ></textarea>
                         </div>
 
@@ -172,6 +171,7 @@ import { addAlert } from "@/functions/AlertManager";
 import { loadImage } from "@/functions/Utils.";
 import ImageGrid from "@/component/ImageGrid.vue";
 import { marked } from "marked";
+import DOMPurify from 'dompurify';
 
 const router = useRouter()
 const route = useRoute()
@@ -464,8 +464,20 @@ const formatMessage = (message) => {
      * @params {string} not yet formatted message
      * @returns {string} formatted message
      */
-    const replaced_msg = message.replace(/\n/g, "<br>")
-    return marked(replaced_msg);
+    const renderer = new marked.Renderer();
+    renderer.link = (token) => {
+        return `<a href="${token.href}" target="_blank" class="text-accent hover:brightness-75 underline">${token.text || token.raw}</a>`;
+    };
+    renderer.image = (token) => {
+        return `<span>${token.raw}</span>`
+    }
+
+    let parsed_msg = marked(message, { renderer });
+    parsed_msg = parsed_msg.replace(/\n/g, '<br>');
+    parsed_msg = parsed_msg.replace(/<br>$/, '');
+    
+    
+    return DOMPurify.sanitize(parsed_msg);
 }
 
 /**
