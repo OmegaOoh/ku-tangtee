@@ -1,7 +1,10 @@
 <template>
-        <div v-if="isOpen" id='image-preview' 
-            class="fixed inset-0 flex items-center justify-center backdrop-blur-md bg-black bg-opacity-40 z-10 transition-all ease-in-out duration-200" 
-            @click="closeModal">
+    <div
+        v-if="isOpen"
+        id="image-preview"
+        class="fixed inset-0 flex items-center justify-center backdrop-blur-md bg-black bg-opacity-40 z-10 transition-all ease-in-out duration-200"
+        @click="closeModal"
+    >
         <div class="rounded-lg p-4 relative" @click.stop>
             <img :src="imageSrc" class="max-w-full max-h-[80vh]" />
         </div>
@@ -25,9 +28,10 @@ defineProps({
 const emit = defineEmits(['close']);
 
 const closeModal = () => {
-    const modal = document.getElementById('image-preview')
-    modal.classList.add('opacity-0')
-    setTimeout(() => { emit('close') }, 200)
+    const modal = document.getElementById('image-preview');
+    modal.classList.add('opacity-0');
+    setTimeout(() => {
+        emit('close');
+    }, 200);
 };
-
 </script>

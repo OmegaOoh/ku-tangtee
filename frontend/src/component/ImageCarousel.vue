@@ -68,8 +68,8 @@
 </template>
 
 <script setup>
-import { defineProps, ref } from "vue";
-import ImagePreview from "./ImagePreview.vue";
+import { defineProps, ref } from 'vue';
+import ImagePreview from './ImagePreview.vue';
 
 const props = defineProps({
     carouselName: {
@@ -92,7 +92,7 @@ function scrollCarousel(index) {
      * This function return nothing
      */
     const carousel = document.getElementById(props.carouselName);
-    
+
     let carouselW = carousel.clientWidth;
     let actualIndex = index < 0 ? props.images.length - 1 : index;
     actualIndex = actualIndex >= props.images.length ? 0 : actualIndex;
@@ -102,7 +102,7 @@ function scrollCarousel(index) {
 }
 
 const isModalOpen = ref(false);
-const selectedImage = ref("");
+const selectedImage = ref('');
 
 const openModal = (imageSrc) => {
     selectedImage.value = imageSrc;
@@ -111,6 +111,6 @@ const openModal = (imageSrc) => {
 
 const closeModal = () => {
     isModalOpen.value = false;
-    selectedImage.value = "";
+    selectedImage.value = '';
 };
 </script>

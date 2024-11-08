@@ -7,7 +7,7 @@ export function addAlert(type, content) {
      * Add Alert into alerts array.
      * this function return nothing.
      */
-    alerts.value.push({type, content, isVisible: true});
+    alerts.value.push({ type, content, isVisible: true });
     setTimeout(() => {
         hideAlert(0);
     }, 3000);

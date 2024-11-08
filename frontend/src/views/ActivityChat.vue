@@ -1,4 +1,3 @@
-c
 <template>
     <div class="w-screen overflow-x-hidden">
         <div class="breadcrumbs text-lm size-fit ml-10 my-6">
@@ -71,65 +70,68 @@ c
                         </div>
                     </li>
                 </ul>
-                <div class="absolute flex justify-center z-10 bottom-2 right-1 left-1">
+                <div
+                    class="absolute flex justify-center z-10 bottom-2 right-1 left-1"
+                >
                     <button
                         id="bottom-button"
                         class="btn btn-accent size-fit text-xl transition-all duration-300 ease-in-out opacity-0"
-                        @click="() => { isAtBottom = true; scrollToBottom(); }"
+                        @click="
+                            () => {
+                                isAtBottom = true;
+                                scrollToBottom();
+                            }
+                        "
                     >
                         ⇩
                     </button>
                 </div>
             </div>
-                <div class="border-t-2 border-base-100 pt-2">
-                    <div
-                        v-if="images.length > 0"
-                        class="min-h-10 max-h-[15vh] mx-4 bottom-1 mb-2"
-                    >
-                        <ImageGrid
-                            componentSize="h-[15vh] w-1/12"
-                            :images="images"
-                            :removable="true"
-                            @onRemove="(index) => images.splice(index, 1)"
-                        />
-                    </div>
-                    <div class="flex justify-between items-center my-3 mx-3">
-                        <div
-                            class="flex justify-start textarea textarea-primary w-full h-fit py-0 px-2 overflow-hidden pt-0.5"
-                        >
-                            <label
-                                class="text-base-content hover:text-primary transition-colors ease-in-out pb-1 text-3xl"
-                            >
-                                +
-                                <input
-                                    type="file"
-                                    multiple
-                                    id="file-add"
-                                    accept="image/*"
-                                    @change="handleFileChange"
-                                    hidden
-                                />
-                            </label>
-                            <textarea
-                                v-model="newMessage"
-                                placeholder="Start your chat"
-                                class=" resize-none size-full h-fit bg-inherit focus:outline-none align-middle pt-1.5 px-2"
-                                :maxlength="1024"
-                                @keydown.exact.enter.prevent="sendMessage"
-                                @keydown.shift.enter.prevent="insertNewLine"
-                                :rows="1"
-                            ></textarea>
-                        </div>
-
-                        <button
-                            class="btn btn-primary mx-2"
-                            @click="sendMessage"
-                        >
-                            Send
-                        </button>
-                    </div>
+            <div class="border-t-2 border-base-100 pt-2">
+                <div
+                    v-if="images.length > 0"
+                    class="min-h-10 max-h-[15vh] mx-4 bottom-1 mb-2"
+                >
+                    <ImageGrid
+                        componentSize="h-[15vh] w-1/12"
+                        :images="images"
+                        :removable="true"
+                        @onRemove="(index) => images.splice(index, 1)"
+                    />
                 </div>
+                <div class="flex justify-between items-center my-3 mx-3">
+                    <div
+                        class="flex justify-start textarea textarea-primary w-full py-0 px-2 overflow-hidden pt-0.5"
+                    >
+                        <label
+                            class="text-base-content hover:text-primary transition-colors ease-in-out pb-1 text-3xl"
+                        >
+                            +
+                            <input
+                                type="file"
+                                multiple
+                                id="file-add"
+                                accept="image/*"
+                                @change="handleFileChange"
+                                hidden
+                            />
+                        </label>
+                        <textarea
+                            v-model="newMessage"
+                            placeholder="Start your chat"
+                            class="resize-none size-full bg-inherit focus:outline-none align-middle pt-1.5 px-2"
+                            :maxlength="1024"
+                            @keydown.exact.enter.prevent="sendMessage"
+                            @keydown.shift.enter.prevent="insertNewLine"
+                            rows="1"
+                        ></textarea>
+                    </div>
 
+                    <button class="btn btn-primary mx-2" @click="sendMessage">
+                        Send
+                    </button>
+                </div>
+            </div>
         </div>
         <div
             v-else-if="isAuth & !isJoined"
@@ -163,44 +165,49 @@ c
 </template>
 
 <script setup>
-import apiClient from "@/api";
-import { format } from "date-fns";
-import  { watch, ref, onMounted, onBeforeUnmount, nextTick} from 'vue';
-import { useRoute, useRouter } from "vue-router";
-import { login, isAuth, userId as authUserId } from "@/functions/Authentications";
-import { addAlert } from "@/functions/AlertManager";
-import { loadImage } from "@/functions/Utils";
-import ImageGrid from "@/component/ImageGrid.vue";
+import apiClient from '@/api';
+import { format } from 'date-fns';
+import { watch, ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import {
+    login,
+    isAuth,
+    userId as authUserId,
+} from '@/functions/Authentications';
+import { addAlert } from '@/functions/AlertManager';
+import { loadImage } from '@/functions/Utils';
+import ImageGrid from '@/component/ImageGrid.vue';
 import {markdownFormatter} from '@/functions/Utils';
 
-const router = useRouter()
-const route = useRoute()
+const router = useRouter();
+const route = useRoute();
 
 const MAX_IMAGE_COUNT = 5;
 const MAX_IMAGES_SIZE = 50e6; // 50 MB
 const BASE_URL = (() => {
-    let url = process.env.VUE_APP_BASE_URL
-    if (url.endsWith("/")) {
+    let url = process.env.VUE_APP_BASE_URL;
+    if (url.endsWith('/')) {
         url = url.slice(0, -1);
     }
     return url;
-})()
+})();
+
 const MAX_CONSECUTIVE_SAME_MSG  = 5
 
 
 // Variables
-const socket = ref(null)
-const newMessage = ref("")
-const messages = ref([])
-const activityId = ref(route.params.id)
-const people = ref([])
-const currentUserId = ref(null)
-const isJoined = ref(false)
-const isAtBottom = ref(true)
-const images = ref([])
+const socket = ref(null);
+const newMessage = ref('');
+const messages = ref([]);
+const activityId = ref(route.params.id);
+const people = ref([]);
+const currentUserId = ref(null);
+const isJoined = ref(false);
+const isAtBottom = ref(true);
+const images = ref([]);
 
 // Element Variables
-const messageList = ref(null)
+const messageList = ref(null);
 
 let last_msg = {};
 let streak = 0;
@@ -215,9 +222,9 @@ const connectWebSocket = () => {
      * Return Nothing
      */
     let new_socket = new WebSocket(
-        `${process.env.VUE_APP_BASE_URL.replace(/^http/, "ws").replace(
+        `${process.env.VUE_APP_BASE_URL.replace(/^http/, 'ws').replace(
             /^https/,
-            "wss"
+            'wss'
         )}ws/chat/${activityId.value}`
     );
     socket.value = new_socket;
@@ -232,17 +239,15 @@ const connectWebSocket = () => {
                 images: data.images,
             });
             scrollToBottom();
-            if (
-                !people.value.some((element) => element.id === user_id)
-            ) {
+            if (!people.value.some((element) => element.id === user_id)) {
                 fetchSingleProfile(user_id);
             }
         }
     };
     socket.value.onerror = (error) => {
-        console.error("WebSocket error: ", error);
+        console.error('WebSocket error: ', error);
     };
-}
+};
 
 const sendMessage = () => {
     /*
@@ -284,21 +289,21 @@ const sendMessage = () => {
         socket.value.send(msg);
         images.value = [];
         newMessage.value = '';
-        // 
-        handleScrollToBottom() // Scroll to bottom unconditionally
+        //
+        handleScrollToBottom(); // Scroll to bottom unconditionally
     } else {
         addAlert('error', 'Chat is not connected, please refresh.')
-        console.log("WebSocket is not open.");
+        console.log('WebSocket is not open.');
     }
-}
+};
 
 const insertNewLine = () => {
     /*
      * Add one line to the message.
      * Return Nothing
      */
-    newMessage.value += "\n";
-}
+    newMessage.value += '\n';
+};
 
 const handleFileChange = (event) => {
     /*
@@ -311,17 +316,14 @@ const handleFileChange = (event) => {
         // Check total image count
         if (files.length + images.value.length > MAX_IMAGE_COUNT) {
             addAlert(
-                "warning",
-                "You can add at most " + MAX_IMAGE_COUNT + " pictures"
+                'warning',
+                'You can add at most ' + MAX_IMAGE_COUNT + ' pictures'
             );
             return;
         }
 
         // Calculate total size of current and new images
-        let totalSize = images.value.reduce(
-            (sum, file) => sum + file.size,
-            0
-        );
+        let totalSize = images.value.reduce((sum, file) => sum + file.size, 0);
 
         Array.from(files).forEach((file) => {
             totalSize += file.size;
@@ -330,15 +332,15 @@ const handleFileChange = (event) => {
         // Check if total size exceeds limit
         if (totalSize > MAX_IMAGES_SIZE) {
             addAlert(
-                "warning",
-                "You can add at most " + MAX_IMAGES_SIZE / 1e6 + " MB"
+                'warning',
+                'You can add at most ' + MAX_IMAGES_SIZE / 1e6 + ' MB'
             );
             return; // Return to prevent further execution
         }
 
         // Process each file
         Array.from(files).forEach((file) => {
-            if (file.type.startsWith("image/")) {
+            if (file.type.startsWith('image/')) {
                 loadImage(file)
                     .then((imageSrc) => {
                         // Check for duplicate image URL
@@ -348,26 +350,20 @@ const handleFileChange = (event) => {
                         if (!isDuplicate) {
                             images.value.push(imageSrc); // Store the image source in the array
                         } else {
-                            addAlert(
-                                "warning",
-                                "This image is already added."
-                            );
+                            addAlert('warning', 'This image is already added.');
                         }
                     })
                     .catch((error) => {
-                        addAlert(
-                            "error",
-                            "Error loading image: " + error
-                        );
+                        addAlert('error', 'Error loading image: ' + error);
                     });
             } else {
-                addAlert("warning", file.name + " is not an image.");
+                addAlert('warning', file.name + ' is not an image.');
             }
         });
     }
-}
+};
 
-const chatSetup = async() => {
+const chatSetup = async () => {
     await fetchProfile();
     await checkJoined();
     if (isJoined.value) {
@@ -378,34 +374,32 @@ const chatSetup = async() => {
         await fetchCurrentUser();
         await fetchMessages();
     }
-}
+};
 
 /*
  * Fetch Data
  */
 
-const fetchCurrentUser = async() => {
+const fetchCurrentUser = async () => {
     /*
      * Get current user that is on the current browser tab.
      * Return Nothing
      */
     currentUserId.value = authUserId.value;
-}
+};
 
-const fetchProfile = async() => {
+const fetchProfile = async () => {
     /*
      * Get attendee profiles.
      * Return Nothing
      */
     people.value = [];
-    const response = await apiClient.get(
-        `/activities/${activityId.value}/`
-    );
+    const response = await apiClient.get(`/activities/${activityId.value}/`);
     const activity = response.data;
     people.value = activity.participant;
-}
+};
 
-const fetchSingleProfile = async(userId) => {
+const fetchSingleProfile = async (userId) => {
     /*
      * Get single attendee profile.
      * Return Nothing
@@ -413,24 +407,22 @@ const fetchSingleProfile = async(userId) => {
     const uid = Number(userId);
     const participant = await apiClient.get(`/get-user/${uid}/`);
     people.value.push(participant.data);
-}
+};
 
-const fetchMessages = async() => {
+const fetchMessages = async () => {
     /*
      * Get all previous messages.
      * Return Nothing
      */
     messages.value = [];
     try {
-        const response = await apiClient.get(
-            `/chat/${activityId.value}/`
-        );
+        const response = await apiClient.get(`/chat/${activityId.value}/`);
         messages.value = response.data;
         scrollToBottom();
     } catch (error) {
-        console.error("Error fetching messages:", error);
+        console.error('Error fetching messages:', error);
     }
-}
+};
 
 /**
  * Checker
@@ -442,9 +434,9 @@ const checkJoined = () => {
      * return boolean whether or not user is joined
      */
     isJoined.value = people.value.some(
-        (element) => element["id"] == authUserId.value
+        (element) => element['id'] == authUserId.value
     );
-}
+};
 
 /**
  * Formatting
@@ -457,8 +449,18 @@ const formatTimestamp = (timestamp) => {
      * @params {string} not yet formatted timestamp
      * @returns {string} formatted timestamp
      */
-    return format(new Date(timestamp), "PPp");
-}
+    return format(new Date(timestamp), 'PPp');
+};
+
+const formatMessage = (message) => {
+    /*
+     * Format message to be html format with <br> instead of \n.
+     *
+     * @params {string} not yet formatted message
+     * @returns {string} formatted message
+     */
+    return message.replace(/\n/g, '<br>');
+};
 
 /**
  * Scrolling
@@ -470,45 +472,42 @@ const scrollToBottom = () => {
      * Return Nothing
      */
     nextTick(() => {
-        if (isAtBottom.value){
+        if (isAtBottom.value) {
             handleScrollToBottom();
-        }
-        else {
+        } else {
             scrollButtonVisibility(true);
         }
     });
-}
+};
 
 const handleScrollToBottom = () => {
-    if (!(messageList.value)) {
+    if (!messageList.value) {
         return; // messageList is uninitialized
     }
-    messageList.value.scrollTo(0,messageList.value.scrollHeight)
+    messageList.value.scrollTo(0, messageList.value.scrollHeight);
     isAtBottom.value = true; // Ensure that isAtBottom be true
-    scrollButtonVisibility(false)
-}
+    scrollButtonVisibility(false);
+};
 
 const scrollButtonVisibility = (visibility) => {
     /*
      * Handle Opacity of scrollButton
      * this function return nothing
      */
-    const button = document.getElementById('bottom-button')
-    if (visibility)
-    {
-        button.classList.remove('opacity-0')
-    }
-    else if (!button.classList.contains('opacity-0')) {
+    const button = document.getElementById('bottom-button');
+    if (visibility) {
+        button.classList.remove('opacity-0');
+    } else if (!button.classList.contains('opacity-0')) {
         button.classList.add('opacity-0');
     }
-}
+};
 
 const handleScroll = () => {
     /*
      * Handle Scrolling events in message list.
      * This function return nothing.
      */
-    if (!(messageList.value)) { 
+    if (!messageList.value) {
         return; //messageList is null return early
     }
     const scrollTop = messageList.value.scrollTop;
@@ -517,7 +516,7 @@ const handleScroll = () => {
 
     // Check if the user is at the bottom
     isAtBottom.value = scrollTop + clientHeight >= scrollHeight - 10;
-}
+};
 
 /**
  * Data Getter
@@ -534,7 +533,7 @@ const getProfilePicture = (userId) => {
         (person) => person.id === Number(userId)
     );
     return participant ? participant.profile_picture_url : null;
-}
+};
 
 const getFullName = (userId) => {
     /*
@@ -548,8 +547,8 @@ const getFullName = (userId) => {
     );
     return participant
         ? `${participant.first_name} ${participant.last_name}`
-        : "Unknown User";
-}
+        : 'Unknown User';
+};
 
 /**
  * Navigation
@@ -561,14 +560,14 @@ const goHome = () => {
      * @returns Nothing
      */
     router.push(`/`);
-}
+};
 const goDetail = () => {
     /*
      * Navigate user back to activity page.
      * @returns Nothing
      */
     router.push(`/activities/${activityId.value}`);
-}
+};
 
 /**
  * Lifecycle Hooks
@@ -586,12 +585,11 @@ onMounted(() => {
         },
         { immediate: true }
     );
-}) 
+});
 
 onBeforeUnmount(() => {
     if (socket.value) {
         socket.value.close();
     }
-})
-
+});
 </script>
