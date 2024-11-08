@@ -68,7 +68,10 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         )
 
     def __check_max_people(self, request: HttpRequest) -> response.Response | None:
+        """Check max people.
 
+        :param request: HttpRequest object
+        """
         activity = self.get_object()
         max_people = request.data.get("max_people")
         current_people = activity.people
@@ -82,7 +85,10 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         return None
 
     def __add_remove_attachment(self, request: HttpRequest) -> None:
+        """Add or remove images from activity.
 
+        :param request: HttpRequest object
+        """
         activity = self.get_object()
         attachment_ids_to_remove = request.data.get("remove_attachments", [])
 
@@ -96,7 +102,11 @@ class ActivityDetail(mixins.RetrieveModelMixin,
             else:
                 image_loader(attachment_to_add, activity)
 
-    def __grant_host_remove_host(self, request: HttpRequest) -> None:
+    def __grant_host_remove_host(self, request: HttpRequest) -> Any:
+        """Grant host and remove host from activity.
+
+        :param request: HttpRequest object
+        """
         activity = self.get_object()
         grant_host_user_ids = request.data.get("grant_host", [])
         if grant_host_user_ids:
@@ -110,10 +120,11 @@ class ActivityDetail(mixins.RetrieveModelMixin,
             if res:
                 return res
 
-
-
     def __kick_attendee(self, request: HttpRequest) -> None:
+        """Handle kick attendee from activity.
 
+        :param request: HttpRequest object
+        """
         activity = self.get_object()
 
         attendee_ids_to_remove = request.data.get("attendee_to_remove", [])
