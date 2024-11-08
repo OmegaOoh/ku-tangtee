@@ -113,7 +113,7 @@
                             <textarea
                                 v-model="newMessage"
                                 placeholder="Start your chat"
-                                class="resize-none size-full bg-inherit focus:outline-none align-middle pt-1.5 px-2"
+                                class=" resize-none size-full bg-inherit focus:outline-none align-middle pt-1.5 px-2"
                                 :maxlength="1024"
                                 @keydown.exact.enter.prevent="sendMessage"
                                 @keydown.shift.enter.prevent="insertNewLine"
@@ -171,6 +171,7 @@ import { login, isAuth, userId as authUserId } from "@/functions/Authentications
 import { addAlert } from "@/functions/AlertManager";
 import { loadImage } from "@/functions/Utils.";
 import ImageGrid from "@/component/ImageGrid.vue";
+import { marked } from "marked";
 
 const router = useRouter()
 const route = useRoute()
@@ -453,7 +454,7 @@ const formatTimestamp = (timestamp) => {
      * @params {string} not yet formatted timestamp
      * @returns {string} formatted timestamp
      */
-            return format(new Date(timestamp), "PPp");
+    return format(new Date(timestamp), "PPp");
 }
 
 const formatMessage = (message) => {
@@ -463,7 +464,8 @@ const formatMessage = (message) => {
      * @params {string} not yet formatted message
      * @returns {string} formatted message
      */
-    return message.replace(/\n/g, "<br>");
+    const replaced_msg = message.replace(/\n/g, "<br>")
+    return marked(replaced_msg);
 }
 
 /**
