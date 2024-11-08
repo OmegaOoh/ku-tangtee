@@ -146,7 +146,7 @@ import { ref, onMounted } from 'vue'
 import { addAlert } from "@/functions/AlertManager";
 import { createPostRequest } from "@/functions/HttpRequest";
 import { isAuth, login } from "@/functions/Authentications";
-import { loadImage } from "@/functions/Utils.";
+import { loadImage } from "@/functions/Utils";
 import ImageCarousel from "@/component/ImageCarousel";
 import { useRouter } from "vue-router";
 

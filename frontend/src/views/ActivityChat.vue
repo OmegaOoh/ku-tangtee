@@ -49,7 +49,7 @@ c
                             </div>
                             <div class="chat-bubble chat-bubble-secondary text-wrap">
                                 <div
-                                    v-html="formatMessage(message.message)"
+                                    v-html="markdownFormatter(message.message)"
                                 ></div>
                                 <div
                                     v-if="
@@ -113,10 +113,11 @@ c
                             <textarea
                                 v-model="newMessage"
                                 placeholder="Start your chat"
-                                class=" resize-none h-fit size-full bg-inherit focus:outline-none align-middle pt-1.5 px-2"
+                                class=" resize-none size-full h-fit bg-inherit focus:outline-none align-middle pt-1.5 px-2"
                                 :maxlength="1024"
                                 @keydown.exact.enter.prevent="sendMessage"
                                 @keydown.shift.enter.prevent="insertNewLine"
+                                :rows="1"
                             ></textarea>
                         </div>
 
@@ -168,10 +169,9 @@ import  { watch, ref, onMounted, onBeforeUnmount, nextTick} from 'vue';
 import { useRoute, useRouter } from "vue-router";
 import { login, isAuth, userId as authUserId } from "@/functions/Authentications";
 import { addAlert } from "@/functions/AlertManager";
-import { loadImage } from "@/functions/Utils.";
+import { loadImage } from "@/functions/Utils";
 import ImageGrid from "@/component/ImageGrid.vue";
-import { marked } from "marked";
-import DOMPurify from 'dompurify';
+import {markdownFormatter} from '@/functions/Utils';
 
 const router = useRouter()
 const route = useRoute()
@@ -250,6 +250,9 @@ const sendMessage = () => {
      * Return Nothing
      */
     let trimMessage = newMessage.value.trim();
+    trimMessage = trimMessage.replace(/^(<br\s*\/?>\s*)+/g, ''); // remove leading <br>
+    trimMessage = trimMessage.replace(/(\s*<br\s*\/?>)+$/g, ''); // remove trailing <br>
+    
     if (trimMessage === ''  && (images.value.length == 0)) {
         return;
     }
@@ -455,29 +458,6 @@ const formatTimestamp = (timestamp) => {
      * @returns {string} formatted timestamp
      */
     return format(new Date(timestamp), "PPp");
-}
-
-const formatMessage = (message) => {
-    /*
-     * Format message to be html format with <br> instead of \n.
-     *
-     * @params {string} not yet formatted message
-     * @returns {string} formatted message
-     */
-    const renderer = new marked.Renderer();
-    renderer.link = (token) => {
-        return `<a href="${token.href}" target="_blank" class="text-accent hover:brightness-75 underline">${token.text || token.raw}</a>`;
-    };
-    renderer.image = (token) => {
-        return `<span>${token.raw}</span>`
-    }
-
-    let parsed_msg = marked(message, { renderer });
-    parsed_msg = parsed_msg.replace(/\n/g, '<br>');
-    parsed_msg = parsed_msg.replace(/<br>$/, '');
-    
-    
-    return DOMPurify.sanitize(parsed_msg);
 }
 
 /**
