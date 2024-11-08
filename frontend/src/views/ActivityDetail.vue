@@ -248,27 +248,27 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, computed } from "vue";
-import { format } from "date-fns";
-import { addAlert } from "@/functions/AlertManager";
-import apiClient from "@/api";
+import { ref, watch, onMounted, computed } from 'vue';
+import { format } from 'date-fns';
+import { addAlert } from '@/functions/AlertManager';
+import apiClient from '@/api';
 import {
     createDeleteRequest,
     createPostRequest,
     createPutRequest,
-} from "@/functions/HttpRequest.js";
-import { isAuth, login, userId } from "@/functions/Authentications";
-import EditModal from "@/component/EditModal.vue";
-import EditPermModal from "@/component/EditPermModal.vue";
-import ImageCarousel from "@/component/ImageCarousel";
-import CheckInCodeModal from "@/component/CheckInCodeModal.vue";
-import CheckInModal from "@/component/CheckInModal.vue";
-import CheckInQRCodeModal from "@/component/CheckInQRCodeModal.vue";
-import { useRoute, useRouter } from "vue-router";
+} from '@/functions/HttpRequest.js';
+import { isAuth, login, userId } from '@/functions/Authentications';
+import EditModal from '@/component/EditModal.vue';
+import EditPermModal from '@/component/EditPermModal.vue';
+import ImageCarousel from '@/component/ImageCarousel';
+import CheckInCodeModal from '@/component/CheckInCodeModal.vue';
+import CheckInModal from '@/component/CheckInModal.vue';
+import CheckInQRCodeModal from '@/component/CheckInQRCodeModal.vue';
+import { useRoute, useRouter } from 'vue-router';
 
 const BASE_URL = (() => {
     let url = process.env.VUE_APP_BASE_URL;
-    if (url.endsWith("/")) {
+    if (url.endsWith('/')) {
         url = url.slice(0, -1);
     }
     return url;
@@ -305,8 +305,8 @@ const fetchDetail = async () => {
         owner.value = response.data.owner;
         checkCheckedIn();
     } catch (error) {
-        console.error("Error fetching activity:", error);
-        addAlert("warning", "Activity already started or No such activity.");
+        console.error('Error fetching activity:', error);
+        addAlert('warning', 'Activity already started or No such activity.');
     }
 };
 
@@ -319,16 +319,16 @@ async function allowCheckIn() {
             `/activities/check-in/${activityId.value}/?status=open`,
             {}
         );
-        addAlert("success", response.data.message);
+        addAlert('success', response.data.message);
         showCheckInCode.value = true;
     } catch (error) {
         if (error.response && error.response.data) {
-            addAlert("error", error.response.data.message); // Show error message from backend
+            addAlert('error', error.response.data.message); // Show error message from backend
         } else {
             console.error(error);
             addAlert(
-                "error",
-                "An unexpected error occurred. Please try again later."
+                'error',
+                'An unexpected error occurred. Please try again later.'
             );
         }
     }
@@ -347,8 +347,8 @@ const checkCheckedIn = () => {
 
 const formatTimestamp = (timestamp) => {
     return timestamp
-        ? format(new Date(timestamp), "EEE, MMM/dd/yyyy, hh:mm a")
-        : "No date provided";
+        ? format(new Date(timestamp), 'EEE, MMM/dd/yyyy, hh:mm a')
+        : 'No date provided';
 };
 
 const handleEditSuccess = async () => {
@@ -382,7 +382,7 @@ const closeCheckInCodeModal = (allowed) => {
 };
 
 const goBack = () => {
-    router.push("/");
+    router.push('/');
 };
 
 const goToChat = () => {
@@ -395,13 +395,13 @@ const joinActivity = async () => {
             `/activities/join/${activityId.value}/`,
             {}
         );
-        addAlert("success", response.data.message);
+        addAlert('success', response.data.message);
         await fetchDetail();
     } catch (error) {
         addAlert(
-            "error",
+            'error',
             error.response?.data?.message ||
-                "An unexpected error occurred. Please try again later."
+                'An unexpected error occurred. Please try again later.'
         );
     }
 };
@@ -411,13 +411,13 @@ const leaveActivity = async () => {
         const response = await createDeleteRequest(
             `/activities/join/${activityId.value}/`
         );
-        addAlert("success", response.data.message);
+        addAlert('success', response.data.message);
         await fetchDetail();
     } catch (error) {
         addAlert(
-            "error",
+            'error',
             error.response?.data?.message ||
-                "An unexpected error occurred. Please try again later."
+                'An unexpected error occurred. Please try again later.'
         );
     }
 };
@@ -452,8 +452,8 @@ onMounted(() => {
             fetchDetail();
         }
     );
-    window.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") {
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
             closeEditModal();
         }
     });

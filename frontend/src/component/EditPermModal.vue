@@ -63,7 +63,10 @@
                                 <button
                                     v-if="
                                         !checkHost(participant.id) &&
-                                        !grantHost.includes(participant.id)
+                                        !grantHost.includes(participant.id) &&
+                                        !kickedParticipant.includes(
+                                            participant.id
+                                        )
                                     "
                                     class="btn btn-primary"
                                     @click="handlePromote(participant.id)"
@@ -74,7 +77,10 @@
                                     v-if="
                                         checkHost(participant.id) &&
                                         !checkOwner(participant.id) &&
-                                        !removeHost.includes(participant.id)
+                                        !removeHost.includes(participant.id) &&
+                                        !kickedParticipant.includes(
+                                            participant.id
+                                        )
                                     "
                                     class="btn btn-warning"
                                     @click="handleDemote(participant.id)"
@@ -84,16 +90,23 @@
                                 <button
                                     v-if="
                                         !checkHost(participant.id) &&
-                                        !grantHost.includes(participant.id)
+                                        !grantHost.includes(participant.id) &&
+                                        !kickedParticipant.includes(
+                                            participant.id
+                                        )
                                     "
                                     class="btn btn-error"
+                                    @click="handleKick(participant.id)"
                                 >
                                     Kick
                                 </button>
                                 <p
                                     v-if="
                                         removeHost.includes(participant.id) ||
-                                        grantHost.includes(participant.id)
+                                        grantHost.includes(participant.id) ||
+                                        kickedParticipant.includes(
+                                            participant.id
+                                        )
                                     "
                                     class="text-warning"
                                 >
@@ -130,19 +143,21 @@
 </template>
 
 <script setup>
-import apiClient from "@/api";
-import { ref, defineProps, defineEmits, onMounted } from "vue";
-import { createPutRequest } from "@/functions/HttpRequest.js";
-import { addAlert } from "@/functions/AlertManager";
+import apiClient from '@/api';
+import { ref, defineProps, defineEmits, onMounted } from 'vue';
+import { createPutRequest } from '@/functions/HttpRequest.js';
+import { addAlert } from '@/functions/AlertManager';
 
-const emit = defineEmits(["update-success", "close"]);
+const emit = defineEmits(['update-success', 'close']);
 const removeHost = ref([]);
 const grantHost = ref([]);
+const kickedParticipant = ref([]);
 const activity = ref({});
 const people = ref([]);
 const hosts = ref([]);
-const name = ref("");
-const searchKeyword = ref("");
+const name = ref('');
+const searchKeyword = ref('');
+const detail = ref('');
 const owner = ref(0);
 const isDarkTheme = ref(false);
 
@@ -169,8 +184,9 @@ const fetchDetail = async () => {
         name.value = activity.value.name;
         people.value = activity.value.participant;
         owner.value = response.data.owner;
+        detail.value = activity.value.detail;
     } catch (error) {
-        console.error("Error fetching activity:", error);
+        console.error('Error fetching activity:', error);
     }
 };
 const postUpdate = async () => {
@@ -183,6 +199,10 @@ const postUpdate = async () => {
         const data = {
             remove_host: removeHost.value,
             grant_host: grantHost.value,
+            attendee_to_remove: kickedParticipant.value,
+            owner: owner.value,
+            detail: detail.value,
+            name: name.value,
         };
         const response = await createPutRequest(
             `/activities/${props.id}/`,
@@ -190,17 +210,18 @@ const postUpdate = async () => {
         );
         removeHost.value = [];
         grantHost.value = [];
-        addAlert("success", response.data.message);
-        emit("update-success");
+        kickedParticipant.value = [];
+        addAlert('success', response.data.message);
+        emit('update-success');
         await fetchDetail();
     } catch (error) {
         console.error(error);
         if (error.response && error.response.data) {
-            addAlert("error", error.response.data.message); // Show error message from backend
+            addAlert('error', error.response.data.message); // Show error message from backend
         } else {
             addAlert(
-                "error",
-                "An unexpected error occurred. Please try again later."
+                'error',
+                'An unexpected error occurred. Please try again later.'
             );
         }
     }
@@ -220,7 +241,7 @@ const fetchProfile = async () => {
         );
         console.log(people.value);
     } catch (error) {
-        console.error("Error searching participant:", error);
+        console.error('Error searching participant:', error);
     }
 };
 
@@ -252,24 +273,31 @@ const handleDemote = (userId) => {
      */
     removeHost.value.push(userId);
 };
+const handleKick = (userId) => {
+    /**
+     * Update remove host list.
+     * return None
+     */
+    kickedParticipant.value.push(userId);
+};
 const closeModal = () => {
     /**
      * Close the modal.
      * return None
      */
-    const modal = document.getElementById("edit-perm");
-    modal.classList.add("opacity-0");
+    const modal = document.getElementById('edit-perm');
+    modal.classList.add('opacity-0');
     setTimeout(() => {
-        emit("close");
+        emit('close');
     }, 200);
 };
 onMounted(() => {
     isDarkTheme.value = window.matchMedia(
-        "(prefers-color-scheme: dark)"
+        '(prefers-color-scheme: dark)'
     ).matches;
     window
-        .matchMedia("(prefers-color-scheme: dark)")
-        .addEventListener("change", (e) => {
+        .matchMedia('(prefers-color-scheme: dark)')
+        .addEventListener('change', (e) => {
             isDarkTheme.value = e.matches;
         });
     fetchDetail();

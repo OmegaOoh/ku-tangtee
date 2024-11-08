@@ -5,7 +5,14 @@ from datetime import datetime
 from activities.tests.constants import SCHOOL_EXPECTED, SCHOOL_IMAGE, CAMERA_IMAGE, CAMERA_EXPECTED
 from django import urls
 from activities import models
-from .shortcuts import activity_to_json, time_formatter, create_activity, create_test_user, put_request_json_data
+from .shortcuts import (
+    activity_to_json,
+    time_formatter,
+    create_activity,
+    create_test_user,
+    put_request_json_data,
+    client_join_activity
+)
 from django.utils import timezone
 
 
@@ -156,3 +163,34 @@ class EditActivityTest(django.test.TestCase):
         self.assertEqual(updated_act_json['detail'], original_data['detail'])
         self.assertEqual(updated_act_json['max_people'], original_data['max_people'])
         self.assertEqual(response_dict["message"], "Number of participants exceed the capacity.")
+
+    def test_kick_attendee(self):
+        """Host should able to kick attendee from activity."""
+        att1 = create_test_user("att1")
+        att2 = create_test_user("att2")
+        att3 = create_test_user("att3")
+        att4 = create_test_user("att4")
+
+        att_list = [att1, att2, att3, att4]
+
+        for att in att_list:
+            client_join_activity(self.client, att, self.activity)
+
+        data = {
+            "name": "Test Activity",
+            "detail": "This is a test activity",
+            "attendee_to_remove": [att4.id, att2.id, 99]
+        }
+
+        self.client.force_login(self.host)
+        response = put_request_json_data(self.url, self.client, data)
+        print(response.content)
+
+        self.client.post(urls.reverse("activities:join", args=[self.activity.id]))
+        self.activity.refresh_from_db()
+
+        self.assertFalse(self.activity.is_participated(att4))
+        self.assertFalse(self.activity.is_participated(att2))
+
+        self.assertTrue(self.activity.is_participated(att1))
+        self.assertTrue(self.activity.is_participated(att3))

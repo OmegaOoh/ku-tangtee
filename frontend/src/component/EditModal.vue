@@ -1,13 +1,27 @@
 <template>
-    <div v-if="isOpen" id='edit-modal' 
-        class="fixed inset-0 flex items-center justify-center backdrop-blur-md bg-black bg-opacity-40 z-10 transition-all ease-in-out duration-200" 
-        @click="closeModal">
-        <div class="rounded-lg p-4 relative card bg-base-300 border-2 border-primary w-[75%] h-[80vh] overflow-y-auto" @click.stop>
-            <h2 class="card-title text-2xl mr-2 text-base-content">Edit Activity</h2>
+    <div
+        v-if="isOpen"
+        id="edit-modal"
+        class="fixed inset-0 flex items-center justify-center backdrop-blur-md bg-black bg-opacity-40 z-10 transition-all ease-in-out duration-200"
+        @click="closeModal"
+    >
+        <div
+            class="rounded-lg p-4 relative card bg-base-300 border-2 border-primary w-[75%] h-[80vh] overflow-y-auto"
+            @click.stop
+        >
+            <h2 class="card-title text-2xl mr-2 text-base-content">
+                Edit Activity
+            </h2>
             <div class="form-control w-full">
                 <div class="label">
-                    <span class="text-base-content text-lg"> Activity Title </span>
-                    <span id="name-field-error" class="text-error text-sm" hidden>
+                    <span class="text-base-content text-lg">
+                        Activity Title
+                    </span>
+                    <span
+                        id="name-field-error"
+                        class="text-error text-sm"
+                        hidden
+                    >
                         required
                     </span>
                 </div>
@@ -52,7 +66,11 @@
             <div class="form-control w-full">
                 <div class="label">
                     <span class="text-base-content"> Activity Detail </span>
-                    <span id="detail-field-error" class="text-error text-sm" hidden>
+                    <span
+                        id="detail-field-error"
+                        class="text-error text-sm"
+                        hidden
+                    >
                         required
                     </span>
                 </div>
@@ -69,7 +87,11 @@
             <div class="form-control w-full my-1">
                 <div class="label">
                     <span class="text-base-content"> Activity Date </span>
-                    <span id="date-field-error" class="text-error text-sm" hidden>
+                    <span
+                        id="date-field-error"
+                        class="text-error text-sm"
+                        hidden
+                    >
                         required
                     </span>
                 </div>
@@ -111,44 +133,43 @@
                 </button>
             </div>
 
-        <button
-        class="absolute btn btn-circle btn-ghost top-1 right-1"
-        @click="closeModal"
-        >
-            <svg
-                class="swap-on fill-current"
-                xmlns="http://www.w3.org/2000/svg"
-                width="32"
-                height="32"
-                viewBox="0 0 512 512"
+            <button
+                class="absolute btn btn-circle btn-ghost top-1 right-1"
+                @click="closeModal"
             >
-                <polygon
-                    points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49"
-                />
-            </svg>
-        </button>
-
+                <svg
+                    class="swap-on fill-current"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="32"
+                    height="32"
+                    viewBox="0 0 512 512"
+                >
+                    <polygon
+                        points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49"
+                    />
+                </svg>
+            </button>
         </div>
     </div>
 </template>
 
 <script setup>
 import { ref, defineProps, defineEmits, onMounted } from 'vue';
-import apiClient from "@/api";
-import { createPutRequest } from "@/functions/HttpRequest.js";
-import { addAlert } from "@/functions/AlertManager";
-import { loadImage } from "@/functions/Utils.";
-import ImageCarousel from "./ImageCarousel.vue";
+import apiClient from '@/api';
+import { createPutRequest } from '@/functions/HttpRequest.js';
+import { addAlert } from '@/functions/AlertManager';
+import { loadImage } from '@/functions/Utils.';
+import ImageCarousel from './ImageCarousel.vue';
 const MAX_IMAGE_COUNT = 10;
 const MAX_IMAGES_SIZE = 100e6; // 100 MB
 
 const BASE_URL = (() => {
-    let url = process.env.VUE_APP_BASE_URL
-    if (url.endsWith("/")) {
+    let url = process.env.VUE_APP_BASE_URL;
+    if (url.endsWith('/')) {
         url = url.slice(0, -1);
     }
     return url;
-})()
+})();
 
 const props = defineProps({
     id: {
@@ -158,48 +179,47 @@ const props = defineProps({
     isOpen: {
         type: Boolean,
         required: true,
-    }
-})
+    },
+});
 
-const emit = defineEmits(["update-success", "close"])
+const emit = defineEmits(['update-success', 'close']);
 
-const activityName = ref("");
-const activityDetail =  ref("");
-const date = ref("");
-const maxPeople =  ref(0);
+const activityName = ref('');
+const activityDetail = ref('');
+const date = ref('');
+const maxPeople = ref(0);
 const people = ref([]);
 const showMaxPeople = ref(false);
-const images= ref([]);
+const images = ref([]);
 const activity = ref({});
 const new_images = ref([]);
+const owner = ref(0);
 const remove_attachment = ref([]);
 const isDarkTheme = ref(false);
 
-const fetchDetail = async() => {
+const fetchDetail = async () => {
     /**
-    * Get data from specific activity including participant detail.
-    * This function does not return anything.
-    */
+     * Get data from specific activity including participant detail.
+     * This function does not return anything.
+     */
     try {
-    const response = await apiClient.get(
-        `/activities/${props.id}`
-    );
-    activity.value = response.data;
-    activityName.value = response.data.name || '';
-    activityDetail.value = response.data.detail || '';
-    date.value = formatActivityDate(new Date(response.data.date));
-    images.value = activity.value.images.map((image) => ({
-        id: image.id,
-        url: `${BASE_URL}${image.url}`,
-    }));
-    maxPeople.value =
-        activity.value.max_people || activity.value.people;
-    showMaxPeople.value = maxPeople.value > 0;
-    people.value = activity.value.participant;
+        const response = await apiClient.get(`/activities/${props.id}`);
+        activity.value = response.data;
+        activityName.value = response.data.name || '';
+        activityDetail.value = response.data.detail || '';
+        date.value = formatActivityDate(new Date(response.data.date));
+        images.value = activity.value.images.map((image) => ({
+            id: image.id,
+            url: `${BASE_URL}${image.url}`,
+        }));
+        owner.value = response.data.owner;
+        maxPeople.value = activity.value.max_people || activity.value.people;
+        showMaxPeople.value = maxPeople.value > 0;
+        people.value = activity.value.participant;
     } catch (error) {
-        console.error("Error fetching activity:", error);
+        console.error('Error fetching activity:', error);
     }
-}
+};
 
 const validateInput = () => {
     /**
@@ -207,65 +227,64 @@ const validateInput = () => {
      * @return input validity in boolean
      */
     var result = true;
-    const nameField = document.getElementById("name-field");
-    const nameFieldError = document.getElementById("name-field-error");
+    const nameField = document.getElementById('name-field');
+    const nameFieldError = document.getElementById('name-field-error');
     if (activityName.value.length <= 0) {
-        nameField.classList.remove("input-primary");
-        nameField.classList.add("input-error");
+        nameField.classList.remove('input-primary');
+        nameField.classList.add('input-error');
 
-        nameFieldError.removeAttribute("hidden");
+        nameFieldError.removeAttribute('hidden');
         result = false;
     } else {
-        nameFieldError.setAttribute("hidden", "true");
-        nameField.classList.remove("input-error");
-        if (!nameField.classList.contains("textarea-primary"))
-            nameField.classList.add("textarea-primary");
+        nameFieldError.setAttribute('hidden', 'true');
+        nameField.classList.remove('input-error');
+        if (!nameField.classList.contains('textarea-primary'))
+            nameField.classList.add('textarea-primary');
     }
-    const detailField = document.getElementById("detail-field");
-    const detailFieldError =
-        document.getElementById("detail-field-error");
+    const detailField = document.getElementById('detail-field');
+    const detailFieldError = document.getElementById('detail-field-error');
     if (activityDetail.value.length <= 0) {
-        detailField.classList.remove("textarea-primary");
-        detailField.classList.add("input-error");
+        detailField.classList.remove('textarea-primary');
+        detailField.classList.add('input-error');
 
-        detailFieldError.removeAttribute("hidden");
+        detailFieldError.removeAttribute('hidden');
         result = false;
     } else {
-        detailFieldError.setAttribute("hidden", "true");
-        detailField.classList.remove("input-error");
-        if (!detailField.classList.contains("textarea-primary"))
-            detailField.classList.add("textarea-primary");
+        detailFieldError.setAttribute('hidden', 'true');
+        detailField.classList.remove('input-error');
+        if (!detailField.classList.contains('textarea-primary'))
+            detailField.classList.add('textarea-primary');
     }
-    const dateFieldError = document.getElementById("date-field-error");
+    const dateFieldError = document.getElementById('date-field-error');
     if (date.value.length <= 0) {
-        dateFieldError.removeAttribute("hidden");
+        dateFieldError.removeAttribute('hidden');
         result = false;
     } else {
-        dateFieldError.setAttribute("hidden", "true");
+        dateFieldError.setAttribute('hidden', 'true');
     }
     if (maxPeople.value < activity.value.people) {
         addAlert(
-            "warning",
-            "Max People must be higher or equal to current participants."
+            'warning',
+            'Max People must be higher or equal to current participants.'
         );
         maxPeople.value = activity.value.people;
         result = false;
     }
     return result;
-}
+};
 
 const postUpdate = async () => {
     /*
-    * Attempt to update activity information.
-    * This function does not return anything.
-    */
+     * Attempt to update activity information.
+     * This function does not return anything.
+     */
 
     if (!validateInput()) {
         return;
     }
     try {
         // Construct data to create POST request
-        if (!(showMaxPeople.value)) {
+        if (!showMaxPeople.value) {
             maxPeople.value = null;
         }
         new_images.value = images.value
@@ -278,6 +297,7 @@ const postUpdate = async () => {
             max_people: maxPeople.value || null,
             new_images: new_images.value,
             remove_attachments: remove_attachment.value,
+            owner: owner.value,
         };
         const response = await createPutRequest(
             `/activities/${props.id}/`,
@@ -285,61 +305,58 @@ const postUpdate = async () => {
         );
         new_images.value = [];
         remove_attachment.value = [];
-        addAlert("success", response.data.message);
-        emit("update-success");
+        addAlert('success', response.data.message);
+        emit('update-success');
         await fetchDetail();
     } catch (error) {
-        console.error(error)
+        console.error(error);
         if (error.response && error.response.data) {
-            addAlert("error", error.response.data.message); // Show error message from backend
+            addAlert('error', error.response.data.message); // Show error message from backend
         } else {
             addAlert(
-                "error",
-                "An unexpected error occurred. Please try again later."
+                'error',
+                'An unexpected error occurred. Please try again later.'
             );
         }
     }
-}
+};
 
 const formatActivityDate = (date) => {
     /*
-    * Adjust the activity date with the timezone offset.
-    * Return localized time.
-    */
+     * Adjust the activity date with the timezone offset.
+     * Return localized time.
+     */
     const dateObj = new Date(date);
     return dateObj;
-}
+};
 
 const setMaxPeople = () => {
     /*
-    * Toggle value of showMaxPeople.
-    * Return nothing.
-    */
-    showMaxPeople.value = !(showMaxPeople.value);
-}
+     * Toggle value of showMaxPeople.
+     * Return nothing.
+     */
+    showMaxPeople.value = !showMaxPeople.value;
+};
 
 const handleFileChange = (e) => {
     /*
-    * Push value into images.
-    * @params {image} image that uploads from input.
-    * Return nothing.
-    */
+     * Push value into images.
+     * @params {image} image that uploads from input.
+     * Return nothing.
+     */
     const files = e.target.files;
     if (files.length > 0) {
         // Check total image count
         if (files.length + images.value.length > MAX_IMAGE_COUNT) {
             addAlert(
-                "warning",
-                "You can add at most " + MAX_IMAGE_COUNT + " pictures"
+                'warning',
+                'You can add at most ' + MAX_IMAGE_COUNT + ' pictures'
             );
             return;
         }
 
         // Calculate total size of current and new images
-        let totalSize = images.value.reduce(
-            (sum, file) => sum + file.size,
-            0
-        );
+        let totalSize = images.value.reduce((sum, file) => sum + file.size, 0);
 
         Array.from(files).forEach((file) => {
             totalSize += file.size;
@@ -348,15 +365,15 @@ const handleFileChange = (e) => {
         // Check if total size exceeds limit
         if (totalSize > MAX_IMAGES_SIZE) {
             addAlert(
-                "warning",
-                "You can add at most " + MAX_IMAGES_SIZE / 1e6 + " MB"
+                'warning',
+                'You can add at most ' + MAX_IMAGES_SIZE / 1e6 + ' MB'
             );
             return; // Return to prevent further execution
         }
 
         // Process each file
         Array.from(files).forEach((file) => {
-            if (file.type.startsWith("image/")) {
+            if (file.type.startsWith('image/')) {
                 loadImage(file)
                     .then((imageSrc) => {
                         // Check for duplicate image URL
@@ -366,63 +383,59 @@ const handleFileChange = (e) => {
                         if (!isDuplicate) {
                             images.value.push({ id: -1, url: imageSrc }); // Store the image source in the array
                         } else {
-                            addAlert(
-                                "warning",
-                                "This image is already added."
-                            );
+                            addAlert('warning', 'This image is already added.');
                         }
                     })
                     .catch((error) => {
-                        addAlert(
-                            "error",
-                            "Error loading image: " + error
-                        );
+                        addAlert('error', 'Error loading image: ' + error);
                     });
             } else {
-                addAlert("warning", file.name + " is not an image.");
+                addAlert('warning', file.name + ' is not an image.');
             }
         });
     }
-}
+};
 
 const handleRemove = (index) => {
     /*
-    * Remove image and push removed image id into array.
-    * @params {int} image that wants to be removed.
-    * Return nothing.
-    */
+     * Remove image and push removed image id into array.
+     * @params {int} image that wants to be removed.
+     * Return nothing.
+     */
     if (images.value[index].id != -1) {
         remove_attachment.value.push(images.value[index].id);
     }
     // Remove the image from the images array
     images.value.splice(index, 1);
     images.value = [...images.value];
-}
+};
 
 const maxImageCompute = () => {
     /*
-    * Compute max image size.
-    *
-    * @returns {int} max image size in MB
-    */
+     * Compute max image size.
+     *
+     * @returns {int} max image size in MB
+     */
     return MAX_IMAGES_SIZE / 1e6;
-}
+};
 
 const closeModal = () => {
-    const modal = document.getElementById('edit-modal')
-    modal.classList.add('opacity-0')
-    setTimeout(() => { emit('close') }, 200)
+    const modal = document.getElementById('edit-modal');
+    modal.classList.add('opacity-0');
+    setTimeout(() => {
+        emit('close');
+    }, 200);
 };
 
 onMounted(() => {
     isDarkTheme.value = window.matchMedia(
-        "(prefers-color-scheme: dark)"
+        '(prefers-color-scheme: dark)'
     ).matches;
     window
-        .matchMedia("(prefers-color-scheme: dark)")
-        .addEventListener("change", (e) => {
+        .matchMedia('(prefers-color-scheme: dark)')
+        .addEventListener('change', (e) => {
             isDarkTheme.value = e.matches;
         });
     fetchDetail();
-})
+});
 </script>
