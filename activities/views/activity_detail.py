@@ -137,7 +137,6 @@ class ActivityDetail(mixins.RetrieveModelMixin,
 
         print(attendee_ids_to_remove)
         attendee_to_remove.delete()
-        return
 
     def search_participants(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Search for participants by keyword.
