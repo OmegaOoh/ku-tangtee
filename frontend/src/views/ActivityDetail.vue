@@ -358,7 +358,7 @@ const handleEditSuccess = async () => {
 
 const handleEditPermSuccess = async () => {
     await fetchDetail();
-    closeEditModal();
+    closeEditPermModal();
 };
 
 const handleCheckInSuccess = async () => {
@@ -428,7 +428,7 @@ const isHost = computed(() => {
 });
 
 const isOwner = computed(() => {
-    return isAuth === owner.value;
+    return userId.value === owner.value;
 });
 
 const isJoined = computed(() => {
