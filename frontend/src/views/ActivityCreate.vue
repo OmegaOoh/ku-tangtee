@@ -142,7 +142,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { userId } from "@/functions/Authentications";
+import { ref, onMounted } from "vue";
 import { addAlert } from "@/functions/AlertManager";
 import { createPostRequest } from "@/functions/HttpRequest";
 import { isAuth, login } from "@/functions/Authentications";
@@ -167,12 +168,12 @@ const images = ref([]);
  * Redirection
  */
 
-const goBack =() => {
+const goBack = () => {
     /*
      * Navigate back to Activity Index page.
      */
     router.push("/");
-}
+};
 
 /**
  * Validator
@@ -198,8 +199,7 @@ const validateInput = () => {
             nameField.classList.add("textarea-primary");
     }
     const detailField = document.getElementById("detail-field");
-    const detailFieldError =
-        document.getElementById("detail-field-error");
+    const detailFieldError = document.getElementById("detail-field-error");
     if (activityDetail.value.length <= 0) {
         detailField.classList.remove("textarea-primary");
         detailField.classList.add("input-error");
@@ -220,22 +220,19 @@ const validateInput = () => {
         dateFieldError.setAttribute("hidden", "true");
     }
     if (maxPeople.value <= 0 && showMaxPeople.value) {
-        addAlert(
-            "warning",
-            "Max People must be positive and not zeroes."
-        );
+        addAlert("warning", "Max People must be positive and not zeroes.");
         maxPeople.value = 1;
         result = false;
     }
     return result;
-}
+};
 
 const setMaxPeople = () => {
     /*
      * Switch the flag of setting max people.
      */
-    showMaxPeople.value = !(showMaxPeople.value);
-}
+    showMaxPeople.value = !showMaxPeople.value;
+};
 
 const handleFileChange = (event) => {
     /*
@@ -256,14 +253,11 @@ const handleFileChange = (event) => {
     }
 
     // Calculate total size of current and new images
-    let totalSize = images.value.reduce(
-        (sum, file) => sum + file.size,
-        0
-    );
+    let totalSize = images.value.reduce((sum, file) => sum + file.size, 0);
 
     Array.from(files).forEach((file) => {
-            totalSize += file.size
-        });
+        totalSize += file.size;
+    });
 
     // Check if total size exceeds limit
     if (totalSize > MAX_IMAGES_SIZE) {
@@ -286,29 +280,22 @@ const handleFileChange = (event) => {
                     if (!isDuplicate) {
                         images.value.push(imageSrc); // Store the image source in the array
                     } else {
-                        addAlert(
-                            "warning",
-                            "This image is already added."
-                        );
+                        addAlert("warning", "This image is already added.");
                     }
                 })
                 .catch((error) => {
-                    addAlert(
-                        "error",
-                        "Error loading image: " + error
-                    );
+                    addAlert("error", "Error loading image: " + error);
                 });
         } else {
-            addAlert("warning",file.name + " is not an image.");
+            addAlert("warning", file.name + " is not an image.");
         }
     });
-}
-
+};
 
 /**
  * Submit
  */
-const postCreateActivity = async() => {
+const postCreateActivity = async () => {
     /*
      * Attempt to create activity.
      */
@@ -319,15 +306,16 @@ const postCreateActivity = async() => {
         // Construct data to create POST request
         const dateObj = new Date(date.value);
         const formattedDate = dateObj.toISOString();
-        if (!(showMaxPeople.value)) {
+        if (!showMaxPeople.value) {
             maxPeople.value = null;
         }
         const data = {
-            'name': activityName.value,
-            'detail': activityDetail.value,
-            'date': formattedDate,
-            'max_people': maxPeople.value || null,
-            'images': images.value,
+            name: activityName.value,
+            detail: activityDetail.value,
+            date: formattedDate,
+            max_people: maxPeople.value || null,
+            images: images.value,
+            owner: userId.value,
         };
         const response = await createPostRequest(`/activities/`, data);
         addAlert("success", response.data.message);
@@ -336,14 +324,14 @@ const postCreateActivity = async() => {
         if (error.response && error.response.data) {
             addAlert("error", error.response.data.message); // Show error message from backend
         } else {
-            console.error(error)
+            console.error(error);
             addAlert(
                 "error",
                 "An unexpected error occurred. Please try again later."
             );
         }
     }
-}
+};
 
 onMounted(() => {
     isDarkTheme.value = window.matchMedia(
@@ -354,6 +342,5 @@ onMounted(() => {
         .addEventListener("change", (e) => {
             isDarkTheme.value = e.matches;
         });
-})
-
+});
 </script>
