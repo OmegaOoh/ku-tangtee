@@ -60,7 +60,7 @@ class TestActivityModel(django.test.TestCase):
         """Return user that is host of that activity."""
         host = create_test_user("My lovely host")
         _, activity = create_activity(host=host)
-        self.assertEqual(activity.host(), host)
+        self.assertEqual(activity.host(), [host])
 
     def test_participants(self):
         """Return participants list of the activity."""

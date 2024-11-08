@@ -22,7 +22,7 @@ class OnlyHostCanEdit(permissions.BasePermission):
             return True
 
         # Edit permissions are only allowed to the host.
-        return request.user == obj.host()
+        return request.user in obj.host()
 
 
 class MustBeMember(permissions.BasePermission):

@@ -1,9 +1,10 @@
 """Module for handle URL /activities/<activity_id>."""
-from activities.views.util import image_loader, image_deleter, image_loader_64
+from activities.views.util import image_loader, image_deleter, image_loader_64, edit_host_access
 from typing import Any
 from django.http import HttpRequest
 from django.utils import timezone
 from rest_framework import generics, permissions, mixins, response
+from django.db.models import Q
 from activities import models
 from activities.serializer.permissions import OnlyHostCanEdit
 from activities.serializer import model_serializers
@@ -24,6 +25,8 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         :param request: Http request object
         :return: Http response object
         """
+        if 'search-participants' in request.path:
+            return self.search_participants(request)
         return self.retrieve(request, *args, **kwargs)
 
     def put(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
@@ -41,8 +44,20 @@ class ActivityDetail(mixins.RetrieveModelMixin,
                  "id": activity.id
                  },
             )
-        res = self.update(request, *args, **kwargs)
+        res = self.update(request, partial=True, *args, **kwargs)
         res_dict = res.data
+
+        grant_host_user_ids = request.data.get("grant_host", [])
+        if grant_host_user_ids:
+            res = edit_host_access(grant_host_user_ids, activity, request.user, remove=False)
+            if res:
+                return res
+
+        remove_host_user_ids = request.data.get("remove_host", [])
+        if remove_host_user_ids:
+            res = edit_host_access(remove_host_user_ids, activity, request.user, remove=True)
+            if res:
+                return res
 
         attachment_ids_to_remove = request.data.get("remove_attachments", [])
 
@@ -64,3 +79,23 @@ class ActivityDetail(mixins.RetrieveModelMixin,
                 "id": res_dict.get("id")
             }
         )
+
+    def search_participants(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
+        """Search for participants by keyword.
+
+        :param request: Http request object
+        :return: Http response object
+        """
+        activity = self.get_object()
+        keyword = request.GET.get("keyword", "")
+        if keyword:
+            participants = activity.attend_set.filter(
+                Q(user__username__iregex=rf"{keyword}") |
+                Q(user__first_name__iregex=rf"{keyword}") |
+                Q(user__last_name__iregex=rf"{keyword}")
+            )
+        else:
+            participants = activity.attend_set.all()
+
+        serializer = model_serializers.ParticipantDetailSerializer(participants, many=True)
+        return response.Response(serializer.data)

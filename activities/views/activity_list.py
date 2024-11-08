@@ -62,6 +62,9 @@ class ActivityList(
         :return: Http response object
         """
         image_urls = request.data.pop('images', [])
+
+        request.data["owner"] = request.user.id
+
         res = self.create(request, *args, **kwargs)
 
         res_dict = res.data
