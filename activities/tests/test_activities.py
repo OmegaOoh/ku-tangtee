@@ -15,7 +15,7 @@ class TestActivityModel(django.test.TestCase):
             "max_people": 1
         }
         _, activity = create_activity(data=data)
-        self.assertFalse(activity.can_join())
+        self.assertFalse(activity.is_full())
 
     def test_str(self):
         """__str__ returns activity name."""
@@ -44,17 +44,17 @@ class TestActivityModel(django.test.TestCase):
             "max_people": 10
         }
         _, activity = create_activity(data=data)
-        self.assertTrue(activity.can_join())
+        self.assertTrue(activity.is_full())
 
     def test_can_join_past(self):
         """can_join return False when date is in the past."""
         _, activity = create_activity(days_delta=-1)
-        self.assertFalse(activity.can_join())
+        self.assertFalse(activity.is_active())
 
     def test_can_join_future(self):
         """can_join return True when date is in the future."""
         _, activity = create_activity(days_delta=1)
-        self.assertTrue(activity.can_join())
+        self.assertTrue(activity.is_active())
 
     def test_host(self):
         """Return user that is host of that activity."""

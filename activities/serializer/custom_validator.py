@@ -1,6 +1,7 @@
 """Custom serializer validator."""
 from rest_framework import status, exceptions, serializers, validators
 from .. import models
+from django.contrib.auth.models import User
 from typing import Any
 
 
@@ -26,11 +27,35 @@ class CanJoinValidator:
         :return: None
         """
         act: models.Activity = attrs['activity']
+        user: User = attrs['user']
+        user_profile = user.profile_set.first()
+
+        if not user_profile:
+            message = 'User must have profile page before joining an activity'
+            raise ForbiddenValidationError(message)
+
+        if not user_profile.able_to_join_more:
+            message = 'The number of activities you have joined has reached the limit'
+            raise ForbiddenValidationError(message)
 
         if act:
-            if not act.can_join():
+
+            if not act.is_active():
+                message = f'The activity {act.name} is not active.'
+                raise ForbiddenValidationError(message)
+
+            if not act.is_full():
                 message = f'The activity {act.name} is full.'
                 raise ForbiddenValidationError(message)
+
+            if not act.rep_check(user):
+                message = f'Your reputation score is to low to join {act.name}'
+                raise ForbiddenValidationError(message)
+
+        else:
+
+            message = 'Activity not exist'
+            raise ForbiddenValidationError(message)
 
         return None
 

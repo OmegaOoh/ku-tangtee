@@ -46,19 +46,19 @@ class Activity(models.Model):
         """
         return self.name
 
-    def is_active(self) -> Any:
+    def is_active(self) -> bool:
         """Check if activity is active.
 
         :return: True if activity is in joining period.
         """
-        return self.end_registration_date >= timezone.now()
+        return bool(self.end_registration_date >= timezone.now())
 
-    def can_join(self) -> Any:
+    def is_full(self) -> bool:
         """Check if max_people doesn't reach and date doesn't past.
 
         :return: true if the activity is join able, false otherwise
         """
-        return self.is_active() and (not self.max_people or self.people < self.max_people)
+        return bool((not self.max_people) or (self.people < self.max_people))
 
     def host(self) -> list[User]:
         """Find all user that is host of the activity (is_host is True), owner included.
