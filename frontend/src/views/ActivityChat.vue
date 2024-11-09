@@ -21,12 +21,8 @@
                 >
                     <li v-for="(message, index) in messages" :key="index">
                         <div
-                            :class="[
-                                'chat',
-                                Number(message.user_id) === currentUserId
-                                    ? 'chat-end'
-                                    : 'chat-start',
-                            ]"
+                            class="chat w-full"
+                            :class="Number(message.user_id) === currentUserId ? 'chat-end' : 'chat-start'"
                         >
                             <div class="chat-image avatar">
                                 <div class="w-10 rounded-full">
@@ -46,10 +42,11 @@
                                     formatTimestamp(message.timestamp)
                                 }}</time>
                             </div>
-                            <div class="chat-bubble chat-bubble-primary">
-                                <div
-                                    v-html="formatMessage(message.message)"
-                                ></div>
+                            <div class="chat-bubble chat-bubble-secondary">
+                                <div class='multi-line max-w-[75vw]'
+                                    v-html="markdownFormatter(message.message)"
+                                >
+                                </div>
                                 <div
                                     v-if="
                                         message.images &&
@@ -117,13 +114,14 @@
                             />
                         </label>
                         <textarea
+                            ref="messageTextarea"
                             v-model="newMessage"
                             placeholder="Start your chat"
-                            class="resize-none size-full bg-inherit focus:outline-none align-middle pt-1.5 px-2"
+                            class="resize-y size-full bg-inherit focus:outline-none align-middle pt-1.5 px-2"
                             :maxlength="1024"
+                            @input="adjustHeight"
                             @keydown.exact.enter.prevent="sendMessage"
                             @keydown.shift.enter.prevent="insertNewLine"
-                            rows="1"
                         ></textarea>
                     </div>
 
@@ -167,7 +165,7 @@
 <script setup>
 import apiClient from '@/api';
 import { format } from 'date-fns';
-import { watch, ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { watch, ref, onMounted, onBeforeUnmount, nextTick} from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
     login,
@@ -175,14 +173,20 @@ import {
     userId as authUserId,
 } from '@/functions/Authentications';
 import { addAlert } from '@/functions/AlertManager';
-import { loadImage } from '@/functions/Utils.';
+import { loadImage, markdownFormatter } from '@/functions/Utils';
 import ImageGrid from '@/component/ImageGrid.vue';
+
+const LINE_HEIGHT = 24;
+const MAX_AREA_ROW = 6;
 
 const router = useRouter();
 const route = useRoute();
 
+const MAX_CONSECUTIVE_SAME_MSG  = 5
+
 const MAX_IMAGE_COUNT = 5;
 const MAX_IMAGES_SIZE = 50e6; // 50 MB
+
 const BASE_URL = (() => {
     let url = process.env.VUE_APP_BASE_URL;
     if (url.endsWith('/')) {
@@ -204,6 +208,10 @@ const images = ref([]);
 
 // Element Variables
 const messageList = ref(null);
+const messageTextarea = ref(null)
+
+let last_msg = {};
+let streak = 0;
 
 /**
  * Message Websocket
@@ -248,25 +256,44 @@ const sendMessage = () => {
      * Return Nothing
      */
     let trimMessage = newMessage.value.trim();
-    if (trimMessage === '' && images.value.length == 0) {
+    trimMessage = trimMessage.replace(/^(<br\s*\/?>\s*)+/g, ''); // remove leading <br>
+    trimMessage = trimMessage.replace(/(\s*<br\s*\/?>)+$/g, ''); // remove trailing <br>
+    
+    if (trimMessage === ''  && (images.value.length == 0)) {
         return;
     }
     if (trimMessage == '') {
         trimMessage = ' ';
     }
-    if (socket.value.readyState === WebSocket.OPEN) {
-        socket.value.send(
-            JSON.stringify({
+
+    let msg = JSON.stringify({
                 message: trimMessage,
                 user_id: authUserId.value,
                 images: images.value,
             })
-        );
+
+    if (msg != last_msg) {
+        last_msg = msg;
+        streak = 1;
+    }
+    else {
+        streak++;
+    }
+
+    if (streak >= MAX_CONSECUTIVE_SAME_MSG) {
+        socket.value.close()
+        addAlert('warning', 'You are spamming, BAD USER!')
+        return;
+    }
+
+    if (socket.value.readyState === WebSocket.OPEN) {
+        socket.value.send(msg);
         images.value = [];
         newMessage.value = '';
-        //
+        nextTick(() => {adjustHeight();})
         handleScrollToBottom(); // Scroll to bottom unconditionally
     } else {
+        addAlert('error', 'Chat is not connected, please refresh.')
         console.log('WebSocket is not open.');
     }
 };
@@ -276,7 +303,14 @@ const insertNewLine = () => {
      * Add one line to the message.
      * Return Nothing
      */
-    newMessage.value += '\n';
+    if (!messageTextarea.value) return;
+    const cursorPositionStart = messageTextarea.value.selectionStart
+    const cursorPositionEnd = messageTextarea.value.selectionEnd
+    newMessage.value = newMessage.value.slice(0, cursorPositionStart) 
+                        + '\n' 
+                        + newMessage.value.slice(cursorPositionEnd);
+    messageTextarea.value.selectionStart = messageTextarea.value.selectionEnd = cursorPositionStart + 1;
+    adjustHeight();
 };
 
 const handleFileChange = (event) => {
@@ -426,14 +460,15 @@ const formatTimestamp = (timestamp) => {
     return format(new Date(timestamp), 'PPp');
 };
 
-const formatMessage = (message) => {
-    /*
-     * Format message to be html format with <br> instead of \n.
-     *
-     * @params {string} not yet formatted message
-     * @returns {string} formatted message
-     */
-    return message.replace(/\n/g, '<br>');
+const adjustHeight = () => {
+    if (!messageTextarea.value) { console.log('messageArea not found'); return}
+    const textarea = messageTextarea.value;
+    if (textarea) {
+        textarea.style.height = `auto`;
+        const scrollHeight = textarea.scrollHeight;
+        const maxHeight = LINE_HEIGHT * MAX_AREA_ROW;
+        textarea.style.height = `${Math.min(scrollHeight, maxHeight)}px`;
+    }
 };
 
 /**
@@ -567,3 +602,11 @@ onBeforeUnmount(() => {
     }
 });
 </script>
+
+<style scoped>
+.multi-line {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    word-wrap: break-word;
+}
+</style>
