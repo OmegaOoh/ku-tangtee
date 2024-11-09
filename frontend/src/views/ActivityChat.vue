@@ -21,12 +21,8 @@
                 >
                     <li v-for="(message, index) in messages" :key="index">
                         <div
-                            :class="[
-                                'chat',
-                                Number(message.user_id) === currentUserId
-                                    ? 'chat-end'
-                                    : 'chat-start',
-                            ]"
+                            class="chat w-full"
+                            :class="Number(message.user_id) === currentUserId ? 'chat-end' : 'chat-start'"
                         >
                             <div class="chat-image avatar">
                                 <div class="w-10 rounded-full">
@@ -47,9 +43,10 @@
                                 }}</time>
                             </div>
                             <div class="chat-bubble chat-bubble-secondary">
-                                <div class='multi-line'
+                                <div class='multi-line max-w-[75vw]'
                                     v-html="markdownFormatter(message.message)"
-                                ></div>
+                                >
+                                </div>
                                 <div
                                     v-if="
                                         message.images &&
