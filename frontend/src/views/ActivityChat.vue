@@ -47,7 +47,7 @@
                                 }}</time>
                             </div>
                             <div class="chat-bubble chat-bubble-secondary">
-                                <div class='overflow-x-auto'
+                                <div class='multi-line'
                                     v-html="markdownFormatter(message.message)"
                                 ></div>
                                 <div
@@ -293,7 +293,7 @@ const sendMessage = () => {
         socket.value.send(msg);
         images.value = [];
         newMessage.value = '';
-        //
+        adjustHeight();
         handleScrollToBottom(); // Scroll to bottom unconditionally
     } else {
         addAlert('error', 'Chat is not connected, please refresh.')
@@ -606,3 +606,11 @@ onBeforeUnmount(() => {
     }
 });
 </script>
+
+<style scoped>
+.multi-line {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    word-wrap: break-word;
+}
+</style>
