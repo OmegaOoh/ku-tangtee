@@ -128,9 +128,8 @@
                     </button>
                 </div>
 
-                <p class="mb-2 ml-3 overflow-hidden multi-line">
-                    {{ activity.detail }}
-                </p>
+                <div class="mb-2 ml-3 overflow-hidden multi-line" v-html="markdownFormatter(activity.detail)">
+                </div>
                 <p class="mb-2 ml-3">
                     <strong class="text-base-content text-lg"
                         >Start Date and Time:</strong
@@ -284,6 +283,7 @@ import CheckInCodeModal from '@/component/CheckInCodeModal.vue';
 import CheckInModal from '@/component/CheckInModal.vue';
 import CheckInQRCodeModal from '@/component/CheckInQRCodeModal.vue';
 import { useRoute, useRouter } from 'vue-router';
+import { markdownFormatter } from '@/functions/Utils';
 
 const BASE_URL = (() => {
     let url = process.env.VUE_APP_BASE_URL;

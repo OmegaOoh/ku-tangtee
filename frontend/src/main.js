@@ -6,9 +6,13 @@ import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import vue3GoogleLogin from 'vue3-google-login';
 import VueLazyload from 'vue3-lazyload';
+import 'highlight.js/styles/stackoverflow-dark.css'
 
 const app = createApp(App);
-app.component('VueDatePicker', VueDatePicker);
+// Register component 
+app.component('VueDatePicker', VueDatePicker)
+
+// Register Package
 app.use(vue3GoogleLogin, {
     clientId: `${process.env.VUE_APP_GOOGLE_CLIENT_ID}`,
 });
