@@ -116,7 +116,7 @@ class Activity(models.Model):
         :return: True is user reputation score meet mininum, otherwise false.
         """
         profile = user.profile_set.first()
-        return profile.reputation_score >= self.minimum_reputation_score
+        return bool(profile.reputation_score >= self.minimum_reputation_score)
 
     @property
     def people(self) -> int:
