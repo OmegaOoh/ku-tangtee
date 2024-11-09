@@ -137,8 +137,8 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'simple': {
-            'format': '{levelname}) {message}',
-            'style': '{',
+            'format': '%(asctime)s %(name)s [%(levelname)s] %(message)s',
+            'datefmt': '%d/%m/%Y %H:%M:%S',
         },
     },
     'handlers': {
@@ -148,10 +148,13 @@ LOGGING = {
         },
     },
     'loggers': {
-        'ku-tangtee': {
+        'activities': {
             'level': "DEBUG",
             'handlers': ['console'],
-            'propagate': True,
+        },
+        'profiles': {
+            'level': "DEBUG",
+            'handlers': ['console'],
         },
     },
 }
