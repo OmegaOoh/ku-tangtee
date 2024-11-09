@@ -101,7 +101,7 @@ class TestAttendModel(django.test.TestCase):
         _, activity3 = create_activity(host=host, data={"name": "act3", "detail": "act"})
         _, activity4 = create_activity(host=host, data={"name": "act4", "detail": "act"})
 
-        attendee = create_test_user("Attend")
+        attendee = create_test_user("Attend", rep_score=100)
         self.assertEqual(Attend.recently_joined(attendee), [])
 
         for activity in (activity1, activity2, activity3):
@@ -119,7 +119,7 @@ class TestAttendModel(django.test.TestCase):
         _, activity3 = create_activity(host=host, data={"name": "act3", "detail": "act"})
         _, activity4 = create_activity(host=host, data={"name": "act4", "detail": "act"})
 
-        attendee = create_test_user("Attend")
+        attendee = create_test_user("Attend", rep_score=100)
         self.assertEqual(Attend.active_joined_activity(attendee), [])
 
         for activity in (activity1, activity2, activity3):

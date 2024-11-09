@@ -22,23 +22,14 @@ class ProfilesSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     profile_picture_url = serializers.SerializerMethodField()
     username = serializers.CharField(source='user.username', read_only=True)
+    join_limit = serializers.IntegerField(read_only=True)
+    concurrent_activities = serializers.IntegerField(read_only=True)
 
     class Meta:
         """Profile serializer META class."""
 
         model = models.Profile
-        fields = [
-            'id',
-            'user',
-            'username',
-            'nick_name',
-            'pronoun',
-            'ku_generation',
-            'faculty',
-            'major',
-            'about_me',
-            'profile_picture_url',
-        ]
+        fields = ("__all__")
 
     def create(self, validated_data: Any) -> Any:
         """Create user profile and popped user id from data.

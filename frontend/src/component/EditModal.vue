@@ -86,7 +86,7 @@
             </div>
             <div class="form-control w-full my-1">
                 <div class="label">
-                    <span class="text-base-content"> Activity Date </span>
+                    <span class="text-base-content"> Activity Start Date </span>
                     <span
                         id="date-field-error"
                         class="text-error text-sm"
@@ -100,6 +100,48 @@
                     id="date-field"
                     type="text"
                     placeholder="Select Date"
+                    :min-date="new Date()"
+                    :dark="isDarkTheme"
+                />
+            </div>
+            <div class="form-control w-full">
+                <div class="label">
+                    <span class="text-base-content">
+                        Activity End Registration Date
+                    </span>
+                    <span
+                        id="end-reg-date-field-error"
+                        class="text-error text-sm"
+                        hidden
+                    >
+                        required
+                    </span>
+                </div>
+                <VueDatePicker
+                    v-model="endRegistrationDate"
+                    id="end-reg-date-field"
+                    type="text"
+                    placeholder="Select End Registration Date"
+                    :min-date="new Date()"
+                    :dark="isDarkTheme"
+                />
+            </div>
+            <div class="form-control w-full">
+                <div class="label">
+                    <span class="text-base-content"> Activity End Date </span>
+                    <span
+                        id="end-date-field-error"
+                        class="text-error text-sm"
+                        hidden
+                    >
+                        required
+                    </span>
+                </div>
+                <VueDatePicker
+                    v-model="endDate"
+                    id="end-date-field"
+                    type="text"
+                    placeholder="Select End Date"
                     :min-date="new Date()"
                     :dark="isDarkTheme"
                 />
@@ -187,6 +229,8 @@ const emit = defineEmits(['update-success', 'close']);
 const activityName = ref('');
 const activityDetail = ref('');
 const date = ref('');
+const endRegistrationDate = ref('');
+const endDate = ref('');
 const maxPeople = ref(0);
 const people = ref([]);
 const showMaxPeople = ref(false);
@@ -208,6 +252,10 @@ const fetchDetail = async () => {
         activityName.value = response.data.name || '';
         activityDetail.value = response.data.detail || '';
         date.value = formatActivityDate(new Date(response.data.date));
+        endRegistrationDate.value = formatActivityDate(
+            new Date(response.data.end_registration_date)
+        );
+        endDate.value = formatActivityDate(new Date(response.data.end_date));
         images.value = activity.value.images.map((image) => ({
             id: image.id,
             url: `${BASE_URL}${image.url}`,
@@ -262,6 +310,22 @@ const validateInput = () => {
     } else {
         dateFieldError.setAttribute('hidden', 'true');
     }
+    const endRegDateFieldError = document.getElementById(
+        'end-reg-date-field-error'
+    );
+    if (endRegistrationDate.value.length <= 0) {
+        endRegDateFieldError.removeAttribute('hidden');
+        result = false;
+    } else {
+        endRegDateFieldError.setAttribute('hidden', 'true');
+    }
+    const endDateFieldError = document.getElementById('end-date-field-error');
+    if (endDate.value.length <= 0) {
+        endDateFieldError.removeAttribute('hidden');
+        result = false;
+    } else {
+        endDateFieldError.setAttribute('hidden', 'true');
+    }
     if (maxPeople.value < activity.value.people) {
         addAlert(
             'warning',
@@ -270,6 +334,17 @@ const validateInput = () => {
         maxPeople.value = activity.value.people;
         result = false;
     }
+    if (
+        date.value >= endDate.value ||
+        endRegistrationDate.value >= endDate.value
+    ) {
+        addAlert(
+            'warning',
+            'Start date and end registration date has to come before end date.'
+        );
+        result = false;
+    }
+
     return result;
 };
 
@@ -294,6 +369,8 @@ const postUpdate = async () => {
             name: activityName.value,
             detail: activityDetail.value,
             date: date.value,
+            end_registration_date: endRegistrationDate.value,
+            end_date: endDate.value,
             max_people: maxPeople.value || null,
             new_images: new_images.value,
             remove_attachments: remove_attachment.value,

@@ -8,6 +8,7 @@ from activities import models
 from activities.serializer.permissions import OnlyHostCanEdit
 from activities.serializer import model_serializers
 from . import util
+from profiles.models import Profile
 
 
 class CheckInView(
@@ -69,6 +70,9 @@ class CheckInView(
         attend.checked_in = True
         attend.save()
 
+        user_profile = request.user.profile_set.first()
+        user_profile.increase_reputation()
+
         return response.Response(
             {'message': f"You've successfully check-in to {act.name}"}
         )
@@ -79,17 +83,21 @@ class CheckInView(
         :param request: Http request object
         :return: Http response object
         """
-        request.data.update(
-            {
-                'check_in_allowed': True,
-                'check_in_code': util.get_checkin_code()
-            }
-        )
-        super().update(request, partial=True, *args, **kwargs)
-        return response.Response({
-            'message': 'Activity check-in are open',
-            'check_in_code': request.data.get('check_in_code')
-        })
+        act = self.get_object()
+        if act.is_checkin_period():
+            request.data.update(
+                {
+                    'check_in_allowed': True,
+                    'check_in_code': util.get_checkin_code()
+                }
+            )
+            super().update(request, partial=True, *args, **kwargs)
+            return response.Response({
+                'message': 'Activity check-in are open',
+                'check_in_code': request.data.get('check_in_code')
+            })
+        return response.Response({'message': 'Check-in period is in between Start date and End date of the activity.'},
+                                 status=403)
 
     def close_check_in(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Close for check-in.

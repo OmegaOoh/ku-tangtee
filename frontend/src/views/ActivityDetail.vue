@@ -132,10 +132,23 @@
                     {{ activity.detail }}
                 </p>
                 <p class="mb-2 ml-3">
-                    <strong>Date and Time:</strong>
+                    <strong class="text-base-content text-lg"
+                        >Start Date and Time:</strong
+                    >
                     {{ formatTimestamp(activity.date) }}
                 </p>
-
+                <p class="mb-2 ml-3">
+                    <strong class="text-base-content text-lg"
+                        >End Registration Date:</strong
+                    >
+                    {{ formatTimestamp(activity.end_registration_date) }}
+                </p>
+                <p class="mb-2 ml-3">
+                    <strong class="text-base-content text-lg"
+                        >End Date and Time:</strong
+                    >
+                    {{ formatTimestamp(activity.end_date) }}
+                </p>
                 <div
                     v-if="imageUrls.length > 0"
                     class="flex flex-col justify-center"
