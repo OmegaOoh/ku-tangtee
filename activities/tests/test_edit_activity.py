@@ -183,8 +183,7 @@ class EditActivityTest(django.test.TestCase):
         }
 
         self.client.force_login(self.host)
-        response = put_request_json_data(self.url, self.client, data)
-        print(response.content)
+        _ = put_request_json_data(self.url, self.client, data)
 
         self.client.post(urls.reverse("activities:join", args=[self.activity.id]))
         self.activity.refresh_from_db()
