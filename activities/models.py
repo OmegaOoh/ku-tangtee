@@ -3,6 +3,7 @@ from typing import Any, Optional
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator
 
 
 def get_end_registration_date() -> Any:
@@ -33,6 +34,10 @@ class Activity(models.Model):
     max_people = models.IntegerField(null=True, blank=True)
     check_in_allowed = models.BooleanField(default=False)
     check_in_code = models.CharField(max_length=6, null=True, default=None)
+    minium_reputation_score = models.SmallIntegerField(
+        default=0,
+        validators=[MaxValueValidator(100)]
+    )
 
     def __str__(self) -> Any:
         """Return Activity Name as string representative.
@@ -103,6 +108,15 @@ class Activity(models.Model):
             return False
 
         return self.check_in_code == attempt
+
+    def rep_check(self, user: User) -> bool:
+        """Verify that user reputation score meet minimum reputation score to join or not.
+
+        :param user: User attempt to join an activity.
+        :return: True is user reputation score meet mininum, otherwise false.
+        """
+        profile = user.profile_set.first()
+        return profile.reputation_score >= self.minium_reputation_score
 
     @property
     def people(self) -> int:
