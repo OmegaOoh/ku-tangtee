@@ -117,13 +117,14 @@
                             />
                         </label>
                         <textarea
+                            ref="messageTextarea"
                             v-model="newMessage"
                             placeholder="Start your chat"
-                            class="resize-none size-full bg-inherit focus:outline-none align-middle pt-1.5 px-2"
+                            class="resize-y size-full bg-inherit focus:outline-none align-middle pt-1.5 px-2"
                             :maxlength="1024"
+                            @input="adjustHeight"
                             @keydown.exact.enter.prevent="sendMessage"
                             @keydown.shift.enter.prevent="insertNewLine"
-                            rows="1"
                         ></textarea>
                     </div>
 
@@ -167,7 +168,7 @@
 <script setup>
 import apiClient from '@/api';
 import { format } from 'date-fns';
-import { watch, ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { watch, ref, onMounted, onBeforeUnmount, nextTick} from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
     login,
@@ -178,11 +179,17 @@ import { addAlert } from '@/functions/AlertManager';
 import { loadImage, markdownFormatter } from '@/functions/Utils';
 import ImageGrid from '@/component/ImageGrid.vue';
 
+const LINE_HEIGHT = 24;
+const MAX_AREA_ROW = 6;
+
 const router = useRouter();
 const route = useRoute();
 
+const MAX_CONSECUTIVE_SAME_MSG  = 5
+
 const MAX_IMAGE_COUNT = 5;
 const MAX_IMAGES_SIZE = 50e6; // 50 MB
+
 const BASE_URL = (() => {
     let url = process.env.VUE_APP_BASE_URL;
     if (url.endsWith('/')) {
@@ -190,9 +197,6 @@ const BASE_URL = (() => {
     }
     return url;
 })();
-
-const MAX_CONSECUTIVE_SAME_MSG  = 5
-
 
 // Variables
 const socket = ref(null);
@@ -207,6 +211,7 @@ const images = ref([]);
 
 // Element Variables
 const messageList = ref(null);
+const messageTextarea = ref(null)
 
 let last_msg = {};
 let streak = 0;
@@ -301,7 +306,14 @@ const insertNewLine = () => {
      * Add one line to the message.
      * Return Nothing
      */
-    newMessage.value += '\n';
+    if (!messageTextarea.value) return;
+    const cursorPositionStart = messageTextarea.value.selectionStart
+    const cursorPositionEnd = messageTextarea.value.selectionEnd
+    newMessage.value = newMessage.value.slice(0, cursorPositionStart) 
+                        + '\n' 
+                        + newMessage.value.slice(cursorPositionEnd);
+    messageTextarea.value.selectionStart = messageTextarea.value.selectionEnd = cursorPositionStart + 1;
+    adjustHeight();
 };
 
 const handleFileChange = (event) => {
@@ -449,6 +461,18 @@ const formatTimestamp = (timestamp) => {
      * @returns {string} formatted timestamp
      */
     return format(new Date(timestamp), 'PPp');
+};
+
+const adjustHeight = () => {
+    if (!messageTextarea.value) { console.log('messageArea not found'); return}
+    console.log('adjustHieght')
+    const textarea = messageTextarea.value;
+    if (textarea) {
+        textarea.style.height = `auto`;
+        const scrollHeight = textarea.scrollHeight;
+        const maxHeight = LINE_HEIGHT * MAX_AREA_ROW;
+        textarea.style.height = `${Math.min(scrollHeight, maxHeight)}px`;
+    }
 };
 
 /**
