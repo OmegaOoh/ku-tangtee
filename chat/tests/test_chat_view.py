@@ -14,8 +14,8 @@ class ChatMessageListTest(APITestCase):
 
     def setUp(self):
         """Create user, login user, create activity and create message."""
-        self.activity = Activity.objects.create(name="Test Activity")
         self.user = User.objects.create_user(username="testuser", password="testpass")
+        self.activity = Activity.objects.create(owner=self.user, name="Test Activity")
         self.client.login(username="testuser", password="testpass")
         self.message1 = Message.objects.create(
             activity=self.activity,

@@ -15,7 +15,7 @@
             <button
                 v-if="removable"
                 class="hover:opacity-50 absolute top-2 right-2"
-                @click="$emit('onRemove', index)"
+                @click="emit('onRemove', index)"
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -43,8 +43,10 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref } from "vue";
-import ImagePreview from "./ImagePreview.vue";
+import { defineProps, defineEmits, ref } from 'vue';
+import ImagePreview from './ImagePreview.vue';
+
+const emit = defineEmits('onRemove');
 
 defineProps({
     images: {
@@ -61,10 +63,8 @@ defineProps({
     },
 });
 
-defineEmits("onRemove");
-
 const isModalOpen = ref(false);
-const selectedImage = ref("");
+const selectedImage = ref('');
 
 const openModal = (imageSrc) => {
     selectedImage.value = imageSrc;
@@ -73,6 +73,6 @@ const openModal = (imageSrc) => {
 
 const closeModal = () => {
     isModalOpen.value = false;
-    selectedImage.value = "";
+    selectedImage.value = '';
 };
 </script>

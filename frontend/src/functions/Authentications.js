@@ -3,16 +3,15 @@ import apiClient from '@/api';
 import { googleTokenLogin } from 'vue3-google-login';
 import { createPostRequest } from './HttpRequest';
 import { getCookie, setCookie, deleteCookie } from './CookiesReadWrite.js';
-import router from '@/router'
-
+import router from '@/router';
 
 export var isAuth = ref(false);
 export var fName = ref('');
 export var lName = ref('');
-export var email = ref('')
+export var email = ref('');
 export var pfp = ref('');
 export var userId = ref(-1);
-export var userName = ref("");
+export var userName = ref('');
 
 export async function login() {
     /**
@@ -24,21 +23,20 @@ export async function login() {
         if (isAuth.value) {
             await logout();
         }
-        const response = await createPostRequest(
-            `auth/google-oauth2/`,
-            {
-                access_token: logInResponse.access_token,
-            },
-        );
+        const response = await createPostRequest(`auth/google-oauth2/`, {
+            access_token: logInResponse.access_token,
+        });
         setCookie('backend-token', response.data.access);
         isAuth.value = true;
         await getUserData();
-        const profileStatus = await apiClient.get(`/profile/`)
-        if(!profileStatus.data.has_profile) {
-            router.push(`/create-profile?next=${router.currentRoute.value.path}`);
+        const profileStatus = await apiClient.get(`/profile/`);
+        if (!profileStatus.data.has_profile) {
+            router.push(
+                `/create-profile?next=${router.currentRoute.value.path}`
+            );
         }
     } catch (e) {
-        console.error("error on login: ",e);
+        console.error('error on login: ', e);
     }
 }
 
@@ -50,20 +48,15 @@ export async function authStatus() {
     const token = getCookie('backend-token');
     if (token) {
         try {
-            await createPostRequest(
-                `rest-auth/token/verify/`,
-                {
-                    token: token,
-                },
-            );
+            await createPostRequest(`rest-auth/token/verify/`, {
+                token: token,
+            });
             isAuth.value = true;
             getUserData();
-        }
-        catch (e) {
+        } catch (e) {
             await logout();
         }
-    }
-    else {
+    } else {
         await logout();
     }
 }
@@ -73,10 +66,7 @@ export async function logout() {
      * Logout user from the system.
      * this function return nothing.
      */
-    await createPostRequest(
-        `rest-auth/logout/`,
-        {},
-    );
+    await createPostRequest(`rest-auth/logout/`, {});
     isAuth.value = false;
     fName.value = '';
     lName.value = '';

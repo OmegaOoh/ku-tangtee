@@ -44,24 +44,24 @@
                             </div>
                             <div class="my-2">
                                 <p class="font-semibold text-sm">
-                                    Level: {{ reputation_level }}
+                                    Level: {{ reputationLevel }}
                                 </p>
                                 <progress
                                     class="progress progress-primary w-full"
-                                    :value="reputation_progress"
+                                    :value="reputationProgress"
                                     max="10"
                                 ></progress>
                                 <p class="text-xs text-gray-500 mt-1">
-                                    Progress: {{ reputation_progress }} / 10
+                                    Progress: {{ reputationProgress }} / 10
                                 </p>
                                 <progress
                                     class="progress progress-warning w-full"
-                                    :value="concurrent_act"
-                                    :max="join_limit"
+                                    :value="concurrentAct"
+                                    :max="joinLimit"
                                 ></progress>
                                 <p class="text-xs text-gray-500 mt-1">
                                     Ongoing:
-                                    {{ concurrent_act }} / {{ join_limit }}
+                                    {{ concurrentAct }} / {{ joinLimit }}
                                 </p>
                             </div>
                         </div>
@@ -184,180 +184,187 @@
     </div>
 </template>
 
-<script>
-import apiClient from "@/api";
-import { watch } from "vue";
-import { isAuth, userId } from "@/functions/Authentications";
-import { format } from "date-fns";
-import { addAlert } from "@/functions/AlertManager";
-import { createPutRequest } from "@/functions/HttpRequest";
+<script setup>
+import apiClient from '@/api';
+import { watch, ref, computed, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { userId } from '@/functions/Authentications';
+import { format } from 'date-fns';
+import { addAlert } from '@/functions/AlertManager';
+import { createPutRequest } from '@/functions/HttpRequest';
 
 const KU_ESTABLISHED_YEAR = 1940;
 
-export default {
-    data() {
-        return {
-            user: [],
-            nickname: "",
-            pronoun: "",
-            faculty: "",
-            major: "",
-            bio: "",
-            kuGen: "",
-            pfp: "",
-            recentActivity: [],
-            editMode: false,
-            isOwner: false,
-            reputation: 0,
-            reputation_level: 1,
-            reputation_progress: 0,
-            join_limit: 0,
-            concurrent_act: 0,
-        };
-    },
-    methods: {
-        async fetchUserData() {
-            /**
-             * Function to fetch data of user from backend.
-             * this function return nothing.
-             */
-            await apiClient.get(`/profile/check-missing/`);
-            const response = await apiClient.get(
-                `/profile/${this.$route.params.username}`
-            );
-            this.user = response.data.user;
-            this.nickname = response.data.nick_name;
-            this.pronoun = response.data.pronoun;
-            this.faculty = response.data.faculty;
-            this.major = response.data.major;
-            this.kuGen = response.data.ku_generation;
-            this.bio = response.data.about_me;
-            this.pfp = response.data.profile_picture_url;
-            this.reputation = response.data.reputation_score;
-            this.reputation_level = Math.floor(this.reputation / 10);
-            this.reputation_progress =
-                this.reputation === 100 ? 10 : this.reputation % 10;
-            this.join_limit = response.data.join_limit;
-            this.concurrent_act = response.data.concurrent_activities;
-        },
-        async fetchRecentActivities() {
-            /**
-             * Fetch data of recently joined activity.
-             * this function returns nothing.
-             */
-            const response = await apiClient.get(
-                `/activities/get-recently/${this.user.id}?byDate=True`
-            );
-            this.recentActivity = response.data;
-        },
-        formatTimestamp(timestamp) {
-            /*
-             * Format the timestamp into (Oct 22, 2024, 9:00 AM).
-             *
-             * @params {string} not yet formatted timestamp
-             * @returns {string} formatted timestamp
-             */
-            if (timestamp) {
-                return format(new Date(timestamp), "MMM/dd/yyyy, hh:mm a");
-            } else {
-                return "No date provided";
-            }
-        },
-        checkOwn() {
-            console.log(userId.value, this.user.id);
-            if (this.user.id == userId.value) {
-                this.isOwner = true;
-            } else {
-                this.isOwner = false;
-            }
-        },
-        validateInput() {
-            /**
-             * Function to validate the input.
-             * @return true if all input were valid.
-             */
-            var validInput = true;
+// Router
+const route = useRoute();
+const router = useRouter();
 
-            if (this.kuGen == null || this.kuGen == "") {
-                validInput = false;
-                addAlert("error", "KU Generation is required");
-            }
-            if (this.kuGen != "") {
-                if (this.kuGen < 1) {
-                    addAlert(
-                        "warning",
-                        "Your KU Generation must be at least 1"
-                    );
-                    validInput = false;
-                }
-                if (this.kuGen > this.getMaxKuGeneration()) {
-                    addAlert(
-                        "warning",
-                        "Your KU Generation must be less than or equal to " +
-                            this.getMaxKuGeneration()
-                    );
-                    validInput = false;
-                }
-            }
-            if (this.faculty == "") {
-                validInput = false;
-                addAlert("error", "Faculty is required");
-            }
-            return validInput;
-        },
-        getMaxKuGeneration() {
-            /**
-             * Get current max Ku Generation
-             * @returns maximum ku generation (current years - established year)
-             */
-            const currentYear = new Date().getFullYear();
-            return currentYear - KU_ESTABLISHED_YEAR;
-        },
-        async submitData() {
-            if (!this.validateInput()) {
-                return; // Invalid input return early
-            }
-            await createPutRequest(`/profile/${this.user.username}/`, {
-                nick_name: this.nickname,
-                pronoun: this.pronoun,
-                ku_generation: this.kuGen,
-                faculty: this.faculty,
-                major: this.major,
-                about_me: this.bio,
-            });
-            addAlert("success", "Your Profile has been edited successfully!");
-            this.editMode = false;
-        },
-    },
-    async mounted() {
-        try {
-            await this.fetchUserData();
-            this.fetchRecentActivities();
-        } catch (e) {
-            this.$router.push("/");
-            addAlert("error", "The profile does not exists.");
-        }
+// Variable
+const user = ref({});
+const nickname = ref('');
+const pronoun = ref('');
+const faculty = ref('');
+const major = ref('');
+const bio = ref('');
+const kuGen = ref('');
+const pfp = ref('');
+const recentActivity = ref([]);
+const editMode = ref(false);
+const reputation = ref(0);
+const reputationLevel = ref(0);
+const reputationProgress = ref(0);
+const joinLimit = ref(0);
+const concurrentAct = ref(0);
 
-        this.checkOwn();
-        watch(userId, () => {
-            if (isAuth) {
-                this.checkOwn();
-            } else {
-                this.isOwner = false;
-            }
-        });
-    },
-    watch: {
-        "$route.params.username": function (newUsername, oldUsername) {
-            if (newUsername != oldUsername) {
-                console.log("I was here");
-                this.fetchUserData();
-                this.fetchRecentActivities();
-                this.checkOwn();
-            }
-        },
-    },
+// Computed Properties
+const isOwner = computed(() => {
+    return user.value.id == userId.value;
+});
+
+/**
+ * Fetch Data
+ */
+const fetchUserData = async () => {
+    /**
+     * Function to fetch data of user from backend.
+     * this function return nothing.
+     */
+    const response = await apiClient.get(`/profile/${route.params.username}`);
+    user.value = response.data.user;
+    nickname.value = response.data.nick_name;
+    pronoun.value = response.data.pronoun;
+    faculty.value = response.data.faculty;
+    major.value = response.data.major;
+    kuGen.value = response.data.ku_generation;
+    bio.value = response.data.about_me;
+    pfp.value = response.data.profile_picture_url;
+    reputation.value = response.data.reputation_score;
+    reputationLevel.value = reputationProgress.value = Math.floor(
+        reputation.value / 10
+    );
+    reputationProgress.value =
+        reputation.value === 100 ? 10 : reputation.value % 10;
+    concurrentAct.value = response.data.concurrent_activities;
+    joinLimit.value = response.data.join_limit;
 };
+
+const fetchRecentActivities = async () => {
+    /**
+     * Fetch data of recently joined activity.
+     * this function returns nothing.
+     */
+    const response = await apiClient.get(
+        `/activities/get-recently/${user.value.id}?byDate=True`
+    );
+    recentActivity.value = response.data;
+};
+
+const onUserChange = (newUsername, oldUsername) => {
+    if (newUsername != oldUsername) {
+        fetchUserData();
+        fetchRecentActivities();
+    }
+};
+
+/**
+ * Formatter
+ */
+
+const formatTimestamp = (timestamp) => {
+    /*
+     * Format the timestamp into (Oct 22, 2024, 9:00 AM).
+     *
+     * @params {string} not yet formatted timestamp
+     * @returns {string} formatted timestamp
+     */
+    if (timestamp) {
+        return format(new Date(timestamp), 'MMM/dd/yyyy, hh:mm a');
+    } else {
+        return 'No date provided';
+    }
+};
+
+/**
+ * Validator
+ */
+
+const validateInput = () => {
+    /**
+     * Function to validate the input.
+     * @return true if all input were valid.
+     */
+    var validInput = true;
+
+    if (kuGen.value == null || kuGen.value == '') {
+        validInput = false;
+        addAlert('error', 'KU Generation is required');
+    }
+    if (kuGen.value != '') {
+        if (kuGen.value < 1) {
+            addAlert('warning', 'Your KU Generation must be at least 1');
+            validInput = false;
+        }
+        if (kuGen.value > getMaxKuGeneration()) {
+            addAlert(
+                'warning',
+                'Your KU Generation must be less than or equal to ' +
+                    getMaxKuGeneration()
+            );
+            validInput = false;
+        }
+    }
+    if (faculty.value == '') {
+        validInput = false;
+        addAlert('error', 'Faculty is required');
+    }
+    return validInput;
+};
+
+const getMaxKuGeneration = () => {
+    /**
+     * Get current max Ku Generation
+     * @returns maximum ku generation (current years - established year)
+     */
+    const currentYear = new Date().getFullYear();
+    return currentYear - KU_ESTABLISHED_YEAR;
+};
+
+/**
+ * Data sender
+ */
+
+const submitData = async () => {
+    if (!validateInput()) {
+        return; // Invalid input return early
+    }
+    await createPutRequest(`/profile/${user.value.username}/`, {
+        nick_name: nickname.value,
+        pronoun: pronoun.value,
+        ku_generation: kuGen.value,
+        faculty: faculty.value,
+        major: major.value,
+        about_me: bio.value,
+    });
+    addAlert('success', 'Your Profile has been edited successfully!');
+    editMode.value = false;
+};
+
+watch(
+    () => route.params.username,
+    (newUsername, oldUsername) => {
+        onUserChange(newUsername, oldUsername);
+    }
+);
+
+onMounted(async () => {
+    try {
+        await fetchUserData();
+        fetchRecentActivities();
+    } catch (e) {
+        router.push('/');
+        addAlert('error', 'The profile does not exists.');
+    }
+});
 </script>
 
 <style scoped>

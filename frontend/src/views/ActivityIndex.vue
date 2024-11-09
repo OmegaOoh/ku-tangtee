@@ -31,8 +31,16 @@
                 />
                 <div>
                     <div class="relative">
-                        <button @click="toggleFilter" class="btn btn-primary rounded-none">filter</button>
-                        <div v-if="isFilterOpen" class=" right-0 absolute dropdown-content bg-base-200 rounded-box w-fit z-[1] p-4 shadow">
+                        <button
+                            @click="toggleFilter"
+                            class="btn btn-primary rounded-none"
+                        >
+                            filter
+                        </button>
+                        <div
+                            v-if="isFilterOpen"
+                            class="right-0 absolute dropdown-content bg-base-200 rounded-box w-fit z-[1] p-4 shadow"
+                        >
                             <VueDatePicker
                                 v-model="dateRange"
                                 id="date-field"
@@ -46,32 +54,88 @@
                                 class="mb-3"
                             />
                             <div class="flex flex-row justify-between">
-                                <label class="cursor-pointer flex flex-col items-center  mr-3">
-                                    <input type="checkbox" class="checkbox" value="1" :checked="isChecked(1)" @change="toggleDay(1)" />
+                                <label
+                                    class="cursor-pointer flex flex-col items-center mr-3"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        class="checkbox"
+                                        value="1"
+                                        :checked="isChecked(1)"
+                                        @change="toggleDay(1)"
+                                    />
                                     <span>Su</span>
                                 </label>
-                                <label class="cursor-pointer flex flex-col items-center  mr-3">
-                                    <input type="checkbox" class="checkbox" value="2" :checked="isChecked(2)" @change="toggleDay(2)" />
+                                <label
+                                    class="cursor-pointer flex flex-col items-center mr-3"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        class="checkbox"
+                                        value="2"
+                                        :checked="isChecked(2)"
+                                        @change="toggleDay(2)"
+                                    />
                                     <span>Mo</span>
                                 </label>
-                                <label class="cursor-pointer flex flex-col items-center  mr-3">
-                                    <input type="checkbox" class="checkbox" value="3" :checked="isChecked(3)" @change="toggleDay(3)" />
+                                <label
+                                    class="cursor-pointer flex flex-col items-center mr-3"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        class="checkbox"
+                                        value="3"
+                                        :checked="isChecked(3)"
+                                        @change="toggleDay(3)"
+                                    />
                                     <span>Tu</span>
                                 </label>
-                                <label class="cursor-pointer flex flex-col items-center  mr-3">
-                                    <input type="checkbox" class="checkbox" value="4" :checked="isChecked(4)" @change="toggleDay(4)" />
+                                <label
+                                    class="cursor-pointer flex flex-col items-center mr-3"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        class="checkbox"
+                                        value="4"
+                                        :checked="isChecked(4)"
+                                        @change="toggleDay(4)"
+                                    />
                                     <span>We</span>
                                 </label>
-                                <label class="cursor-pointer flex flex-col items-center  mr-3">
-                                    <input type="checkbox" class="checkbox" value="5" :checked="isChecked(5)" @change="toggleDay(5)" />
+                                <label
+                                    class="cursor-pointer flex flex-col items-center mr-3"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        class="checkbox"
+                                        value="5"
+                                        :checked="isChecked(5)"
+                                        @change="toggleDay(5)"
+                                    />
                                     <span>Th</span>
                                 </label>
-                                <label class="cursor-pointer flex flex-col items-center  mr-3">
-                                    <input type="checkbox" class="checkbox" value="6" :checked="isChecked(6)" @change="toggleDay(6)" />
+                                <label
+                                    class="cursor-pointer flex flex-col items-center mr-3"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        class="checkbox"
+                                        value="6"
+                                        :checked="isChecked(6)"
+                                        @change="toggleDay(6)"
+                                    />
                                     <span>Fr</span>
                                 </label>
-                                <label class="cursor-pointer flex flex-col items-center  mr-3">
-                                    <input type="checkbox" class="checkbox" value="7" :checked="isChecked(7)" @change="toggleDay(7)" />
+                                <label
+                                    class="cursor-pointer flex flex-col items-center mr-3"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        class="checkbox"
+                                        value="7"
+                                        :checked="isChecked(7)"
+                                        @change="toggleDay(7)"
+                                    />
                                     <span>Sa</span>
                                 </label>
                             </div>
@@ -135,166 +199,171 @@
     </div>
 </template>
 
-<script>
-import { format } from "date-fns";
-import apiClient from "@/api"; // Get API
+<script setup>
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { useRouter } from 'vue-router';
+import { format } from 'date-fns';
+import apiClient from '@/api';
 
-export default {
-    data() {
-        return {
-            activities: [],
-            isDarkTheme: false,
-            timeZoneOffset: 0,
-            searchKeyword: "",
-            socket: null,
-            startDate: null,
-            endDate: null,
-            dateRange: null,
-            selectedDay: [1,2,3,4,5,6,7],
-            isFilterOpen: false,
-        };
-    },
-    mounted() {
-        this.fetchActivities();
-        this.setupSocket();
-        this.isDarkTheme = window.matchMedia(
-            "(prefers-color-scheme: dark)"
-        ).matches;
-        window
-            .matchMedia("(prefers-color-scheme: dark)")
-            .addEventListener("change", (e) => {
-                this.isDarkTheme = e.matches;
-            });
-    },
-    methods: {
-        async fetchActivities() {
-            /*
-             * Get data for all activities from API.
-             */
-            try {
-                let response;
-                const params = {};
+const router = useRouter();
 
-                // Add parameters only if they have values
-                if (this.searchKeyword) {
-                    params.keyword = this.searchKeyword;
-                }
-                if (this.startDate) {
-                    params.start_date = format(this.startDate, "yyyy-MM-dd");
-                }
-                if (this.endDate) {
-                    params.end_date = format(this.endDate, "yyyy-MM-dd");
-                }
-                if (this.selectedDay) {
-                    params.day = this.selectedDay.toString();
-                }
-                response = await apiClient.get("/activities/", { params });
-                this.activities = response.data;
-                window.scrollTo(0, 0);
-                // Hide reload button
-                const reloadButton = document.getElementById("reload");
-                reloadButton.classList.remove("translate-y-0");
-                reloadButton.classList.remove("translate-y-[100%]");
-                setTimeout(reloadButton.setAttribute("hidden", "true"));
-            } catch (error) {
-                console.error("Error fetching activities:", error);
-                if (error.response) {
-                    console.error("Response data:", error.response.data);
-                    console.error("Response status:", error.response.status);
-                }
-            }
-        },
-        search() {
-            /**
-             * Handle Search using search bar
-             * this function return nothing.
-             */
-        },
-        viewActivity(activityId) {
-            /*
-             * Navigate to specific activity detail page.
-             */
-            this.$router.push(`/activities/${activityId}`);
-        },
-        formatTimestamp(timestamp) {
-            /*
-             * Format the timestamp into (Oct 22, 2024, 9:00 AM).
-             *
-             * @params {string} not yet formatted timestamp
-             * @returns {string} formatted timestamp
-             */
-            if (timestamp) {
-                return format(new Date(timestamp), "EEE, MMM/dd/yyyy, hh:mm a");
-            } else {
-                return "No date provided";
-            }
-        },
-        setupSocket() {
-            /*
-             * Connect to websocket to observe the change of index.
-             */
-            const socket = new WebSocket(
-                `${process.env.VUE_APP_BASE_URL.replace(/^http/, "ws").replace(
-                    /^https/,
-                    "wss"
-                )}ws/index/`
-            );
-            this.socket = socket;
+// Variable
+const activities = ref([]);
+const isDarkTheme = ref(false);
+const searchKeyword = ref('');
+const socket = ref(null);
+const startDate = ref(null);
+const endDate = ref(null);
+const dateRange = ref(null);
+const selectedDay = ref([1, 2, 3, 4, 5, 6, 7]);
+const isFilterOpen = ref(false);
 
-            this.socket.onmessage = (event) => {
-                try {
-                    var parsedData = JSON.parse(event.data);
-                    if (parsedData["type"] === "new_act") {
-                        // Show reload button
-                        const reloadButton = document.getElementById("reload");
-                        reloadButton.removeAttribute("hidden"); // Show the button
-                        reloadButton.classList.remove("translate-y-[-100%]"); // Remove off-screen class
-                        reloadButton.classList.add("translate-y-0"); // Slide in
-                    }
-                } catch (error) {
-                    console.log("Parsing Error: ", error);
-                }
-            };
-        },
-        toggleFilter() {
-            /**
-             * Function to toggle filter dropdown status
-             */
-            this.isFilterOpen = !this.isFilterOpen;
-        },
-        toggleDay(value) {
-            /**
-             * Toggle value inside selectedDay array
-             */
-            value = Number(value);
-            const index = this.selectedDay.indexOf(value);
-            if (index === -1) {
-                this.selectedDay.push(value)
-            }
-            else {
-                this.selectedDay.splice(index,1);
-            }
-        },
-        isChecked(value) {
-            /**
-             * Check if the selectedDays is include the value.
-             * @return boolean
-             */
-            return this.selectedDay.includes(Number(value))
+/**
+ * Fetch Data
+ */
+const fetchActivities = async () => {
+    /*
+     * Get data for all activities from API.
+     */
+    try {
+        let response;
+        const params = {};
+
+        // Add parameters only if they have values
+        if (searchKeyword.value) {
+            params.keyword = searchKeyword.value;
         }
-    },
-    beforeUnmount() {
-        if (this.socket) {
-            this.socket.close();
+        if (startDate.value) {
+            params.start_date = format(startDate.value, 'yyyy-MM-dd');
         }
-    },
-    watch: {
-        dateRange(newRange) {
-            this.startDate = newRange ? newRange[0] : null;
-            this.endDate = newRange ? newRange[1] : null;
-        },
-    },
+        if (endDate.value) {
+            params.end_date = format(endDate.value, 'yyyy-MM-dd');
+        }
+        if (selectedDay.value) {
+            params.day = selectedDay.value.toString();
+        }
+        response = await apiClient.get('/activities/', { params });
+        activities.value = response.data;
+        window.scrollTo(0, 0);
+        // Hide reload button
+        const reloadButton = document.getElementById('reload');
+        reloadButton.classList.remove('translate-y-0');
+        reloadButton.classList.remove('translate-y-[100%]');
+        setTimeout(reloadButton.setAttribute('hidden', 'true'));
+    } catch (error) {
+        console.error('Error fetching activities:', error);
+        if (error.response) {
+            console.error('Response data:', error.response.data);
+            console.error('Response status:', error.response.status);
+        }
+    }
 };
+
+/**
+ * Redirect
+ */
+
+const viewActivity = (activityId) => {
+    /*
+     * Navigate to specific activity detail page.
+     */
+    router.push(`/activities/${activityId}`);
+};
+
+const formatTimestamp = (timestamp) => {
+    /*
+     * Format the timestamp into (Oct 22, 2024, 9:00 AM).
+     *
+     * @params {string} not yet formatted timestamp
+     * @returns {string} formatted timestamp
+     */
+    if (timestamp) {
+        return format(new Date(timestamp), 'EEE, MMM/dd/yyyy, hh:mm a');
+    } else {
+        return 'No date provided';
+    }
+};
+
+/**
+ * Websocket
+ */
+
+const setupSocket = () => {
+    /*
+     * Connect to websocket to observe the change of index.
+     */
+    const new_socket = new WebSocket(
+        `${process.env.VUE_APP_BASE_URL.replace(/^http/, 'ws').replace(
+            /^https/,
+            'wss'
+        )}ws/index/`
+    );
+    socket.value = new_socket;
+
+    socket.value.onmessage = (event) => {
+        try {
+            var parsedData = JSON.parse(event.data);
+            if (parsedData['type'] === 'new_act') {
+                // Show reload button
+                const reloadButton = document.getElementById('reload');
+                reloadButton.removeAttribute('hidden'); // Show the button
+                reloadButton.classList.remove('translate-y-[-100%]'); // Remove off-screen class
+                reloadButton.classList.add('translate-y-0'); // Slide in
+            }
+        } catch (error) {
+            console.error('Parsing Error: ', error);
+        }
+    };
+};
+
+/**
+ * Utils
+ */
+
+const toggleFilter = () => {
+    /**
+     * Function to toggle filter dropdown status
+     */
+    isFilterOpen.value = !isFilterOpen.value;
+};
+
+const toggleDay = (value) => {
+    /**
+     * Toggle value inside selectedDay array
+     */
+    value = Number(value);
+    const index = selectedDay.value.indexOf(value);
+    if (index === -1) {
+        selectedDay.value.push(value);
+    } else {
+        selectedDay.value.splice(index, 1);
+    }
+};
+
+const isChecked = (value) => {
+    /**
+     * Check if the selectedDays is include the value.
+     * @return boolean
+     */
+    return selectedDay.value.includes(Number(value));
+};
+
+onMounted(() => {
+    fetchActivities();
+    setupSocket();
+    isDarkTheme.value = window.matchMedia(
+        '(prefers-color-scheme: dark)'
+    ).matches;
+    window
+        .matchMedia('(prefers-color-scheme: dark)')
+        .addEventListener('change', (e) => {
+            isDarkTheme.value = e.matches;
+        });
+});
+
+onBeforeUnmount(() => {
+    if (socket.value) socket.value.close();
+});
 </script>
 
 <style scoped>

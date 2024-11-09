@@ -44,7 +44,12 @@
                             tabindex="0"
                             class="menu dropdown-content bg-base-300 rounded-box z-20 w-52 p-2 shadow"
                         >
-                            <li class="p-2 hover:text-primary cursor-pointer" @click="$router.push(`/profile/${userName}`)">{{ fName }} {{ lName }}</li>
+                            <li
+                                class="p-2 hover:text-primary cursor-pointer"
+                                @click="$router.push(`/profile/${userName}`)"
+                            >
+                                {{ fName }} {{ lName }}
+                            </li>
                             <li @click="logout"><a> Logout </a></li>
                         </ul>
                     </div>
@@ -60,11 +65,19 @@
             ></label>
             <ul class="menu bg-base-200 text-base-content w-80 p-4">
                 <!-- Sidebar content here -->
-                <li v-for="(activity, index) in activities" :key="index" class="w-full overflow-hidden h-fit">
-                        <router-link :to="`/activities/${activity.activity_id}`" class="w-full" >
-                            <p class="w-full h-fit text-ellipsis overflow-hidden"> {{ activity.name }} </p>
-                        </router-link>
-
+                <li
+                    v-for="(activity, index) in activities"
+                    :key="index"
+                    class="w-full overflow-hidden h-fit"
+                >
+                    <router-link
+                        :to="`/activities/${activity.activity_id}`"
+                        class="w-full"
+                    >
+                        <p class="w-full h-fit text-ellipsis overflow-hidden">
+                            {{ activity.name }}
+                        </p>
+                    </router-link>
                 </li>
                 <div class="divider w-full"></div>
                 <li class="w-full">
@@ -76,6 +89,7 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
 import {
     login,
     logout,
@@ -86,38 +100,21 @@ import {
     lName,
     userId,
     userName,
-} from "@/functions/Authentications";
-import apiClient from "@/api";
-</script>
+} from '@/functions/Authentications';
+import apiClient from '@/api';
 
-<script>
-export default {
-    name: "App",
-    data() {
-        return {
-            isDarkTheme: false,
-            closeDelay: null,
-            activities: [],
-        };
-    },
-    methods: {
-        async getRecentActivity() {
-            const response = await apiClient.get(`/activities/get-recently/${userId.value}/?records=5`);
-            this.activities = response.data;
-        },
-    },
-    mounted() {
-        authStatus();
-        this.isDarkTheme = window.matchMedia(
-            "(prefers-color-scheme: dark)"
-        ).matches;
-        window
-            .matchMedia("(prefers-color-scheme: dark)")
-            .addEventListener("change", (e) => {
-                this.isDarkTheme = e.matches;
-            });
-    },
+const activities = ref([]);
+
+const getRecentActivity = async () => {
+    const response = await apiClient.get(
+        `/activities/get-recently/${userId.value}/?records=5`
+    );
+    activities.value = response.data;
 };
+
+onMounted(() => {
+    authStatus();
+});
 </script>
 
 <style scoped>
@@ -126,7 +123,7 @@ export default {
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 1;
     line-clamp: 1;
-    word-wrap:break-word;
+    word-wrap: break-word;
     overflow: hidden;
     text-overflow: ellipsis;
 }
