@@ -2,6 +2,7 @@
 import re
 from datetime import timedelta
 from activities.views.util import image_loader, image_loader_64
+from activities.logger import logger
 from typing import Any
 from django.http import HttpRequest
 from django.utils import timezone, dateparse
@@ -92,6 +93,7 @@ class ActivityList(
             }
         )
 
+        logger.info(f'User {request.user.id} ({request.user.first_name}) CREATE Activity {new_act.id}')
         return response.Response(
             {
                 "message": f"Your have successfully create activity {res_dict.get('name')}",

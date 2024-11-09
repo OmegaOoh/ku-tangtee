@@ -4,6 +4,7 @@ from django.http import HttpRequest
 from rest_framework import generics, permissions, mixins, response, status
 from activities import models
 from activities.serializer import model_serializers
+from activities.logger import logger
 
 
 class JoinLeaveView(
@@ -32,8 +33,10 @@ class JoinLeaveView(
         :return: Http response object
         """
         user_profile = request.user.profile_set.first()
+        act_id = kwargs.get('pk')
 
         if not user_profile:
+            logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to JOIN Activity {act_id} (No Profile)')
             return response.Response(
                 {
                     'message': 'User must have profile page before joining an activity',
@@ -42,6 +45,7 @@ class JoinLeaveView(
             )
 
         if not user_profile.able_to_join_more:
+            logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to JOIN Activity {act_id} (Join reach limit)')
             return response.Response(
                 {
                     'message': "The number of activities you have joined has reached the limit",
@@ -52,14 +56,17 @@ class JoinLeaveView(
         serializer = self.get_serializer(
             data={
                 "user": request.user.id,
-                "activity": kwargs.get('pk')
+                "activity": act_id
             }
         )
         serializer.is_valid(raise_exception=True)
         new_attend = serializer.save()
         headers = self.get_success_headers(serializer.data)
+
+        act = new_attend.activity
+        logger.info(f'User {request.user.id} ({request.user.first_name}) JOIN Activity {act.id}')
         return response.Response(
-            {'message': f'You have successfully joined the activity {new_attend.activity.name}'},
+            {'message': f'You have successfully joined the activity {act.name}'},
             status=status.HTTP_201_CREATED, headers=headers
         )
 
@@ -69,8 +76,7 @@ class JoinLeaveView(
         :param request: Http request object
         :return: Http response object
         """
-        res = self.destroy(request, *args, **kwargs)
-        return res
+        return self.destroy(request, *args, **kwargs)
 
     def destroy(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Get attend instance and destroy it.
@@ -80,7 +86,9 @@ class JoinLeaveView(
         """
         tobe_del = self.get_serializer().get_attend(self.kwargs.get('pk'), request.user.id)
         self.perform_destroy(tobe_del)
+        act = tobe_del.activity
+        logger.info(f'User {request.user.id} ({request.user.first_name}) LEAVE Activity {act.id}')
         return response.Response(
-            {'message': f"You've successfully leave {tobe_del.activity.name}"},
+            {'message': f"You've successfully leave {act.name}"},
             status=status.HTTP_200_OK
         )

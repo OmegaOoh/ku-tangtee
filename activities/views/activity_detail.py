@@ -8,6 +8,7 @@ from django.db.models import Q
 from activities import models
 from activities.serializer.permissions import OnlyHostCanEdit
 from activities.serializer import model_serializers
+from activities.logger import logger
 from django.db import transaction
 
 
@@ -63,6 +64,7 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         if err_res:
             return err_res
 
+        logger.info(f'User {request.user.id} ({request.user.first_name}) EDIT Activity {res_dict.get("id")}')
         return response.Response(
             {
                 "message": f"You have successfully edited the activity {res_dict.get('name')}",
@@ -79,6 +81,7 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         max_people = request.data.get("max_people")
         current_people = activity.people
         if max_people and current_people > max_people:
+            logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to EDIT Activity {activity.id} (Current people > Max people)')
             return response.Response(
                 {
                     "message": "Number of participants exceed the capacity.",
@@ -134,9 +137,13 @@ class ActivityDetail(mixins.RetrieveModelMixin,
 
         attendee_ids_to_remove = request.data.get("attendee_to_remove", [])
         attendee_to_remove = activity.attend_set.filter(user__id__in=attendee_ids_to_remove, is_host=False)
+        attendee_infos_to_remove = [{'id': a.user.id, 'name': a.user.first_name} for a in attendee_to_remove]
 
         print(attendee_ids_to_remove)
         attendee_to_remove.delete()
+
+        for attendee in attendee_infos_to_remove:
+            logger.info(f'User {request.user.id} ({request.user.first_name}) KICK User {attendee['id']} ({attendee['name']}) from Activity {activity.id}')
 
     def search_participants(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Search for participants by keyword.
