@@ -14,12 +14,12 @@
         "dompurify": "^3.1.7",
         "dotenv": "^16.4.5",
         "marked": "^14.1.4",
+        "marked-highlight": "^2.2.0",
         "path": "^0.12.7",
         "qrcode.vue": "^3.6.0",
         "vue": "^3.5.11",
         "vue-router": "^4.4.5",
         "vue3-google-login": "^2.0.33",
-        "vue3-highlightjs": "^1.0.5",
         "vue3-lazyload": "^0.3.8"
     },
     "devDependencies": {

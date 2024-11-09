@@ -1,5 +1,7 @@
-import {marked} from "marked";
+import {marked, Marked } from "marked";
 import DOMPurify from "dompurify";
+import { markedHighlight } from "marked-highlight";
+import hljs from 'highlight.js'
 
 export function loadImage(imgFile) {
     return new Promise((resolve, reject) => {
@@ -42,7 +44,17 @@ export function markdownFormatter(string) {
     }
 
     renderer.code = (token) => {
-        return `<pre v-highlightjs><code class="${token.lang}">${token.text}</code></pre>`
+        const hlMarked = new Marked(
+        markedHighlight({
+            emptyLangClass: 'hljs',
+            langPrefix: 'hljs language-',
+            highlight(code, lang) {
+            const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+            return hljs.highlight(code, { language }).value;
+            }
+        })
+        );
+        return hlMarked.parse(token.raw)
     }
 
     let parsed_msg = marked(string, { renderer });
