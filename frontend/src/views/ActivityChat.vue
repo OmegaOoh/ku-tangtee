@@ -293,7 +293,7 @@ const sendMessage = () => {
         socket.value.send(msg);
         images.value = [];
         newMessage.value = '';
-        adjustHeight();
+        nextTick(() => {adjustHeight();})
         handleScrollToBottom(); // Scroll to bottom unconditionally
     } else {
         addAlert('error', 'Chat is not connected, please refresh.')
@@ -465,7 +465,6 @@ const formatTimestamp = (timestamp) => {
 
 const adjustHeight = () => {
     if (!messageTextarea.value) { console.log('messageArea not found'); return}
-    console.log('adjustHieght')
     const textarea = messageTextarea.value;
     if (textarea) {
         textarea.style.height = `auto`;
