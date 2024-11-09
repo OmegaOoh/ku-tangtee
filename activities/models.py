@@ -34,7 +34,7 @@ class Activity(models.Model):
     max_people = models.IntegerField(null=True, blank=True)
     check_in_allowed = models.BooleanField(default=False)
     check_in_code = models.CharField(max_length=6, null=True, default=None)
-    minium_reputation_score = models.SmallIntegerField(
+    minimum_reputation_score = models.SmallIntegerField(
         default=0,
         validators=[MaxValueValidator(100)]
     )
@@ -116,7 +116,7 @@ class Activity(models.Model):
         :return: True is user reputation score meet mininum, otherwise false.
         """
         profile = user.profile_set.first()
-        return profile.reputation_score >= self.minium_reputation_score
+        return profile.reputation_score >= self.minimum_reputation_score
 
     @property
     def people(self) -> int:
