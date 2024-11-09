@@ -53,8 +53,14 @@ export function markdownFormatter(string) {
             return hljs.highlight(code, { language }).value;
             }
         })
-        );
-        return hlMarked.parse(token.raw)
+        )
+        const code_html = hlMarked.parse(token.raw)
+        // Do not try to format this, Its won't work.
+        return `<div class='relative m-2 rounded-lg overflow-hidden'> ${code_html} </div>`
+    }
+
+    renderer.codespan = (token) => {
+        return `<code class='bg-neutral-focus bg-opacity-75 px-1 rounded-sm overflow-hidden'>${token.text}</code>`
     }
 
     let parsed_msg = marked(string, { renderer });
