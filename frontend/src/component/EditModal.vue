@@ -335,8 +335,8 @@ const validateInput = () => {
         result = false;
     }
     if (
-        date.value >= end_date.value ||
-        end_registration_date.value >= end_date.value
+        date.value >= endDate.value ||
+        endRegistrationDate.value >= endDate.value
     ) {
         addAlert(
             'warning',
