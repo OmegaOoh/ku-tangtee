@@ -42,6 +42,28 @@
                                     <img v-lazy="pfp" />
                                 </div>
                             </div>
+                            <div class="my-2">
+                                <p class="font-semibold text-sm">
+                                    Level: {{ reputationLevel }}
+                                </p>
+                                <progress
+                                    class="progress progress-primary w-full"
+                                    :value="reputationProgress"
+                                    max="10"
+                                ></progress>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Progress: {{ reputationProgress }} / 10
+                                </p>
+                                <progress
+                                    class="progress progress-warning w-full"
+                                    :value="concurrentAct"
+                                    :max="joinLimit"
+                                ></progress>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Ongoing:
+                                    {{ concurrentAct }} / {{ joinLimit }}
+                                </p>
+                            </div>
                         </div>
                         <div class="flex-row ml-3 w-full">
                             <span
@@ -124,6 +146,7 @@
                                     maxlength="256"
                                 ></textarea>
                             </div>
+
                             <div v-if="editMode">
                                 <button
                                     class="btn btn-secondary rounded-md absolute top-2 right-2 w-fit h-fit py-1"
@@ -187,6 +210,11 @@ const kuGen = ref('');
 const pfp = ref('');
 const recentActivity = ref([]);
 const editMode = ref(false);
+const reputation = ref(0);
+const reputationLevel = ref(0);
+const reputationProgress = ref(0);
+const joinLimit = ref(0);
+const concurrentAct = ref(0);
 
 // Computed Properties
 const isOwner = computed(() => {
@@ -210,6 +238,14 @@ const fetchUserData = async () => {
     kuGen.value = response.data.ku_generation;
     bio.value = response.data.about_me;
     pfp.value = response.data.profile_picture_url;
+    reputation.value = response.data.reputation_score;
+    reputationLevel.value = reputationProgress.value = Math.floor(
+        reputation.value / 10
+    );
+    reputationProgress.value =
+        reputation.value === 100 ? 10 : reputation.value % 10;
+    concurrentAct.value = response.data.concurrent_activities;
+    joinLimit.value = response.data.join_limit;
 };
 
 const fetchRecentActivities = async () => {

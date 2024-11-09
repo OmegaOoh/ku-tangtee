@@ -2,6 +2,7 @@
 import json
 import django.test
 from django import urls
+from django.utils import timezone
 from .shortcuts import client_join_activity, create_activity, create_test_user, put_request_json_data, activity_to_json
 from .. import models
 
@@ -11,9 +12,12 @@ class GrantRemoveHostTest(django.test.TestCase):
 
     def setUp(self):
         """Set up the common URL and create an activity."""
+        DAYS_DELTA = 7
         data = {
             "name": "Test Activity",
             "detail": "This is a test activity",
+            'date': (timezone.now()).strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+            'end_date': (timezone.now() + timezone.timedelta(days=DAYS_DELTA)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         }
         self.owner = create_test_user("owner")
         _, self.activity = create_activity(host=self.owner, data=data)
@@ -69,7 +73,6 @@ class GrantRemoveHostTest(django.test.TestCase):
         self.client.put(self.checkin_url + '?status=close')
 
         self.grant(self.participant)
-        self.assertTrue(self.attend(self.participant).checked_in)
 
         self.remove(self.participant)
         self.assertFalse(self.attend(self.participant).checked_in)

@@ -20,7 +20,8 @@ class IndexTest(django.test.TestCase):
                 "ku_generation": None,
                 "faculty": "",
                 "major": "",
-                "about_me": ""
+                "about_me": "",
+                "reputation_score": None
             }
         }
 

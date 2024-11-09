@@ -15,7 +15,7 @@ class TestActivityModel(django.test.TestCase):
             "max_people": 1
         }
         _, activity = create_activity(data=data)
-        self.assertFalse(activity.can_join())
+        self.assertTrue(activity.is_full())
 
     def test_str(self):
         """__str__ returns activity name."""
@@ -37,24 +37,24 @@ class TestActivityModel(django.test.TestCase):
         self.assertFalse(activity.is_active())
 
     def test_can_join_less(self):
-        """can_join() return True as Number of people is less than max_people."""
+        """is_full() return False as Number of people is less than max_people."""
         data = {
             "name": "Less",
             "detail": "hello",
             "max_people": 10
         }
         _, activity = create_activity(data=data)
-        self.assertTrue(activity.can_join())
+        self.assertFalse(activity.is_full())
 
     def test_can_join_past(self):
         """can_join return False when date is in the past."""
         _, activity = create_activity(days_delta=-1)
-        self.assertFalse(activity.can_join())
+        self.assertFalse(activity.is_active())
 
     def test_can_join_future(self):
         """can_join return True when date is in the future."""
         _, activity = create_activity(days_delta=1)
-        self.assertTrue(activity.can_join())
+        self.assertTrue(activity.is_active())
 
     def test_host(self):
         """Return user that is host of that activity."""
@@ -101,7 +101,7 @@ class TestAttendModel(django.test.TestCase):
         _, activity3 = create_activity(host=host, data={"name": "act3", "detail": "act"})
         _, activity4 = create_activity(host=host, data={"name": "act4", "detail": "act"})
 
-        attendee = create_test_user("Attend")
+        attendee = create_test_user("Attend", rep_score=100)
         self.assertEqual(Attend.recently_joined(attendee), [])
 
         for activity in (activity1, activity2, activity3):
@@ -119,7 +119,7 @@ class TestAttendModel(django.test.TestCase):
         _, activity3 = create_activity(host=host, data={"name": "act3", "detail": "act"})
         _, activity4 = create_activity(host=host, data={"name": "act4", "detail": "act"})
 
-        attendee = create_test_user("Attend")
+        attendee = create_test_user("Attend", rep_score=100)
         self.assertEqual(Attend.active_joined_activity(attendee), [])
 
         for activity in (activity1, activity2, activity3):

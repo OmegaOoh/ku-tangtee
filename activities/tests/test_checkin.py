@@ -3,6 +3,8 @@ import django.test
 from .shortcuts import create_activity, create_test_user, client_join_activity
 from ..models import Attend
 from django import urls
+from django.utils import timezone
+from profiles.models import Profile
 import re
 import json
 
@@ -15,7 +17,10 @@ class CheckinTest(django.test.TestCase):
         self.url = lambda id: urls.reverse("activities:checkin", args=[id])
 
         self.host = create_test_user('Host')
-        _, self.activity = create_activity(host=self.host, client=self.client)
+        DAYSDELTA = 7
+        data = {'name': 'test activity', 'detail': 'hello', 'date': (timezone.now()).strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+                'end_date': (timezone.now() + timezone.timedelta(days=DAYSDELTA)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')}
+        _, self.activity = create_activity(host=self.host, client=self.client, data=data)
 
         self.attendee = create_test_user('Attendee')
         client_join_activity(client=self.client, user=self.attendee, activity=self.activity)
@@ -138,14 +143,38 @@ class CheckinTest(django.test.TestCase):
         self.open()
 
         self.client.force_login(self.attendee)
+
+        user_profile = self.attendee.profile_set.first()
+        rep_before = user_profile.reputation_score
+
         res = self.client.post(
             self.url(self.activity.id),
             data={
                 'check_in_code': self.activity.check_in_code
             }
         )
+
+        user_profile.refresh_from_db()
         self.assertJSONEqual(res.content, {'message': f"You've successfully check-in to {self.activity.name}"})
         self.assertTrue(self.attendee.attend_set.get(activity=self.activity).checked_in)
+        self.assertEqual(rep_before + 1, user_profile.reputation_score)
+
+    def test_decrease_reputation_for_missed_check_in(self):
+        """Test that user's reputation decreases when they miss a check-in."""
+        self.open()
+        self.activity.end_date = timezone.now() - timezone.timedelta(days=1)
+        self.activity.date = timezone.now() - timezone.timedelta(days=2)
+        self.activity.save()
+
+        # Call the method to check for missed check-ins
+        Profile.check_missed_check_ins()
+
+        user_profile = self.attendee.profile_set.first()
+        self.assertEqual(user_profile.reputation_score,
+                         max(0, user_profile.reputation_score - Profile.CHECK_IN_REPUTATION_DECREASE))
+
+        attendee_record = Attend.objects.get(user=self.attendee, activity=self.activity)
+        self.assertTrue(attendee_record.rep_decrease)
 
     def open(self):
         """Open for check-in."""

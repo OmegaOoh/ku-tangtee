@@ -49,6 +49,11 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         if check_max_error:
             return check_max_error
 
+        # Checking owner reputation score
+        rep_error = self.__check_rep_score(request)
+        if rep_error:
+            return rep_error
+
         # Update activity information
         res = super().update(request, partial=True, *args, **kwargs)
         res_dict = res.data
@@ -69,6 +74,26 @@ class ActivityDetail(mixins.RetrieveModelMixin,
                 "id": res_dict.get("id")
             }
         )
+
+    def __check_rep_score(self, request: HttpRequest) -> response.Response | None:
+        """Check reputation score of owner compare to updated value.
+
+        :param request: HttpRequest object
+        :return: Http response object if minimum reputation score is not valid.
+        """
+        activity = self.get_object()
+        owner_profile = activity.owner.profile_set.first()
+        min_rep = request.data.get("minimum_reputation_score")
+        if min_rep:
+            if min_rep > owner_profile.reputation_score:
+                return response.Response(
+                    {
+                        'message': 'Activity Minimum reputation must less then or equal to creator reputation score',
+                        "id": activity.id
+                    },
+                    status=403
+                )
+        return None
 
     def __check_max_people(self, request: HttpRequest) -> response.Response | None:
         """Check max people.

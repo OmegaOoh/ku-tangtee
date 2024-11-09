@@ -22,7 +22,8 @@ class ActivitiesSerializer(serializers.ModelSerializer):
     """Serialized Activity and created activity from validated data."""
 
     people = serializers.ReadOnlyField()
-    can_join = serializers.ReadOnlyField()
+    is_active = serializers.ReadOnlyField()
+    is_not_full = serializers.ReadOnlyField()
     host = serializers.SerializerMethodField()
     participant = serializers.SerializerMethodField()
     images = serializers.SerializerMethodField()

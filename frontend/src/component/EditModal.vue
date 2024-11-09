@@ -86,7 +86,7 @@
             </div>
             <div class="form-control w-full my-1">
                 <div class="label">
-                    <span class="text-base-content"> Activity Date </span>
+                    <span class="text-base-content"> Activity Start Date </span>
                     <span
                         id="date-field-error"
                         class="text-error text-sm"
@@ -100,6 +100,48 @@
                     id="date-field"
                     type="text"
                     placeholder="Select Date"
+                    :min-date="new Date()"
+                    :dark="isDarkTheme"
+                />
+            </div>
+            <div class="form-control w-full">
+                <div class="label">
+                    <span class="text-base-content">
+                        Activity End Registration Date
+                    </span>
+                    <span
+                        id="end-reg-date-field-error"
+                        class="text-error text-sm"
+                        hidden
+                    >
+                        required
+                    </span>
+                </div>
+                <VueDatePicker
+                    v-model="endRegistrationDate"
+                    id="end-reg-date-field"
+                    type="text"
+                    placeholder="Select End Registration Date"
+                    :min-date="new Date()"
+                    :dark="isDarkTheme"
+                />
+            </div>
+            <div class="form-control w-full">
+                <div class="label">
+                    <span class="text-base-content"> Activity End Date </span>
+                    <span
+                        id="end-date-field-error"
+                        class="text-error text-sm"
+                        hidden
+                    >
+                        required
+                    </span>
+                </div>
+                <VueDatePicker
+                    v-model="endDate"
+                    id="end-date-field"
+                    type="text"
+                    placeholder="Select End Date"
                     :min-date="new Date()"
                     :dark="isDarkTheme"
                 />
@@ -123,6 +165,22 @@
                         placeholder="Enter Max People (Optional)"
                         class="input input-bordered input-primary w-full mb-4"
                         :min="activity.people"
+                    />
+                </div>
+                <div>
+                    <label>Minimum reputation level </label>
+                </div>
+                <div class="join">
+                    <input type="checkbox" class="toggle" @change="setMinRep" />
+                    <input
+                        v-if="showMinRep"
+                        id="min-rep-field"
+                        v-model.number="minRep"
+                        type="number"
+                        placeholder="Enter minimum reputation score (Optional)"
+                        class="input input-bordered input-primary w-full mb-4"
+                        min="0"
+                        max="10"
                     />
                 </div>
             </div>
@@ -187,6 +245,8 @@ const emit = defineEmits(['update-success', 'close']);
 const activityName = ref('');
 const activityDetail = ref('');
 const date = ref('');
+const endRegistrationDate = ref('');
+const endDate = ref('');
 const maxPeople = ref(0);
 const people = ref([]);
 const showMaxPeople = ref(false);
@@ -196,6 +256,8 @@ const new_images = ref([]);
 const owner = ref(0);
 const remove_attachment = ref([]);
 const isDarkTheme = ref(false);
+const showMinRep = ref(false)
+const minRep = ref(0)
 
 const fetchDetail = async () => {
     /**
@@ -208,6 +270,10 @@ const fetchDetail = async () => {
         activityName.value = response.data.name || '';
         activityDetail.value = response.data.detail || '';
         date.value = formatActivityDate(new Date(response.data.date));
+        endRegistrationDate.value = formatActivityDate(
+            new Date(response.data.end_registration_date)
+        );
+        endDate.value = formatActivityDate(new Date(response.data.end_date));
         images.value = activity.value.images.map((image) => ({
             id: image.id,
             url: `${BASE_URL}${image.url}`,
@@ -262,6 +328,22 @@ const validateInput = () => {
     } else {
         dateFieldError.setAttribute('hidden', 'true');
     }
+    const endRegDateFieldError = document.getElementById(
+        'end-reg-date-field-error'
+    );
+    if (endRegistrationDate.value.length <= 0) {
+        endRegDateFieldError.removeAttribute('hidden');
+        result = false;
+    } else {
+        endRegDateFieldError.setAttribute('hidden', 'true');
+    }
+    const endDateFieldError = document.getElementById('end-date-field-error');
+    if (endDate.value.length <= 0) {
+        endDateFieldError.removeAttribute('hidden');
+        result = false;
+    } else {
+        endDateFieldError.setAttribute('hidden', 'true');
+    }
     if (maxPeople.value < activity.value.people) {
         addAlert(
             'warning',
@@ -270,6 +352,22 @@ const validateInput = () => {
         maxPeople.value = activity.value.people;
         result = false;
     }
+    if (minRep.value < 0 || minRep.value > 10){
+        addAlert('warning', 'Max People must be positive and not zeroes.');
+        minRep.value = 0;
+        result = false;
+    }
+    if (
+        date.value >= endDate.value ||
+        endRegistrationDate.value >= endDate.value
+    ) {
+        addAlert(
+            'warning',
+            'Start date and end registration date has to come before end date.'
+        );
+        result = false;
+    }
+
     return result;
 };
 
@@ -294,10 +392,13 @@ const postUpdate = async () => {
             name: activityName.value,
             detail: activityDetail.value,
             date: date.value,
+            end_registration_date: endRegistrationDate.value,
+            end_date: endDate.value,
             max_people: maxPeople.value || null,
             new_images: new_images.value,
             remove_attachments: remove_attachment.value,
             owner: owner.value,
+            minimum_reputation_score: minRep.value * 10
         };
         const response = await createPutRequest(
             `/activities/${props.id}/`,
@@ -336,6 +437,13 @@ const setMaxPeople = () => {
      * Return nothing.
      */
     showMaxPeople.value = !showMaxPeople.value;
+};
+
+const setMinRep = () => {
+    /*
+     * Switch the flag of setting minimum reputation.
+     */
+    showMinRep.value = !showMinRep.value;
 };
 
 const handleFileChange = (e) => {

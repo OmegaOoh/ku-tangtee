@@ -131,10 +131,23 @@
                 <div class="mb-2 ml-3 overflow-hidden multi-line" v-html="markdownFormatter(activity.detail)">
                 </div>
                 <p class="mb-2 ml-3">
-                    <strong>Date and Time:</strong>
+                    <strong class="text-base-content text-lg"
+                        >Start Date and Time:</strong
+                    >
                     {{ formatTimestamp(activity.date) }}
                 </p>
-
+                <p class="mb-2 ml-3">
+                    <strong class="text-base-content text-lg"
+                        >End Registration Date:</strong
+                    >
+                    {{ formatTimestamp(activity.end_registration_date) }}
+                </p>
+                <p class="mb-2 ml-3">
+                    <strong class="text-base-content text-lg"
+                        >End Date and Time:</strong
+                    >
+                    {{ formatTimestamp(activity.end_date) }}
+                </p>
                 <div
                     v-if="imageUrls.length > 0"
                     class="flex flex-col justify-center"
@@ -151,6 +164,9 @@
 
                 <p v-if="activity.max_people != null" class="mb-2 ml-3">
                     <strong>Max People:</strong> {{ activity.max_people }}
+                </p>
+                <p v-if="activity.minimum_reputation_score != null" class="mb-2 ml-3">
+                    <strong>Required Level: {{ minRepLv }}</strong> 
                 </p>
                 <p class="mb-2 ml-3"><strong>Joined People:</strong></p>
 
@@ -224,7 +240,10 @@
                     </div>
                     <div v-else>
                         <button
-                            v-if="canJoin"
+                            v-if="
+                                !activity.is_full &&
+                                activity.is_active
+                            "
                             id="join-button"
                             @click="joinActivity"
                             class="btn btn-primary ml-2 mr-2"
@@ -287,9 +306,9 @@ const showCheckInModal = ref(false);
 const showQRCode = ref(false);
 const people = ref([]);
 const checkedIn = ref(false);
-const canJoin = ref(true);
 const hosts = ref([]);
 const owner = ref(0);
+const minRepLv = ref(0);
 
 const fetchDetail = async () => {
     try {
@@ -300,9 +319,9 @@ const fetchDetail = async () => {
             id: image.id,
             url: `${BASE_URL}${image.url}`,
         }));
-        canJoin.value = activity.value.can_join;
         hosts.value = response.data.host;
         owner.value = response.data.owner;
+        minRepLv.value = Math.floor(response.data.minimum_reputation_score / 10)
         checkCheckedIn();
     } catch (error) {
         console.error('Error fetching activity:', error);
