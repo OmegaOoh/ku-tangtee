@@ -84,14 +84,15 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         activity = self.get_object()
         owner_profile = activity.owner.profile_set.first()
         min_rep = request.data.get("minimum_reputation_score")
-        if min_rep > owner_profile.reputation_score and min_rep:
-            return response.Response(
-                {
-                    'message': 'Activity Minimum reputation must less then or equal to creator reputation score',
-                    "id": activity.id
-                },
-                status=403
-            )
+        if min_rep:
+            if min_rep > owner_profile.reputation_score:
+                return response.Response(
+                    {
+                        'message': 'Activity Minimum reputation must less then or equal to creator reputation score',
+                        "id": activity.id
+                    },
+                    status=403
+                )
         return None
 
     def __check_max_people(self, request: HttpRequest) -> response.Response | None:

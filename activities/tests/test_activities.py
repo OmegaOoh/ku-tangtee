@@ -15,7 +15,7 @@ class TestActivityModel(django.test.TestCase):
             "max_people": 1
         }
         _, activity = create_activity(data=data)
-        self.assertFalse(activity.is_full())
+        self.assertTrue(activity.is_full())
 
     def test_str(self):
         """__str__ returns activity name."""
@@ -37,14 +37,14 @@ class TestActivityModel(django.test.TestCase):
         self.assertFalse(activity.is_active())
 
     def test_can_join_less(self):
-        """can_join() return True as Number of people is less than max_people."""
+        """is_full() return False as Number of people is less than max_people."""
         data = {
             "name": "Less",
             "detail": "hello",
             "max_people": 10
         }
         _, activity = create_activity(data=data)
-        self.assertTrue(activity.is_full())
+        self.assertFalse(activity.is_full())
 
     def test_can_join_past(self):
         """can_join return False when date is in the past."""

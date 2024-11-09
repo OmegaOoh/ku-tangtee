@@ -54,11 +54,11 @@ class Activity(models.Model):
         return bool(self.end_registration_date >= timezone.now())
 
     def is_full(self) -> bool:
-        """Check if max_people doesn't reach and date doesn't past.
+        """Check if max_people doesn't reach.
 
-        :return: true if the activity is join able, false otherwise
+        :return: true if the activity is full, false otherwise
         """
-        return bool((not self.max_people) or (self.people < self.max_people))
+        return False if (not self.max_people) or (self.people < self.max_people) else True
 
     def host(self) -> list[User]:
         """Find all user that is host of the activity (is_host is True), owner included.

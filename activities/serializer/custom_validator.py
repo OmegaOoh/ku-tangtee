@@ -44,7 +44,7 @@ class CanJoinValidator:
                 message = f'The activity {act.name} is not active.'
                 raise ForbiddenValidationError(message)
 
-            if not act.is_full():
+            if act.is_full():
                 message = f'The activity {act.name} is full.'
                 raise ForbiddenValidationError(message)
 
