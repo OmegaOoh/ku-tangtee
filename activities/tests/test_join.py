@@ -229,5 +229,5 @@ class JoinTest(django.test.TestCase):
         self.assertNotIn(enough_rep_user, act_with_min_rep.participants())
 
         self.assertJSONEqual(
-            response.content, {'message': f'Your reputation score is to low to join {act_with_min_rep.name}'}
+            response.content, {'message': f'Your reputation score is too low to join {act_with_min_rep.name}'}
         )
