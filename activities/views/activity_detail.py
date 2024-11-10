@@ -88,7 +88,8 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         min_rep = request.data.get("minimum_reputation_score")
         if min_rep:
             if min_rep > owner_profile.reputation_score:
-                logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to EDIT Activity {activity.id} (Owner rep < Min rep)')
+                logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to EDIT Activity {activity.id} '
+                               f'(Owner rep < Min rep)')
                 return response.Response(
                     {
                         'message': 'Activity Minimum reputation must less then or equal to creator reputation score',
@@ -107,7 +108,8 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         max_people = request.data.get("max_people")
         current_people = activity.people
         if max_people and current_people > max_people:
-            logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to EDIT Activity {activity.id} (Current people > Max people)')
+            logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to EDIT Activity {activity.id} '
+                           f'(Current people > Max people)')
             return response.Response(
                 {
                     "message": "Number of participants exceed the capacity.",
@@ -169,7 +171,8 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         attendee_to_remove.delete()
 
         for attendee in attendee_infos_to_remove:
-            logger.info(f'User {request.user.id} ({request.user.first_name}) KICK User {attendee['id']} ({attendee['name']}) from Activity {activity.id}')
+            logger.info(f'User {request.user.id} ({request.user.first_name}) KICK '
+                        f'User {attendee['id']} ({attendee['name']}) from Activity {activity.id}')
 
     def search_participants(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Search for participants by keyword.

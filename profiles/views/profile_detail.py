@@ -79,7 +79,8 @@ class ProfileDetail(
         user = get_object_or_404(auth_models.User, username=username)
 
         if user != request.user:
-            logger.warning(f'User {request.user.id} ({request.user.first_name}) TRY to EDIT User {user.id} ({user.first_name}) Profile')
+            logger.warning(f'User {request.user.id} ({request.user.first_name}) TRY to EDIT '
+                           f'User {user.id} ({user.first_name}) Profile')
             return response.Response({'message': 'Cannot edit other profile.'}, status=403)
 
         new_kwargs["user_id"] = user.id

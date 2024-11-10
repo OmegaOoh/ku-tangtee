@@ -82,7 +82,8 @@ class CustomMsgUniqueTogetherValidator(validators.UniqueTogetherValidator):
         try:
             return super().__call__(attrs, serializer)
         except validators.ValidationError:
-            logger.warning(f'User {attrs['user'].id} ({attrs['user'].first_name}) FAIL to JOIN Activity {attrs['activity'].id} (Already join)')
+            logger.warning(f'User {attrs['user'].id} ({attrs['user'].first_name}) FAIL to JOIN Activity {attrs['activity'].id} '
+                           f'(Already join)')
             raise ForbiddenValidationError(
                 {
                     "message": f"You've already joined the activity {attrs['activity'].name}."

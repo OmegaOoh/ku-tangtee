@@ -50,21 +50,24 @@ class CheckInView(
         act = self.get_object()
 
         if not act.is_participated(request.user):
-            logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to CHECK-IN to Activity {act.id} (Not member)')
+            logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to CHECK-IN to Activity {act.id} '
+                           f'(Not member)')
             return response.Response(
                 {'message': "You're not member of this activity"},
                 status=403
             )
 
         if not act.check_in_allowed:
-            logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to CHECK-IN to Activity {act.id} (Check-in not allow)')
+            logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to CHECK-IN to Activity {act.id} '
+                           f'(Check-in not allow)')
             return response.Response(
                 {'message': 'Check-in are not allow at the moment'},
                 status=403
             )
 
         if not act.verified_check_in_code(code):
-            logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to CHECK-IN to Activity {act.id} (Invalid code)')
+            logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to CHECK-IN to Activity {act.id} '
+                           f'(Invalid code)')
             return response.Response(
                 {'message': 'Check-in code invalid'},
                 status=403
@@ -103,7 +106,8 @@ class CheckInView(
                 'message': 'Activity check-in are open',
                 'check_in_code': request.data.get('check_in_code')
             })
-        logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to OPEN CHECK-IN for Activity {act.id} (Not in Check-in period)')
+        logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to OPEN CHECK-IN for Activity {act.id} '
+                       f'(Not in Check-in period)')
         return response.Response({'message': 'Check-in period is in between Start date and End date of the activity.'},
                                  status=403)
 

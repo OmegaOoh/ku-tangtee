@@ -57,7 +57,8 @@ def edit_host_access(
     :param remove: True if granting host access, False if removing host access
     """
     if request_user != act.owner:
-        logger.warning(f'User {request_user.id} ({request_user.first_name}) FAIL to EDIT HOST ACCESS in Activity {act.id} (Not owner)')
+        logger.warning(f'User {request_user.id} ({request_user.first_name}) FAIL to EDIT HOST ACCESS in Activity {act.id} '
+                       f'(Not owner)')
         return response.Response({'message': "You must be the owner of this activity to perform this action."},
                                  status=403)
     for user_id in user_ids:
@@ -80,7 +81,8 @@ def edit_host_access(
 
         attend.save()
 
-        logger.info(f'User {request_user.id} ({request_user.first_name}) EDIT HOST ACCESS to User {user_id} ({user.first_name}) in Activity {act.id} (is_host={not remove})')
+        logger.info(f'User {request_user.id} ({request_user.first_name}) EDIT HOST ACCESS to '
+                    f'User {user_id} ({user.first_name}) in Activity {act.id} (is_host={not remove})')
 
     return None
 
