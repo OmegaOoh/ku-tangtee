@@ -75,15 +75,15 @@ class CustomMsgUniqueTogetherValidator(validators.UniqueTogetherValidator):
     def __call__(self, attrs: dict[str, Any], serializer: serializers.Serializer) -> Any:
         """Validate data such that user can't join activity that they've join.
 
-        :param attrs: Dict contain instance of each fields.
+        :param attrs: Dict contain instance of each field.
         :raises ForbiddenValidationError: If user id and activity id combination are not unique.
         :return: None
         """
         try:
             return super().__call__(attrs, serializer)
         except validators.ValidationError:
-            logger.warning(f'User {attrs['user'].id} ({attrs['user'].first_name}) FAIL to JOIN Activity {attrs['activity'].id} '
-                           f'(Already join)')
+            logger.warning(f"User {attrs['user'].id} ({attrs['user'].first_name}) FAIL to JOIN Activity {attrs['activity'].id} "
+                           f"(Already join)")
             raise ForbiddenValidationError(
                 {
                     "message": f"You've already joined the activity {attrs['activity'].name}."
