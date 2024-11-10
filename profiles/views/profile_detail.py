@@ -9,6 +9,7 @@ from profiles import models
 
 from profiles.serializer import model_serializers
 from profiles.serializer.permissions import OnlyOwnerCanEdit
+from profiles.logger import logger
 
 
 class ProfileDetail(
@@ -78,11 +79,14 @@ class ProfileDetail(
         user = get_object_or_404(auth_models.User, username=username)
 
         if user != request.user:
+            logger.warning(f'User {request.user.id} ({request.user.first_name}) TRY to EDIT User {user.id} ({user.first_name}) Profile')
             return response.Response({'message': 'Cannot edit other profile.'}, status=403)
 
         new_kwargs["user_id"] = user.id
         res = self.update(request, partial=True, *args, **new_kwargs)
         res_dict = res.data
+
+        logger.info(f'User {request.user.id} ({request.user.first_name}) EDIT Profile {res_dict.get("id")}')
         return response.Response(
             {
                 "message": "You have successfully edited your KU Tangtee profile.",

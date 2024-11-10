@@ -6,6 +6,7 @@ from rest_framework import generics, permissions, mixins, response, status
 from profiles import models
 
 from profiles.serializer import model_serializers
+from profiles.logger import logger
 
 
 class ProfileList(
@@ -45,6 +46,7 @@ class ProfileList(
         :return: Http response object
         """
         if self.get_queryset().exists():
+            logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to CREATE Profile (Already exists)')
             return response.Response({"message": "You've already created your profile.",
                                       "id": self.get_queryset().first().id}, status=status.HTTP_403_FORBIDDEN)
         return self.create(request, *args, **kwargs)
@@ -59,6 +61,7 @@ class ProfileList(
         serializer.is_valid(raise_exception=True)
         new_profile = serializer.save()
         headers = self.get_success_headers(serializer.data)
+        logger.info(f'User {request.user.id} ({request.user.first_name}) CREATE Profile {new_profile.id}')
         return response.Response(
             {'message': "You have successfully created your KU Tangtee profile.", "id": new_profile.id},
             status=status.HTTP_201_CREATED, headers=headers
