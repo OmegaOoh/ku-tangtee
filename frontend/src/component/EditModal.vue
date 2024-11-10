@@ -167,6 +167,22 @@
                         :min="activity.people"
                     />
                 </div>
+                <div>
+                    <label>Minimum reputation level </label>
+                </div>
+                <div class="join">
+                    <input type="checkbox" class="toggle" @change="setMinRep" />
+                    <input
+                        v-if="showMinRep"
+                        id="min-rep-field"
+                        v-model.number="minRep"
+                        type="number"
+                        placeholder="Enter minimum reputation score (Optional)"
+                        class="input input-bordered input-primary w-full mb-4"
+                        min="0"
+                        max="10"
+                    />
+                </div>
             </div>
 
             <div class="flex justify-end">
@@ -200,7 +216,7 @@ import { ref, defineProps, defineEmits, onMounted } from 'vue';
 import apiClient from '@/api';
 import { createPutRequest } from '@/functions/HttpRequest.js';
 import { addAlert } from '@/functions/AlertManager';
-import { loadImage } from '@/functions/Utils.';
+import { loadImage } from '@/functions/Utils';
 import ImageCarousel from './ImageCarousel.vue';
 const MAX_IMAGE_COUNT = 10;
 const MAX_IMAGES_SIZE = 100e6; // 100 MB
@@ -240,6 +256,8 @@ const new_images = ref([]);
 const owner = ref(0);
 const remove_attachment = ref([]);
 const isDarkTheme = ref(false);
+const showMinRep = ref(false)
+const minRep = ref(0)
 
 const fetchDetail = async () => {
     /**
@@ -334,6 +352,11 @@ const validateInput = () => {
         maxPeople.value = activity.value.people;
         result = false;
     }
+    if (minRep.value < 0 || minRep.value > 10){
+        addAlert('warning', 'Max People must be positive and not zeroes.');
+        minRep.value = 0;
+        result = false;
+    }
     if (
         date.value >= endDate.value ||
         endRegistrationDate.value >= endDate.value
@@ -375,6 +398,7 @@ const postUpdate = async () => {
             new_images: new_images.value,
             remove_attachments: remove_attachment.value,
             owner: owner.value,
+            minimum_reputation_score: minRep.value * 10
         };
         const response = await createPutRequest(
             `/activities/${props.id}/`,
@@ -413,6 +437,13 @@ const setMaxPeople = () => {
      * Return nothing.
      */
     showMaxPeople.value = !showMaxPeople.value;
+};
+
+const setMinRep = () => {
+    /*
+     * Switch the flag of setting minimum reputation.
+     */
+    showMinRep.value = !showMinRep.value;
 };
 
 const handleFileChange = (e) => {

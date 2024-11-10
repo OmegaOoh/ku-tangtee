@@ -32,31 +32,10 @@ class JoinLeaveView(
         :param request: Http request object
         :return: Http response object
         """
-        user_profile = request.user.profile_set.first()
-        act_id = kwargs.get('pk')
-
-        if not user_profile:
-            logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to JOIN Activity {act_id} (No Profile)')
-            return response.Response(
-                {
-                    'message': 'User must have profile page before joining an activity',
-                },
-                status=status.HTTP_403_FORBIDDEN
-            )
-
-        if not user_profile.able_to_join_more:
-            logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to JOIN Activity {act_id} (Join reach limit)')
-            return response.Response(
-                {
-                    'message': "The number of activities you have joined has reached the limit",
-                },
-                status=status.HTTP_403_FORBIDDEN
-            )
-
         serializer = self.get_serializer(
             data={
                 "user": request.user.id,
-                "activity": act_id
+                "activity": kwargs.get('pk')
             }
         )
         serializer.is_valid(raise_exception=True)

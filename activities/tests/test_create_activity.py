@@ -100,6 +100,94 @@ class CreateActivityTest(django.test.TestCase):
                 f'Datetime has wrong format. Use one of these formats instead: {expect_datetime_format}'}
         )
 
+    def test_create_activity_with_no_profile(self):
+        """User must have profile before create an activity."""
+        no_profile = create_test_user("No profile", with_profile=False)
+        data = {
+            "name": "Wrong date format",
+            "detail": "This is invalid activity",
+            "date": "2024/10-10T1",
+            "max_people": 10
+        }
+        self.client.force_login(no_profile)
+        response = post_request_json_data(self.url, self.client, data)
+        self.assertEqual(response.status_code, 403)
+        self.assertJSONEqual(response.content, {'message': 'User must have profile page before create an activity'})
+
+    def test_create_activity_with_minimum_rep_less_then_their_rep_score(self):
+        """User able to set minimum reputation score less then their score."""
+        rep_50 = create_test_user("No profile", rep_score=50)
+        data = {
+            "name": "With min rep",
+            "detail": "This is invalid activity",
+            "max_people": 10,
+            "minimum_reputation_score": 30
+        }
+        self.client.force_login(rep_50)
+        response, new_act = create_activity(
+            client=self.client,
+            host=rep_50,
+            data=data
+        )
+        response_dict = json.loads(response.content)
+
+        # Check Response
+        self.assertEqual(response_dict["message"], f"Your have successfully create activity {data.get('name')}")
+        self.assertEqual(response.status_code, 200)
+        # Check Activity Object
+        self.assertEqual(new_act.name, data.get('name'))
+        self.assertEqual(new_act.people, 1)
+        self.assertEqual(new_act.minimum_reputation_score, data.get("minimum_reputation_score"))
+
+    def test_create_activity_with_minimum_rep_equal_to_their_rep_score(self):
+        """User able to set minimum reputation score equal to their score."""
+        rep_50 = create_test_user("No profile", rep_score=50)
+        data = {
+            "name": "With min rep",
+            "detail": "This is invalid activity",
+            "max_people": 10,
+            "minimum_reputation_score": 50
+        }
+        self.client.force_login(rep_50)
+        response, new_act = create_activity(
+            client=self.client,
+            host=rep_50,
+            data=data
+        )
+        response_dict = json.loads(response.content)
+
+        # Check Response
+        self.assertEqual(response_dict["message"], f"Your have successfully create activity {data.get('name')}")
+        self.assertEqual(response.status_code, 200)
+        # Check Activity Object
+        self.assertEqual(new_act.name, data.get('name'))
+        self.assertEqual(new_act.people, 1)
+        self.assertEqual(new_act.minimum_reputation_score, data.get("minimum_reputation_score"))
+
+    def test_create_activity_with_minimum_rep_more_then_their_rep_score(self):
+        """User able to set minimum reputation score equal to their score."""
+        rep_50 = create_test_user("No profile", rep_score=50)
+        data = {
+            "name": "With min rep",
+            "detail": "This is invalid activity",
+            "max_people": 10,
+            "minimum_reputation_score": 70
+        }
+        self.client.force_login(rep_50)
+        response, _ = create_activity(
+            client=self.client,
+            host=rep_50,
+            data=data
+        )
+        response_dict = json.loads(response.content)
+
+        # Check Response
+        self.assertEqual(
+            response_dict["message"],
+            'Activity Minimum reputation must less then or equal to creator reputation score'
+        )
+        self.assertEqual(response.status_code, 403)
+
     def test_invalid_activity_creation_with_too_long_activity_name(self):
         """Create should return json with error message."""
         data = {

@@ -12,12 +12,12 @@ class GrantRemoveHostTest(django.test.TestCase):
 
     def setUp(self):
         """Set up the common URL and create an activity."""
-        DAYSDELTA = 7
+        DAYS_DELTA = 7
         data = {
             "name": "Test Activity",
             "detail": "This is a test activity",
             'date': (timezone.now()).strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
-            'end_date': (timezone.now() + timezone.timedelta(days=DAYSDELTA)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+            'end_date': (timezone.now() + timezone.timedelta(days=DAYS_DELTA)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         }
         self.owner = create_test_user("owner")
         _, self.activity = create_activity(host=self.owner, data=data)

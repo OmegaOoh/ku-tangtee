@@ -166,6 +166,18 @@
                     class="input input-bordered input-primary w-full mb-4"
                     min="1"
                 />
+                <label>Minimum reputation level </label>
+                <input type="checkbox" class="toggle" @change="setMinRep" />
+                <input
+                    v-if="showMinRep"
+                    id="min-rep-field"
+                    v-model.number="minRep"
+                    type="number"
+                    placeholder="Enter minimum reputation score (Optional)"
+                    class="input input-bordered input-primary w-full mb-4"
+                    min="0"
+                    max="10"
+                />
                 <div class="flex flex-col sm = ref(flex-row justify-between">
                     <button
                         v-if="!isAuth"
@@ -193,7 +205,7 @@ import { ref, onMounted } from 'vue';
 import { addAlert } from '@/functions/AlertManager';
 import { createPostRequest } from '@/functions/HttpRequest';
 import { isAuth, login } from '@/functions/Authentications';
-import { loadImage } from '@/functions/Utils.';
+import { loadImage } from '@/functions/Utils';
 import ImageCarousel from '@/component/ImageCarousel';
 import { useRouter } from 'vue-router';
 
@@ -211,6 +223,8 @@ const maxPeople = ref(1);
 const showMaxPeople = ref(false);
 const isDarkTheme = ref(false);
 const images = ref([]);
+const showMinRep = ref(false);
+const minRep = ref(0)
 
 /**
  * Redirection
@@ -288,6 +302,11 @@ const validateInput = () => {
         maxPeople.value = 1;
         result = false;
     }
+    if (minRep.value < 0 || minRep.value > 10){
+        addAlert('warning', 'Max People must be positive and not zeroes.');
+        minRep.value = 0;
+        result = false;
+    }
     if (
         date.value >= endDate.value ||
         endRegistrationDate.value >= endDate.value
@@ -307,6 +326,14 @@ const setMaxPeople = () => {
      */
     showMaxPeople.value = !showMaxPeople.value;
 };
+
+const setMinRep = () => {
+    /*
+     * Switch the flag of setting minimum reputation.
+     */
+    showMinRep.value = !showMinRep.value;
+};
+
 
 const handleFileChange = (event) => {
     /*
@@ -396,6 +423,7 @@ const postCreateActivity = async () => {
             max_people: maxPeople.value || null,
             images: images.value,
             owner: userId.value,
+            minimum_reputation_score: minRep.value * 10
         };
         const response = await createPostRequest(`/activities/`, data);
         addAlert('success', response.data.message);

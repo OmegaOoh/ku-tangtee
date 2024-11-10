@@ -3,6 +3,7 @@ from typing import Any, Optional
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator
 
 
 def get_end_registration_date() -> Any:
@@ -33,6 +34,10 @@ class Activity(models.Model):
     max_people = models.IntegerField(null=True, blank=True)
     check_in_allowed = models.BooleanField(default=False)
     check_in_code = models.CharField(max_length=6, null=True, default=None)
+    minimum_reputation_score = models.SmallIntegerField(
+        default=0,
+        validators=[MaxValueValidator(100)]
+    )
 
     def __str__(self) -> Any:
         """Return Activity Name as string representative.
@@ -41,19 +46,19 @@ class Activity(models.Model):
         """
         return self.name
 
-    def is_active(self) -> Any:
+    def is_active(self) -> bool:
         """Check if activity is active.
 
         :return: True if activity is in joining period.
         """
-        return self.end_registration_date >= timezone.now()
+        return bool(self.end_registration_date >= timezone.now())
 
-    def can_join(self) -> Any:
-        """Check if max_people doesn't reach and date doesn't past.
+    def is_full(self) -> bool:
+        """Check if max_people doesn't reach.
 
-        :return: true if the activity is join able, false otherwise
+        :return: true if the activity is full, false otherwise
         """
-        return self.is_active() and (not self.max_people or self.people < self.max_people)
+        return False if (not self.max_people) or (self.people < self.max_people) else True
 
     def host(self) -> list[User]:
         """Find all user that is host of the activity (is_host is True), owner included.
@@ -77,13 +82,13 @@ class Activity(models.Model):
         """
         return [a.user for a in self.attend_set.filter(is_host=False)]
 
-    def is_participated(self, user: User) -> Any:
+    def is_participated(self, user: User) -> bool:
         """Return boolean value which tell that are given user are participate in activity or not.
 
-        :param user: _description_
-        :return: _description_
+        :param user: User model instance
+        :return: Boolean value that tell user are participated in activity or not.
         """
-        return user in self.participants()
+        return bool(user in self.participants())
 
     def is_checkin_period(self) -> Any:
         """Return boolean value which tell that are given user can check-in in activity or not.
@@ -103,6 +108,15 @@ class Activity(models.Model):
             return False
 
         return self.check_in_code == attempt
+
+    def rep_check(self, user: User) -> bool:
+        """Verify that user reputation score meet minimum reputation score to join or not.
+
+        :param user: User attempt to join an activity.
+        :return: True is user reputation score meet mininum, otherwise false.
+        """
+        profile = user.profile_set.first()
+        return bool(profile.reputation_score >= self.minimum_reputation_score)
 
     @property
     def people(self) -> int:
