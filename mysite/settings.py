@@ -1,6 +1,8 @@
 """Django settings for mysite project."""
 
 import os
+import sys
+import logging
 from pathlib import Path
 from decouple import config
 
@@ -146,15 +148,27 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
         },
+        'file-activities': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'activities.log',
+            'formatter': 'simple',
+        },
+        'file-profiles': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'profiles.log',
+            'formatter': 'simple',
+        },
     },
     'loggers': {
         'activities': {
             'level': "DEBUG",
-            'handlers': ['console'],
+            'handlers': ['file-activities'],
         },
         'profiles': {
             'level': "DEBUG",
-            'handlers': ['console'],
+            'handlers': ['file-profiles'],
         },
     },
 }
