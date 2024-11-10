@@ -79,7 +79,8 @@ def edit_host_access(
 
         attend.save()
 
-        logger.info(req_user=request_user, action='EDIT HOST ACCESS to', target_user=user, activity_id=act.id, reason=f'is_host={not remove}')
+        logger.info(req_user=request_user, action='EDIT HOST ACCESS to', target_user=user, activity_id=act.id,
+                    reason=f'is_host={not remove}')
 
     return None
 

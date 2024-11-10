@@ -87,7 +87,8 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         min_rep = request.data.get("minimum_reputation_score")
         if min_rep:
             if min_rep > owner_profile.reputation_score:
-                logger.warning(req_user=request.user, action='FAIL to EDIT', activity_id=activity.id, reason='Owner rep < Min rep')
+                logger.warning(req_user=request.user, action='FAIL to EDIT', activity_id=activity.id,
+                               reason='Owner rep < Min rep')
                 return response.Response(
                     {
                         'message': 'Activity Minimum reputation must less then or equal to creator reputation score',
@@ -106,7 +107,8 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         max_people = request.data.get("max_people")
         current_people = activity.people
         if max_people and current_people > max_people:
-            logger.warning(req_user=request.user, action='FAIL to EDIT', activity_id=activity.id, reason='Current people > Max people')
+            logger.warning(req_user=request.user, action='FAIL to EDIT', activity_id=activity.id,
+                           reason='Current people > Max people')
             return response.Response(
                 {
                     "message": "Number of participants exceed the capacity.",

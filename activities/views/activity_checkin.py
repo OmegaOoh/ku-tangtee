@@ -103,7 +103,8 @@ class CheckInView(
                 'check_in_code': request.data.get('check_in_code')
             })
 
-        logger.warning(req_user=request.user, action='FAIL to OPEN CHECK-IN for', activity_id=act.id, reason='Not in Check-in period')
+        logger.warning(req_user=request.user, action='FAIL to OPEN CHECK-IN for', activity_id=act.id,
+                       reason='Not in Check-in period')
         return response.Response({'message': 'Check-in period is in between Start date and End date of the activity.'},
                                  status=403)
 
