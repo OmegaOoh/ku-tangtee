@@ -172,7 +172,7 @@ class ActivityDetail(mixins.RetrieveModelMixin,
 
         for attendee in attendee_infos_to_remove:
             logger.info(f'User {request.user.id} ({request.user.first_name}) KICK '
-                        f'User {attendee['id']} ({attendee['name']}) from Activity {activity.id}')
+                        f"User {attendee['id']} ({attendee['name']}) from Activity {activity.id}")
 
     def search_participants(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Search for participants by keyword.
