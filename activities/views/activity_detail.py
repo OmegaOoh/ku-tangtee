@@ -88,6 +88,7 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         min_rep = request.data.get("minimum_reputation_score")
         if min_rep:
             if min_rep > owner_profile.reputation_score:
+                logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to EDIT Activity {activity.id} (Owner rep < Min rep)')
                 return response.Response(
                     {
                         'message': 'Activity Minimum reputation must less then or equal to creator reputation score',
