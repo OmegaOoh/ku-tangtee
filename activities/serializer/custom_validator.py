@@ -1,7 +1,6 @@
 """Custom serializer validator."""
 from rest_framework import status, exceptions, serializers, validators
-from .. import models
-from ..logger import logger
+from .. import models, logger
 from django.contrib.auth.models import User
 from typing import Any
 
@@ -32,35 +31,35 @@ class CanJoinValidator:
         user_profile = user.profile_set.first()
 
         if not user_profile:
-            logger.warning(f'User {user.id} ({user.first_name}) FAIL to JOIN Activity {act.id} (No profile)')
+            logger.warning(req_user=user, action='FAIL to JOIN', activity_id=act.id, reason='No profile')
             message = 'User must have profile page before joining an activity'
             raise ForbiddenValidationError(message)
 
         if not user_profile.able_to_join_more:
-            logger.warning(f'User {user.id} ({user.first_name}) FAIL to JOIN Activity {act.id} (#Join reach limit)')
+            logger.warning(req_user=user, action='FAIL to JOIN', activity_id=act.id, reason='#Join reach limit')
             message = 'The number of activities you have joined has reached the limit'
             raise ForbiddenValidationError(message)
 
         if act:
 
             if not act.is_active():
-                logger.warning(f'User {user.id} ({user.first_name}) FAIL to JOIN Activity {act.id} (Not active)')
+                logger.warning(req_user=user, action='FAIL to JOIN', activity_id=act.id, reason='Not active')
                 message = f'The activity {act.name} is not active.'
                 raise ForbiddenValidationError(message)
 
             if act.is_full():
-                logger.warning(f'User {user.id} ({user.first_name}) FAIL to JOIN Activity {act.id} (Full)')
+                logger.warning(req_user=user, action='FAIL to JOIN', activity_id=act.id, reason='Full')
                 message = f'The activity {act.name} is full.'
                 raise ForbiddenValidationError(message)
 
             if not act.rep_check(user):
-                logger.warning(f'User {user.id} ({user.first_name}) FAIL to JOIN Activity {act.id} (Rep too low)')
+                logger.warning(req_user=user, action='FAIL to JOIN', activity_id=act.id, reason='Rep too low')
                 message = f'Your reputation score is too low to join {act.name}'
                 raise ForbiddenValidationError(message)
 
         else:
 
-            logger.warning(f'User {user.id} ({user.first_name}) FAIL to JOIN Activity {act.id} (Activity not exist)')
+            logger.warning(req_user=user, action='FAIL to JOIN', activity_id=act.id, reason='Activity not exist')
             message = 'Activity not exist'
             raise ForbiddenValidationError(message)
 
@@ -82,8 +81,7 @@ class CustomMsgUniqueTogetherValidator(validators.UniqueTogetherValidator):
         try:
             return super().__call__(attrs, serializer)
         except validators.ValidationError:
-            logger.warning(f"User {attrs['user'].id} ({attrs['user'].first_name}) FAIL to JOIN Activity {attrs['activity'].id} "
-                           f"(Already join)")
+            logger.warning(req_user=attrs['user'], action='FAIL to JOIN', activity_id=attrs['activity'].id, reason='Already join')
             raise ForbiddenValidationError(
                 {
                     "message": f"You've already joined the activity {attrs['activity'].name}."

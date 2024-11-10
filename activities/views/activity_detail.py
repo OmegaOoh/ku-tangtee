@@ -5,10 +5,9 @@ from django.http import HttpRequest
 from django.utils import timezone
 from rest_framework import generics, permissions, mixins, response
 from django.db.models import Q
-from activities import models
+from activities import models, logger
 from activities.serializer.permissions import OnlyHostCanEdit
 from activities.serializer import model_serializers
-from activities.logger import logger
 from django.db import transaction
 
 
@@ -69,7 +68,7 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         if err_res:
             return err_res
 
-        logger.info(f'User {request.user.id} ({request.user.first_name}) EDIT Activity {res_dict.get("id")}')
+        logger.info(req_user=request.user, action='EDIT', activity_id=res_dict.get("id"))
         return response.Response(
             {
                 "message": f"You have successfully edited the activity {res_dict.get('name')}",
@@ -88,8 +87,7 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         min_rep = request.data.get("minimum_reputation_score")
         if min_rep:
             if min_rep > owner_profile.reputation_score:
-                logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to EDIT Activity {activity.id} '
-                               f'(Owner rep < Min rep)')
+                logger.warning(req_user=request.user, action='FAIL to EDIT', activity_id=activity.id, reason='Owner rep < Min rep')
                 return response.Response(
                     {
                         'message': 'Activity Minimum reputation must less then or equal to creator reputation score',
@@ -108,8 +106,7 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         max_people = request.data.get("max_people")
         current_people = activity.people
         if max_people and current_people > max_people:
-            logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to EDIT Activity {activity.id} '
-                           f'(Current people > Max people)')
+            logger.warning(req_user=request.user, action='FAIL to EDIT', activity_id=activity.id, reason='Current people > Max people')
             return response.Response(
                 {
                     "message": "Number of participants exceed the capacity.",
@@ -165,14 +162,13 @@ class ActivityDetail(mixins.RetrieveModelMixin,
 
         attendee_ids_to_remove = request.data.get("attendee_to_remove", [])
         attendee_to_remove = activity.attend_set.filter(user__id__in=attendee_ids_to_remove, is_host=False)
-        attendee_infos_to_remove = [{'id': a.user.id, 'name': a.user.first_name} for a in attendee_to_remove]
+        attendee_infos_to_remove = [a.user for a in attendee_to_remove]
 
         print(attendee_ids_to_remove)
         attendee_to_remove.delete()
 
         for attendee in attendee_infos_to_remove:
-            logger.info(f'User {request.user.id} ({request.user.first_name}) KICK '
-                        f"User {attendee['id']} ({attendee['name']}) from Activity {activity.id}")
+            logger.info(req_user=request.user, action='KICK', target_user=attendee, activity_id=activity.id)
 
     def search_participants(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Search for participants by keyword.

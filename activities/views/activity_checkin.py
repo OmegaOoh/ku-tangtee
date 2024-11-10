@@ -4,10 +4,9 @@ from typing import Any
 from django.http import HttpRequest
 from django.utils import timezone
 from rest_framework import generics, permissions, mixins, response
-from activities import models
+from activities import models, logger
 from activities.serializer.permissions import OnlyHostCanEdit
 from activities.serializer import model_serializers
-from activities.logger import logger
 from . import util
 from profiles.models import Profile
 
@@ -50,24 +49,21 @@ class CheckInView(
         act = self.get_object()
 
         if not act.is_participated(request.user):
-            logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to CHECK-IN to Activity {act.id} '
-                           f'(Not member)')
+            logger.warning(req_user=request.user, action='FAIL to CHECK-IN to', activity_id=act.id, reason='Not member')
             return response.Response(
                 {'message': "You're not member of this activity"},
                 status=403
             )
 
         if not act.check_in_allowed:
-            logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to CHECK-IN to Activity {act.id} '
-                           f'(Check-in not allow)')
+            logger.warning(req_user=request.user, action='FAIL to CHECK-IN to', activity_id=act.id, reason='Check-in not allow')
             return response.Response(
                 {'message': 'Check-in are not allow at the moment'},
                 status=403
             )
 
         if not act.verified_check_in_code(code):
-            logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to CHECK-IN to Activity {act.id} '
-                           f'(Invalid code)')
+            logger.warning(req_user=request.user, action='FAIL to CHECK-IN to', activity_id=act.id, reason='Invalid code')
             return response.Response(
                 {'message': 'Check-in code invalid'},
                 status=403
@@ -80,7 +76,7 @@ class CheckInView(
         user_profile = request.user.profile_set.first()
         user_profile.increase_reputation()
 
-        logger.info(f'User {request.user.id} ({request.user.first_name}) CHECK-IN to Activity {act.id}')
+        logger.info(req_user=request.user, action='CHECK-IN to', activity_id=act.id)
         return response.Response(
             {'message': f"You've successfully check-in to {act.name}"}
         )
@@ -101,13 +97,13 @@ class CheckInView(
             )
             super().update(request, partial=True, *args, **kwargs)
 
-            logger.info(f'User {request.user.id} ({request.user.first_name}) OPEN CHECK-IN for Activity {act.id}')
+            logger.info(req_user=request.user, action='OPEN CHECK-IN for', activity_id=act.id)
             return response.Response({
                 'message': 'Activity check-in are open',
                 'check_in_code': request.data.get('check_in_code')
             })
-        logger.warning(f'User {request.user.id} ({request.user.first_name}) FAIL to OPEN CHECK-IN for Activity {act.id} '
-                       f'(Not in Check-in period)')
+
+        logger.warning(req_user=request.user, action='FAIL to OPEN CHECK-IN for', activity_id=act.id, reason='Not in Check-in period')
         return response.Response({'message': 'Check-in period is in between Start date and End date of the activity.'},
                                  status=403)
 
@@ -120,7 +116,7 @@ class CheckInView(
         act = self.get_object()
         request.data['check_in_allowed'] = False
         super().update(request, partial=True, *args, **kwargs)
-        logger.info(f'User {request.user.id} ({request.user.first_name}) CLOSE CHECK-IN for Activity {act.id}')
+        logger.info(req_user=request.user, action='CLOSE CHECK-IN for', activity_id=act.id)
         return response.Response({
             'message': 'Activity check-in are close'
         })

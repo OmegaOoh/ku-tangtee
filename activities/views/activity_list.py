@@ -2,13 +2,12 @@
 import re
 from datetime import timedelta
 from activities.views.util import image_loader, image_loader_64
-from activities.logger import logger
 from typing import Any
 from django.http import HttpRequest
 from django.utils import timezone, dateparse
 from django.db.models import Q, QuerySet
 from rest_framework import generics, permissions, mixins, response, status
-from activities import models
+from activities import models, logger
 from channels import layers
 from asgiref import sync
 
@@ -74,7 +73,7 @@ class ActivityList(
         self.__add_host(request, new_act)
         self.__send_message_to_websocket(new_act)
 
-        logger.info(f'User {request.user.id} ({request.user.first_name}) CREATE Activity {new_act.id}')
+        logger.info(req_user=request.user, action='CREATE', activity_id=new_act.id)
         return response.Response(
             {
                 "message": f"Your have successfully create activity {res_dict.get('name')}",
@@ -90,6 +89,7 @@ class ActivityList(
         """
         user_profile = request.user.profile_set.first()
         if not user_profile:
+            logger.warning(req_user=request.user, action='FAIL to CREATE', activity_id=-1, reason='No profile')
             return response.Response(
                 {
                     'message': 'User must have profile page before create an activity',
@@ -98,6 +98,7 @@ class ActivityList(
             )
 
         if user_profile.reputation_score < request.data.get('minimum_reputation_score', 0):
+            logger.warning(req_user=request.user, action='FAIL to CREATE', activity_id=-1, reason='Owner rep < Min rep')
             return response.Response(
                 {
                     'message': 'Activity Minimum reputation must less then or equal to creator reputation score'

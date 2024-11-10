@@ -2,9 +2,8 @@
 from typing import Any
 from django.http import HttpRequest
 from rest_framework import generics, permissions, mixins, response, status
-from activities import models
+from activities import models, logger
 from activities.serializer import model_serializers
-from activities.logger import logger
 
 
 class JoinLeaveView(
@@ -43,7 +42,7 @@ class JoinLeaveView(
         headers = self.get_success_headers(serializer.data)
 
         act = new_attend.activity
-        logger.info(f'User {request.user.id} ({request.user.first_name}) JOIN Activity {act.id}')
+        logger.info(req_user=request.user, action='JOIN', activity_id=act.id)
         return response.Response(
             {'message': f'You have successfully joined the activity {act.name}'},
             status=status.HTTP_201_CREATED, headers=headers
@@ -66,7 +65,7 @@ class JoinLeaveView(
         tobe_del = self.get_serializer().get_attend(self.kwargs.get('pk'), request.user.id)
         self.perform_destroy(tobe_del)
         act = tobe_del.activity
-        logger.info(f'User {request.user.id} ({request.user.first_name}) LEAVE Activity {act.id}')
+        logger.info(req_user=request.user, action='LEAVE', activity_id=act.id)
         return response.Response(
             {'message': f"You've successfully leave {act.name}"},
             status=status.HTTP_200_OK

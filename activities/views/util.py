@@ -9,8 +9,7 @@ import requests
 import base64
 import uuid
 from django.core.files.base import ContentFile
-from activities import models
-from activities.logger import logger
+from activities import models, logger
 from rest_framework import decorators, response
 import random
 import string
@@ -57,8 +56,7 @@ def edit_host_access(
     :param remove: True if granting host access, False if removing host access
     """
     if request_user != act.owner:
-        logger.warning(f'User {request_user.id} ({request_user.first_name}) FAIL to EDIT HOST ACCESS in Activity {act.id} '
-                       f'(Not owner)')
+        logger.warning(req_user=request_user, action='FAIL to EDIT HOST ACCESS in', activity_id=act.id, reason='Not owner')
         return response.Response({'message': "You must be the owner of this activity to perform this action."},
                                  status=403)
     for user_id in user_ids:
@@ -81,8 +79,7 @@ def edit_host_access(
 
         attend.save()
 
-        logger.info(f'User {request_user.id} ({request_user.first_name}) EDIT HOST ACCESS to '
-                    f'User {user_id} ({user.first_name}) in Activity {act.id} (is_host={not remove})')
+        logger.info(req_user=request_user, action='EDIT HOST ACCESS to', target_user=user, activity_id=act.id, reason=f'is_host={not remove}')
 
     return None
 
