@@ -5,7 +5,8 @@ from django.db.models import QuerySet
 from django.contrib.auth import models as auth_models
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions, mixins, response, status
-from profiles import models, logger
+from profiles import models
+from profiles.logger import logger, Action, RequestData, data_to_log
 
 from profiles.serializer import model_serializers
 from profiles.serializer.permissions import OnlyOwnerCanEdit
@@ -78,14 +79,16 @@ class ProfileDetail(
         user = get_object_or_404(auth_models.User, username=username)
 
         if user != request.user:
-            logger.warning(req_user=request.user, action='TRY to EDIT', target_user=user, profile_id=-1)
+            req_data = RequestData(req_user=request.user, profile_id=-1, target_user=user)
+            logger.warning(data_to_log(Action.TRY_EDIT, req_data))
             return response.Response({'message': 'Cannot edit other profile.'}, status=403)
 
         new_kwargs["user_id"] = user.id
         res = self.update(request, partial=True, *args, **new_kwargs)
         res_dict = res.data
 
-        logger.info(req_user=request.user, action='EDIT', profile_id=res_dict.get("id"))
+        req_data = RequestData(req_user=request.user, profile_id=res_dict.get("id"))
+        logger.info(data_to_log(Action.EDIT, req_data))
         return response.Response(
             {
                 "message": "You have successfully edited your KU Tangtee profile.",
