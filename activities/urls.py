@@ -8,6 +8,7 @@ urlpatterns = [
     path("<int:pk>/", views.ActivityDetail.as_view(), name="detail"),
     path("join/<int:pk>/", views.JoinLeaveView.as_view(), name="join"),
     path("check-in/<int:pk>/", views.CheckInView.as_view(), name="checkin"),
+    path("participant/<int:pk>/", views.ParticipantList.as_view(), name="participant"),
     path('<int:pk>/search-participants/', views.ActivityDetail.as_view(), name='search-participants'),
 
     # Utilities.
