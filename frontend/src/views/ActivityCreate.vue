@@ -89,6 +89,10 @@
                     >
                     </textarea>
                 </div>
+                <label class="text-lg">Location</label>
+                <div class="flex justify-center">
+                    <MapComponent class="w-[75vw] h-[50vh]" />
+                </div>
                 <div class="form-control w-full">
                     <div class="label">
                         <span class="text-base-content">
@@ -208,6 +212,7 @@ import { isAuth, login } from '@/functions/Authentications';
 import { loadImage } from '@/functions/Utils';
 import ImageCarousel from '@/component/ImageCarousel';
 import { useRouter } from 'vue-router';
+import MapComponent from '@/component/MapComponent.vue';
 
 const MAX_IMAGE_COUNT = 10;
 const MAX_IMAGES_SIZE = 100e6; // 100 MB
