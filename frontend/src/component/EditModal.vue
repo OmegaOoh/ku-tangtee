@@ -67,13 +67,12 @@
             <p>On-Site</p>
             <input 
                 type="checkbox" 
-                class="toggle" 
+                class="toggle mb-2" 
                 @change="toggleOnSite" 
                 :checked="activity.on_site"
             />
             <div v-if="activity.on_site">
-                <p class="text-sm">Location</p>
-                <div class="flex justify-center">
+                <div class="flex justify-center rounded-lg overflow-hidden">
                     <PickerMapComponent 
                         class="w-[100%] h-[50vh] text-black"
                         @markerPlaced="handleMarkerPlace"

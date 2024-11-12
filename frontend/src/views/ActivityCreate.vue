@@ -93,7 +93,7 @@
                 <input type="checkbox" class="toggle" @change="toggleOnSite" />
                 <div v-if="onSite">
                     <strong class="text-lg">Location</strong>
-                    <div class="flex justify-center">
+                    <div class="flex justify-center rounded-lg overflow-hidden">
                         <PickerMapComponent 
                             class="w-[100%] h-[50vh] text-black"
                             @markerPlaced="handleMarkerPlace"
