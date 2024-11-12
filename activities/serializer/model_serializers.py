@@ -9,13 +9,13 @@ from auth import serializer
 class ParticipantDetailSerializer(serializers.ModelSerializer):
     """Serialize participant detail for combine with activity detail."""
 
-    participant = serializer.UserSerializer(source='user')
+    user = serializer.UserSerializer()
 
     class Meta:
         """ParticipantSerializer Meta class."""
 
         model = models.Attend
-        fields = ('participant', 'is_host', 'checked_in')
+        fields = ('user', 'is_host', 'checked_in')
 
 
 class ActivitiesSerializer(serializers.ModelSerializer):
