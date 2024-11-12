@@ -143,10 +143,14 @@
                 </div>
 
                 <div class="mb-2 ml-3 overflow-hidden multi-line" v-html="markdownFormatter(activity.detail)"></div>
-
-                <div class="ml-3" v-if="showMap">
+                
+                <div class="ml-3" v-if="activity.on_site">
                     <strong class="text-base-content text-lg mt-2 mb-4">Location</strong>
-                    <MapComponent :latitude="activity.location.lat" :longitude="activity.location.lon" class="h-[30vh] w-[100%] ml-2"/>
+                    <div v-if="showMap">
+                        <MapComponent :latitude="activity.location.lat" :longitude="activity.location.lon" class="h-[30vh] w-[100%] ml-2"/>
+                    </div>
+                    <div v-else class="skeleton h-[30vh] w-[100%] ml-2"></div>
+
                 </div>
                 
 
@@ -319,12 +323,11 @@ const owner = ref(0);
 const minRepLv = ref(0);
 
 const showMap = computed(() => {
-    return activity.value.onSite &&
-    !showEditModal.value &&
-    !showCheckInCode.value &&
-    !showQRCode.value &&
-    !showCheckInModal.value &&
-    !showEditPermModal.value
+    return !showEditModal.value &&
+            !showCheckInCode.value &&
+            !showQRCode.value &&
+            !showCheckInModal.value &&
+            !showEditPermModal.value
 })
 
 const fetchDetail = async () => {
@@ -332,7 +335,7 @@ const fetchDetail = async () => {
         const response = await apiClient.get(`/activities/${activityId.value}`);
         activity.value = response.data;
         // TEST DATA REMOVE AFTER API IS SENDING THE LOCATION DATA.
-        activity.value['onSite'] = true; 
+        activity.value['on_site'] = true; 
         activity.value['location'] = {
             lat: 13.84979,
             lon: 100.56836

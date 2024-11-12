@@ -97,6 +97,8 @@
                         <PickerMapComponent 
                             class="w-[100%] h-[50vh] text-black"
                             @markerPlaced="handleMarkerPlace"
+                            :latitude="latitude"
+                            :longitude="longitude"
                             />
                     </div>
                 </div>
@@ -242,8 +244,8 @@ const showMinRep = ref(false);
 const minRep = ref(0)
 
 const onSite = ref(false);
-const lat = ref(null);
-const lon = ref(null);
+const latitude = ref(null);
+const longitude = ref(null);
 
 /**
  * Redirection
@@ -337,7 +339,7 @@ const validateInput = () => {
         result = false;
     }
 
-    if (onSite.value && !(lat.value && lon.value)) {
+    if (onSite.value && !(latitude.value && longitude.value)) {
         addAlert(
             'warning',
             'Please Place the marker on the map.'
@@ -429,8 +431,8 @@ const handleFileChange = (event) => {
 };
 
 const handleMarkerPlace = (coords) => {
-    lat.value = coords.lat;
-    lon.value = coords.lon;
+    latitude.value = coords.lat;
+    longitude.value = coords.lon;
 }
 
 /**
@@ -477,8 +479,8 @@ const postCreateActivity = async () => {
                 ...data,
                 onsite: true,
                 location: {
-                    lat: lat.value,
-                    lon: lon.value
+                    lat: latitude.value,
+                    lon: longitude.value
                 }
             }
         }
