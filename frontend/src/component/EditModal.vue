@@ -63,6 +63,27 @@
                     >Up to {{ maxImageCompute() }} MB</span
                 >
             </div>
+
+            <p>On-Site</p>
+            <input 
+                type="checkbox" 
+                class="toggle" 
+                @change="toggleOnSite" 
+                :checked="activity.onSite"
+            />
+            <div v-if="activity.onSite">
+                <p class="text-sm">Location</p>
+                <div class="flex justify-center">
+                    <PickerMapComponent 
+                        class="w-[100%] h-[50vh] text-black"
+                        @markerPlaced="handleMarkerPlace"
+                        :latitude="activity.location.lat"
+                        :longitude="activity.location.lon"
+                        @markerPlace = "handleMarkerPlace"
+                        />
+                </div>
+            </div>
+
             <div class="form-control w-full">
                 <div class="label">
                     <span class="text-base-content"> Activity Detail </span>
@@ -154,7 +175,7 @@
                     <input
                         type="checkbox"
                         class="toggle"
-                        @change="setMaxPeople"
+                        @change="toggleMaxPeople"
                         :checked="showMaxPeople"
                     />
                     <input
@@ -218,6 +239,7 @@ import { createPutRequest } from '@/functions/HttpRequest.js';
 import { addAlert } from '@/functions/AlertManager';
 import { loadImage } from '@/functions/Utils';
 import ImageCarousel from './ImageCarousel.vue';
+import PickerMapComponent from './PickerMapComponent.vue';
 const MAX_IMAGE_COUNT = 10;
 const MAX_IMAGES_SIZE = 100e6; // 100 MB
 
@@ -267,6 +289,13 @@ const fetchDetail = async () => {
     try {
         const response = await apiClient.get(`/activities/${props.id}`);
         activity.value = response.data;
+        // TEST DATA REMOVE AFTER API IS SENDING THE LOCATION DATA.
+        activity.value['onSite'] = true; 
+        activity.value['location'] = {
+            lat: 13.84979,
+            lon: 100.56836
+        }
+        //////////////////////////////////////////////////////////
         activityName.value = response.data.name || '';
         activityDetail.value = response.data.detail || '';
         date.value = formatActivityDate(new Date(response.data.date));
@@ -280,7 +309,7 @@ const fetchDetail = async () => {
         }));
         owner.value = response.data.owner;
         maxPeople.value = activity.value.max_people || activity.value.people;
-        showMaxPeople.value = maxPeople.value > 0;
+        showMaxPeople.value = maxPeople.value > 1;
         people.value = activity.value.participant;
     } catch (error) {
         console.error('Error fetching activity:', error);
@@ -367,7 +396,6 @@ const validateInput = () => {
         );
         result = false;
     }
-
     return result;
 };
 
@@ -431,12 +459,20 @@ const formatActivityDate = (date) => {
     return dateObj;
 };
 
-const setMaxPeople = () => {
+const toggleMaxPeople = () => {
     /*
      * Toggle value of showMaxPeople.
      * Return nothing.
      */
     showMaxPeople.value = !showMaxPeople.value;
+};
+
+const toggleOnSite = () => {
+    /*
+     * Toggle value of showMaxPeople.
+     * Return nothing.
+     */
+    activity.value.onSite = !activity.value.onSite;
 };
 
 const setMinRep = () => {
@@ -517,6 +553,11 @@ const handleRemove = (index) => {
     images.value.splice(index, 1);
     images.value = [...images.value];
 };
+
+const handleMarkerPlace = (coords) => {
+    activity.value.location.lat = coords.lat;
+    activity.value.location.lon = coords.lon; 
+}
 
 const maxImageCompute = () => {
     /*
