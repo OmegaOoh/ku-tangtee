@@ -19,7 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
 class ProfilesSerializer(serializers.ModelSerializer):
     """Serialized Profile model."""
 
-    user = UserSerializer(read_only=True)
+    # user = UserSerializer(read_only=True)
     profile_picture_url = serializers.SerializerMethodField()
     username = serializers.CharField(source='user.username', read_only=True)
     join_limit = serializers.IntegerField(read_only=True)

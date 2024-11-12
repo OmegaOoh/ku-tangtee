@@ -6,5 +6,5 @@ from . import views
 
 urlpatterns = [
     path('google-oauth2/', views.GoogleLogin.as_view(), name='google_login'),
-    path('user', views.UserList.as_view(), name='user'),
+    path('user/<str:username>/', views.UserDetail.as_view(), name='user'),
 ]
