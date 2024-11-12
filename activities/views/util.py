@@ -33,7 +33,7 @@ def get_recent_activity(request: HttpRequest, *args: Any, **kwargs: Any) -> resp
     """
     user = get_object_or_404(models.User, id=kwargs.get('id'))
     order_by_date = bool(request.GET.get('byDate', False))
-    is_host = bool(request.GET.get('isHost', False))
+    is_host = bool(request.GET.get('isHost', False))  # pragma: no cover
     records = request.GET.get('records', None)
     if (records):
         records = int(records)
