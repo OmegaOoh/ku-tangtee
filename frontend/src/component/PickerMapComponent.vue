@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, defineEmits, defineProps } from 'vue';
+import { onMounted, ref, defineEmits, defineProps, watch, nextTick } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-geosearch/dist/geosearch.css';
@@ -36,44 +36,66 @@ const customIcon = L.icon({
     popupAnchor: [0, -30]
     });
 
-const createMarker = (event) => {
+const onClick = (event) => {
+    /**
+     * Call create marker with latLng object
+     */
+    createMarker(event.latlng)
+}
+
+const createMarker = (coords) => {
     if (!map.value) return; // Map does not initialized.
     if (marker.value) {
         map.value.removeLayer(marker.value);
     }
-    marker.value = L.marker(event.latlng, {icon: customIcon}).addTo(map.value);
-    emit('markerPlaced', { lat: event.latlng.lat, lon: event.latlng.lng });
+    marker.value = L.marker(coords, {icon: customIcon}).addTo(map.value);
+    emit('markerPlaced', { lat: coords.lat, lon: coords.lng });
 } 
 
-    onMounted(() => {
-        map.value = L.map('map').setView([
-            props.latitude ? props.latitude : 13.84800,
-            props.longitude ? props.longitude : 100.56762],
-        16);
+watch(() => [props.latitude, props.longitude], ([newLat, newLon]) => {
+    if (!props.latitude || !props.longitude) return;
+    nextTick(()=> {
+        if (map.value) {
+            const loc = L.latLng(newLat, newLon)
+            console.log(loc)
+            createMarker(loc);
+        }
+    })
+},);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: '© OpenStreetMap'
-        }).addTo(map.value);
+onMounted(() => {
+    let loc = L.latLng(13.84800, 100.56762)
+    if (props.latitude && props.longitude) {
+        loc.lat = props.latitude;
+        loc.lng = props.longitude; 
+    }
+    map.value = L.map('map').setView(loc,16);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '© OpenStreetMap'
+    }).addTo(map.value);
 
-        // Onclick Action
-        map.value.on('click', createMarker)
+    if (props.latitude && props.longitude) {
+        map.value.setView(loc, 18)
+        createMarker(loc);
+    }
 
-        //Search
-        const searchControl = new SearchControl({
-            provider: provider,
-            style: 'bar',
-            keepResult: false,
-            showMarker: false,
-            onResult: (result) => {
-                map.value.setView(result.location, 18);
-                console.log(result)
-                createMarker(result)
-            },
-        });
+    // Onclick Action
+    map.value.on('click', onClick)
 
-        map.value.addControl(searchControl);
-        searchControl.addTo(map.value)
+    //Search
+    const searchControl = new SearchControl({
+        provider: provider,
+        style: 'bar',
+        keepResult: false,
+        showMarker: false,
+        onResult: (result) => {
+            map.value.setView(result.location, 18);
+            createMarker(result.latlng)
+        },
+    });
 
-        })
+    map.value.addControl(searchControl);
+    searchControl.addTo(map.value)
+})
 </script>
