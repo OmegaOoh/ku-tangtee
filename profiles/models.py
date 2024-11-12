@@ -92,17 +92,29 @@ class Profile(models.Model):
 
     @classmethod
     def check_missed_check_ins(cls) -> None:
-        """Check for users who missed check-ins and decrease their reputation."""
+        """Check for check-in status for the ended activities.
+
+        Check for users who missed check-ins and decrease their reputation.
+        Check if there is at least an attendee who check-in, if not, decrease hosts reputation.
+        """
         now = timezone.now()
         activities = Activity.objects.filter(end_date__lt=now)
 
         for activity in activities:
             attendees = activity.attend_set.filter(is_host=False)
+            hosts = activity.attend_set.filter(is_host=True)
 
+            # deduct attendee point when not check-in
             for attendee in attendees:
                 profile = cls.objects.get(user=attendee.user)
                 if not attendee.checked_in and not attendee.rep_decrease:
                     profile.decrease_reputation(attendee)
+
+            # deduct host point when no attendee check-in
+            if attendees.filter(checked_in=True).count() <= 0 < attendees.count():
+                for host in hosts:
+                    profile = cls.objects.get(user=host.user)
+                    profile.decrease_reputation(host)
 
     @classmethod
     def has_profile(cls, user: User) -> Any:
