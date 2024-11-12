@@ -57,7 +57,6 @@ watch(() => [props.latitude, props.longitude], ([newLat, newLon]) => {
     nextTick(()=> {
         if (map.value) {
             const loc = L.latLng(newLat, newLon)
-            console.log(loc)
             createMarker(loc);
         }
     })

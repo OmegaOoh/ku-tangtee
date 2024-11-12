@@ -69,9 +69,9 @@
                 type="checkbox" 
                 class="toggle" 
                 @change="toggleOnSite" 
-                :checked="activity.onSite"
+                :checked="activity.on_site"
             />
-            <div v-if="activity.onSite">
+            <div v-if="activity.on_site">
                 <p class="text-sm">Location</p>
                 <div class="flex justify-center">
                     <PickerMapComponent 
@@ -290,7 +290,7 @@ const fetchDetail = async () => {
         const response = await apiClient.get(`/activities/${props.id}`);
         activity.value = response.data;
         // TEST DATA REMOVE AFTER API IS SENDING THE LOCATION DATA.
-        activity.value['onSite'] = true; 
+        activity.value['on_site'] = true; 
         activity.value['location'] = {
             lat: 13.84979,
             lon: 100.56836
@@ -396,6 +396,15 @@ const validateInput = () => {
         );
         result = false;
     }
+
+    if (activity.value.on_site && !(activity.value.location.lat && activity.value.location.lon)) {
+        addAlert(
+            'warning',
+            'Please Place the marker on the map.'
+        )
+        result = false;
+    }
+
     return result;
 };
 
@@ -416,7 +425,7 @@ const postUpdate = async () => {
         new_images.value = images.value
             .filter((image) => image.id === -1)
             .map((image) => image.url);
-        const data = {
+        let data = {
             name: activityName.value,
             detail: activityDetail.value,
             date: date.value,
@@ -428,6 +437,22 @@ const postUpdate = async () => {
             owner: owner.value,
             minimum_reputation_score: minRep.value * 10
         };
+
+        if (!activity.value.on_site) {
+            data = {
+                ...data,
+                on_site: false,
+            }
+        } else {
+            data = {
+                ...data,
+                on_site: true,
+                location: {
+                    lat: activity.value.location.lat,
+                    lon: activity.value.location.lon
+                }
+            }
+        }
         const response = await createPutRequest(
             `/activities/${props.id}/`,
             data
@@ -472,7 +497,7 @@ const toggleOnSite = () => {
      * Toggle value of showMaxPeople.
      * Return nothing.
      */
-    activity.value.onSite = !activity.value.onSite;
+    activity.value.on_site = !activity.value.on_site;
 };
 
 const setMinRep = () => {
