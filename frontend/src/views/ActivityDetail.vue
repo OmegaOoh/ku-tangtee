@@ -182,7 +182,7 @@
                         <div class="flex items-center space-x-4">
                             <div class="indicator">
                                 <img
-                                    v-lazy="participant.profile_picture_url"
+                                    v-lazy="participant.user.user_profile.profile_picture_url"
                                     alt="Profile Picture"
                                     class="w-12 h-12 rounded-full"
                                     @error="handleImageError"
@@ -195,8 +195,8 @@
                                 </p>
                             </div>
                             <p class="font-medium">
-                                {{ participant.first_name }}
-                                {{ participant.last_name }}
+                                {{ participant.user.first_name }}
+                                {{ participant.user.last_name }}
                             </p>
                         </div>
                     </div>
@@ -313,8 +313,9 @@ const minRepLv = ref(0);
 const fetchDetail = async () => {
     try {
         const response = await apiClient.get(`/activities/${activityId.value}`);
+        const people_res = await apiClient.get(`/activities/participant/${activityId.value}/`);
         activity.value = response.data;
-        people.value = activity.value.participant;
+        people.value = people_res.data;
         imageUrls.value = activity.value.images.map((image) => ({
             id: image.id,
             url: `${BASE_URL}${image.url}`,
