@@ -110,6 +110,10 @@ class TestAttendModel(django.test.TestCase):
 
         client_join_activity(self.client, attendee, activity4)
         self.assertEqual(Attend.recently_joined(attendee, 3), [activity4, activity3, activity2])
+        hosted_recently = Attend.recently_joined(host, 3, True)
+        not_hosted_recently = Attend.recently_joined(host, 3, False)
+        self.assertEqual(hosted_recently, [activity4, activity3, activity2])
+        self.assertEqual(not_hosted_recently, [])
 
     def test_active_joined_activity(self):
         """Return a list of active activities joined by a user and order by activity date."""
