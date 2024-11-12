@@ -33,10 +33,11 @@ def get_recent_activity(request: HttpRequest, *args: Any, **kwargs: Any) -> resp
     """
     user = get_object_or_404(models.User, id=kwargs.get('id'))
     order_by_date = bool(request.GET.get('byDate', False))
+    is_host = bool(request.GET.get('isHost', False))
     records = request.GET.get('records', None)
     if (records):
         records = int(records)
-    activities = models.Attend.recently_joined(user, records, order_by_date)
+    activities = models.Attend.recently_joined(user, records, is_host, order_by_date)
     recent_activities = [{"name": activity.name,
                           "activity_id": activity.id,
                           "activity_date": activity.date} for activity in activities]
