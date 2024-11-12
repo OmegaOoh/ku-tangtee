@@ -3,14 +3,28 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, defineEmits, defineProps } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-geosearch/dist/geosearch.css';
 import markerIcon from '@/assets/marker.svg';
 import { OpenStreetMapProvider, SearchControl } from 'leaflet-geosearch';
 
+
+const props = defineProps({
+    latitude: {
+        type: Number,
+        Required: false,
+    },
+    longitude: {
+        type: Number,
+        Required: false,
+    }
+})
+
 const provider = new OpenStreetMapProvider()
+
+const emit = defineEmits(['markerPlaced']);
 
 const marker = ref(null)
 const map = ref(null)
@@ -28,10 +42,14 @@ const createMarker = (event) => {
         map.value.removeLayer(marker.value);
     }
     marker.value = L.marker(event.latlng, {icon: customIcon}).addTo(map.value);
+    emit('markerPlaced', { lat: event.latlng.lat, lon: event.latlng.lng });
 } 
 
     onMounted(() => {
-        map.value = L.map('map').setView([13.84800, 100.56762], 16);
+        map.value = L.map('map').setView([
+            props.latitude ? props.latitude : 13.84800,
+            props.longitude ? props.longitude : 100.56762],
+        16);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 18,
