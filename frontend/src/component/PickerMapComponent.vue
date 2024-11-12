@@ -10,6 +10,8 @@ import 'leaflet-geosearch/dist/geosearch.css';
 import markerIcon from '@/assets/marker.svg';
 import { OpenStreetMapProvider, SearchControl } from 'leaflet-geosearch';
 
+const provider = new OpenStreetMapProvider()
+
 const marker = ref(null)
 const map = ref(null)
 
@@ -26,14 +28,13 @@ const createMarker = (event) => {
         map.value.removeLayer(marker.value);
     }
     marker.value = L.marker(event.latlng, {icon: customIcon}).addTo(map.value);
-    marker.value.bindPopup(`You clicked at ${event.latlng.toString()}`).openPopup();
 } 
 
     onMounted(() => {
         map.value = L.map('map').setView([13.84800, 100.56762], 16);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 25,
+            maxZoom: 18,
             attribution: '© OpenStreetMap'
         }).addTo(map.value);
 
@@ -42,15 +43,14 @@ const createMarker = (event) => {
 
         //Search
         const searchControl = new SearchControl({
-            provider: new OpenStreetMapProvider(),
+            provider: provider,
             style: 'bar',
-            autoComplete: true,
-            autoCompleteDelay: 250,
             keepResult: false,
             showMarker: false,
-            
             onResult: (result) => {
                 map.value.setView(result.location, 18);
+                console.log(result)
+                createMarker(result)
             },
         });
 
