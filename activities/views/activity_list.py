@@ -1,7 +1,7 @@
 """Module for handle URL /activities."""
 import re
 from datetime import timedelta
-from activities.views.util import image_loader, image_loader_64
+from activities.views.util import image_loader, image_loader_64, create_location
 from typing import Any
 from django.http import HttpRequest
 from django.utils import timezone, dateparse
@@ -70,6 +70,7 @@ class ActivityList(
         res_dict = res.data
         new_act = models.Activity.objects.get(pk=res_dict.get("id"))
 
+        self.__add_location(request, new_act)
         self.__load_image(request, new_act)
         self.__add_host(request, new_act)
         self.__send_message_to_websocket(new_act)
@@ -130,6 +131,10 @@ class ActivityList(
             is_host=True,
             checked_in=True
         )
+
+    def __add_location(self, request: HttpRequest, activity: models.Activity):
+        coordinate = request.data.pop('location', {'lat': 0, 'lon': 0})
+        create_location(coordinate, activity)
 
     def __send_message_to_websocket(self, activity: models.Activity) -> None:
         """Send message to websocket."""

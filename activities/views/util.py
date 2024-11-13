@@ -144,6 +144,11 @@ def image_loader_64(image_data_list: list[str], act: models.Activity) -> None:
             print(f"Failed to decode image data: {e}")
 
 
+def create_location(coor: dict[str, float], act: models.Activity) -> None:
+    latitude, longitude = coor['lat'], coor['lon']
+    models.Location.objects.create(activity=act, latitude=latitude, longitude=longitude)
+
+
 def get_checkin_code() -> str:
     """Random 6 capital character.
 
