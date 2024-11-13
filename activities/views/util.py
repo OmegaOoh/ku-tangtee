@@ -10,6 +10,7 @@ import base64
 import uuid
 from django.core.files.base import ContentFile
 from activities import models
+from activities.logger import logger, Action, RequestData, data_to_log
 from rest_framework import decorators, response
 import random
 import string
@@ -33,10 +34,11 @@ def get_recent_activity(request: HttpRequest, *args: Any, **kwargs: Any) -> resp
     """
     user = get_object_or_404(models.User, id=kwargs.get('id'))
     order_by_date = bool(request.GET.get('byDate', False))
+    is_host = bool(request.GET.get('isHost', False))  # pragma: no cover
     records = request.GET.get('records', None)
     if (records):
         records = int(records)
-    activities = models.Attend.recently_joined(user, records, order_by_date)
+    activities = models.Attend.recently_joined(user, records, is_host, order_by_date)
     recent_activities = [{"name": activity.name,
                           "activity_id": activity.id,
                           "activity_date": activity.date} for activity in activities]
@@ -56,6 +58,8 @@ def edit_host_access(
     :param remove: True if granting host access, False if removing host access
     """
     if request_user != act.owner:
+        req_data = RequestData(req_user=request_user, act_id=act.id)
+        logger.warning(data_to_log(Action.FAIL_EDIT_HOST, req_data, 'Not owner'))
         return response.Response({'message': "You must be the owner of this activity to perform this action."},
                                  status=403)
     for user_id in user_ids:
@@ -77,6 +81,9 @@ def edit_host_access(
             attend.checked_in = False
 
         attend.save()
+
+        req_data = RequestData(req_user=request_user, act_id=act.id, target_user=user)
+        logger.info(data_to_log(Action.EDIT_HOST, req_data, f'is_host={not remove}'))
 
     return None
 

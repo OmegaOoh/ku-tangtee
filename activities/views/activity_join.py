@@ -3,6 +3,7 @@ from typing import Any
 from django.http import HttpRequest
 from rest_framework import generics, permissions, mixins, response, status
 from activities import models
+from activities.logger import logger, Action, RequestData, data_to_log
 from activities.serializer import model_serializers
 
 
@@ -40,8 +41,13 @@ class JoinLeaveView(
         serializer.is_valid(raise_exception=True)
         new_attend = serializer.save()
         headers = self.get_success_headers(serializer.data)
+
+        act = new_attend.activity
+        req_data = RequestData(req_user=request.user, act_id=act.id)
+
+        logger.info(data_to_log(Action.JOIN, req_data))
         return response.Response(
-            {'message': f'You have successfully joined the activity {new_attend.activity.name}'},
+            {'message': f'You have successfully joined the activity {act.name}'},
             status=status.HTTP_201_CREATED, headers=headers
         )
 
@@ -51,8 +57,7 @@ class JoinLeaveView(
         :param request: Http request object
         :return: Http response object
         """
-        res = self.destroy(request, *args, **kwargs)
-        return res
+        return self.destroy(request, *args, **kwargs)
 
     def destroy(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Get attend instance and destroy it.
@@ -62,7 +67,10 @@ class JoinLeaveView(
         """
         tobe_del = self.get_serializer().get_attend(self.kwargs.get('pk'), request.user.id)
         self.perform_destroy(tobe_del)
+        act = tobe_del.activity
+        req_data = RequestData(req_user=request.user, act_id=act.id)
+        logger.info(data_to_log(Action.LEAVE, req_data))
         return response.Response(
-            {'message': f"You've successfully leave {tobe_del.activity.name}"},
+            {'message': f"You've successfully leave {act.name}"},
             status=status.HTTP_200_OK
         )

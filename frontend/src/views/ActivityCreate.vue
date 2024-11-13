@@ -89,28 +89,20 @@
                     >
                     </textarea>
                 </div>
-                <div class="form-control w-full">
-                    <div class="label">
-                        <span class="text-base-content">
-                            Activity Start Date
-                        </span>
-                        <span
-                            id="date-field-error"
-                            class="text-error text-sm"
-                            hidden
-                        >
-                            required
-                        </span>
+                <strong class="text-lg">On-Site</strong>
+                <input type="checkbox" class="toggle" :checked="onSite" @change="toggleOnSite" />
+                <div v-if="onSite">
+                    <strong class="text-lg">Location</strong>
+                    <div class="flex justify-center rounded-lg overflow-hidden">
+                        <PickerMapComponent 
+                            class="w-[100%] h-[50vh] text-black"
+                            @markerPlaced="handleMarkerPlace"
+                            :latitude="latitude"
+                            :longitude="longitude"
+                            />
                     </div>
-                    <VueDatePicker
-                        v-model="date"
-                        id="date-field"
-                        type="text"
-                        placeholder="Select Start Date"
-                        :min-date="new Date()"
-                        :dark="isDarkTheme"
-                    />
                 </div>
+
                 <div class="form-control w-full">
                     <div class="label">
                         <span class="text-base-content">
@@ -133,6 +125,30 @@
                         :dark="isDarkTheme"
                     />
                 </div>
+
+                <div class="form-control w-full">
+                    <div class="label">
+                        <span class="text-base-content">
+                            Activity Start Date
+                        </span>
+                        <span
+                            id="date-field-error"
+                            class="text-error text-sm"
+                            hidden
+                        >
+                            required
+                        </span>
+                    </div>
+                    <VueDatePicker
+                        v-model="date"
+                        id="date-field"
+                        type="text"
+                        placeholder="Select Start Date"
+                        :min-date="new Date()"
+                        :dark="isDarkTheme"
+                    />
+                </div>
+
                 <div class="form-control w-full">
                     <div class="label">
                         <span class="text-base-content">
@@ -156,7 +172,7 @@
                     />
                 </div>
                 <label>Max People </label>
-                <input type="checkbox" class="toggle" @change="setMaxPeople" />
+                <input type="checkbox" class="toggle" @change="toggleMaxPeople" />
                 <input
                     v-if="showMaxPeople"
                     id="max-field"
@@ -167,7 +183,7 @@
                     min="1"
                 />
                 <label>Minimum reputation level </label>
-                <input type="checkbox" class="toggle" @change="setMinRep" />
+                <input type="checkbox" class="toggle" @change="toggleMinRep" />
                 <input
                     v-if="showMinRep"
                     id="min-rep-field"
@@ -178,7 +194,7 @@
                     min="0"
                     max="10"
                 />
-                <div class="flex flex-col sm = ref(flex-row justify-between">
+                <div class="flex flex-col sm:ref(flex-row justify-between">
                     <button
                         v-if="!isAuth"
                         class="btn btn-primary"
@@ -188,7 +204,7 @@
                     </button>
                     <button
                         v-else
-                        class="btn btn-primary sm = ref(my-0 my-6"
+                        class="btn btn-primary sm:my-0 my-6"
                         @click="postCreateActivity"
                     >
                         Create Activity
@@ -208,6 +224,7 @@ import { isAuth, login } from '@/functions/Authentications';
 import { loadImage } from '@/functions/Utils';
 import ImageCarousel from '@/component/ImageCarousel';
 import { useRouter } from 'vue-router';
+import PickerMapComponent from '@/component/PickerMapComponent.vue';
 
 const MAX_IMAGE_COUNT = 10;
 const MAX_IMAGES_SIZE = 100e6; // 100 MB
@@ -225,6 +242,10 @@ const isDarkTheme = ref(false);
 const images = ref([]);
 const showMinRep = ref(false);
 const minRep = ref(0)
+
+const onSite = ref(true);
+const latitude = ref(null);
+const longitude = ref(null);
 
 /**
  * Redirection
@@ -317,17 +338,33 @@ const validateInput = () => {
         );
         result = false;
     }
+
+    if (onSite.value && !(latitude.value && longitude.value)) {
+        addAlert(
+            'warning',
+            'Please Place the marker on the map.'
+        )
+        result = false;
+    }
+
     return result;
 };
 
-const setMaxPeople = () => {
+const toggleMaxPeople = () => {
     /*
      * Switch the flag of setting max people.
      */
     showMaxPeople.value = !showMaxPeople.value;
 };
 
-const setMinRep = () => {
+const toggleOnSite = () => {
+    /**
+     * Toggle the flag of setting onSite
+     */
+    onSite.value = !onSite.value
+}
+
+const toggleMinRep = () => {
     /*
      * Switch the flag of setting minimum reputation.
      */
@@ -393,6 +430,11 @@ const handleFileChange = (event) => {
     });
 };
 
+const handleMarkerPlace = (coords) => {
+    latitude.value = coords.lat;
+    longitude.value = coords.lon;
+}
+
 /**
  * Submit
  */
@@ -411,10 +453,11 @@ const postCreateActivity = async () => {
         const formattedDate = dateObj.toISOString();
         const formattedEndRegDate = endRegDateObj.toISOString();
         const formattedEndDate = endDateObj.toISOString();
+
         if (!showMaxPeople.value) {
             maxPeople.value = null;
         }
-        const data = {
+        let data = {
             name: activityName.value,
             detail: activityDetail.value,
             date: formattedDate,
@@ -425,6 +468,23 @@ const postCreateActivity = async () => {
             owner: userId.value,
             minimum_reputation_score: minRep.value * 10
         };
+
+        if (!onSite.value) {
+            data = {
+                ...data,
+                onsite: false,
+            }
+        } else {
+            data = {
+                ...data,
+                onsite: true,
+                location: {
+                    lat: latitude.value,
+                    lon: longitude.value
+                }
+            }
+        }
+        console.log(data);
         const response = await createPostRequest(`/activities/`, data);
         addAlert('success', response.data.message);
         router.push(`/activities/${response.data.id}`);
