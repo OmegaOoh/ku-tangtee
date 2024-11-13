@@ -28,7 +28,7 @@ class Activity(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     detail = models.CharField(max_length=1024)
-    location = models.CharField(max_length=255, null=True, blank=True)
+    on_site = models.BooleanField(default=False)
     date = models.DateTimeField(default=timezone.now)
     end_date = models.DateTimeField(default=get_end_date)
     end_registration_date = models.DateTimeField(default=get_end_registration_date)
@@ -182,4 +182,12 @@ class Attachment(models.Model):
     """Image attachment for activity."""
 
     image = models.ImageField('Activity', upload_to="activities/", height_field=None, width_field=None, max_length=None)
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
+
+
+class Location(models.Model):
+    """Location for activity."""
+
+    latitude = models.DecimalField(max_digits=9, decimal_places=6)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6)
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE)

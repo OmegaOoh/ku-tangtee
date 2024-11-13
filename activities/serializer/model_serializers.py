@@ -27,6 +27,7 @@ class ActivitiesSerializer(serializers.ModelSerializer):
     host = serializers.SerializerMethodField()
     participant = serializers.SerializerMethodField()
     images = serializers.SerializerMethodField()
+    location = serializers.SerializerMethodField()
 
     class Meta:
         """Activity serializer META class."""
@@ -84,6 +85,11 @@ class ActivitiesSerializer(serializers.ModelSerializer):
         act_images = models.Attachment.objects.filter(activity=activity)
         images = [{"id": img.id, "url": img.image.url} for img in act_images]
         return images
+
+    def get_location(self, activity: models.Activity) -> list[Any]:
+        act_location = models.Location.objects.filter(activity=activity)
+        location = [{"id": loc.id, "lat": loc.latitude, "lon": loc.longitude} for loc in act_location]
+        return location
 
 
 class AttendSerializer(serializers.ModelSerializer):
