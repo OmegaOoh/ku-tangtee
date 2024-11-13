@@ -176,7 +176,7 @@
                 </div>
 
                 <div v-if="selectedTab === 'joined'">
-                    <div class="divider">Joined Activity</div>
+
                     <div class="flex flex-col">
                         <div
                             class="card bg-base-200 w-full hover:border-2 border-primary transition-all ease-in-out duration-75 mb-4 cursor-pointer"
@@ -204,7 +204,6 @@
                 </div>
 
                 <div v-if="selectedTab === 'hosted'">
-                    <div class="divider">Hosted Activity</div>
                     <div class="flex flex-col">
                         <div
                             class="card bg-base-200 w-full hover:border-2 border-primary transition-all ease-in-out duration-75 mb-4 cursor-pointer"
