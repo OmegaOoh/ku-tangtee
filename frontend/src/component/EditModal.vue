@@ -64,25 +64,6 @@
                 >
             </div>
 
-            <p>On-Site</p>
-            <input 
-                type="checkbox" 
-                class="toggle mb-2" 
-                @change="toggleOnSite" 
-                :checked="activity.on_site"
-            />
-            <div v-if="activity.on_site">
-                <div class="flex justify-center rounded-lg overflow-hidden">
-                    <PickerMapComponent 
-                        class="w-[100%] h-[50vh] text-black"
-                        @markerPlaced="handleMarkerPlace"
-                        :latitude="activity.location.lat"
-                        :longitude="activity.location.lon"
-                        @markerPlace = "handleMarkerPlace"
-                        />
-                </div>
-            </div>
-
             <div class="form-control w-full">
                 <div class="label">
                     <span class="text-base-content"> Activity Detail </span>
@@ -103,6 +84,24 @@
                     rows="3"
                 >
                 </textarea>
+            </div>
+            <p>On-Site</p>
+            <input 
+                type="checkbox" 
+                class="toggle mb-2" 
+                @change="toggleOnSite" 
+                :checked="activity.on_site"
+            />
+            <div v-if="activity.on_site">
+                <div class="flex justify-center rounded-lg overflow-hidden">
+                    <PickerMapComponent 
+                        class="w-[100%] h-[50vh] text-black"
+                        @markerPlaced="handleMarkerPlace"
+                        :latitude="activity.location.lat"
+                        :longitude="activity.location.lon"
+                        @markerPlace = "handleMarkerPlace"
+                        />
+                </div>
             </div>
             <div class="form-control w-full my-1">
                 <div class="label">
