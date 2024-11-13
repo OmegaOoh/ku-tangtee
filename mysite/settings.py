@@ -1,18 +1,12 @@
 """Django settings for mysite project."""
 
 import os
-import sys
-import logging
+from datetime import timedelta
 from pathlib import Path
 from decouple import config
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY', default='fake-secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -233,10 +227,17 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'mysite.exc_handler.custom_exception_handler'
 }
 
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+}
+
+
 REST_AUTH = {
     'USE_JWT': True,
     'JWT_AUTH_COOKIE': 'jwt-auth',
-    'JWT_AUTH_REFRESH_COOKIE': 'jwt_reauth'
+    'JWT_AUTH_REFRESH_COOKIE': 'jwt-reauth',
+    'JWT_AUTH_HTTPONLY': False,
 }
 
 # Django Channels

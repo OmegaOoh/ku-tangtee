@@ -1,7 +1,7 @@
-export function setCookie(id, value) {
+export function setCookie(id, value, minuteLifetime) {
     var now = new Date();
     const time = now.getTime();
-    var expireTime = time + 1000 * 36000;
+    var expireTime = time + minuteLifetime * 60 * 1000;
     now.setTime(expireTime);
     const exp = now.toUTCString();
     document.cookie = `${id}=${value};expires=${exp};`;
