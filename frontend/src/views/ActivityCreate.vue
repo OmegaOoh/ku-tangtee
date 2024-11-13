@@ -95,7 +95,7 @@
                     <strong class="text-lg">Location</strong>
                     <div class="flex justify-center rounded-lg overflow-hidden">
                         <PickerMapComponent 
-                            class="w-[100%] h-[50vh] text-black"
+                            class="w-[100%] h-[50vh] text-black z-0"
                             @markerPlaced="handleMarkerPlace"
                             :latitude="latitude"
                             :longitude="longitude"

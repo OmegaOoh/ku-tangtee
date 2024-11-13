@@ -147,7 +147,11 @@
                 <div class="ml-3" v-if="activity.on_site">
                     <strong class="text-base-content text-lg mt-2 mb-4">Location</strong>
                     <div v-if="showMap">
-                        <MapComponent :latitude="activity.location.lat" :longitude="activity.location.lon" class="h-[30vh] w-[100%] ml-2 rounded-lg overflow-hidden"/>
+                        <MapComponent 
+                            :latitude="activity.location.lat" 
+                            :longitude="activity.location.lon" 
+                            class="h-[30vh] w-[100%] ml-2 rounded-lg overflow-hidden z-0"
+                        />
                     </div>
                     <div v-else class="skeleton h-[30vh] w-[100%] ml-2 rounded-lg overflow-hidden"></div>
 
