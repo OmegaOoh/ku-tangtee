@@ -176,7 +176,7 @@
                         :key="participant.id"
                         class="card bg-base-100 shadow-lg p-4 rounded-lg border-primary hover:border-2 cursor-pointer transition-all duration-75 ease-in-out"
                         @click="
-                            $router.push('/profile/' + participant.username)
+                            $router.push('/profile/' + participant.user.username)
                         "
                     >
                         <div class="flex items-center space-x-4">
@@ -454,7 +454,7 @@ const isOwner = computed(() => {
 const isJoined = computed(() => {
     return (
         isAuth &&
-        people.value.some((participant) => participant.id === userId.value)
+        people.value.some((participant) => participant.user.id === userId.value)
     );
 });
 

@@ -179,10 +179,11 @@ const fetchDetail = async () => {
      */
     try {
         const response = await apiClient.get(`/activities/${props.id}`);
+        const people_res = await apiClient.get(`/activities/participant/${props.id}/`);
         activity.value = response.data;
+        people.value = people_res.data;
         hosts.value = response.data.host;
         name.value = activity.value.name;
-        people.value = activity.value.participant;
         owner.value = response.data.owner;
         detail.value = activity.value.detail;
     } catch (error) {
