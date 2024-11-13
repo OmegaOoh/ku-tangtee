@@ -173,7 +173,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 ml-3">
                     <div
                         v-for="participant in people"
-                        :key="participant.id"
+                        :key="participant.user.id"
                         class="card bg-base-100 shadow-lg p-4 rounded-lg border-primary hover:border-2 cursor-pointer transition-all duration-75 ease-in-out"
                         @click="
                             $router.push('/profile/' + participant.user.username)
@@ -188,7 +188,7 @@
                                     @error="handleImageError"
                                 />
                                 <p
-                                    v-if="hosts.includes(participant.id)"
+                                    v-if="hosts.includes(participant.user.id)"
                                     class="indicator-item indicator-bottom indicator-center badge badge-secondary"
                                 >
                                     Host
