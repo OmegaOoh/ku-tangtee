@@ -27,6 +27,8 @@ class ParticipantList(mixins.ListModelMixin,
         :param request: Http request object
         :return: Http response object
         """
+        if 'search-participants' in request.path:
+            return self.search_participants(request)
         return self.list(request, *args, **kwargs)
 
     def get_object(self) -> models.Activity | None:
@@ -56,3 +58,23 @@ class ParticipantList(mixins.ListModelMixin,
         """
         activity = self.get_object()
         return activity.attend_set.all()
+
+    def search_participants(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
+        """Search for participants by keyword.
+
+        :param request: Http request object
+        :return: Http response object
+        """
+        activity = self.get_object()
+        keyword = request.GET.get("keyword", "")
+        if keyword:
+            participants = activity.attend_set.filter(
+                Q(user__username__iregex=rf"{keyword}") |
+                Q(user__first_name__iregex=rf"{keyword}") |
+                Q(user__last_name__iregex=rf"{keyword}")
+            )
+        else:
+            participants = activity.attend_set.all()
+
+        act_serializer = model_serializers.ParticipantDetailSerializer(participants, many=True)
+        return response.Response(act_serializer.data)

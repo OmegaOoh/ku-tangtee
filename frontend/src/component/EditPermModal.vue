@@ -235,11 +235,9 @@ const fetchProfile = async () => {
     try {
         let response;
         response = await apiClient.get(
-            `/activities/${props.id}/search-participants/?keyword=${searchKeyword.value}`
+            `/activities/participant/${props.id}/search-participants/?keyword=${searchKeyword.value}`
         );
-        people.value = response.data.map(
-            (participant) => participant.participant
-        );
+        people.value = response.data
         console.log(people.value);
     } catch (error) {
         console.error('Error searching participant:', error);
