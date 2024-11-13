@@ -90,7 +90,7 @@
                     </textarea>
                 </div>
                 <strong class="text-lg">On-Site</strong>
-                <input type="checkbox" class="toggle" @change="toggleOnSite" />
+                <input type="checkbox" class="toggle" :checked="onSite" @change="toggleOnSite" />
                 <div v-if="onSite">
                     <strong class="text-lg">Location</strong>
                     <div class="flex justify-center rounded-lg overflow-hidden">
@@ -243,7 +243,7 @@ const images = ref([]);
 const showMinRep = ref(false);
 const minRep = ref(0)
 
-const onSite = ref(false);
+const onSite = ref(true);
 const latitude = ref(null);
 const longitude = ref(null);
 
