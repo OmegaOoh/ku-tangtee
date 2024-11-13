@@ -145,6 +145,11 @@ def image_loader_64(image_data_list: list[str], act: models.Activity) -> None:
 
 
 def create_location(coor: dict[str, float], act: models.Activity) -> None:
+    """Create Location object.
+
+    :param coor: latitude and longitude of the Location
+    :param act: Activity object for creating Location
+    """
     latitude, longitude = coor['lat'], coor['lon']
     models.Location.objects.create(activity=act, latitude=latitude, longitude=longitude)
 

@@ -87,6 +87,11 @@ class ActivitiesSerializer(serializers.ModelSerializer):
         return images
 
     def get_location(self, activity: models.Activity) -> list[Any]:
+        """Return activity location.
+
+        :param activity: Activity model instance.
+        :return: serialized location.
+        """
         act_location = models.Location.objects.filter(activity=activity)
         location = [{"id": loc.id, "lat": loc.latitude, "lon": loc.longitude} for loc in act_location]
         return location

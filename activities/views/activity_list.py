@@ -133,6 +133,7 @@ class ActivityList(
         )
 
     def __add_location(self, request: HttpRequest, activity: models.Activity) -> None:
+        """Create a location object of the activity."""
         coordinate = request.data.pop('location', {'lat': 0, 'lon': 0})
         create_location(coordinate, activity)
 
