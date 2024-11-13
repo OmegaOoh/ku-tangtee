@@ -23,7 +23,7 @@ class ProfilesSerializer(serializers.ModelSerializer):
     profile_picture_url = serializers.SerializerMethodField()
     username = serializers.CharField(source='user.username', read_only=True)
     join_limit = serializers.IntegerField(read_only=True)
-    concurrent_activities = serializers.IntegerField(read_only=True)
+    active_activity_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         """Profile serializer META class."""
