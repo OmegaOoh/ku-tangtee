@@ -75,6 +75,11 @@ class ParticipantList(mixins.ListModelMixin,
             )
         else:
             participants = activity.attend_set.all()
+            
+        page = self.paginate_queryset(participants)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
-        act_serializer = model_serializers.ParticipantDetailSerializer(participants, many=True)
-        return response.Response(act_serializer.data)
+        serializer = self.get_serializer(participants, many=True)
+        return response.Response(serializer.data)

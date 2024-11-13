@@ -342,7 +342,7 @@ const fetchDetail = async () => {
             lon: 100.56836
         }
         //////////////////////////////////////////////////////////
-        people.value = people_res.data;
+        people.value = people_res.data.results;
         imageUrls.value = activity.value.images.map((image) => ({
             id: image.id,
             url: `${BASE_URL}${image.url}`,

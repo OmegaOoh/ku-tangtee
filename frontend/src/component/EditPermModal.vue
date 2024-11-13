@@ -181,7 +181,7 @@ const fetchDetail = async () => {
         const response = await apiClient.get(`/activities/${props.id}`);
         const people_res = await apiClient.get(`/activities/participant/${props.id}/`);
         activity.value = response.data;
-        people.value = people_res.data;
+        people.value = people_res.data.results;
         hosts.value = response.data.host;
         name.value = activity.value.name;
         owner.value = response.data.owner;
@@ -237,7 +237,7 @@ const fetchProfile = async () => {
         response = await apiClient.get(
             `/activities/participant/${props.id}/search-participants/?keyword=${searchKeyword.value}`
         );
-        people.value = response.data
+        people.value = response.data.results
         console.log(people.value);
     } catch (error) {
         console.error('Error searching participant:', error);

@@ -403,7 +403,7 @@ const fetchProfile = async () => {
      */
     people.value = [];
     const people_res = await apiClient.get(`/activities/participant/${activityId.value}/`);
-    people.value = people_res.data;
+    people.value = people_res.data.results;
 };
 
 const fetchSingleProfile = async (userId) => {
@@ -424,7 +424,7 @@ const fetchMessages = async () => {
     messages.value = [];
     try {
         const response = await apiClient.get(`/chat/${activityId.value}/`);
-        messages.value = response.data;
+        messages.value = response.data.results;
         scrollToBottom();
     } catch (error) {
         console.error('Error fetching messages:', error);
