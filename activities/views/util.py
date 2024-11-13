@@ -10,6 +10,7 @@ import base64
 import uuid
 from django.core.files.base import ContentFile
 from activities import models
+from activities.logger import logger, Action, RequestData, data_to_log
 from rest_framework import decorators, response
 import random
 import string
@@ -56,6 +57,8 @@ def edit_host_access(
     :param remove: True if granting host access, False if removing host access
     """
     if request_user != act.owner:
+        req_data = RequestData(req_user=request_user, act_id=act.id)
+        logger.warning(data_to_log(Action.FAIL_EDIT_HOST, req_data, 'Not owner'))
         return response.Response({'message': "You must be the owner of this activity to perform this action."},
                                  status=403)
     for user_id in user_ids:
@@ -77,6 +80,9 @@ def edit_host_access(
             attend.checked_in = False
 
         attend.save()
+
+        req_data = RequestData(req_user=request_user, act_id=act.id, target_user=user)
+        logger.info(data_to_log(Action.EDIT_HOST, req_data, f'is_host={not remove}'))
 
     return None
 
