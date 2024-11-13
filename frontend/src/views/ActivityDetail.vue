@@ -128,8 +128,32 @@
                     </button>
                 </div>
 
-                <div class="mb-2 ml-3 overflow-hidden multi-line" v-html="markdownFormatter(activity.detail)">
+                <div
+                    v-if="imageUrls.length > 0"
+                    class="flex flex-col justify-center"
+                >
+                    <span class="text-base-content text-lg ml-3 mb-2"
+                        >Images</span
+                    >
+                    <ImageCarousel
+                        ref="imageCarousel"
+                        carouselName="detail-carousel"
+                        :images="imagesUrl"
+                    />
                 </div>
+
+                <div class="mb-2 ml-3 overflow-hidden multi-line" v-html="markdownFormatter(activity.detail)"></div>
+                
+                <div class="ml-3" v-if="activity.on_site">
+                    <strong class="text-base-content text-lg mt-2 mb-4">Location</strong>
+                    <div v-if="showMap">
+                        <MapComponent :latitude="activity.location.lat" :longitude="activity.location.lon" class="h-[30vh] w-[100%] ml-2 rounded-lg overflow-hidden"/>
+                    </div>
+                    <div v-else class="skeleton h-[30vh] w-[100%] ml-2 rounded-lg overflow-hidden"></div>
+
+                </div>
+                
+
                 <p class="mb-2 ml-3">
                     <strong class="text-base-content text-lg"
                         >Start Date and Time:</strong
@@ -148,19 +172,6 @@
                     >
                     {{ formatTimestamp(activity.end_date) }}
                 </p>
-                <div
-                    v-if="imageUrls.length > 0"
-                    class="flex flex-col justify-center"
-                >
-                    <span class="text-base-content text-lg ml-3 mb-2"
-                        >Preview Images</span
-                    >
-                    <ImageCarousel
-                        ref="imageCarousel"
-                        carouselName="detail-carousel"
-                        :images="imagesUrl"
-                    />
-                </div>
 
                 <p v-if="activity.max_people != null" class="mb-2 ml-3">
                     <strong>Max People:</strong> {{ activity.max_people }}
@@ -284,6 +295,7 @@ import CheckInModal from '@/component/CheckInModal.vue';
 import CheckInQRCodeModal from '@/component/CheckInQRCodeModal.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { markdownFormatter } from '@/functions/Utils';
+import MapComponent from '@/component/MapComponent.vue';
 
 const BASE_URL = (() => {
     let url = process.env.VUE_APP_BASE_URL;
@@ -310,10 +322,25 @@ const hosts = ref([]);
 const owner = ref(0);
 const minRepLv = ref(0);
 
+const showMap = computed(() => {
+    return !showEditModal.value &&
+            !showCheckInCode.value &&
+            !showQRCode.value &&
+            !showCheckInModal.value &&
+            !showEditPermModal.value
+})
+
 const fetchDetail = async () => {
     try {
         const response = await apiClient.get(`/activities/${activityId.value}`);
         activity.value = response.data;
+        // TEST DATA REMOVE AFTER API IS SENDING THE LOCATION DATA.
+        activity.value['on_site'] = true; 
+        activity.value['location'] = {
+            lat: 13.84979,
+            lon: 100.56836
+        }
+        //////////////////////////////////////////////////////////
         people.value = activity.value.participant;
         imageUrls.value = activity.value.images.map((image) => ({
             id: image.id,
