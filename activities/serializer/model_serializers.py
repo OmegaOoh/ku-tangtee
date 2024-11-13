@@ -93,8 +93,9 @@ class ActivitiesSerializer(serializers.ModelSerializer):
         :return: serialized location.
         """
         act_location = models.Location.objects.filter(activity=activity).first()
-        location = {"lat": act_location.latitude, "lon": act_location.longitude}
-        return location
+        if act_location:
+            return {"lat": act_location.latitude, "lon": act_location.longitude}
+        return {"lat": 13.849695, "lon": 100.567187}
 
 
 class AttendSerializer(serializers.ModelSerializer):
