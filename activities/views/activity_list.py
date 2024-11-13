@@ -132,7 +132,7 @@ class ActivityList(
             checked_in=True
         )
 
-    def __add_location(self, request: HttpRequest, activity: models.Activity):
+    def __add_location(self, request: HttpRequest, activity: models.Activity) -> None:
         coordinate = request.data.pop('location', {'lat': 0, 'lon': 0})
         create_location(coordinate, activity)
 
