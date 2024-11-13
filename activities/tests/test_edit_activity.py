@@ -38,7 +38,6 @@ class EditActivityTest(django.test.TestCase):
         data = {
             "name": "Updated Activity",
             "detail": "This is an updated activity",
-            "location": "Updated Location",
             "max_people": 50,
         }
         # Send PUT request with new activity data
@@ -50,7 +49,6 @@ class EditActivityTest(django.test.TestCase):
         self.assertEqual(updated_act_json['name'], data['name'])
         self.assertEqual(updated_act_json['detail'], data['detail'])
         self.assertEqual(updated_act_json['max_people'], data['max_people'])
-        self.assertEqual(updated_act_json['location'], data['location'])
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_dict["message"], f"You have successfully edited the activity {data.get('name')}")
 
@@ -81,10 +79,26 @@ class EditActivityTest(django.test.TestCase):
         response_dict = json.loads(response.content)
         updated_act = models.Activity.objects.get(pk=self.activity.id)
         updated_act_json = activity_to_json(updated_act)
-        # Compare the serialized activity with the expected data
+        # Compare the serialized activity with the expected cancellation status
         self.assertEqual(updated_act_json['is_cancelled'], data['is_cancelled'])
         self.assertTrue(updated_act.is_cancelled)
         self.assertFalse(updated_act.is_active())
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_dict["message"], f"You have successfully edited the activity {self.activity.name}")
+
+    def test_valid_activity_editing_location(self):
+        """Edit should return a success message with editing location."""
+        data = {'on_site': True, "location": {"lat": -69.96, "lon": 123.45}}
+        response = put_request_json_data(self.url, self.client, data)
+        response_dict = json.loads(response.content)
+        updated_act = models.Activity.objects.get(pk=self.activity.id)
+        updated_act_json = activity_to_json(updated_act)
+        # Compare the serialized activity with the expected location
+        self.assertEqual(updated_act_json['on_site'], data['on_site'])
+        self.assertTrue(updated_act.on_site)
+        update_location = updated_act.location_set.first()
+        self.assertEqual(float(update_location.latitude), data['location']['lat'])
+        self.assertEqual(float(update_location.longitude), data['location']['lon'])
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_dict["message"], f"You have successfully edited the activity {self.activity.name}")
 
