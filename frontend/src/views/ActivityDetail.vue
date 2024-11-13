@@ -153,32 +153,35 @@
 
                 </div>
                 
-
-                <p class="mb-2 ml-3">
+                <p class="mt-2 ml-3">
                     <strong class="text-base-content text-lg"
-                        >Start Date and Time:</strong
-                    >
-                    {{ formatTimestamp(activity.date) }}
-                </p>
-                <p class="mb-2 ml-3">
-                    <strong class="text-base-content text-lg"
-                        >End Registration Date:</strong
+                        >Close Registration:</strong
                     >
                     {{ formatTimestamp(activity.end_registration_date) }}
                 </p>
-                <p class="mb-2 ml-3">
-                    <strong class="text-base-content text-lg"
-                        >End Date and Time:</strong
-                    >
-                    {{ formatTimestamp(activity.end_date) }}
-                </p>
+
+                <span class="mb-2 ml-3">
+                    <strong class="text-lg">
+                        Activity Period:
+                    </strong>
+                    <span v-if="formatDate(activity.date) != formatDate(activity.end_date)">
+                        {{ formatTimestamp(activity.date) }} - {{ formatTimestamp(activity.end_date) }}
+                    </span>
+                    <span v-else>
+                        {{ formatDate(activity.date) }}, {{ formatTime(activity.date) }} - {{ formatTime(activity.end_date) }}
+                    </span>
+                </span>
 
                 <p v-if="activity.max_people != null" class="mb-2 ml-3">
-                    <strong>Max People:</strong> {{ activity.max_people }}
+                    <strong>Participant:</strong> {{ activity.people.coun }} / {{ activity.max_people }}
                 </p>
-                <p v-if="activity.minimum_reputation_score != null" class="mb-2 ml-3">
-                    <strong>Required Level: {{ minRepLv }}</strong> 
-                </p>
+
+                <div v-if="activity.minimum_reputation_score != null && minRepLv > 0 " 
+                    class="absolute top-2 left-2 badge badge-accent p-3"
+                >
+                    lvl > {{ minRepLv }}
+                </div>
+
                 <p class="mb-2 ml-3"><strong>Joined People:</strong></p>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 ml-3">
@@ -392,10 +395,20 @@ const checkCheckedIn = () => {
 };
 
 const formatTimestamp = (timestamp) => {
-    return timestamp
-        ? format(new Date(timestamp), 'EEE, MMM/dd/yyyy, hh:mm a')
-        : 'No date provided';
+    return `${formatDate(timestamp)}, ${formatTime(timestamp)}`
 };
+
+const formatDate = (timestamp) => {
+    return timestamp
+        ? format(new Date(timestamp), 'EEE, MMM/dd/yyyy')
+        : 'No date provided';
+}
+
+const formatTime = (timestamp) => {
+    return timestamp
+        ? format(new Date(timestamp), 'hh:mm a')
+        : 'No time provided';
+}
 
 const handleEditSuccess = async () => {
     await fetchDetail();
@@ -487,7 +500,6 @@ const isJoined = computed(() => {
 const imagesUrl = computed(() => {
     return imageUrls.value.map((image) => image.url);
 });
-
 onMounted(() => {
     activityId.value = route.params.id;
     fetchDetail();
