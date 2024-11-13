@@ -4,6 +4,7 @@ from django.http import HttpRequest
 from django.db.models import QuerySet
 from rest_framework import generics, permissions, mixins, response, status
 from profiles import models
+from profiles.logger import logger, Action, RequestData, data_to_log
 
 from profiles.serializer import model_serializers
 
@@ -45,6 +46,8 @@ class ProfileList(
         :return: Http response object
         """
         if self.get_queryset().exists():
+            req_data = RequestData(req_user=request.user, profile_id=-1)
+            logger.warning(data_to_log(Action.FAIL_CREATE, req_data, 'Already exist'))
             return response.Response({"message": "You've already created your profile.",
                                       "id": self.get_queryset().first().id}, status=status.HTTP_403_FORBIDDEN)
         return self.create(request, *args, **kwargs)
@@ -59,6 +62,9 @@ class ProfileList(
         serializer.is_valid(raise_exception=True)
         new_profile = serializer.save()
         headers = self.get_success_headers(serializer.data)
+
+        req_data = RequestData(req_user=request.user, profile_id=new_profile.id)
+        logger.info(data_to_log(Action.CREATE, req_data))
         return response.Response(
             {'message': "You have successfully created your KU Tangtee profile.", "id": new_profile.id},
             status=status.HTTP_201_CREATED, headers=headers

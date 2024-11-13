@@ -8,6 +8,7 @@ from django.utils import timezone, dateparse
 from django.db.models import Q, QuerySet
 from rest_framework import generics, permissions, mixins, response, status
 from activities import models
+from activities.logger import logger, Action, RequestData, data_to_log
 from channels import layers
 from asgiref import sync
 
@@ -73,6 +74,9 @@ class ActivityList(
         self.__add_host(request, new_act)
         self.__send_message_to_websocket(new_act)
 
+        req_data = RequestData(req_user=request.user, act_id=new_act.id)
+        logger.info(data_to_log(Action.CREATE, req_data))
+
         return response.Response(
             {
                 "message": f"Your have successfully create activity {res_dict.get('name')}",
@@ -87,7 +91,10 @@ class ActivityList(
         :return: Http response object
         """
         user_profile = request.user.profile_set.first()
+        req_data = RequestData(req_user=request.user, act_id=-1)
+
         if not user_profile:
+            logger.warning(data_to_log(Action.FAIL_CREATE, req_data, 'No profile'))
             return response.Response(
                 {
                     'message': 'User must have profile page before create an activity',
@@ -96,6 +103,7 @@ class ActivityList(
             )
 
         if user_profile.reputation_score < request.data.get('minimum_reputation_score', 0):
+            logger.warning(data_to_log(Action.FAIL_CREATE, req_data, 'Owner rep < Min rep'))
             return response.Response(
                 {
                     'message': 'Activity Minimum reputation must less then or equal to creator reputation score'
