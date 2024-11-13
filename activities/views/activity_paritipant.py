@@ -31,7 +31,7 @@ class ParticipantList(mixins.ListModelMixin,
             return self.search_participants(request)
         return self.list(request, *args, **kwargs)
 
-    def get_object(self) -> models.Activity | None:
+    def get_object(self) -> Any:
         """Override GenericAPIView get_object by get an object directly from queryset class variable.
 
         :raises TypeError: When queryset is not of type QuerySet.
@@ -75,11 +75,11 @@ class ParticipantList(mixins.ListModelMixin,
             )
         else:
             participants = activity.attend_set.all()
-            
+
         page = self.paginate_queryset(participants)
         if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+            par_serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(par_serializer.data)
 
-        serializer = self.get_serializer(participants, many=True)
-        return response.Response(serializer.data)
+        par_serializer = self.get_serializer(participants, many=True)
+        return response.Response(par_serializer.data)

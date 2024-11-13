@@ -64,7 +64,6 @@ class ChatMessageListTest(APITestCase):
         chat_img = Attachment.objects.filter(message=message3).first()
         chat_img_url = chat_img.image.url
         response = self.client.get(self.url)
-        res_dict = json.loads(response.content)
 
         # Check that the response status is 200 OK
         self.assertEqual(response.status_code, status.HTTP_200_OK)
