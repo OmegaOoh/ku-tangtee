@@ -163,11 +163,31 @@
                         >
                             {{ activity.name }}
                         </h2>
-                        <p class="line-clamp-2">{{ activity.detail }}</p>
                         <p>
-                            <strong>Date and Time: </strong>
-                            {{ formatTimestamp(activity.date) }}
+                            <strong>Close Registration: </strong>
+                            {{ formatTimestamp(activity.end_registration_date) }}
                         </p>
+
+                        <span class='mb-2'>
+                            <strong>
+                                Activity Period:
+                            </strong>
+                            <span v-if="formatDate(activity.date) != formatDate(activity.end_date)">
+                                {{ formatTimestamp(activity.date) }} - {{ formatTimestamp(activity.end_date) }}
+                            </span>
+                            <span v-else>
+                                {{ formatDate(activity.date) }}, {{ formatTime(activity.date) }} - {{ formatTime(activity.end_date) }}
+                            </span>
+                        </span>
+                        
+                        <div v-if="activity.minimum_reputation_score != null  &&
+                                    calcMinRep(activity.minimum_reputation_score) > 0" 
+                            class="absolute top-2 right-2 badge badge-accent p-3"
+                        >
+                            lvl > {{ calcMinRep(activity.minimum_reputation_score) }}
+                        </div>
+
+
                         <div class="card-actions justify-end">
                             <router-link
                                 :to="{ path: `/activities/${activity.id}` }"
@@ -270,20 +290,6 @@ const viewActivity = (activityId) => {
     router.push(`/activities/${activityId}`);
 };
 
-const formatTimestamp = (timestamp) => {
-    /*
-     * Format the timestamp into (Oct 22, 2024, 9:00 AM).
-     *
-     * @params {string} not yet formatted timestamp
-     * @returns {string} formatted timestamp
-     */
-    if (timestamp) {
-        return format(new Date(timestamp), 'EEE, MMM/dd/yyyy, hh:mm a');
-    } else {
-        return 'No date provided';
-    }
-};
-
 /**
  * Websocket
  */
@@ -348,6 +354,33 @@ const isChecked = (value) => {
     return selectedDay.value.includes(Number(value));
 };
 
+const calcMinRep = (minRepScore) => {
+    return Math.floor(minRepScore / 10)
+}
+
+
+const formatTimestamp = (timestamp) => {
+    /*
+     * Format the timestamp into (Oct 22, 2024, 9:00 AM).
+     *
+     * @params {string} not yet formatted timestamp
+     * @returns {string} formatted timestamp
+     */
+    return `${formatDate(timestamp)}, ${formatTime(timestamp)}`
+};
+
+
+const formatDate = (timestamp) => {
+    return timestamp
+        ? format(new Date(timestamp), 'EEE, MMM/dd/yyyy')
+        : 'No date provided';
+}
+
+const formatTime = (timestamp) => {
+    return timestamp
+        ? format(new Date(timestamp), 'hh:mm a')
+        : 'No time provided';
+}
 onMounted(() => {
     fetchActivities();
     setupSocket();
