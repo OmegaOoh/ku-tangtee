@@ -148,15 +148,17 @@ class Attend(models.Model):
     @classmethod
     def recently_joined(cls, user: User,
                         records: Optional[int | None] = None,
+                        is_host: Optional[bool] = False,
                         by_date: Optional[bool] = False) -> list[Activity]:
         """Class method that get recently joined activities of a user.
 
         :param user: the user to get activities for.
         :param records: the number of record needed for return
+        :param is_host: if True, retrieve activities hosted by the user.
         :param by_date: on True, make result order in activity date instead of join time
         :return: The latest activities joined by a user, order by join time(default).
         """
-        res = cls.objects.filter(user=user)
+        res = cls.objects.filter(user=user, is_host=is_host)
         # Ordering
         if by_date:
             res = res.order_by('-activity__date')
