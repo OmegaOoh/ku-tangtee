@@ -56,18 +56,6 @@ class Profile(models.Model):
         """Return boolean determine that user can join more activity or not."""
         return bool(self.active_activity_count < self.join_limit)
 
-    @property
-    def concurrent_activities(self) -> Any:
-        """Get number of concurrent activities the user has joined.
-
-        :return: Current number of concurrent activities.
-        """
-        now = timezone.now()
-        return self.user.attend_set.filter(
-            activity__end_date__gte=now,
-            checked_in=False
-        ).count()
-
     def __str__(self) -> str:
         """Return user's username as string representative.
 

@@ -1,6 +1,8 @@
 """Django settings for mysite project."""
 
 import os
+import sys
+import logging
 from pathlib import Path
 from decouple import config
 
@@ -131,6 +133,45 @@ AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend"
 )
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '%(asctime)s %(name)s [%(levelname)s] %(message)s',
+            'datefmt': '%d/%m/%Y %H:%M:%S',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'file-activities': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'activities.log',
+            'formatter': 'simple',
+        },
+        'file-profiles': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'profiles.log',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'activities': {
+            'level': "DEBUG",
+            'handlers': ['file-activities'],
+        },
+        'profiles': {
+            'level': "DEBUG",
+            'handlers': ['file-profiles'],
+        },
+    },
+}
 
 
 # Internationalization

@@ -158,24 +158,74 @@
                         </div>
                     </div>
                 </div>
-                <div class="divider">Joined Activity</div>
-                <div class="flex flex-col">
-                    <div
-                        class="card bg-base-200 w-full hover:border-2 border-primary transition-all ease-in-out duration-75 mb-4 cursor-pointer"
-                        v-for="activity in recentActivity"
-                        :key="activity.activity_id"
-                        @click="
-                            $router.push(`/activities/${activity.activity_id}`)
-                        "
-                    >
-                        <div class="card-body">
-                            <h2 class="card-title line-clamp-1">
-                                {{ activity.name }}
-                            </h2>
-                            <p>
-                                <strong>Date and Time: </strong>
-                                {{ formatTimestamp(activity.activity_date) }}
-                            </p>
+                <div class="flex justify-items-center gap-2">
+                    <div class="tabs mt-4 w-full">
+                        <a
+                            @click="selectedTab = 'joined'"
+                            :class="{ 'tab-active': selectedTab === 'joined' }"
+                            class="tab tab-bordered w-1/2"
+                            >Joined Activity</a
+                        >
+                        <a
+                            @click="selectedTab = 'hosted'"
+                            :class="{ 'tab-active': selectedTab === 'hosted' }"
+                            class="tab tab-bordered w-1/2"
+                            >Hosted Activity</a
+                        >
+                    </div>
+                </div>
+
+                <div v-if="selectedTab === 'joined'">
+
+                    <div class="flex flex-col">
+                        <div
+                            class="card bg-base-200 w-full hover:border-2 border-primary transition-all ease-in-out duration-75 mb-4 cursor-pointer"
+                            v-for="activity in joinedActivity"
+                            :key="activity.activity_id"
+                            @click="
+                                $router.push(
+                                    `/activities/${activity.activity_id}`
+                                )
+                            "
+                        >
+                            <div class="card-body">
+                                <h2 class="card-title line-clamp-1">
+                                    {{ activity.name }}
+                                </h2>
+                                <p>
+                                    <strong>Date and Time: </strong
+                                    >{{
+                                        formatTimestamp(activity.activity_date)
+                                    }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-if="selectedTab === 'hosted'">
+                    <div class="flex flex-col">
+                        <div
+                            class="card bg-base-200 w-full hover:border-2 border-primary transition-all ease-in-out duration-75 mb-4 cursor-pointer"
+                            v-for="activity in hostedActivity"
+                            :key="activity.activity_id"
+                            @click="
+                                $router.push(
+                                    `/activities/${activity.activity_id}`
+                                )
+                            "
+                        >
+                            <div class="card-body">
+                                <h2 class="card-title line-clamp-1">
+                                    {{ activity.name }}
+                                </h2>
+                                <p>
+                                    <strong>Date and Time: </strong
+                                    >{{
+                                        formatTimestamp(activity.activity_date)
+                                    }}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -208,7 +258,9 @@ const major = ref('');
 const bio = ref('');
 const kuGen = ref('');
 const pfp = ref('');
-const recentActivity = ref([]);
+const joinedActivity = ref([]);
+const hostedActivity = ref([]);
+const selectedTab = ref('joined');
 const editMode = ref(false);
 const reputation = ref(0);
 const reputationLevel = ref(0);
@@ -244,11 +296,11 @@ const fetchUserData = async () => {
     );
     reputationProgress.value =
         reputation.value === 100 ? 10 : reputation.value % 10;
-    concurrentAct.value = user.value.user_profile.concurrent_activities;
+    concurrentAct.value = user.value.user_profile.active_activity_count;
     joinLimit.value = user.value.user_profile.join_limit;
 };
 
-const fetchRecentActivities = async () => {
+const fetchJoinedActivities = async () => {
     /**
      * Fetch data of recently joined activity.
      * this function returns nothing.
@@ -256,13 +308,27 @@ const fetchRecentActivities = async () => {
     const response = await apiClient.get(
         `/activities/get-recently/${user.value.id}?byDate=True`
     );
-    recentActivity.value = response.data;
+    joinedActivity.value = response.data;
+    console.log(joinedActivity.value);
+};
+
+const fetchHostedActivities = async () => {
+    /**
+     * Fetch data of recently hosted activity.
+     * this function returns nothing.
+     */
+    const response = await apiClient.get(
+        `/activities/get-recently/${user.value.id}?byDate=True&isHost=True`
+    );
+    hostedActivity.value = response.data;
+    console.log(hostedActivity.value);
 };
 
 const onUserChange = (newUsername, oldUsername) => {
     if (newUsername != oldUsername) {
         fetchUserData();
-        fetchRecentActivities();
+        fetchHostedActivities();
+        fetchJoinedActivities();
     }
 };
 
@@ -359,7 +425,8 @@ watch(
 onMounted(async () => {
     try {
         await fetchUserData();
-        fetchRecentActivities();
+        fetchHostedActivities();
+        fetchJoinedActivities();
     } catch (e) {
         router.push('/');
         addAlert('error', 'The profile does not exists.');
