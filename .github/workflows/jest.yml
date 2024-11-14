@@ -19,18 +19,15 @@ jobs:
             - name: Set up Node.js
               uses: actions/setup-node@v3
               with:
-                  node-version: '18'
+                  node-version: '14'
 
             - name: Install dependencies
-              run: |
-                  cd frontend
-                  npm install
+              run: npm install
+              working-directory: ./frontend
 
             - name: Run Jest tests
-              run: |
-                  npm test
-              env:
-                  CI: true
+              run: npm test
+              working-directory: ./frontend
 
             - name: Upload Jest test results
               if: always()
