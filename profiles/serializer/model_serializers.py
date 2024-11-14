@@ -4,6 +4,7 @@ from rest_framework import serializers
 from allauth.socialaccount.models import SocialAccount
 from .. import models
 from django.contrib.auth import models as auth_models
+from rest_framework.utils.serializer_helpers import ReturnDict
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -19,7 +20,6 @@ class UserSerializer(serializers.ModelSerializer):
 class ProfilesSerializer(serializers.ModelSerializer):
     """Serialized Profile model."""
 
-    user = UserSerializer(read_only=True)
     profile_picture_url = serializers.SerializerMethodField()
     username = serializers.CharField(source='user.username', read_only=True)
     join_limit = serializers.IntegerField(read_only=True)
@@ -52,3 +52,9 @@ class ProfilesSerializer(serializers.ModelSerializer):
             return social_account.extra_data.get('picture', '')
         except SocialAccount.DoesNotExist:
             return ''
+
+    # @property
+    # def data(self):
+    #     ret = super().data
+    #     ret.pop('user', None)
+    #     return ret

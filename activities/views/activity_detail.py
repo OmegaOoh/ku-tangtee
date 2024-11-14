@@ -27,8 +27,6 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         :param request: Http request object
         :return: Http response object
         """
-        if 'search-participants' in request.path:
-            return self.search_participants(request)
         return self.retrieve(request, *args, **kwargs)
 
     def put(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
@@ -174,23 +172,3 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         for attendee in attendee_infos_to_remove:
             req_data = RequestData(req_user=request.user, act_id=activity.id, target_user=attendee)
             logger.info(data_to_log(Action.KICK, req_data))
-
-    def search_participants(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
-        """Search for participants by keyword.
-
-        :param request: Http request object
-        :return: Http response object
-        """
-        activity = self.get_object()
-        keyword = request.GET.get("keyword", "")
-        if keyword:
-            participants = activity.attend_set.filter(
-                Q(user__username__iregex=rf"{keyword}") |
-                Q(user__first_name__iregex=rf"{keyword}") |
-                Q(user__last_name__iregex=rf"{keyword}")
-            )
-        else:
-            participants = activity.attend_set.all()
-
-        serializer = model_serializers.ParticipantDetailSerializer(participants, many=True)
-        return response.Response(serializer.data)
