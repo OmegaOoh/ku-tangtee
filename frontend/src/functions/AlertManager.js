@@ -18,8 +18,10 @@ export function hideAlert(index) {
      * Hides alert at given index
      * this function return nothing.
      */
-    alerts.value[index].isVisible = false;
-    alerts.value.splice(index, 1);
+    if (alerts.value[index]) {
+        alerts.value[index].isVisible = false;
+        alerts.value.splice(index, 1);
+    }
 }
 
 export function useAlert() {
