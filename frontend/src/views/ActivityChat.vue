@@ -212,6 +212,7 @@ const messageTextarea = ref(null)
 
 let last_msg = {};
 let streak = 0;
+let spam_timer = null;
 
 /**
  * Message Websocket
@@ -224,8 +225,7 @@ const connectWebSocket = () => {
      */
     let new_socket = new WebSocket(
         `${process.env.VUE_APP_BASE_URL.replace(/^http/, 'ws').replace(
-            /^https/,
-            'wss'
+            /^https/,'wss'
         )}ws/chat/${activityId.value}`
     );
     socket.value = new_socket;
@@ -267,10 +267,22 @@ const sendMessage = () => {
     }
 
     let msg = JSON.stringify({
-                message: trimMessage,
-                user_id: authUserId.value,
-                images: images.value,
-            })
+        message: trimMessage,
+        user_id: authUserId.value,
+        images: images.value,
+    })
+
+    if (socket.value.readyState === WebSocket.OPEN) {
+        socket.value.send(msg);
+        images.value = [];
+        newMessage.value = '';
+        nextTick(() => {adjustHeight();})
+        handleScrollToBottom(); // Scroll to bottom unconditionally
+    } else {
+        addAlert('error', 'Chat is not connected, please refresh.')
+        console.log('WebSocket is not open.');
+        return;
+    }
 
     if (msg != last_msg) {
         last_msg = msg;
@@ -283,19 +295,16 @@ const sendMessage = () => {
     if (streak >= MAX_CONSECUTIVE_SAME_MSG) {
         socket.value.close()
         addAlert('warning', 'You are spamming, BAD USER!')
+        if (spam_timer)
+            clearTimeout(spam_timer.id)
+        spam_timer = null
         return;
     }
 
-    if (socket.value.readyState === WebSocket.OPEN) {
-        socket.value.send(msg);
-        images.value = [];
-        newMessage.value = '';
-        nextTick(() => {adjustHeight();})
-        handleScrollToBottom(); // Scroll to bottom unconditionally
-    } else {
-        addAlert('error', 'Chat is not connected, please refresh.')
-        console.log('WebSocket is not open.');
+    if (!spam_timer){
+        spam_timer = setTimeout(()=> { streak= 0 },1500)
     }
+    
 };
 
 const insertNewLine = () => {
