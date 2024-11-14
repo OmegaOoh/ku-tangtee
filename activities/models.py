@@ -4,6 +4,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
+from twisted.protocols.amp import Decimal
 
 
 def get_end_registration_date() -> Any:
@@ -189,6 +190,7 @@ class Attachment(models.Model):
 
 class Location(models.Model):
     """Location for activity."""
+    CHAKRABANDHU_PENSIRI_HALL = {"lat": 13.849695, "lon": 100.567187}
 
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)

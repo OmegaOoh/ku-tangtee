@@ -95,7 +95,7 @@ class ActivitiesSerializer(serializers.ModelSerializer):
         act_location = models.Location.objects.filter(activity=activity).first()
         if act_location:
             return {"lat": act_location.latitude, "lon": act_location.longitude}
-        return {"lat": 13.849695, "lon": 100.567187}
+        return models.Location.CHAKRABANDHU_PENSIRI_HALL
 
 
 class AttendSerializer(serializers.ModelSerializer):
