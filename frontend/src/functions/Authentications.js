@@ -2,7 +2,7 @@ import { ref } from 'vue';
 import apiClient from '@/api';
 import { googleTokenLogin } from 'vue3-google-login';
 import { createPostRequest } from './HttpRequest';
-import { getCookie, deleteCookie } from './CookiesReadWrite.js';
+import { getCookie } from './CookiesReadWrite.js';
 import router from '@/router';
 
 export var isAuth = ref(false);
@@ -47,17 +47,20 @@ export async function authStatus() {
      */
     const authToken = getCookie('jwt-auth');
     const reToken = getCookie('jwt-reauth');
-    if (!authToken && !reToken) {
+    if (!reToken) {
         await logout();
+        return
     }
     if (!authToken && reToken) {
         await createPostRequest('rest-auth/token/refresh/', {'Refresh': reToken})
         isAuth.value = true;
         getUserData();
+        return
     }
     if (authToken) {
         isAuth.value = true;
         getUserData();
+        return
     }
 }
 
@@ -74,7 +77,6 @@ export async function logout() {
     pfp.value = '';
     userId.value = '';
     userName.value = '';
-    deleteCookie('backend-token');
 }
 
 export async function getUserData() {
