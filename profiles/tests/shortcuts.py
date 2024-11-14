@@ -47,7 +47,6 @@ def create_profile(
 
     url = urls.reverse("profiles:index")
     res = post_request_json_data(url, client, data)
-
     try:
         response_dict = json.loads(res.content)
         profile = models.Profile.objects.get(pk=int(response_dict["id"]))

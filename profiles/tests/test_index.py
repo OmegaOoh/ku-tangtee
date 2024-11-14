@@ -21,7 +21,8 @@ class IndexTest(django.test.TestCase):
                 "faculty": "",
                 "major": "",
                 "about_me": "",
-                "reputation_score": None
+                "reputation_score": None,
+                "user": None
             }
         }
 

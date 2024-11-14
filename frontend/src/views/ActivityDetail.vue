@@ -191,30 +191,30 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 ml-3">
                     <div
                         v-for="participant in people"
-                        :key="participant.id"
+                        :key="participant.user.id"
                         class="card bg-base-100 shadow-lg p-4 rounded-lg border-primary hover:border-2 cursor-pointer transition-all duration-75 ease-in-out"
                         @click="
-                            $router.push('/profile/' + participant.username)
+                            $router.push('/profile/' + participant.user.username)
                         "
                     >
                         <div class="flex items-center space-x-4">
                             <div class="indicator">
                                 <img
-                                    v-lazy="participant.profile_picture_url"
+                                    v-lazy="participant.user.user_profile.profile_picture_url"
                                     alt="Profile Picture"
                                     class="w-12 h-12 rounded-full"
                                     @error="handleImageError"
                                 />
                                 <p
-                                    v-if="hosts.includes(participant.id)"
+                                    v-if="hosts.includes(participant.user.id)"
                                     class="indicator-item indicator-bottom indicator-center badge badge-secondary"
                                 >
                                     Host
                                 </p>
                             </div>
                             <p class="font-medium">
-                                {{ participant.first_name }}
-                                {{ participant.last_name }}
+                                {{ participant.user.first_name }}
+                                {{ participant.user.last_name }}
                             </p>
                         </div>
                     </div>
@@ -342,6 +342,7 @@ const showMap = computed(() => {
 const fetchDetail = async () => {
     try {
         const response = await apiClient.get(`/activities/${activityId.value}`);
+        const people_res = await apiClient.get(`/activities/participant/${activityId.value}/`);
         activity.value = response.data;
         // TEST DATA REMOVE AFTER API IS SENDING THE LOCATION DATA.
         activity.value['on_site'] = true; 
@@ -350,7 +351,7 @@ const fetchDetail = async () => {
             lon: 100.56836
         }
         //////////////////////////////////////////////////////////
-        people.value = activity.value.participant;
+        people.value = people_res.data.results;
         imageUrls.value = activity.value.images.map((image) => ({
             id: image.id,
             url: `${BASE_URL}${image.url}`,
@@ -505,7 +506,7 @@ const isOwner = computed(() => {
 const isJoined = computed(() => {
     return (
         isAuth &&
-        people.value.some((participant) => participant.id === userId.value)
+        people.value.some((participant) => participant.user.id === userId.value)
     );
 });
 
