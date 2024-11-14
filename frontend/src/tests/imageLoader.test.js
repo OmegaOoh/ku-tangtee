@@ -3,6 +3,14 @@ import { loadImage } from '@/functions/Utils';
 describe('loadImage', () => {
     let fileReaderMock;
     beforeEach(() => {
+        global.Blob = jest.fn().mockImplementation((content, options) => {
+            return {
+                content,
+                options,
+                size: content.length,
+                type: options.type,
+            };
+        });
         fileReaderMock = {
             readAsDataURL: jest.fn(),
             onload: null,
