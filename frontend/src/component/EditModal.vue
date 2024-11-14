@@ -51,6 +51,7 @@
                 <label class="btn btn-primary">
                     Add Image
                     <input
+                        ref="fileUpload"
                         type="file"
                         multiple
                         id="file-add"
@@ -285,6 +286,8 @@ const remove_attachment = ref([]);
 const isDarkTheme = ref(false);
 const showMinRep = ref(false)
 const minRep = ref(0)
+
+const fileUpload = ref(null)
 
 const fetchDetail = async () => {
     /**
@@ -582,6 +585,9 @@ const handleRemove = (index) => {
     // Remove the image from the images array
     images.value.splice(index, 1);
     images.value = [...images.value];
+    if (fileUpload.value) {
+        fileUpload.value.value = ''
+    }
 };
 
 const handleMarkerPlace = (coords) => {

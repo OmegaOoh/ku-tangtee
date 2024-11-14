@@ -55,6 +55,7 @@
                     <label class="btn btn-primary">
                         Add Image
                         <input
+                            ref="fileUpload"
                             type="file"
                             multiple
                             id="file-add"
@@ -246,6 +247,8 @@ const isDarkTheme = ref(false);
 const images = ref([]);
 const showMinRep = ref(false);
 const minRep = ref(0)
+
+const fileUpload = ref(null);
 
 const onSite = ref(true);
 const latitude = ref(null);
@@ -441,6 +444,9 @@ const handleRemove = (index) => {
      * Return nothing.
      */
     images.value.splice(index, 1);
+    if (fileUpload.value) {
+        fileUpload.value.value = ''
+    }
 
 };
 
