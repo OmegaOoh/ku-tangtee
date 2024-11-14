@@ -175,11 +175,11 @@
                     </div>
                 </div>
 
-                <div v-if="selectedTab === 'joined'">
+                <div v-if="selectedTab === 'joined'" class="pt-4">
 
                     <div class="flex flex-col">
                         <div
-                            class="card bg-base-200 w-full hover:border-2 border-primary transition-all ease-in-out duration-75 mb-4 cursor-pointer"
+                            class="card bg-base-200 w-full hover:border-primary border-2 border-base-200 transition-all ease-in-out duration-75 mb-4 cursor-pointer"
                             v-for="activity in joinedActivity"
                             :key="activity.activity_id"
                             @click="
@@ -203,10 +203,10 @@
                     </div>
                 </div>
 
-                <div v-if="selectedTab === 'hosted'">
+                <div v-if="selectedTab === 'hosted'" class="pt-4">
                     <div class="flex flex-col">
                         <div
-                            class="card bg-base-200 w-full hover:border-2 border-primary transition-all ease-in-out duration-75 mb-4 cursor-pointer"
+                            class="card bg-base-200 w-full hover:border-primary border-2 border-base-200 transition-all ease-in-out duration-75 mb-4 cursor-pointer"
                             v-for="activity in hostedActivity"
                             :key="activity.activity_id"
                             @click="

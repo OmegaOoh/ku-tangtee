@@ -192,7 +192,7 @@
                     <div
                         v-for="participant in people"
                         :key="participant.user.id"
-                        class="card bg-base-100 shadow-lg p-4 rounded-lg border-primary hover:border-2 cursor-pointer transition-all duration-75 ease-in-out"
+                        class="card bg-base-100 shadow-lg p-4 rounded-lg hover:border-primary border-2 border-base-300 cursor-pointer transition-all duration-75 ease-in-out"
                         @click="
                             $router.push('/profile/' + participant.user.username)
                         "
