@@ -25,8 +25,6 @@ def get_end_date() -> Any:
 class Locations(models.Model):
     """Location for activity."""
 
-    CHAKRABANDHU_PENSIRI_HALL = {"lat": 13.849695, "lon": 100.567187}
-
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
 

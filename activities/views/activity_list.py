@@ -115,7 +115,7 @@ class ActivityList(
 
         location_id = self.__add_location(request)
         request.data["locations"] = location_id
-        if request.data.get('location', None):
+        if request.data.get('locations', False):
             request.data["on_site"] = True
 
         return super().create(request, *args, **kwargs)

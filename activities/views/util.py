@@ -145,24 +145,23 @@ def image_loader_64(image_data_list: list[str], act: models.Activity) -> None:
             print(f"Failed to decode image data: {e}")
 
 
-def create_location(coor: dict[str, float]) -> int:
+def create_location(coor: dict[str, float]) -> int | None:
     """Create Location object and set on_site status.
 
     :param coor: latitude and longitude of the Location
     """
     latitude, longitude = coor['lat'], coor['lon']
 
-    if not (latitude and longitude):
-        default_location = models.Locations.CHAKRABANDHU_PENSIRI_HALL
-        latitude, longitude = default_location['lat'], default_location['lon']
+    if latitude and longitude:
+        location = models.Locations.objects.create(
+            latitude=latitude,
+            longitude=longitude
+        )
+        location.save()
 
-    location = models.Locations.objects.create(
-        latitude=latitude,
-        longitude=longitude
-    )
-    location.save()
+        return int(location.id)
 
-    return int(location.id)
+    return None
 
 
 def get_checkin_code() -> str:

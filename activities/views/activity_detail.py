@@ -1,5 +1,5 @@
 """Module for handle URL /activities/<activity_id>."""
-from activities.views.util import image_loader, image_deleter, image_loader_64, edit_host_access
+from activities.views.util import image_loader, image_deleter, image_loader_64, edit_host_access, create_location
 from typing import Any
 from django.http import HttpRequest
 from rest_framework import generics, permissions, mixins, response
@@ -54,7 +54,7 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         # Deal with location.
         loc_id = self.__edit_location(request)
         if loc_id:
-            request.data['location'] = loc_id
+            request.data['locations'] = loc_id
 
         # Update activity information
         res = super().update(request, partial=True, *args, **kwargs)
@@ -126,11 +126,16 @@ class ActivityDetail(mixins.RetrieveModelMixin,
 
         if coordinate:
             location = activity.locations
-            location.latitude = coordinate.get("lat")
-            location.longitude = coordinate.get("lon")
-            location.save()
 
-            return int(location.id)
+            if location:
+                location.latitude = coordinate.get("lat")
+                location.longitude = coordinate.get("lon")
+                location.save()
+                location_id = location.id
+            else:
+                location_id = create_location(coordinate)
+
+            return int(location_id)
 
         return None
 
