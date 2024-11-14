@@ -1,5 +1,5 @@
 """Utility module."""
-
+from email.policy import default
 from typing import Any
 from django.http import HttpRequest
 from django.middleware.csrf import get_token
@@ -145,24 +145,24 @@ def image_loader_64(image_data_list: list[str], act: models.Activity) -> None:
             print(f"Failed to decode image data: {e}")
 
 
-def create_location(coor: dict[str, float], act: models.Activity) -> None:
+def create_location(coor: dict[str, float]) -> int:
     """Create Location object and set on_site status.
 
     :param coor: latitude and longitude of the Location
-    :param act: Activity object for creating Location
     """
     latitude, longitude = coor['lat'], coor['lon']
 
-    if latitude and longitude:
-        act.on_site = True
-        act.save()
+    if not (latitude and longitude):
+        default_location = models.Locations.CHAKRABANDHU_PENSIRI_HALL
+        latitude, longitude = default_location['lat'], default_location['lon']
 
-    location = models.Location.objects.create(
-        activity=act,
+    location = models.Locations.objects.create(
         latitude=latitude,
         longitude=longitude
     )
     location.save()
+
+    return int(location.id)
 
 
 def get_checkin_code() -> str:

@@ -53,12 +53,15 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         if rep_error:
             return rep_error
 
+        # Deal with location.
+        loc_id = self.__edit_location(request)
+        if loc_id:
+            request.data['location'] = loc_id
+
         # Update activity information
         res = super().update(request, partial=True, *args, **kwargs)
         res_dict = res.data
 
-        # Deal with location.
-        self.__edit_location(request)
         # Deal with attachment.
         self.__add_remove_attachment(request)
         # Kick attendee
@@ -119,15 +122,19 @@ class ActivityDetail(mixins.RetrieveModelMixin,
             )
         return None
 
-    def __edit_location(self, request: HttpRequest) -> None:
+    def __edit_location(self, request: HttpRequest) -> int | None:
         activity = self.get_object()
         coordinate = request.data.get("location", {})
 
         if coordinate:
-            location = models.Location.objects.filter(activity=activity).first()
+            location = activity.locations
             location.latitude = coordinate.get("lat")
             location.longitude = coordinate.get("lon")
             location.save()
+
+            return int(location.id)
+
+        return None
 
     def __add_remove_attachment(self, request: HttpRequest) -> None:
         """Add or remove images from activity.

@@ -70,7 +70,6 @@ class ActivityList(
         res_dict = res.data
         new_act = models.Activity.objects.get(pk=res_dict.get("id"))
 
-        self.__add_location(request, new_act)
         self.__load_image(request, new_act)
         self.__add_host(request, new_act)
         self.__send_message_to_websocket(new_act)
@@ -113,6 +112,12 @@ class ActivityList(
             )
 
         request.data["owner"] = request.user.id
+
+        location_id = self.__add_location(request)
+        request.data["locations"] = location_id
+        if request.data.get('location', None):
+            request.data["on_site"] = True
+
         return super().create(request, *args, **kwargs)
 
     def __load_image(self, request: HttpRequest, activity: models.Activity) -> None:
@@ -132,10 +137,10 @@ class ActivityList(
             checked_in=True
         )
 
-    def __add_location(self, request: HttpRequest, activity: models.Activity) -> None:
+    def __add_location(self, request: HttpRequest) -> int | None:
         """Create a location object of the activity."""
         coordinate = request.data.pop('location', {'lat': 0, 'lon': 0})
-        create_location(coordinate, activity)
+        return create_location(coordinate)
 
     def __send_message_to_websocket(self, activity: models.Activity) -> None:
         """Send message to websocket."""
