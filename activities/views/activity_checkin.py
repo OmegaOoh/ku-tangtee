@@ -17,7 +17,7 @@ class CheckInView(
 ):
     """Handle PUT req by open/close for check-in and handle POST by check user in."""
 
-    queryset = models.Activity.objects.filter(date__gte=timezone.now())
+    queryset = models.Activity.objects.filter(end_date__gte=timezone.now())
     serializer_class = model_serializers.ActivitiesSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, OnlyHostCanEdit]
 
