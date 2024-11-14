@@ -1,4 +1,4 @@
-name: Lint JavaScript with JSHint
+name: Run Jest Tests
 
 on:
     push:
@@ -9,7 +9,7 @@ on:
             - main
 
 jobs:
-    jshint-lint:
+    test:
         runs-on: ubuntu-latest
 
         steps:
@@ -21,12 +21,20 @@ jobs:
               with:
                   node-version: '18'
 
-            - name: Install JSHint
+            - name: Install dependencies
               run: |
                   cd frontend
-                  npm install jshint
+                  npm install
 
-            - name: Run JSHint
+            - name: Run Jest tests
               run: |
-                  cd frontend 
-                  npx jshint # Apply config from .jshintrc and lint files in the directory
+                  npm test
+              env:
+                  CI: true
+
+            - name: Upload Jest test results
+              if: always()
+              uses: actions/upload-artifact@v3
+              with:
+                  name: jest-results
+                  path: jest-*.xml
