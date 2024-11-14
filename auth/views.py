@@ -15,15 +15,19 @@ class GoogleLogin(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
 
 
-class UserList(generics.GenericAPIView, mixins.ListModelMixin):
-    """User data view."""
+class UserDetail(
+    generics.GenericAPIView,
+    mixins.RetrieveModelMixin
+):
+    """User information detail view."""
 
     serializer_class = UserSerializer
     queryset = User.objects.all()
+    lookup_field = 'username'
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
-        """Response GET request by send list of serialized user.
+        """Response GET request by return detail of user with specific username.
 
         :return: HttpResponse object
         """
-        return self.list(request, args, kwargs)
+        return self.retrieve(request, *args, **kwargs)

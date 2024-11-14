@@ -33,20 +33,20 @@
 
                 <div
                     v-for="participant in people"
-                    :key="participant.id"
+                    :key="participant.user.id"
                     class="card bg-base-100 shadow-lg p-4 rounded-lg border-primary hover:border-2 cursor-pointer transition-all duration-75 ease-in-out"
                 >
                     <div class="flex items-center space-x-4">
                         <!-- Profile Picture Container -->
                         <div class="indicator w-12 h-12 flex-shrink-0">
                             <img
-                                v-lazy="participant.profile_picture_url"
+                                v-lazy="participant.user.user_profile.profile_picture_url"
                                 alt="Profile Picture"
                                 class="w-full h-full rounded-full object-cover"
                                 @error="handleImageError"
                             />
                             <p
-                                v-if="hosts.includes(participant.id)"
+                                v-if="hosts.includes(participant.user.id)"
                                 class="indicator-item indicator-bottom indicator-center badge badge-secondary"
                             >
                                 Host
@@ -56,56 +56,56 @@
                         <!-- Name and Action Buttons -->
                         <div class="flex-1 min-w-0">
                             <p class="font-medium truncate">
-                                {{ participant.first_name }}
-                                {{ participant.last_name }}
+                                {{ participant.user.first_name }}
+                                {{ participant.user.last_name }}
                             </p>
                             <div class="flex space-x-2">
                                 <button
                                     v-if="
-                                        !checkHost(participant.id) &&
-                                        !grantHost.includes(participant.id) &&
+                                        !checkHost(participant.user.id) &&
+                                        !grantHost.includes(participant.user.id) &&
                                         !kickedParticipant.includes(
-                                            participant.id
+                                            participant.user.id
                                         )
                                     "
                                     class="btn btn-primary"
-                                    @click="handlePromote(participant.id)"
+                                    @click="handlePromote(participant.user.id)"
                                 >
                                     Promote
                                 </button>
                                 <button
                                     v-if="
-                                        checkHost(participant.id) &&
-                                        !checkOwner(participant.id) &&
-                                        !removeHost.includes(participant.id) &&
+                                        checkHost(participant.user.id) &&
+                                        !checkOwner(participant.user.id) &&
+                                        !removeHost.includes(participant.user.id) &&
                                         !kickedParticipant.includes(
-                                            participant.id
+                                            participant.user.id
                                         )
                                     "
                                     class="btn btn-warning"
-                                    @click="handleDemote(participant.id)"
+                                    @click="handleDemote(participant.user.id)"
                                 >
                                     Demote
                                 </button>
                                 <button
                                     v-if="
-                                        !checkHost(participant.id) &&
-                                        !grantHost.includes(participant.id) &&
+                                        !checkHost(participant.user.id) &&
+                                        !grantHost.includes(participant.user.id) &&
                                         !kickedParticipant.includes(
-                                            participant.id
+                                            participant.user.id
                                         )
                                     "
                                     class="btn btn-error"
-                                    @click="handleKick(participant.id)"
+                                    @click="handleKick(participant.user.id)"
                                 >
                                     Kick
                                 </button>
                                 <p
                                     v-if="
-                                        removeHost.includes(participant.id) ||
-                                        grantHost.includes(participant.id) ||
+                                        removeHost.includes(participant.user.id) ||
+                                        grantHost.includes(participant.user.id) ||
                                         kickedParticipant.includes(
-                                            participant.id
+                                            participant.user.id
                                         )
                                     "
                                     class="text-warning"
@@ -179,10 +179,11 @@ const fetchDetail = async () => {
      */
     try {
         const response = await apiClient.get(`/activities/${props.id}`);
+        const people_res = await apiClient.get(`/activities/participant/${props.id}/`);
         activity.value = response.data;
+        people.value = people_res.data.results;
         hosts.value = response.data.host;
         name.value = activity.value.name;
-        people.value = activity.value.participant;
         owner.value = response.data.owner;
         detail.value = activity.value.detail;
     } catch (error) {
@@ -234,11 +235,9 @@ const fetchProfile = async () => {
     try {
         let response;
         response = await apiClient.get(
-            `/activities/${props.id}/search-participants/?keyword=${searchKeyword.value}`
+            `/activities/participant/${props.id}/search-participants/?keyword=${searchKeyword.value}`
         );
-        people.value = response.data.map(
-            (participant) => participant.participant
-        );
+        people.value = response.data.results
         console.log(people.value);
     } catch (error) {
         console.error('Error searching participant:', error);

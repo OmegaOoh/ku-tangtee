@@ -402,9 +402,8 @@ const fetchProfile = async () => {
      * Return Nothing
      */
     people.value = [];
-    const response = await apiClient.get(`/activities/${activityId.value}/`);
-    const activity = response.data;
-    people.value = activity.participant;
+    const people_res = await apiClient.get(`/activities/participant/${activityId.value}/`);
+    people.value = people_res.data.results;
 };
 
 const fetchSingleProfile = async (userId) => {
@@ -425,7 +424,7 @@ const fetchMessages = async () => {
     messages.value = [];
     try {
         const response = await apiClient.get(`/chat/${activityId.value}/`);
-        messages.value = response.data;
+        messages.value = response.data.results;
         scrollToBottom();
     } catch (error) {
         console.error('Error fetching messages:', error);
@@ -442,7 +441,7 @@ const checkJoined = () => {
      * return boolean whether or not user is joined
      */
     isJoined.value = people.value.some(
-        (element) => element['id'] == authUserId.value
+        (element) => element['user']['id'] == authUserId.value
     );
 };
 
@@ -539,9 +538,9 @@ const getProfilePicture = (userId) => {
      * @returns {string} profile picture url
      */
     const participant = people.value.find(
-        (person) => person.id === Number(userId)
+        (person) => person.user.id === Number(userId)
     );
-    return participant ? participant.profile_picture_url : null;
+    return participant ? participant.user.user_profile.profile_picture_url : null;
 };
 
 const getFullName = (userId) => {
@@ -552,10 +551,10 @@ const getFullName = (userId) => {
      * @returns {string} user firstname and lastname
      */
     const participant = people.value.find(
-        (person) => person.id === Number(userId)
+        (person) => person.user.id === Number(userId)
     );
     return participant
-        ? `${participant.first_name} ${participant.last_name}`
+        ? `${participant.user.first_name} ${participant.user.last_name}`
         : 'Unknown User';
 };
 

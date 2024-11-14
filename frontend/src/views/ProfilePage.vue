@@ -281,23 +281,23 @@ const fetchUserData = async () => {
      * Function to fetch data of user from backend.
      * this function return nothing.
      */
-    const response = await apiClient.get(`/profile/${route.params.username}`);
-    user.value = response.data.user;
-    nickname.value = response.data.nick_name;
-    pronoun.value = response.data.pronoun;
-    faculty.value = response.data.faculty;
-    major.value = response.data.major;
-    kuGen.value = response.data.ku_generation;
-    bio.value = response.data.about_me;
-    pfp.value = response.data.profile_picture_url;
-    reputation.value = response.data.reputation_score;
+    const response = await apiClient.get(`/auth/user/${route.params.username}/`);
+    user.value = response.data;
+    nickname.value = user.value.user_profile.nick_name;
+    pronoun.value = user.value.user_profile.pronoun;
+    faculty.value = user.value.user_profile.faculty;
+    major.value = user.value.user_profile.major;
+    kuGen.value = user.value.user_profile.ku_generation;
+    bio.value = user.value.user_profile.about_me;
+    pfp.value = user.value.user_profile.profile_picture_url;
+    reputation.value = user.value.user_profile.reputation_score;
     reputationLevel.value = reputationProgress.value = Math.floor(
         reputation.value / 10
     );
     reputationProgress.value =
         reputation.value === 100 ? 10 : reputation.value % 10;
-    concurrentAct.value = response.data.active_activity_count;
-    joinLimit.value = response.data.join_limit;
+    concurrentAct.value = user.value.user_profile.active_activity_count;
+    joinLimit.value = user.value.user_profile.join_limit;
 };
 
 const fetchJoinedActivities = async () => {

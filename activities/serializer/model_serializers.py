@@ -9,13 +9,13 @@ from auth import serializer
 class ParticipantDetailSerializer(serializers.ModelSerializer):
     """Serialize participant detail for combine with activity detail."""
 
-    participant = serializer.UserSerializer(source='user')
+    user = serializer.UserSerializer()
 
     class Meta:
         """ParticipantSerializer Meta class."""
 
         model = models.Attend
-        fields = ('participant', 'is_host', 'checked_in')
+        fields = ('user', 'is_host', 'checked_in')
 
 
 class ActivitiesSerializer(serializers.ModelSerializer):
@@ -23,9 +23,8 @@ class ActivitiesSerializer(serializers.ModelSerializer):
 
     people = serializers.ReadOnlyField()
     is_active = serializers.ReadOnlyField()
-    is_not_full = serializers.ReadOnlyField()
+    is_full = serializers.ReadOnlyField()
     host = serializers.SerializerMethodField()
-    participant = serializers.SerializerMethodField()
     images = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()
 
@@ -58,23 +57,6 @@ class ActivitiesSerializer(serializers.ModelSerializer):
         host_ids = [attend.user_id for attend in act_host]
 
         return host_ids
-
-    def get_participant(self, activity: models.Activity) -> list[Any]:
-        """Return list of serialized activity participant.
-
-        :param obj: Activity model instance.
-        :return: List of serialized participant detail
-        """
-        attend = activity.attend_set.all()
-        participants = ParticipantDetailSerializer(attend, many=True).data
-        result = []
-
-        for participant in participants:
-            participant['participant']['is_host'] = participant.get('is_host')
-            participant['participant']['checked_in'] = participant.get('checked_in')
-            result.append(participant['participant'])
-
-        return result
 
     def get_images(self, activity: models.Activity) -> list[Any]:
         """Return activity images.
