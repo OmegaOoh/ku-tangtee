@@ -219,39 +219,41 @@
                         </div>
                     </div>
                 </div>
-                <div
-                    class="flex flex-col sm:flex-row justify-between items-center"
-                >
+                <div class='ml-4'>
                     <div v-if="!isAuth">
                         <button class="btn btn-accent" @click="login">
                             Please Login before join
                         </button>
                     </div>
-                    <div v-else-if="isJoined" class="flex">
-                        <button class="btn btn-secondary" @click="goToChat">
-                            Chat
-                        </button>
-                        <button
-                            v-if="
-                                isJoined &&
-                                activity.check_in_allowed &&
-                                isAuth &&
-                                !checkedIn &&
-                                !isHost
-                            "
-                            @click="
-                                () => {
-                                    showCheckInModal = true;
-                                }
-                            "
-                            class="btn btn-secondary mx-4"
-                        >
-                            Check-In
-                        </button>
+                    <div v-else-if="isJoined" class="flex justify-between w-full">
+                            <div class="flex flex-row">
+                                <button class="btn btn-secondary" @click="goToChat">
+                                Chat
+                            </button>
+                            <button
+                                v-if="
+                                    isJoined &&
+                                    activity.check_in_allowed &&
+                                    isAuth &&
+                                    !checkedIn &&
+                                    !isHost
+                                "
+                                @click="
+                                    () => {
+                                        showCheckInModal = true;
+                                    }
+                                "
+                                class="btn btn-secondary mx-4"
+                            >
+                                Check-In
+                            </button>
+                        </div>
+
                         <button
                             v-if="!isHost"
                             @click="leaveActivity"
                             class="btn btn-accent mx-4"
+                            :class="checkDatePassed(activity.end_registration_date) ? 'btn-disabled disabled' : 'btn-accent'"
                         >
                             Leave Activity
                         </button>
@@ -397,6 +399,12 @@ const checkCheckedIn = () => {
         checkedIn.value = false;
     }
 };
+
+const checkDatePassed = (timestamp) => {
+    const checkDate = new Date(timestamp)
+    const today = new Date()
+    return checkDate < today;
+}
 
 const formatTimestamp = (timestamp) => {
     return `${formatDate(timestamp)}, ${formatTime(timestamp)}`
