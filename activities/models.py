@@ -22,6 +22,15 @@ def get_end_date() -> Any:
     return timezone.now() + timezone.timedelta(days=7)
 
 
+class Locations(models.Model):
+    """Location for activity."""
+
+    CHAKRABANDHU_PENSIRI_HALL = {"lat": 13.849695, "lon": 100.567187}
+
+    latitude = models.DecimalField(max_digits=9, decimal_places=6)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+
+
 class Activity(models.Model):
     """Activity model to store data of activity detail."""
 
@@ -29,6 +38,7 @@ class Activity(models.Model):
     name = models.CharField(max_length=255)
     detail = models.CharField(max_length=1024)
     on_site = models.BooleanField(default=False)
+    locations = models.ForeignKey(Locations, on_delete=models.CASCADE, null=True, blank=True)
     date = models.DateTimeField(default=timezone.now)
     end_date = models.DateTimeField(default=get_end_date)
     end_registration_date = models.DateTimeField(default=get_end_registration_date)
@@ -184,14 +194,4 @@ class Attachment(models.Model):
     """Image attachment for activity."""
 
     image = models.ImageField('Activity', upload_to="activities/", height_field=None, width_field=None, max_length=None)
-    activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
-
-
-class Location(models.Model):
-    """Location for activity."""
-
-    CHAKRABANDHU_PENSIRI_HALL = {"lat": 13.849695, "lon": 100.567187}
-
-    latitude = models.DecimalField(max_digits=9, decimal_places=6)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6)
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
