@@ -28,10 +28,3 @@ jobs:
             - name: Run Jest tests
               run: npm test
               working-directory: ./frontend
-
-            - name: Upload Jest test results
-              if: always()
-              uses: actions/upload-artifact@v3
-              with:
-                  name: jest-results
-                  path: jest-*.xml
