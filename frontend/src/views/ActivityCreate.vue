@@ -47,7 +47,7 @@
                         :images="images"
                         :removable="true"
                         carouselName="create-activity-carousel"
-                        @onRemove="(index) => images.splice(index, 1)"
+                        @onRemove="handleRemove"
                     />
                 </div>
 
@@ -121,7 +121,7 @@
                         id="end-reg-date-field"
                         type="text"
                         placeholder="Select End Registration Date"
-                        time-picker-inline = 'true'
+                        :time-picker-inline = true
                         :min-date="new Date()"
                         :max-date="maxRegDate"
                         :dark="isDarkTheme"
@@ -146,7 +146,7 @@
                         id="date-field"
                         type="text"
                         placeholder="Select Start Date"
-                        time-picker-inline = 'true'
+                        :time-picker-inline = true
                         :min-date="new Date()"
                         :dark="isDarkTheme"
                     />
@@ -170,7 +170,7 @@
                         id="end-date-field"
                         type="text"
                         placeholder="Select End Date"
-                        time-picker-inline = 'true'
+                        :time-picker-inline = true
                         :min-date="minEndDate"
                         :dark="isDarkTheme"
                     />
@@ -432,6 +432,16 @@ const handleFileChange = (event) => {
             addAlert('warning', file.name + ' is not an image.');
         }
     });
+};
+
+const handleRemove = (index) => {
+    /*
+     * Remove image and push removed image id into array.
+     * @params {int} image that wants to be removed.
+     * Return nothing.
+     */
+    images.value.splice(index, 1);
+
 };
 
 const handleMarkerPlace = (coords) => {

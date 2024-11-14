@@ -122,7 +122,7 @@
                     id="end-reg-date-field"
                     type="text"
                     placeholder="Select End Registration Date"
-                    time-picker-inline = 'true'
+                    :time-picker-inline = true
                     :min-date="new Date()"
                     :max-date="maxRegDate"
                     :dark="isDarkTheme"
@@ -145,7 +145,7 @@
                     id="date-field"
                     type="text"
                     placeholder="Select Start Date"
-                    time-picker-inline = 'true'
+                    :time-picker-inline = true
                     :min-date="new Date()"
                     :dark="isDarkTheme"
                 />
@@ -167,7 +167,7 @@
                     id="end-date-field"
                     type="text"
                     placeholder="Select End Date"
-                    time-picker-inline = 'true'
+                    :time-picker-inline = true
                     :min-date="minEndDate"
                     :dark="isDarkTheme"
                 />
