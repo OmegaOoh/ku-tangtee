@@ -219,9 +219,8 @@ class CreateActivityTest(django.test.TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        location = new_act.location_set.first()
-        self.assertEqual(float(location.latitude), data['location']['lat'])
-        self.assertEqual(float(location.longitude), data['location']['lon'])
+        self.assertEqual(float(new_act.locations.latitude), data['location']['lat'])
+        self.assertEqual(float(new_act.locations.longitude), data['location']['lon'])
 
     def test_valid_activity_with_images(self):
         """Create should create a new object of Attachment."""

@@ -94,13 +94,13 @@ class EditActivityTest(django.test.TestCase):
         updated_act = models.Activity.objects.get(pk=self.activity.id)
         updated_act_json = activity_to_json(updated_act)
         # Compare the serialized activity with the expected location
+        self.assertEqual(response_dict["message"], f"You have successfully edited the activity {self.activity.name}")
         self.assertEqual(updated_act_json['on_site'], data['on_site'])
         self.assertTrue(updated_act.on_site)
-        update_location = updated_act.location_set.first()
+        update_location = updated_act.locations
         self.assertEqual(float(update_location.latitude), data['location']['lat'])
         self.assertEqual(float(update_location.longitude), data['location']['lon'])
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response_dict["message"], f"You have successfully edited the activity {self.activity.name}")
 
     def test_valid_activity_editing_images(self):
         """Edit should return a success message with editing image."""
