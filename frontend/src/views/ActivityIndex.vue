@@ -11,7 +11,7 @@
             >
                 <button
                     class="btn btn-accent size-fit text-xl"
-                    @click="fetchActivities()"
+                    @click="reload"
                 >
                     ↻ Refresh
                 </button>
@@ -246,7 +246,7 @@ const noNextPage = ref(false);
 /**
  * Fetch Data
  */
-const fetchActivities = async (page = 1) => {
+const fetchActivities = async (page = 1, reset=false) => {
     /*
      * Get data for all activities from API.
      */
@@ -271,7 +271,12 @@ const fetchActivities = async (page = 1) => {
             params.day = selectedDay.value.toString();
         }
         response = await apiClient.get('/activities/', { params });
-        activities.value.push (...response.data.results);
+        if (reset) {
+            activities.value = [];
+            noNextPage.value = false;
+            currentPage.value = 1;
+        }
+        activities.value.push(...response.data.results);
         noNextPage.value = response.data.next == null;
     } catch (error) {
         console.error('Error fetching activities:', error);
@@ -284,6 +289,13 @@ const fetchActivities = async (page = 1) => {
     }
 };
 
+const reload = () => {
+    fetchActivities(1, true);
+    const reloadButton = document.getElementById('reload');
+    setTimeout(reloadButton.setAttribute('hidden', 1), 300);
+    reloadButton.classList.remove('translate-y-0');
+    reloadButton.classList.add('translate-y-[-100%]');
+}
 
 const handleScroll = ({ target: { scrollTop, clientHeight, scrollHeight }}) => {
     if (scrollTop + clientHeight >= scrollHeight - 100 && !isLoading.value && !noNextPage.value) {
