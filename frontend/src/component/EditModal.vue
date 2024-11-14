@@ -103,26 +103,7 @@
                         />
                 </div>
             </div>
-            <div class="form-control w-full my-1">
-                <div class="label">
-                    <span class="text-base-content"> Activity Start Date </span>
-                    <span
-                        id="date-field-error"
-                        class="text-error text-sm"
-                        hidden
-                    >
-                        required
-                    </span>
-                </div>
-                <VueDatePicker
-                    v-model="date"
-                    id="date-field"
-                    type="text"
-                    placeholder="Select Date"
-                    :min-date="new Date()"
-                    :dark="isDarkTheme"
-                />
-            </div>
+
             <div class="form-control w-full">
                 <div class="label">
                     <span class="text-base-content">
@@ -141,10 +122,35 @@
                     id="end-reg-date-field"
                     type="text"
                     placeholder="Select End Registration Date"
+                    time-picker-inline = 'true'
+                    :min-date="new Date()"
+                    :max-date="maxRegDate"
+                    :dark="isDarkTheme"
+                />
+            </div>
+
+            <div class="form-control w-full my-1">
+                <div class="label">
+                    <span class="text-base-content"> Activity Start Date </span>
+                    <span
+                        id="date-field-error"
+                        class="text-error text-sm"
+                        hidden
+                    >
+                        required
+                    </span>
+                </div>
+                <VueDatePicker
+                    v-model="date"
+                    id="date-field"
+                    type="text"
+                    placeholder="Select Start Date"
+                    time-picker-inline = 'true'
                     :min-date="new Date()"
                     :dark="isDarkTheme"
                 />
             </div>
+
             <div class="form-control w-full">
                 <div class="label">
                     <span class="text-base-content"> Activity End Date </span>
@@ -161,7 +167,8 @@
                     id="end-date-field"
                     type="text"
                     placeholder="Select End Date"
-                    :min-date="new Date()"
+                    time-picker-inline = 'true'
+                    :min-date="minEndDate"
                     :dark="isDarkTheme"
                 />
             </div>
@@ -231,7 +238,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits, onMounted } from 'vue';
+import { ref, defineProps, defineEmits, onMounted, computed } from 'vue';
 import apiClient from '@/api';
 import { createPutRequest } from '@/functions/HttpRequest.js';
 import { addAlert } from '@/functions/AlertManager';
@@ -598,6 +605,21 @@ const closeModal = () => {
         emit('close');
     }, 200);
 };
+
+const minEndDate = computed(() => { 
+    if (!date.value) return new Date
+
+    const dateVal =  new Date(date.value)
+    dateVal.setMinutes(dateVal.getMinutes + 1);
+    return dateVal 
+})
+const maxRegDate = computed(() => { 
+    if (!endDate.value) return null
+
+    const dateVal =  new Date(endDate.value)
+    dateVal.setMinutes(dateVal.getMinutes() - 1);
+    return dateVal; 
+})
 
 onMounted(() => {
     isDarkTheme.value = window.matchMedia(
