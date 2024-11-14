@@ -10,6 +10,7 @@ from activities import models
 from django.contrib.auth.models import User
 from django import urls
 from activities.serializer.model_serializers import ActivitiesSerializer
+from activities.logger import logger
 from profiles.tests.shortcuts import create_profile
 
 
@@ -63,6 +64,8 @@ def create_activity(
 def activity_to_json(activity: models.Activity, use_can_join: bool = False):
     """Return dict that replicates json that's contain activity data."""
     serial = ActivitiesSerializer(activity)
+    serial.data['location']['lat'] = float(serial.data['location']['lat'])
+    serial.data['location']['lon'] = float(serial.data['location']['lon'])
     return serial.data
 
 
