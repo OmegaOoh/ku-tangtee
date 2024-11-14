@@ -23,7 +23,7 @@ exclude =
 per-file-ignores =
     chat/tests/test_websocket.py: E501
     activities/views/activity_detail.py: W504
-    activities/views/activity_paritipant.py: W504
+    activities/views/activity_paticipant.py: W504
 
 # Show the source code line for the error/warning
 show-source = True
