@@ -190,6 +190,7 @@ class Attachment(models.Model):
 
 class Location(models.Model):
     """Location for activity."""
+
     CHAKRABANDHU_PENSIRI_HALL = {"lat": 13.849695, "lon": 100.567187}
 
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
