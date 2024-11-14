@@ -100,7 +100,6 @@ import {
     lName,
     userId,
     userName,
-    getUserData,
 } from '@/functions/Authentications';
 import apiClient from '@/api';
 
@@ -112,10 +111,6 @@ const getRecentActivity = async () => {
     );
     activities.value = response.data;
 };
-
-watch((userId), () => {
-    getUserData();
-} )
 
 onMounted(() => {
     authStatus();
