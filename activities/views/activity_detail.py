@@ -2,14 +2,12 @@
 from activities.views.util import image_loader, image_deleter, image_loader_64, edit_host_access
 from typing import Any
 from django.http import HttpRequest
-from django.utils import timezone
 from rest_framework import generics, permissions, mixins, response
 from django.db.models import Q
 from activities import models
 from activities.logger import logger, Action, RequestData, data_to_log
 from activities.serializer.permissions import OnlyHostCanEdit
 from activities.serializer import model_serializers
-from django.db import transaction
 
 
 class ActivityDetail(mixins.RetrieveModelMixin,

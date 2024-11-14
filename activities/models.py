@@ -4,7 +4,6 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
-from twisted.protocols.amp import Decimal
 
 
 def get_end_registration_date() -> Any:
