@@ -10,7 +10,6 @@ from activities import models
 from django.contrib.auth.models import User
 from django import urls
 from activities.serializer.model_serializers import ActivitiesSerializer
-from activities.logger import logger
 from profiles.tests.shortcuts import create_profile
 
 

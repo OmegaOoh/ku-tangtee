@@ -1,5 +1,4 @@
 """Utility module."""
-from email.policy import default
 from typing import Any
 from django.http import HttpRequest
 from django.middleware.csrf import get_token
