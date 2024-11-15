@@ -243,7 +243,7 @@ const fetchActivities = async () => {
             params.day = selectedDay.value.toString();
         }
         response = await apiClient.get('/activities/', { params });
-        activities.value = response.data;
+        activities.value = response.data.results;
         window.scrollTo(0, 0);
         // Hide reload button
         const reloadButton = document.getElementById('reload');

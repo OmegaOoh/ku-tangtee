@@ -9,13 +9,13 @@ from auth import serializer
 class ParticipantDetailSerializer(serializers.ModelSerializer):
     """Serialize participant detail for combine with activity detail."""
 
-    participant = serializer.UserSerializer(source='user')
+    user = serializer.UserSerializer()
 
     class Meta:
         """ParticipantSerializer Meta class."""
 
         model = models.Attend
-        fields = ('participant', 'is_host', 'checked_in')
+        fields = ('user', 'is_host', 'checked_in')
 
 
 class ActivitiesSerializer(serializers.ModelSerializer):
@@ -23,10 +23,10 @@ class ActivitiesSerializer(serializers.ModelSerializer):
 
     people = serializers.ReadOnlyField()
     is_active = serializers.ReadOnlyField()
-    is_not_full = serializers.ReadOnlyField()
+    is_full = serializers.ReadOnlyField()
     host = serializers.SerializerMethodField()
-    participant = serializers.SerializerMethodField()
     images = serializers.SerializerMethodField()
+    location = serializers.SerializerMethodField()
 
     class Meta:
         """Activity serializer META class."""
@@ -58,23 +58,6 @@ class ActivitiesSerializer(serializers.ModelSerializer):
 
         return host_ids
 
-    def get_participant(self, activity: models.Activity) -> list[Any]:
-        """Return list of serialized activity participant.
-
-        :param obj: Activity model instance.
-        :return: List of serialized participant detail
-        """
-        attend = activity.attend_set.all()
-        participants = ParticipantDetailSerializer(attend, many=True).data
-        result = []
-
-        for participant in participants:
-            participant['participant']['is_host'] = participant.get('is_host')
-            participant['participant']['checked_in'] = participant.get('checked_in')
-            result.append(participant['participant'])
-
-        return result
-
     def get_images(self, activity: models.Activity) -> list[Any]:
         """Return activity images.
 
@@ -84,6 +67,17 @@ class ActivitiesSerializer(serializers.ModelSerializer):
         act_images = models.Attachment.objects.filter(activity=activity)
         images = [{"id": img.id, "url": img.image.url} for img in act_images]
         return images
+
+    def get_location(self, activity: models.Activity) -> dict[str, Any]:
+        """Return activity location.
+
+        :param activity: Activity model instance.
+        :return: serialized location.
+        """
+        act_location = activity.locations
+        if act_location:
+            return {"lat": act_location.latitude, "lon": act_location.longitude}
+        return {"lat": None, "lon": None}
 
 
 class AttendSerializer(serializers.ModelSerializer):

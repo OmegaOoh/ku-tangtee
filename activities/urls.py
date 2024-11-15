@@ -8,7 +8,8 @@ urlpatterns = [
     path("<int:pk>/", views.ActivityDetail.as_view(), name="detail"),
     path("join/<int:pk>/", views.JoinLeaveView.as_view(), name="join"),
     path("check-in/<int:pk>/", views.CheckInView.as_view(), name="checkin"),
-    path('<int:pk>/search-participants/', views.ActivityDetail.as_view(), name='search-participants'),
+    path("participant/<int:pk>/", views.ParticipantList.as_view(), name="participant"),
+    path("participant/<int:pk>/search-participants/", views.ParticipantList.as_view(), name="participant"),
 
     # Utilities.
     path('get-csrf-token/', views.util.csrf_token_view, name='get_csrf_token'),
