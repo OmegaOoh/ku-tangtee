@@ -219,6 +219,37 @@
                         </div>
                     </div>
                 </div>
+                <div class="mx-auto">
+                    <button 
+                        class="btn btn-sm btn-neutral mr-4" 
+                        @click="fetchParticipant(1)"
+                    >
+                        first
+                    </button>
+                    <button 
+                        class="btn btm-sm rounded-r-none" 
+                        :class="havePage(havePrev)"
+                        @click="fetchParticipant(currentPage - 1)"
+                    >
+                        prev
+                    </button>
+                    <button class="btn btm-sm rounded-none">
+                        Page {{currentPage}}
+                    </button>
+                    <button 
+                        class="btn btm-sm rounded-l-none" 
+                        :class="havePage(haveNext)"
+                        @click="fetchParticipant(currentPage + 1)"
+                    >
+                        next
+                    </button>
+                    <button 
+                        class="btn btn-sm btn-neutral ml-4"
+                        @click="fetchParticipant(lastPage)"
+                    >
+                        last
+                    </button>
+                </div>
                 <div class='ml-4'>
                     <div v-if="!isAuth">
                         <button class="btn btn-accent" @click="login">
@@ -331,6 +362,13 @@ const hosts = ref([]);
 const owner = ref(0);
 const minRepLv = ref(0);
 
+// Participant Pagination
+const PAGINATION_SIZE = 20
+const currentPage=ref(1);
+const havePrev = ref(false);
+const haveNext = ref(true);
+let participantCount = 0;
+
 const showMap = computed(() => {
     return !showEditModal.value &&
             !showCheckInCode.value &&
@@ -342,8 +380,8 @@ const showMap = computed(() => {
 const fetchDetail = async () => {
     try {
         const response = await apiClient.get(`/activities/${activityId.value}`);
-        const people_res = await apiClient.get(`/activities/participant/${activityId.value}/`);
         activity.value = response.data;
+        fetchParticipant();
         // TEST DATA REMOVE AFTER API IS SENDING THE LOCATION DATA.
         activity.value['on_site'] = true; 
         activity.value['location'] = {
@@ -351,7 +389,6 @@ const fetchDetail = async () => {
             lon: 100.56836
         }
         //////////////////////////////////////////////////////////
-        people.value = people_res.data.results;
         imageUrls.value = activity.value.images.map((image) => ({
             id: image.id,
             url: `${BASE_URL}${image.url}`,
@@ -366,7 +403,22 @@ const fetchDetail = async () => {
     }
 };
 
-async function allowCheckIn() {
+const fetchParticipant = async (page=1) => {
+    const params = {'page': page}
+    const response = await apiClient.get(`/activities/participant/${activityId.value}/`, { params });
+    people.value = response.data.results;
+    participantCount = response.data.count;
+    haveNext.value = response.data.next != null;
+    havePrev.value = response.data.previous != null;
+}
+
+const havePage = (havePage) => {
+    if (havePage) return 'btn-neutral'
+    return 'btn-disabled'
+}
+
+
+const allowCheckIn = async () => {
     /*
      * Attempt to join activity.
      */
@@ -500,7 +552,7 @@ const isHost = computed(() => {
 });
 
 const isOwner = computed(() => {
-    return userId.value === owner.value;
+    return userId.value === owner.value;    
 });
 
 const isJoined = computed(() => {
@@ -509,6 +561,10 @@ const isJoined = computed(() => {
         people.value.some((participant) => participant.user.id === userId.value)
     );
 });
+
+const lastPage = computed(() => {
+    return Math.ceil(participantCount / PAGINATION_SIZE) 
+})
 
 const imagesUrl = computed(() => {
     return imageUrls.value.map((image) => image.url);
