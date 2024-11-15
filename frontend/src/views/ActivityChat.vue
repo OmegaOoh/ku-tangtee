@@ -19,7 +19,7 @@
                     class="card-body overflow-y-auto h-[70vh] break-words"
                     @scroll="handleScroll"
                 >
-                    <li v-for="(message, index) in messages" :key="index">
+                    <li v-for="(message, index) in reversedMessages" :key="index">
                         <div
                             class="chat w-full"
                             :class="Number(message.user_id) === currentUserId ? 'chat-end' : 'chat-start'"
@@ -165,7 +165,7 @@
 <script setup>
 import apiClient from '@/api';
 import { format } from 'date-fns';
-import { watch, ref, onMounted, onBeforeUnmount, nextTick} from 'vue';
+import { watch, ref, onMounted, onBeforeUnmount, nextTick, computed} from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
     login,
@@ -206,6 +206,9 @@ const isJoined = ref(false);
 const isAtBottom = ref(true);
 const images = ref([]);
 
+let hasMoreMessage = false;
+let loadedPage = 1;
+
 // Element Variables
 const messageList = ref(null);
 const messageTextarea = ref(null)
@@ -233,7 +236,7 @@ const connectWebSocket = () => {
         const data = JSON.parse(event.data);
         const user_id = data.user_id;
         if (data.message) {
-            messages.value.push({
+            messages.value.unshift({
                 message: data.message,
                 timestamp: new Date(),
                 user_id: user_id,
@@ -390,6 +393,7 @@ const chatSetup = async () => {
         }
         await fetchCurrentUser();
         await fetchMessages();
+        scrollToBottom();
     }
 };
 
@@ -425,16 +429,18 @@ const fetchSingleProfile = async (userId) => {
     people.value.push(participant.data);
 };
 
-const fetchMessages = async () => {
+const fetchMessages = async (page = 1) => {
     /*
-     * Get all previous messages.
-     * Return Nothing
+     * Get messages for the specified page.
+     * return Nothing
      */
-    messages.value = [];
     try {
-        const response = await apiClient.get(`/chat/${activityId.value}/`);
-        messages.value = response.data.results;
-        scrollToBottom();
+        const response = await apiClient.get(`/chat/${activityId.value}/?page=${page}`);
+        if (response.data.results.length > 0) {
+            messages.value.push(...response.data.results);
+            hasMoreMessage = response.data.next != null;
+            return response.data.results.length > 0;
+        }
     } catch (error) {
         console.error('Error fetching messages:', error);
     }
@@ -525,13 +531,19 @@ const handleScroll = () => {
      * This function return nothing.
      */
     if (!messageList.value) {
-        return; //messageList is null return early
+        return;
     }
+
     const scrollTop = messageList.value.scrollTop;
     const clientHeight = messageList.value.clientHeight;
     const scrollHeight = messageList.value.scrollHeight;
 
-    // Check if the user is at the bottom
+    if (scrollTop == 0 && hasMoreMessage) {
+        loadedPage++;
+        console.log(loadedPage)
+        fetchMessages(loadedPage);
+    }
+
     isAtBottom.value = scrollTop + clientHeight >= scrollHeight - 10;
 };
 
@@ -586,12 +598,16 @@ const goDetail = () => {
     router.push(`/activities/${activityId.value}`);
 };
 
+const reversedMessages = computed(() => {
+        return [...messages.value].reverse();
+    }
+)
+
 /**
  * Lifecycle Hooks
  */
 
 onMounted(() => {
-    chatSetup();
     connectWebSocket();
     watch(
         authUserId,
