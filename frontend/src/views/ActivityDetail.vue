@@ -335,13 +335,6 @@ const fetchDetail = async () => {
         const response = await apiClient.get(`/activities/${activityId.value}`);
         const people_res = await apiClient.get(`/activities/participant/${activityId.value}/`);
         activity.value = response.data;
-        // TEST DATA REMOVE AFTER API IS SENDING THE LOCATION DATA.
-        activity.value['on_site'] = true; 
-        activity.value['location'] = {
-            lat: 13.84979,
-            lon: 100.56836
-        }
-        //////////////////////////////////////////////////////////
         people.value = people_res.data.results;
         imageUrls.value = activity.value.images.map((image) => ({
             id: image.id,
