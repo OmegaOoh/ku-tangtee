@@ -245,7 +245,7 @@ class JoinTest(django.test.TestCase):
         attendee = create_test_user('join user')
         self.client.force_login(attendee)
         res = self.client.get(f'/activities/{act.id}/is-joined/')
-        self.assertJSONEqual(res.content, {'is-joined': False})
+        self.assertJSONEqual(res.content, {'is_joined': False})
 
         # Check user that already join
         client_join_activity(client=self.client, user=attendee, activity=act)

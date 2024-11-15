@@ -33,7 +33,7 @@ def check_is_joined(request: HttpRequest, *args: Any, **kwargs: Any) -> response
     activity = get_object_or_404(models.Activity, id=kwargs.get('id'))
 
     return response.Response(
-        {'is-joined': activity.is_participated(request.user)}
+        {'is_joined': activity.is_participated(request.user)}
     )
 
 
