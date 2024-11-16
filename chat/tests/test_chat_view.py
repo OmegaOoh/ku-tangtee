@@ -69,8 +69,8 @@ class ChatMessageListTest(APITestCase):
         # Check that the response status is 200 OK
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['results'][2]['message'], self.message1.message)
-        self.assertEqual(response.data['results'][0]['message'], self.message2.message)
-        self.assertEqual(response.data['results'][1]['message'], message3.message)
-        self.assertEqual(response.data['results'][1]['images'][0], chat_img_url)
+        self.assertEqual(response.data['results'][1]['message'], self.message2.message)
+        self.assertEqual(response.data['results'][0]['message'], message3.message)
+        self.assertEqual(response.data['results'][0]['images'][0], chat_img_url)
         chat_img.image.delete(save=False)
         chat_img.delete()
