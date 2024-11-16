@@ -186,7 +186,7 @@
                     lvl > {{ minRepLv }}
                 </div>
 
-                <p class="mb-2 ml-3"><strong>Joined People:</strong></p>
+                <span class="mb-2 ml-3"><strong>Joined People:</strong> <div class="badge badge-primary">{{ activity.people }}</div> </span>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2 ml-3">
                     <div
@@ -400,10 +400,6 @@ const fetchDetail = async () => {
 };
 
 const fetchIsJoined = async () => {
-    if (isHost.value) {
-        isJoined.value = true;
-        return
-    }
     const response = await apiClient.get(`/activities/${activityId.value}/is-joined/`)
     isJoined.value = response.data.is_joined
 }
