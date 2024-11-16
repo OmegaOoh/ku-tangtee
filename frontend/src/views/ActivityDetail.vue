@@ -293,7 +293,8 @@
                         <button
                             v-if="
                                 !activity.is_full &&
-                                activity.is_active
+                                activity.is_active &&
+                                !isJoined && !isHost
                             "
                             id="join-button"
                             @click="joinActivity"
@@ -399,6 +400,10 @@ const fetchDetail = async () => {
 };
 
 const fetchIsJoined = async () => {
+    if (isHost.value) {
+        isJoined.value = true;
+        return
+    }
     const response = await apiClient.get(`/activities/${activityId.value}/is-joined/`)
     isJoined.value = response.data.is_joined
 }
