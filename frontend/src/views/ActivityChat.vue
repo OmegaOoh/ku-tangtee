@@ -208,6 +208,7 @@ const images = ref([]);
 
 let hasMoreMessage = false;
 let loadedPage = 1;
+let isLoading = false;
 
 // Element Variables
 const messageList = ref(null);
@@ -434,6 +435,7 @@ const fetchMessages = async (page = 1) => {
      * Get messages for the specified page.
      * return Nothing
      */
+    isLoading = true;
     try {
         const response = await apiClient.get(`/chat/${activityId.value}/?page=${page}`);
         if (response.data.results.length > 0) {
@@ -443,6 +445,8 @@ const fetchMessages = async (page = 1) => {
         }
     } catch (error) {
         console.error('Error fetching messages:', error);
+    } finally {
+        isLoading = false;
     }
 };
 
@@ -538,7 +542,7 @@ const handleScroll = async() => {
     const clientHeight = messageList.value.clientHeight;
     let scrollHeight = messageList.value.scrollHeight;
 
-    if (scrollTop == 0 && hasMoreMessage) {
+    if (scrollTop == 0 && hasMoreMessage && !isLoading) {
 
         const prevScrollHeight = scrollHeight;
         loadedPage++;
