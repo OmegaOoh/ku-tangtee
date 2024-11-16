@@ -188,7 +188,7 @@
 
                 <p class="mb-2 ml-3"><strong>Joined People:</strong></p>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 ml-3">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2 ml-3">
                     <div
                         v-for="participant in people"
                         :key="participant.user.id"
