@@ -6,7 +6,7 @@
                 <li>Activity {{ activity.id }}</li>
             </ul>
         </div>
-        <div v-if="isAuth && isHost && !isCancelled">
+        <div v-if="isAuth && isHost && !isCancelled && isBeforeEndDate">
             <EditModal
                 :id="activityId"
                 :isOpen="showEditModal"
@@ -47,7 +47,9 @@
             />
         </div>
         <CheckInModal
-            v-if="isAuth && isJoined && !isHost && !isCancelled"
+            v-if="
+                isAuth && isJoined && !isHost && !isCancelled && isBeforeEndDate
+            "
             :id="activityId"
             :isOpen="showCheckInModal"
             @close="
@@ -73,7 +75,10 @@
                 </h1>
 
                 <!--Owner action set-->
-                <div v-if="isHost && isAuth && !isCancelled" class="flex-auto">
+                <div
+                    v-if="isHost && isAuth && !isCancelled && isBeforeEndDate"
+                    class="flex-auto"
+                >
                     <button
                         @click="
                             () => {
@@ -605,6 +610,12 @@ const isOwner = computed(() => {
 
 const lastPage = computed(() => {
     return Math.ceil(participantCount / PAGINATION_SIZE);
+});
+
+const isBeforeEndDate = computed(() => {
+    const currentDate = new Date();
+    const endDate = new Date(activity.value.end_date);
+    return currentDate < endDate;
 });
 
 const imagesUrl = computed(() => {
