@@ -361,6 +361,7 @@ const checkedIn = ref(false);
 const hosts = ref([]);
 const owner = ref(0);
 const minRepLv = ref(0);
+const isJoined = ref(false);
 
 // Participant Pagination
 const PAGINATION_SIZE = 20
@@ -397,11 +398,17 @@ const fetchDetail = async () => {
         owner.value = response.data.owner;
         minRepLv.value = Math.floor(response.data.minimum_reputation_score / 10)
         checkCheckedIn();
+        fetchIsJoined();
     } catch (error) {
         console.error('Error fetching activity:', error);
         addAlert('warning', 'Activity already started or No such activity.');
     }
 };
+
+const fetchIsJoined = async () => {
+    const response = await apiClient.get(`/activities/${activityId.value}/is-joined/`)
+    isJoined = response.data.is_joined
+}
 
 const fetchParticipant = async (page=1) => {
     const params = {'page': page}
@@ -521,6 +528,7 @@ const joinActivity = async () => {
         );
         addAlert('success', response.data.message);
         await fetchDetail();
+        
     } catch (error) {
         addAlert(
             'error',
@@ -555,11 +563,6 @@ const isOwner = computed(() => {
     return userId.value === owner.value;    
 });
 
-const isJoined = computed(() => {
-    const response = apiClient.get(`/activities/${activityId.value}/is-joined/`)
-    return response.data.is_joined
-});
-
 const lastPage = computed(() => {
     return Math.ceil(participantCount / PAGINATION_SIZE) 
 })
@@ -567,16 +570,25 @@ const lastPage = computed(() => {
 const imagesUrl = computed(() => {
     return imageUrls.value.map((image) => image.url);
 });
-onMounted(() => {
-    activityId.value = route.params.id;
-    fetchDetail();
-    watch(
-        () => route.params.id,
+
+
+watch(() => route.params.id,
         (newId) => {
             activityId.value = newId;
             fetchDetail();
-        }
-    );
+        });
+
+watch(userId, (newUserId) => {
+    if (newUserId) {
+        fetchIsJoined();
+        checkCheckedIn();
+    }
+})
+
+onMounted(() => {
+    activityId.value = route.params.id;
+    fetchDetail();
+
     window.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             closeEditModal();

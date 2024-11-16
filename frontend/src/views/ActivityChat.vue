@@ -454,12 +454,12 @@ const fetchMessages = async (page = 1) => {
  * Checker
  */
 
-const checkJoined = () => {
+const checkJoined = async () => {
     /*
      * Check if current user joined the activity
      * return boolean whether or not user is joined
      */
-    const response = apiClient.get(`/activities/${activityId.value}/is-joined/`)
+    const response = await apiClient.get(`/activities/${activityId.value}/is-joined/`)
     isJoined.value = response.data.is_joined
 };
 
