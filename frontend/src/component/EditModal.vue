@@ -298,13 +298,6 @@ const fetchDetail = async () => {
     try {
         const response = await apiClient.get(`/activities/${props.id}`);
         activity.value = response.data;
-        // TEST DATA REMOVE AFTER API IS SENDING THE LOCATION DATA.
-        activity.value['on_site'] = true; 
-        activity.value['location'] = {
-            lat: 13.84979,
-            lon: 100.56836
-        }
-        //////////////////////////////////////////////////////////
         activityName.value = response.data.name || '';
         activityDetail.value = response.data.detail || '';
         date.value = formatActivityDate(new Date(response.data.date));

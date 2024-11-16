@@ -63,6 +63,12 @@ def create_activity(
 def activity_to_json(activity: models.Activity, use_can_join: bool = False):
     """Return dict that replicates json that's contain activity data."""
     serial = ActivitiesSerializer(activity)
+
+    location = serial.data['location']
+    if location['lat'] and location['lon']:
+        location['lat'] = float(location['lat'])
+        location['lon'] = float(location['lon'])
+
     return serial.data
 
 
