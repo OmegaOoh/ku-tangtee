@@ -6,7 +6,7 @@
         >
             <div
                 id="reload"
-                class="transform translate-y-0 transition-transform duration-300 ease-in-out"
+                class="translate-y-[-100%] transition-all duration-300 ease-in-out transform-gpu"
                 hidden
             >
                 <button
@@ -292,9 +292,13 @@ const fetchActivities = async (page = 1, reset=false) => {
 const reload = () => {
     fetchActivities(1, true);
     const reloadButton = document.getElementById('reload');
-    setTimeout(reloadButton.setAttribute('hidden', 1), 300);
-    reloadButton.classList.remove('translate-y-0');
-    reloadButton.classList.add('translate-y-[-100%]');
+    if (reloadButton) {
+        if (!reloadButton.hasAttribute('hidden'))
+            setTimeout(reloadButton.setAttribute('hidden', ''), 300);
+        reloadButton.classList.remove('translate-y-0');
+        reloadButton.classList.add('translate-y-[-100%]');
+    }
+    
 }
 
 const handleScroll = ({ target: { scrollTop, clientHeight, scrollHeight }}) => {
@@ -337,9 +341,12 @@ const setupSocket = () => {
             if (parsedData['type'] === 'new_act') {
                 // Show reload button
                 const reloadButton = document.getElementById('reload');
-                reloadButton.removeAttribute('hidden'); // Show the button
-                reloadButton.classList.remove('translate-y-[-100%]'); // Remove off-screen class
-                reloadButton.classList.add('translate-y-0'); // Slide in
+                if (reloadButton) {
+                    reloadButton.removeAttribute('hidden');
+                    reloadButton.classList.remove('translate-y-[-100%]');
+                    reloadButton.classList.add('translate-y-0');
+                }
+                
             }
         } catch (error) {
             console.error('Parsing Error: ', error);

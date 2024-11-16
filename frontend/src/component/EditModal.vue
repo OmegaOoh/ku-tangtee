@@ -125,7 +125,7 @@
                     placeholder="Select End Registration Date"
                     :time-picker-inline = true
                     :min-date="new Date()"
-                    :max-date="maxRegDate"
+                    :max-date="maxDate"
                     :dark="isDarkTheme"
                 />
             </div>
@@ -148,6 +148,7 @@
                     placeholder="Select Start Date"
                     :time-picker-inline = true
                     :min-date="new Date()"
+                    :max-date="maxDate"
                     :dark="isDarkTheme"
                 />
             </div>
@@ -402,7 +403,7 @@ const validateInput = () => {
     }
 
     if (
-        date.value > endDate.value ||
+        date.value >= endDate.value ||
         endRegistrationDate.value > endDate.value
     ) {
         addAlert(
@@ -619,20 +620,8 @@ const closeModal = () => {
     }, 200);
 };
 
-const minEndDate = computed(() => { 
-    if (!date.value) return new Date
-
-    const dateVal =  new Date(date.value)
-    dateVal.setMinutes(dateVal.getMinutes + 1);
-    return dateVal 
-})
-const maxRegDate = computed(() => { 
-    if (!endDate.value) return null
-
-    const dateVal =  new Date(endDate.value)
-    dateVal.setMinutes(dateVal.getMinutes() - 1);
-    return dateVal; 
-})
+const minEndDate = computed(() => {if (date.value) return new Date(date.value); return new Date})
+const maxDate = computed(() => { if (endDate.value) return new Date(endDate.value); return null})
 
 onMounted(() => {
     isDarkTheme.value = window.matchMedia(

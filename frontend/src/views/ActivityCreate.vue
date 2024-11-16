@@ -124,7 +124,7 @@
                         placeholder="Select End Registration Date"
                         :time-picker-inline = true
                         :min-date="new Date()"
-                        :max-date="maxRegDate"
+                        :max-date="maxDate"
                         :dark="isDarkTheme"
                     />
                 </div>
@@ -149,6 +149,7 @@
                         placeholder="Select Start Date"
                         :time-picker-inline = true
                         :min-date="new Date()"
+                        :max-date="maxDate"
                         :dark="isDarkTheme"
                     />
                 </div>
@@ -343,7 +344,7 @@ const validateInput = () => {
         result = false;
     }
     if (
-        date.value > endDate.value ||
+        date.value >= endDate.value ||
         endRegistrationDate.value > endDate.value
     ) {
         addAlert(
@@ -528,7 +529,7 @@ const postCreateActivity = async () => {
 };
 
 const minEndDate = computed(() => {if (date.value) return new Date(date.value); return new Date})
-const maxRegDate = computed(() => { if (endDate.value) return new Date(endDate.value); return null})
+const maxDate = computed(() => { if (endDate.value) return new Date(endDate.value); return null})
 
 onMounted(() => {
     isDarkTheme.value = window.matchMedia(
