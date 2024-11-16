@@ -152,6 +152,27 @@
                     :dark="isDarkTheme"
                 />
             </div>
+            <div class="form-control w-full">
+                <div class="label">
+                    <span class="text-base-content"> Activity End Date </span>
+                    <span
+                        id="end-date-field-error"
+                        class="text-error text-sm"
+                        hidden
+                    >
+                        required
+                    </span>
+                </div>
+                <VueDatePicker
+                    v-model="endDate"
+                    id="end-date-field"
+                    type="text"
+                    placeholder="Select End Date"
+                    :time-picker-inline="true"
+                    :min-date="minEndDate"
+                    :dark="isDarkTheme"
+                />
+            </div>
             <div class="mt-5">
                 <div>
                     <label class="text-base-content my-5">Max People</label>
@@ -636,7 +657,10 @@ const maxDate = computed(() => {
     if (endDate.value) return new Date(endDate.value);
     return null;
 });
-
+const minEndDate = computed(() => {
+    if (date.value) return new Date(date.value);
+    return new Date();
+});
 const isOwner = computed(() => {
     return userId.value === owner.value;
 });
