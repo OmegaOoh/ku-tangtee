@@ -46,7 +46,7 @@
 import { defineProps, defineEmits, ref } from 'vue';
 import ImagePreview from './ImagePreview.vue';
 
-const emit = defineEmits('onRemove');
+const emit = defineEmits(['onRemove']);
 
 defineProps({
     images: {
