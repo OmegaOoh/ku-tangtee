@@ -94,10 +94,11 @@ class Profile(models.Model):
             hosts = activity.attend_set.filter(is_host=True)
 
             # deduct attendee point when not check-in
-            for attendee in attendees:
-                profile = cls.objects.get(user=attendee.user)
-                if not attendee.checked_in and not attendee.rep_decrease:
-                    profile.decrease_reputation(attendee)
+            if not activity.is_cancelled:
+                for attendee in attendees:
+                    profile = cls.objects.get(user=attendee.user)
+                    if not attendee.checked_in and not attendee.rep_decrease:
+                        profile.decrease_reputation(attendee)
 
             # deduct host point when no attendee check-in or the activity is cancelled
             if (attendees.filter(checked_in=True).count() <= 0 < attendees.count()) or activity.is_cancelled:
