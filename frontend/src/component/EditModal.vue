@@ -87,21 +87,21 @@
                 </textarea>
             </div>
             <p>On-Site</p>
-            <input 
-                type="checkbox" 
-                class="toggle mb-2" 
-                @change="toggleOnSite" 
+            <input
+                type="checkbox"
+                class="toggle mb-2"
+                @change="toggleOnSite"
                 :checked="activity.on_site"
             />
             <div v-if="activity.on_site">
                 <div class="flex justify-center rounded-lg overflow-hidden">
-                    <PickerMapComponent 
+                    <PickerMapComponent
                         class="w-[100%] h-[50vh] text-black"
                         @markerPlaced="handleMarkerPlace"
                         :latitude="activity.location.lat"
                         :longitude="activity.location.lon"
-                        @markerPlace = "handleMarkerPlace"
-                        />
+                        @markerPlace="handleMarkerPlace"
+                    />
                 </div>
             </div>
 
@@ -123,7 +123,7 @@
                     id="end-reg-date-field"
                     type="text"
                     placeholder="Select End Registration Date"
-                    :time-picker-inline = true
+                    :time-picker-inline="true"
                     :min-date="new Date()"
                     :max-date="maxDate"
                     :dark="isDarkTheme"
@@ -146,31 +146,9 @@
                     id="date-field"
                     type="text"
                     placeholder="Select Start Date"
-                    :time-picker-inline = true
+                    :time-picker-inline="true"
                     :min-date="new Date()"
                     :max-date="maxDate"
-                    :dark="isDarkTheme"
-                />
-            </div>
-
-            <div class="form-control w-full">
-                <div class="label">
-                    <span class="text-base-content"> Activity End Date </span>
-                    <span
-                        id="end-date-field-error"
-                        class="text-error text-sm"
-                        hidden
-                    >
-                        required
-                    </span>
-                </div>
-                <VueDatePicker
-                    v-model="endDate"
-                    id="end-date-field"
-                    type="text"
-                    placeholder="Select End Date"
-                    :time-picker-inline = true
-                    :min-date="minEndDate"
                     :dark="isDarkTheme"
                 />
             </div>
@@ -213,10 +191,19 @@
                 </div>
             </div>
 
-            <div class="flex justify-end">
-                <button class="btn btn-accent" @click="postUpdate">
-                    Update Activity
+            <div class="flex justify-between items-center my-2">
+                <button
+                    v-if="isOwner"
+                    class="btn btn-error hover:brightness-50"
+                    @click="cancelActivity"
+                >
+                    Cancel Activity
                 </button>
+                <div class="ml-auto">
+                    <button class="btn btn-accent" @click="postUpdate">
+                        Update Activity
+                    </button>
+                </div>
             </div>
 
             <button
@@ -241,6 +228,7 @@
 
 <script setup>
 import { ref, defineProps, defineEmits, onMounted, computed } from 'vue';
+import { userId } from '@/functions/Authentications';
 import apiClient from '@/api';
 import { createPutRequest } from '@/functions/HttpRequest.js';
 import { addAlert } from '@/functions/AlertManager';
@@ -285,10 +273,11 @@ const new_images = ref([]);
 const owner = ref(0);
 const remove_attachment = ref([]);
 const isDarkTheme = ref(false);
-const showMinRep = ref(false)
-const minRep = ref(0)
+const showMinRep = ref(false);
+const minRep = ref(0);
+const isCancelled = ref(false);
 
-const fileUpload = ref(null)
+const fileUpload = ref(null);
 
 const fetchDetail = async () => {
     /**
@@ -313,6 +302,7 @@ const fetchDetail = async () => {
         maxPeople.value = activity.value.max_people || activity.value.people;
         showMaxPeople.value = maxPeople.value > 1;
         people.value = activity.value.participant;
+        isCancelled.value = response.data.is_cancelled;
     } catch (error) {
         console.error('Error fetching activity:', error);
     }
@@ -389,7 +379,7 @@ const validateInput = () => {
         result = false;
     }
 
-    if (minRep.value < 0 || minRep.value > 10){
+    if (minRep.value < 0 || minRep.value > 10) {
         addAlert('warning', 'Max People must be positive and not zeroes.');
         minRep.value = 0;
         result = false;
@@ -406,11 +396,11 @@ const validateInput = () => {
         result = false;
     }
 
-    if (activity.value.on_site && !(activity.value.location.lat && activity.value.location.lon)) {
-        addAlert(
-            'warning',
-            'Please Place the marker on the map.'
-        )
+    if (
+        activity.value.on_site &&
+        !(activity.value.location.lat && activity.value.location.lon)
+    ) {
+        addAlert('warning', 'Please Place the marker on the map.');
         result = false;
     }
 
@@ -444,23 +434,24 @@ const postUpdate = async () => {
             new_images: new_images.value,
             remove_attachments: remove_attachment.value,
             owner: owner.value,
-            minimum_reputation_score: minRep.value * 10
+            minimum_reputation_score: minRep.value * 10,
+            is_cancelled: isCancelled.value,
         };
 
         if (!activity.value.on_site) {
             data = {
                 ...data,
                 on_site: false,
-            }
+            };
         } else {
             data = {
                 ...data,
                 on_site: true,
                 location: {
                     lat: activity.value.location.lat,
-                    lon: activity.value.location.lon
-                }
-            }
+                    lon: activity.value.location.lon,
+                },
+            };
         }
         const response = await createPutRequest(
             `/activities/${props.id}/`,
@@ -483,7 +474,35 @@ const postUpdate = async () => {
         }
     }
 };
-
+const cancelActivity = async () => {
+    /*
+     * Attempt to cancel activity.
+     * This function does not return anything.
+     */
+    try {
+        isCancelled.value = true;
+        let data = {
+            is_cancelled: isCancelled.value,
+        };
+        const response = await createPutRequest(
+            `/activities/${props.id}/`,
+            data
+        );
+        addAlert('success', response.data.message);
+        emit('update-success');
+        await fetchDetail();
+    } catch (error) {
+        console.error(error);
+        if (error.response && error.response.data) {
+            addAlert('error', error.response.data.message);
+        } else {
+            addAlert(
+                'error',
+                'An unexpected error occurred. Please try again later.'
+            );
+        }
+    }
+};
 const formatActivityDate = (date) => {
     /*
      * Adjust the activity date with the timezone offset.
@@ -587,14 +606,14 @@ const handleRemove = (index) => {
     images.value.splice(index, 1);
     images.value = [...images.value];
     if (fileUpload.value) {
-        fileUpload.value.value = ''
+        fileUpload.value.value = '';
     }
 };
 
 const handleMarkerPlace = (coords) => {
     activity.value.location.lat = coords.lat;
-    activity.value.location.lon = coords.lon; 
-}
+    activity.value.location.lon = coords.lon;
+};
 
 const maxImageCompute = () => {
     /*
@@ -613,8 +632,14 @@ const closeModal = () => {
     }, 200);
 };
 
-const minEndDate = computed(() => {if (date.value) return new Date(date.value); return new Date})
-const maxDate = computed(() => { if (endDate.value) return new Date(endDate.value); return null})
+const maxDate = computed(() => {
+    if (endDate.value) return new Date(endDate.value);
+    return null;
+});
+
+const isOwner = computed(() => {
+    return userId.value === owner.value;
+});
 
 onMounted(() => {
     isDarkTheme.value = window.matchMedia(
