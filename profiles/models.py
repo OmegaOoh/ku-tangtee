@@ -84,6 +84,7 @@ class Profile(models.Model):
 
         Check for users who missed check-ins and decrease their reputation.
         Check if there is at least an attendee who check-in, if not, decrease hosts reputation.
+        Also decrease hosts reputation when the activity is cancelled.
         """
         now = timezone.now()
         activities = Activity.objects.filter(end_date__lt=now)
@@ -98,8 +99,8 @@ class Profile(models.Model):
                 if not attendee.checked_in and not attendee.rep_decrease:
                     profile.decrease_reputation(attendee)
 
-            # deduct host point when no attendee check-in
-            if attendees.filter(checked_in=True).count() <= 0 < attendees.count():
+            # deduct host point when no attendee check-in or the activity is cancelled
+            if (attendees.filter(checked_in=True).count() <= 0 < attendees.count()) or activity.is_cancelled:
                 for host in hosts:
                     profile = cls.objects.get(user=host.user)
                     profile.decrease_reputation(host)
