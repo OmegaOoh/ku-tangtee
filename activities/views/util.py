@@ -26,7 +26,7 @@ def check_is_joined(request: HttpRequest, *args: Any, **kwargs: Any) -> response
     """
     if not request.user.is_authenticated:
         return response.Response(
-            {'is-joined': False}
+            {'is_joined': False}
         )
 
     activity = get_object_or_404(models.Activity, id=kwargs.get('id'))
