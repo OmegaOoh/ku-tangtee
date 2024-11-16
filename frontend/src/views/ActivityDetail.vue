@@ -407,7 +407,7 @@ const fetchDetail = async () => {
 
 const fetchIsJoined = async () => {
     const response = await apiClient.get(`/activities/${activityId.value}/is-joined/`)
-    isJoined = response.data.is_joined
+    isJoined.value = response.data.is_joined
 }
 
 const fetchParticipant = async (page=1) => {

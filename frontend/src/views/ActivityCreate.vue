@@ -275,6 +275,7 @@ const validateInput = () => {
      * @return input validity in boolean
      */
     var result = true;
+
     const nameField = document.getElementById('name-field');
     const nameFieldError = document.getElementById('name-field-error');
     if (activityName.value.length <= 0) {
@@ -288,6 +289,7 @@ const validateInput = () => {
         if (!nameField.classList.contains('textarea-primary'))
             nameField.classList.add('textarea-primary');
     }
+
     const detailField = document.getElementById('detail-field');
     const detailFieldError = document.getElementById('detail-field-error');
     if (activityDetail.value.length <= 0) {
@@ -302,42 +304,47 @@ const validateInput = () => {
         if (!detailField.classList.contains('textarea-primary'))
             detailField.classList.add('textarea-primary');
     }
+
     const dateFieldError = document.getElementById('date-field-error');
-    if (date.value.length <= 0) {
+    if (!date.value || date.value.length <= 0) {
         dateFieldError.removeAttribute('hidden');
         result = false;
     } else {
         dateFieldError.setAttribute('hidden', 'true');
     }
+
     const endRegDateFieldError = document.getElementById(
         'end-reg-date-field-error'
     );
-    if (endRegistrationDate.value.length <= 0) {
+    if (!endRegistrationDate.value || endRegistrationDate.value.length <= 0) {
         endRegDateFieldError.removeAttribute('hidden');
         result = false;
     } else {
         endRegDateFieldError.setAttribute('hidden', 'true');
     }
+
     const endDateFieldError = document.getElementById('end-date-field-error');
-    if (endDate.value.length <= 0) {
+    if (!endDate.value || endDate.value.length <= 0) {
         endDateFieldError.removeAttribute('hidden');
         result = false;
     } else {
         endDateFieldError.setAttribute('hidden', 'true');
     }
+
     if (maxPeople.value <= 0 && showMaxPeople.value) {
         addAlert('warning', 'Max People must be positive and not zeroes.');
         maxPeople.value = 1;
         result = false;
     }
+
     if (minRep.value < 0 || minRep.value > 10){
         addAlert('warning', 'Max People must be positive and not zeroes.');
         minRep.value = 0;
         result = false;
     }
     if (
-        date.value >= endDate.value ||
-        endRegistrationDate.value >= endDate.value
+        date.value > endDate.value ||
+        endRegistrationDate.value > endDate.value
     ) {
         addAlert(
             'warning',
