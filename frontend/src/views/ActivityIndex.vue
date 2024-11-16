@@ -1,5 +1,5 @@
 <template>
-    <div class="overflow-x-hidden" @scroll.passive="handleScroll">
+    <div class="h-[100vh] overflow-x-hidden" @scroll.passive="handleScroll">
         <div
             class="fixed top-16 left-0 right-0 flex justify-center z-10"
             style="padding: 1%"

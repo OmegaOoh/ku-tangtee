@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full overflow-x-hidden">
+    <div class="h-[100vh] w-full overflow-x-hidden">
         <div
             class="breadcrumbs text-lm size-fit my-6 mx-10 w-full h-fit overflow-visible"
         >
@@ -176,7 +176,6 @@
                 </div>
 
                 <div v-if="selectedTab === 'joined'" class="pt-4">
-
                     <div class="flex flex-col">
                         <div
                             class="card bg-base-200 w-full hover:border-primary border-2 border-base-200 transition-all ease-in-out duration-75 mb-4 cursor-pointer"
@@ -281,7 +280,9 @@ const fetchUserData = async () => {
      * Function to fetch data of user from backend.
      * this function return nothing.
      */
-    const response = await apiClient.get(`/auth/user/${route.params.username}/`);
+    const response = await apiClient.get(
+        `/auth/user/${route.params.username}/`
+    );
     user.value = response.data;
     nickname.value = user.value.user_profile.nick_name;
     pronoun.value = user.value.user_profile.pronoun;

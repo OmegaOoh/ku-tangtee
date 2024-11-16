@@ -1,5 +1,5 @@
 <template>
-    <div class="overflow-x-hidden">
+    <div class="h-[100vh] overflow-x-hidden">
         <div class="breadcrumbs text-lm size-fit my-6 mx-10">
             <ul>
                 <li><a @click="goBack">Home</a></li>

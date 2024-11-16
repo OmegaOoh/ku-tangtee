@@ -1,5 +1,5 @@
 <template>
-    <div class="w-screen overflow-x-hidden">
+    <div class="h-[100vh] w-screen overflow-x-hidden">
         <div class="breadcrumbs text-lm size-fit ml-10 my-6">
             <ul>
                 <li><a @click="goHome">Home</a></li>
