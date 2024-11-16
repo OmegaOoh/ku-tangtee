@@ -82,7 +82,7 @@ class Profile(models.Model):
     def check_missed_check_ins(cls) -> None:
         """Check for users who missed check-ins and decrease their reputation."""
         now = timezone.now()
-        activities = Activity.objects.filter(end_date__lt=now)
+        activities = Activity.objects.filter(end_date__lt=now, is_cancelled=False)
 
         for activity in activities:
             attendees = activity.attend_set.filter(is_host=False)
