@@ -176,17 +176,24 @@
                     </span>
                 </span>
 
-                <p v-if="activity.max_people != null" class="mb-2 ml-3">
-                    <strong>Participant:</strong> {{ activity.people.coun }} / {{ activity.max_people }}
-                </p>
-
                 <div v-if="activity.minimum_reputation_score != null && minRepLv > 0 " 
                     class="absolute top-2 left-2 badge badge-accent p-3"
                 >
                     lvl > {{ minRepLv }}
                 </div>
 
-                <span class="mb-2 ml-3"><strong>Joined People:</strong> <div class="badge badge-primary">{{ activity.people }}</div> </span>
+                <span class="mb-2 ml-3"><strong>Joined People: </strong> 
+                    <div class="badge badge-secondary">
+                        {{ activity.people }}
+                        <div v-if="activity.max_people != null" class="ml-1">
+                            /
+                        </div>
+                        <div v-if="activity.max_people != null" class="ml-1">
+                            {{ activity.max_people }}
+                        </div>
+                        
+                    </div> 
+                </span>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2 ml-3">
                     <div
