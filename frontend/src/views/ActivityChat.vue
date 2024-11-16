@@ -525,7 +525,7 @@ const scrollButtonVisibility = (visibility) => {
     }
 };
 
-const handleScroll = () => {
+const handleScroll = async() => {
     /*
      * Handle Scrolling events in message list.
      * This function return nothing.
@@ -536,12 +536,15 @@ const handleScroll = () => {
 
     const scrollTop = messageList.value.scrollTop;
     const clientHeight = messageList.value.clientHeight;
-    const scrollHeight = messageList.value.scrollHeight;
+    let scrollHeight = messageList.value.scrollHeight;
 
     if (scrollTop == 0 && hasMoreMessage) {
+
+        const prevScrollHeight = scrollHeight;
         loadedPage++;
-        console.log(loadedPage)
-        fetchMessages(loadedPage);
+        await fetchMessages(loadedPage);
+        scrollHeight = messageList.value.scrollHeight;
+        messageList.value.scrollTop = scrollHeight - prevScrollHeight + scrollTop
     }
 
     isAtBottom.value = scrollTop + clientHeight >= scrollHeight - 10;
