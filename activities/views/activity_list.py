@@ -22,7 +22,7 @@ class ActivityList(
 ):
     """Return list of available upcoming activity when GET request and create new activity when POST request."""
 
-    queryset = models.Activity.objects.filter(end_registration_date__gte=timezone.now()).order_by("date")
+    queryset = models.Activity.objects.filter(end_registration_date__gte=timezone.now(), is_cancelled=False).order_by("date")
     serializer_class = model_serializers.ActivitiesSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
