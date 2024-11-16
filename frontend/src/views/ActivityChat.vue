@@ -459,9 +459,8 @@ const checkJoined = () => {
      * Check if current user joined the activity
      * return boolean whether or not user is joined
      */
-    isJoined.value = people.value.some(
-        (element) => element['user']['id'] == authUserId.value
-    );
+    const response = apiClient.get(`/activities/${activityId.value}/is-joined/`)
+    isJoined.value = response.data.is_joined
 };
 
 /**

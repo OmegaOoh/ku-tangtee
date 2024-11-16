@@ -231,3 +231,23 @@ class JoinTest(django.test.TestCase):
         self.assertJSONEqual(
             response.content, {'message': f'Your reputation score is too low to join {act_with_min_rep.name}'}
         )
+
+    def test_is_join_api(self):
+        """Is join API should correctly return user activity join status correctly."""
+        _, act = create_activity(host=self.host)
+
+        # Check unauthenticated user
+        self.client.logout()
+        res = self.client.get(f'/activities/{act.id}/is-joined/')
+        self.assertJSONEqual(res.content, {'is-joined': False})
+
+        # Check authenticated user that not join yet
+        attendee = create_test_user('join user')
+        self.client.force_login(attendee)
+        res = self.client.get(f'/activities/{act.id}/is-joined/')
+        self.assertJSONEqual(res.content, {'is_joined': False})
+
+        # Check user that already join
+        client_join_activity(client=self.client, user=attendee, activity=act)
+        res = self.client.get(f'/activities/{act.id}/is-joined/')
+        self.assertJSONEqual(res.content, {'is-joined': True})

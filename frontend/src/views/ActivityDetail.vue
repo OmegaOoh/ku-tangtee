@@ -556,10 +556,8 @@ const isOwner = computed(() => {
 });
 
 const isJoined = computed(() => {
-    return (
-        isAuth &&
-        people.value.some((participant) => participant.user.id === userId.value)
-    );
+    const response = apiClient.get(`/activities/${activityId.value}/is-joined/`)
+    return response.data.is_joined
 });
 
 const lastPage = computed(() => {
