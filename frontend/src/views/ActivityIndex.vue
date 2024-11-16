@@ -9,10 +9,7 @@
                 class="translate-y-[-100%] transition-all duration-300 ease-in-out transform-gpu"
                 hidden
             >
-                <button
-                    class="btn btn-accent size-fit text-xl"
-                    @click="reload"
-                >
+                <button class="btn btn-accent size-fit text-xl" @click="reload">
                     ↻ Refresh
                 </button>
             </div>
@@ -26,7 +23,7 @@
                 <div class="flex my-5">
                     <input
                         v-model="searchKeyword"
-                        @keydown.enter="fetchActivities"
+                        @keydown.enter="fetchActivities(1, true)"
                         class="input input-bordered gap-2 rounded-r-none"
                         placeholder="Search"
                     />
@@ -144,7 +141,7 @@
                         </div>
                     </div>
                     <button
-                        @click="fetchActivities"
+                        @click="fetchActivities(1, true)"
                         class="btn btn-secondary rounded-l-none"
                     >
                         Search
@@ -166,28 +163,47 @@
                             </h2>
                             <p>
                                 <strong>Close Registration: </strong>
-                                {{ formatTimestamp(activity.end_registration_date) }}
+                                {{
+                                    formatTimestamp(
+                                        activity.end_registration_date
+                                    )
+                                }}
                             </p>
 
-                            <span class='mb-2'>
-                                <strong>
-                                    Activity Period:
-                                </strong>
-                                <span v-if="formatDate(activity.date) != formatDate(activity.end_date)">
-                                    {{ formatTimestamp(activity.date) }} - {{ formatTimestamp(activity.end_date) }}
+                            <span class="mb-2">
+                                <strong> Activity Period: </strong>
+                                <span
+                                    v-if="
+                                        formatDate(activity.date) !=
+                                        formatDate(activity.end_date)
+                                    "
+                                >
+                                    {{ formatTimestamp(activity.date) }} -
+                                    {{ formatTimestamp(activity.end_date) }}
                                 </span>
                                 <span v-else>
-                                    {{ formatDate(activity.date) }}, {{ formatTime(activity.date) }} - {{ formatTime(activity.end_date) }}
+                                    {{ formatDate(activity.date) }},
+                                    {{ formatTime(activity.date) }} -
+                                    {{ formatTime(activity.end_date) }}
                                 </span>
                             </span>
-                            
-                            <div v-if="activity.minimum_reputation_score != null  &&
-                                        calcMinRep(activity.minimum_reputation_score) > 0" 
+
+                            <div
+                                v-if="
+                                    activity.minimum_reputation_score != null &&
+                                    calcMinRep(
+                                        activity.minimum_reputation_score
+                                    ) > 0
+                                "
                                 class="absolute top-2 right-2 badge badge-accent p-3"
                             >
-                                lvl > {{ calcMinRep(activity.minimum_reputation_score) }}
+                                lvl >
+                                {{
+                                    calcMinRep(
+                                        activity.minimum_reputation_score
+                                    )
+                                }}
                             </div>
-
 
                             <div class="card-actions justify-end">
                                 <router-link
@@ -239,23 +255,23 @@ const endDate = ref(null);
 const dateRange = ref(null);
 const selectedDay = ref([1, 2, 3, 4, 5, 6, 7]);
 const isFilterOpen = ref(false);
-const currentPage = ref(1)
+const currentPage = ref(1);
 const isLoading = ref(false);
 const noNextPage = ref(false);
 
 /**
  * Fetch Data
  */
-const fetchActivities = async (page = 1, reset=false) => {
+const fetchActivities = async (page = 1, reset = false) => {
     /*
      * Get data for all activities from API.
      */
     if (isLoading.value) return;
     isLoading.value = true;
-    
+
     try {
         let response;
-        const params = { 'page': page };
+        const params = { page: page };
 
         // Add parameters only if they have values
         if (searchKeyword.value) {
@@ -298,11 +314,16 @@ const reload = () => {
         reloadButton.classList.remove('translate-y-0');
         reloadButton.classList.add('translate-y-[-100%]');
     }
-    
-}
+};
 
-const handleScroll = ({ target: { scrollTop, clientHeight, scrollHeight }}) => {
-    if (scrollTop + clientHeight >= scrollHeight - 100 && !isLoading.value && !noNextPage.value) {
+const handleScroll = ({
+    target: { scrollTop, clientHeight, scrollHeight },
+}) => {
+    if (
+        scrollTop + clientHeight >= scrollHeight - 100 &&
+        !isLoading.value &&
+        !noNextPage.value
+    ) {
         currentPage.value++;
         fetchActivities(currentPage.value);
     }
@@ -346,7 +367,6 @@ const setupSocket = () => {
                     reloadButton.classList.remove('translate-y-[-100%]');
                     reloadButton.classList.add('translate-y-0');
                 }
-                
             }
         } catch (error) {
             console.error('Parsing Error: ', error);
@@ -389,9 +409,8 @@ const isChecked = (value) => {
 };
 
 const calcMinRep = (minRepScore) => {
-    return Math.floor(minRepScore / 10)
-}
-
+    return Math.floor(minRepScore / 10);
+};
 
 const formatTimestamp = (timestamp) => {
     /*
@@ -400,21 +419,20 @@ const formatTimestamp = (timestamp) => {
      * @params {string} not yet formatted timestamp
      * @returns {string} formatted timestamp
      */
-    return `${formatDate(timestamp)}, ${formatTime(timestamp)}`
+    return `${formatDate(timestamp)}, ${formatTime(timestamp)}`;
 };
-
 
 const formatDate = (timestamp) => {
     return timestamp
         ? format(new Date(timestamp), 'EEE, MMM/dd/yyyy')
         : 'No date provided';
-}
+};
 
 const formatTime = (timestamp) => {
     return timestamp
         ? format(new Date(timestamp), 'hh:mm a')
         : 'No time provided';
-}
+};
 
 onMounted(() => {
     fetchActivities();
