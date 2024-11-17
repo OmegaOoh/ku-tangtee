@@ -9,6 +9,7 @@ from django.core.validators import MaxValueValidator
 
 CHECKIN_CODE_LEN = 6
 
+
 def get_checkin_code() -> str:
     """Random 6 capital character.
 
@@ -52,9 +53,9 @@ class Activity(models.Model):
         default=0,
         validators=[MaxValueValidator(100)]
     )
-    
+
     def update_check_in_code(self) -> str:
-        """Regenerate activity check-in code"""
+        """Regenerate activity check-in code."""
         self.check_in_code = get_checkin_code()
         self.save()
         return self.check_in_code

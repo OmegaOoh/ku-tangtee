@@ -104,12 +104,14 @@ class CheckInView(
         """
         activity = self.get_object()
         req_data = RequestData(req_user=request.user, act_id=activity.id)
-        
+
         if not activity.is_checkin_period():
             logger.warning(data_to_log(Action.FAIL_OPEN_CHECKIN, req_data, 'Not in Check-in period'))
-            return response.Response({'message': 'Check-in period is in between Start date and End date of the activity.'},
-                                    status=403)
-        
+            return response.Response(
+                {'message': 'Check-in period is in between Start date and End date of the activity.'},
+                status=403
+            )
+
         request.data.update(
             {
                 'check_in_allowed': True,

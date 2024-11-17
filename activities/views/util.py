@@ -15,6 +15,7 @@ from rest_framework import decorators, response
 import random
 import string
 
+
 @decorators.api_view(['get'])
 def csrf_token_view(request: HttpRequest) -> response.Response:  # pragma: no cover
     """Return csrf token."""

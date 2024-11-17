@@ -45,7 +45,7 @@ class CheckinTest(django.test.TestCase):
         self.activity.refresh_from_db()
         self.assertTrue(self.activity.check_in_allowed)
         self.assertRegex(self.activity.check_in_code, r'^[A-Z]{6}$')
-        
+
         code_res = self.client.get(self.url(self.activity.id))
         self.assertEqual(self.activity.check_in_code, code_res.data['check_in_code'])
         self.assertTrue(self.activity.check_in_allowed)
@@ -86,7 +86,6 @@ class CheckinTest(django.test.TestCase):
 
         self.client.force_login(self.host)
         res = self.client.put(self.url(self.activity.id) + '?status=open')
-        res_dict = json.loads(res.content)
 
         self.assertJSONEqual(res.content, {
             'message': 'Activity check-in are open',
@@ -97,7 +96,7 @@ class CheckinTest(django.test.TestCase):
 
         self.assertRegex(self.activity.check_in_code, r'^[A-Z]{6}$')
         self.assertTrue(self.activity.check_in_allowed)
-        
+
         code_res = self.client.get(self.url(self.activity.id))
         self.assertJSONEqual(
             code_res.content,
@@ -114,7 +113,7 @@ class CheckinTest(django.test.TestCase):
         })
         self.activity.refresh_from_db()
         self.assertFalse(self.activity.check_in_allowed)
-        
+
         code_res = self.client.get(self.url(self.activity.id))
         self.assertJSONEqual(
             code_res.content,
