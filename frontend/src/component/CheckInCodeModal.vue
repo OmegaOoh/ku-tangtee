@@ -75,12 +75,15 @@ async function fetchCheckInCode() {
      * Get data from specific activity including participant detail.
      */
     try {
-        const response = await apiClient.get(`/activities/${props.id}`);
+        const response = await apiClient.get(`activities/check-in/${props.id}/`);
         code.value = response.data.check_in_code;
         check_in_allowed.value = response.data.check_in_allowed;
     } catch (error) {
-        console.error('Error fetching activity:', error);
-        addAlert('warning', 'Activity already started or No such activity.');
+        addAlert(
+            'error',
+            error.response?.data?.message ||
+                'An unexpected error occurred. Please try again later.'
+        );
     }
 }
 
