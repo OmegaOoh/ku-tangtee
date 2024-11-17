@@ -42,9 +42,14 @@ class CheckInView(
                 {'message': 'Check-in are not allow at the moment'},
                 status=403
             )
+            
+        print(activity.check_in_code)
 
         return response.Response(
-            {"check_in_code": activity.check_in_code}
+            {
+                'check_in_code': activity.check_in_code,
+                'check_in_allowed': activity.check_in_allowed
+            }
         )
 
     def put(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
@@ -99,26 +104,30 @@ class CheckInView(
         :param request: Http request object
         :return: Http response object
         """
-        act = self.get_object()
-        req_data = RequestData(req_user=request.user, act_id=act.id)
-        if act.is_checkin_period():
-            request.data.update(
-                {
-                    'check_in_allowed': True,
-                    'check_in_code': util.get_checkin_code()
-                }
-            )
-            super().update(request, partial=True, *args, **kwargs)
+        activity = self.get_object()
+        req_data = RequestData(req_user=request.user, act_id=activity.id)
+        
+        if not activity.is_checkin_period():
+            logger.warning(data_to_log(Action.FAIL_OPEN_CHECKIN, req_data, 'Not in Check-in period'))
+            return response.Response({'message': 'Check-in period is in between Start date and End date of the activity.'},
+                                    status=403)
+        
+        request.data.update(
+            {
+                'check_in_allowed': True,
+            }
+        )
+        super().update(request, partial=True, *args, **kwargs)
 
-            logger.info(data_to_log(Action.OPEN_CHECKIN, req_data))
-            return response.Response({
-                'message': 'Activity check-in are open',
-                'check_in_code': request.data.get('check_in_code')
-            })
+        activity.refresh_from_db()
+        activity.update_check_in_code()
+        activity.refresh_from_db()
 
-        logger.warning(data_to_log(Action.FAIL_OPEN_CHECKIN, req_data, 'Not in Check-in period'))
-        return response.Response({'message': 'Check-in period is in between Start date and End date of the activity.'},
-                                 status=403)
+        logger.info(data_to_log(Action.OPEN_CHECKIN, req_data))
+        return response.Response({
+            'message': 'Activity check-in are open',
+            'check_in_allowed': activity.check_in_allowed
+        })
 
     def close_check_in(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Close for check-in.
@@ -126,13 +135,14 @@ class CheckInView(
         :param request: Http request object
         :return: Http response object
         """
-        act = self.get_object()
+        activity = self.get_object()
         request.data['check_in_allowed'] = False
         super().update(request, partial=True, *args, **kwargs)
-        req_data = RequestData(req_user=request.user, act_id=act.id)
+        req_data = RequestData(req_user=request.user, act_id=activity.id)
         logger.info(data_to_log(Action.CLOSE_CHECKIN, req_data))
         return response.Response({
-            'message': 'Activity check-in are close'
+            'message': 'Activity check-in are close',
+            'check_in_allowed': activity.check_in_allowed
         })
 
     def invalid_status(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:

@@ -15,9 +15,6 @@ from rest_framework import decorators, response
 import random
 import string
 
-CHECKIN_CODE_LEN = 6
-
-
 @decorators.api_view(['get'])
 def csrf_token_view(request: HttpRequest) -> response.Response:  # pragma: no cover
     """Return csrf token."""
@@ -143,14 +140,3 @@ def image_loader_64(image_data_list: list[str], act: models.Activity) -> None:
 
         except Exception as e:  # pragma: no cover
             print(f"Failed to decode image data: {e}")
-
-
-def get_checkin_code() -> str:
-    """Random 6 capital character.
-
-    :return: string of random 6 character.
-    """
-    # choose from all lowercase letter
-    letters = string.ascii_uppercase
-    result_str = ''.join(random.choice(letters) for i in range(CHECKIN_CODE_LEN))
-    return result_str

@@ -1,9 +1,23 @@
 """Database Model for activities app."""
+import string
+import random
 from typing import Any, Optional
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
+
+CHECKIN_CODE_LEN = 6
+
+def get_checkin_code() -> str:
+    """Random 6 capital character.
+
+    :return: string of random 6 character.
+    """
+    # choose from all lowercase letter
+    letters = string.ascii_uppercase
+    result_str = ''.join(random.choice(letters) for i in range(CHECKIN_CODE_LEN))
+    return result_str
 
 
 def get_end_registration_date() -> Any:
@@ -38,6 +52,12 @@ class Activity(models.Model):
         default=0,
         validators=[MaxValueValidator(100)]
     )
+    
+    def update_check_in_code(self) -> str:
+        """Regenerate activity check-in code"""
+        self.check_in_code = get_checkin_code()
+        self.save()
+        return self.check_in_code
 
     def __str__(self) -> Any:
         """Return Activity Name as string representative.
