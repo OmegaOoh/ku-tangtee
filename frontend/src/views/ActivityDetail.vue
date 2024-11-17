@@ -1,12 +1,12 @@
 <template>
-    <div class="overflow-x-hidden">
+    <div class="h-[100vh] overflow-x-hidden">
         <div class="breadcrumbs text-lm size-fit my-6 mx-10 overflow-visible">
             <ul>
                 <li><a @click="goBack">Home</a></li>
                 <li>Activity {{ activity.id }}</li>
             </ul>
         </div>
-        <div v-if="isAuth && isHost">
+        <div v-if="isAuth && isHost && !isCancelled && isBeforeEndDate">
             <EditModal
                 :id="activityId"
                 :isOpen="showEditModal"
@@ -47,7 +47,9 @@
             />
         </div>
         <CheckInModal
-            v-if="isAuth && isJoined && !isHost"
+            v-if="
+                isAuth && isJoined && !isHost && !isCancelled && isBeforeEndDate
+            "
             :id="activityId"
             :isOpen="showCheckInModal"
             @close="
@@ -73,7 +75,10 @@
                 </h1>
 
                 <!--Owner action set-->
-                <div v-if="isHost && isAuth" class="flex-auto">
+                <div
+                    v-if="isHost && isAuth && !isCancelled && isBeforeEndDate"
+                    class="flex-auto"
+                >
                     <button
                         @click="
                             () => {
@@ -142,58 +147,94 @@
                     />
                 </div>
 
-                <div class="mb-2 ml-3 overflow-hidden multi-line" v-html="markdownFormatter(activity.detail)"></div>
-                
+                <div
+                    class="mb-2 ml-3 overflow-hidden multi-line"
+                    v-html="markdownFormatter(activity.detail)"
+                ></div>
+
                 <div class="ml-3" v-if="activity.on_site">
-                    <strong class="text-base-content text-lg mt-2 mb-4">Location</strong>
-                    <div v-if="showMap">
-                        <MapComponent :latitude="activity.location.lat" :longitude="activity.location.lon" class="h-[30vh] w-[100%] ml-2 rounded-lg overflow-hidden z-0"/>
-                    </div>
-                    <div v-else class="skeleton h-[30vh] w-[100%] ml-2 rounded-lg overflow-hidden"></div>
-
-                </div>
-                
-
-                <p class="mb-2 ml-3">
-                    <strong class="text-base-content text-lg"
-                        >Start Date and Time:</strong
+                    <strong class="text-base-content text-lg mt-2 mb-4"
+                        >Location</strong
                     >
-                    {{ formatTimestamp(activity.date) }}
-                </p>
-                <p class="mb-2 ml-3">
+                    <div v-if="showMap">
+                        <MapComponent
+                            :latitude="activity.location.lat"
+                            :longitude="activity.location.lon"
+                            class="h-[30vh] w-[100%] ml-2 rounded-lg overflow-hidden z-0"
+                        />
+                    </div>
+                    <div
+                        v-else
+                        class="skeleton h-[30vh] w-[100%] ml-2 rounded-lg overflow-hidden"
+                    ></div>
+                </div>
+
+                <p class="mt-2 ml-3">
                     <strong class="text-base-content text-lg"
-                        >End Registration Date:</strong
+                        >Close Registration:</strong
                     >
                     {{ formatTimestamp(activity.end_registration_date) }}
                 </p>
-                <p class="mb-2 ml-3">
-                    <strong class="text-base-content text-lg"
-                        >End Date and Time:</strong
+
+                <span class="mb-2 ml-3">
+                    <strong class="text-lg"> Activity Period: </strong>
+                    <span
+                        v-if="
+                            formatDate(activity.date) !=
+                            formatDate(activity.end_date)
+                        "
                     >
-                    {{ formatTimestamp(activity.end_date) }}
-                </p>
+                        {{ formatTimestamp(activity.date) }} -
+                        {{ formatTimestamp(activity.end_date) }}
+                    </span>
+                    <span v-else>
+                        {{ formatDate(activity.date) }},
+                        {{ formatTime(activity.date) }} -
+                        {{ formatTime(activity.end_date) }}
+                    </span>
+                </span>
 
-                <p v-if="activity.max_people != null" class="mb-2 ml-3">
-                    <strong>Max People:</strong> {{ activity.max_people }}
-                </p>
-                <p v-if="activity.minimum_reputation_score != null" class="mb-2 ml-3">
-                    <strong>Required Level: {{ minRepLv }}</strong> 
-                </p>
-                <p class="mb-2 ml-3"><strong>Joined People:</strong></p>
+                <div
+                    v-if="
+                        activity.minimum_reputation_score != null &&
+                        minRepLv > 0
+                    "
+                    class="absolute top-2 left-2 badge badge-accent p-3"
+                >
+                    lvl > {{ minRepLv }}
+                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 ml-3">
+                <span class="mb-2 ml-3"
+                    ><strong>Joined People: </strong>
+                    <div class="badge badge-secondary">
+                        {{ activity.people }}
+                        <div v-if="activity.max_people != null" class="ml-1">
+                            /
+                        </div>
+                        <div v-if="activity.max_people != null" class="ml-1">
+                            {{ activity.max_people }}
+                        </div>
+                    </div>
+                </span>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2 ml-3">
                     <div
                         v-for="participant in people"
                         :key="participant.user.id"
-                        class="card bg-base-100 shadow-lg p-4 rounded-lg border-primary hover:border-2 cursor-pointer transition-all duration-75 ease-in-out"
+                        class="card bg-base-100 shadow-lg p-4 rounded-lg hover:border-primary border-2 border-base-300 cursor-pointer transition-all duration-75 ease-in-out"
                         @click="
-                            $router.push('/profile/' + participant.user.username)
+                            $router.push(
+                                '/profile/' + participant.user.username
+                            )
                         "
                     >
                         <div class="flex items-center space-x-4">
                             <div class="indicator">
                                 <img
-                                    v-lazy="participant.user.user_profile.profile_picture_url"
+                                    v-lazy="
+                                        participant.user.user_profile
+                                            .profile_picture_url
+                                    "
                                     alt="Profile Picture"
                                     class="w-12 h-12 rounded-full"
                                     @error="handleImageError"
@@ -212,39 +253,79 @@
                         </div>
                     </div>
                 </div>
-                <div
-                    class="flex flex-col sm:flex-row justify-between items-center"
-                >
+                <div class="mx-auto">
+                    <button
+                        class="btn btn-sm btn-neutral mr-4"
+                        @click="fetchParticipant(1)"
+                    >
+                        first
+                    </button>
+                    <button
+                        class="btn btm-sm rounded-r-none"
+                        :class="havePage(havePrev)"
+                        @click="fetchParticipant(currentPage - 1)"
+                    >
+                        prev
+                    </button>
+                    <button class="btn btm-sm rounded-none">
+                        Page {{ currentPage }}
+                    </button>
+                    <button
+                        class="btn btm-sm rounded-l-none"
+                        :class="havePage(haveNext)"
+                        @click="fetchParticipant(currentPage + 1)"
+                    >
+                        next
+                    </button>
+                    <button
+                        class="btn btn-sm btn-neutral ml-4"
+                        @click="fetchParticipant(lastPage)"
+                    >
+                        last
+                    </button>
+                </div>
+                <div class="ml-4">
                     <div v-if="!isAuth">
                         <button class="btn btn-accent" @click="login">
                             Please Login before join
                         </button>
                     </div>
-                    <div v-else-if="isJoined" class="flex">
-                        <button class="btn btn-secondary" @click="goToChat">
-                            Chat
-                        </button>
-                        <button
-                            v-if="
-                                isJoined &&
-                                activity.check_in_allowed &&
-                                isAuth &&
-                                !checkedIn &&
-                                !isHost
-                            "
-                            @click="
-                                () => {
-                                    showCheckInModal = true;
-                                }
-                            "
-                            class="btn btn-secondary mx-4"
-                        >
-                            Check-In
-                        </button>
+                    <div
+                        v-else-if="isJoined"
+                        class="flex justify-between w-full"
+                    >
+                        <div class="flex flex-row">
+                            <button class="btn btn-secondary" @click="goToChat">
+                                Chat
+                            </button>
+                            <button
+                                v-if="
+                                    isJoined &&
+                                    activity.check_in_allowed &&
+                                    isAuth &&
+                                    !checkedIn &&
+                                    !isHost
+                                "
+                                @click="
+                                    () => {
+                                        showCheckInModal = true;
+                                    }
+                                "
+                                class="btn btn-secondary mx-4"
+                            >
+                                Check-In
+                            </button>
+                        </div>
+
                         <button
                             v-if="!isHost"
                             @click="leaveActivity"
                             class="btn btn-accent mx-4"
+                            :class="
+                                checkDatePassed(activity.end_registration_date)
+                                    ? 'btn-disabled disabled'
+                                    : 'btn-accent'
+                            "
                         >
                             Leave Activity
                         </button>
@@ -253,7 +334,9 @@
                         <button
                             v-if="
                                 !activity.is_full &&
-                                activity.is_active
+                                activity.is_active &&
+                                !isJoined &&
+                                !isHost
                             "
                             id="join-button"
                             @click="joinActivity"
@@ -321,43 +404,74 @@ const checkedIn = ref(false);
 const hosts = ref([]);
 const owner = ref(0);
 const minRepLv = ref(0);
+const isJoined = ref(false);
+const isCancelled = ref(false);
+
+// Participant Pagination
+const PAGINATION_SIZE = 20;
+const currentPage = ref(1);
+const havePrev = ref(false);
+const haveNext = ref(true);
+let participantCount = 0;
 
 const showMap = computed(() => {
-    return !showEditModal.value &&
-            !showCheckInCode.value &&
-            !showQRCode.value &&
-            !showCheckInModal.value &&
-            !showEditPermModal.value
-})
+    return (
+        !showEditModal.value &&
+        !showCheckInCode.value &&
+        !showQRCode.value &&
+        !showCheckInModal.value &&
+        !showEditPermModal.value
+    );
+});
 
 const fetchDetail = async () => {
     try {
         const response = await apiClient.get(`/activities/${activityId.value}`);
-        const people_res = await apiClient.get(`/activities/participant/${activityId.value}/`);
         activity.value = response.data;
-        // TEST DATA REMOVE AFTER API IS SENDING THE LOCATION DATA.
-        activity.value['on_site'] = true; 
-        activity.value['location'] = {
-            lat: 13.84979,
-            lon: 100.56836
-        }
-        //////////////////////////////////////////////////////////
-        people.value = people_res.data.results;
+        fetchParticipant();
         imageUrls.value = activity.value.images.map((image) => ({
             id: image.id,
             url: `${BASE_URL}${image.url}`,
         }));
         hosts.value = response.data.host;
         owner.value = response.data.owner;
-        minRepLv.value = Math.floor(response.data.minimum_reputation_score / 10)
+        minRepLv.value = Math.floor(
+            response.data.minimum_reputation_score / 10
+        );
+        isCancelled.value = response.data.is_cancelled;
         checkCheckedIn();
+        fetchIsJoined();
     } catch (error) {
         console.error('Error fetching activity:', error);
         addAlert('warning', 'Activity already started or No such activity.');
     }
 };
 
-async function allowCheckIn() {
+const fetchIsJoined = async () => {
+    const response = await apiClient.get(
+        `/activities/${activityId.value}/is-joined/`
+    );
+    isJoined.value = response.data.is_joined;
+};
+
+const fetchParticipant = async (page = 1) => {
+    const params = { page: page };
+    const response = await apiClient.get(
+        `/activities/participant/${activityId.value}/`,
+        { params }
+    );
+    people.value = response.data.results;
+    participantCount = response.data.count;
+    haveNext.value = response.data.next != null;
+    havePrev.value = response.data.previous != null;
+};
+
+const havePage = (havePage) => {
+    if (havePage) return 'btn-neutral';
+    return 'btn-disabled';
+};
+
+const allowCheckIn = async () => {
     /*
      * Attempt to join activity.
      */
@@ -379,7 +493,7 @@ async function allowCheckIn() {
             );
         }
     }
-}
+};
 
 const checkCheckedIn = () => {
     if (isAuth && isJoined.value) {
@@ -392,10 +506,26 @@ const checkCheckedIn = () => {
     }
 };
 
+const checkDatePassed = (timestamp) => {
+    const checkDate = new Date(timestamp);
+    const today = new Date();
+    return checkDate < today;
+};
+
 const formatTimestamp = (timestamp) => {
+    return `${formatDate(timestamp)}, ${formatTime(timestamp)}`;
+};
+
+const formatDate = (timestamp) => {
     return timestamp
-        ? format(new Date(timestamp), 'EEE, MMM/dd/yyyy, hh:mm a')
+        ? format(new Date(timestamp), 'EEE, MMM/dd/yyyy')
         : 'No date provided';
+};
+
+const formatTime = (timestamp) => {
+    return timestamp
+        ? format(new Date(timestamp), 'hh:mm a')
+        : 'No time provided';
 };
 
 const handleEditSuccess = async () => {
@@ -478,27 +608,39 @@ const isOwner = computed(() => {
     return userId.value === owner.value;
 });
 
-const isJoined = computed(() => {
-    return (
-        isAuth &&
-        people.value.some((participant) => participant.user.id === userId.value)
-    );
+const lastPage = computed(() => {
+    return Math.ceil(participantCount / PAGINATION_SIZE);
+});
+
+const isBeforeEndDate = computed(() => {
+    const currentDate = new Date();
+    const endDate = new Date(activity.value.end_date);
+    return currentDate < endDate;
 });
 
 const imagesUrl = computed(() => {
     return imageUrls.value.map((image) => image.url);
 });
 
+watch(
+    () => route.params.id,
+    (newId) => {
+        activityId.value = newId;
+        fetchDetail();
+    }
+);
+
+watch(userId, (newUserId) => {
+    if (newUserId) {
+        fetchIsJoined();
+        checkCheckedIn();
+    }
+});
+
 onMounted(() => {
     activityId.value = route.params.id;
     fetchDetail();
-    watch(
-        () => route.params.id,
-        (newId) => {
-            activityId.value = newId;
-            fetchDetail();
-        }
-    );
+
     window.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             closeEditModal();

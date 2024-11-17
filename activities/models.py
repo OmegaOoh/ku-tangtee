@@ -37,12 +37,21 @@ def get_end_date() -> Any:
     return timezone.now() + timezone.timedelta(days=7)
 
 
+class Locations(models.Model):
+    """Location for activity."""
+
+    latitude = models.DecimalField(max_digits=9, decimal_places=6)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+
+
 class Activity(models.Model):
     """Activity model to store data of activity detail."""
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     detail = models.CharField(max_length=1024)
+    on_site = models.BooleanField(default=False)
+    locations = models.ForeignKey(Locations, on_delete=models.CASCADE, null=True, blank=True)
     date = models.DateTimeField(default=timezone.now)
     end_date = models.DateTimeField(default=get_end_date)
     end_registration_date = models.DateTimeField(default=get_end_registration_date)
@@ -53,6 +62,7 @@ class Activity(models.Model):
         default=0,
         validators=[MaxValueValidator(100)]
     )
+    is_cancelled = models.BooleanField(default=False)
 
     def update_check_in_code(self) -> str:
         """Regenerate activity check-in code."""
@@ -70,9 +80,9 @@ class Activity(models.Model):
     def is_active(self) -> bool:
         """Check if activity is active.
 
-        :return: True if activity is in joining period.
+        :return: True if activity is in joining period and not be cancelled.
         """
-        return bool(self.end_registration_date >= timezone.now())
+        return bool((self.end_registration_date >= timezone.now()) and not self.is_cancelled)
 
     def is_full(self) -> bool:
         """Check if max_people doesn't reach.
@@ -109,7 +119,7 @@ class Activity(models.Model):
         :param user: User model instance
         :return: Boolean value that tell user are participated in activity or not.
         """
-        return bool(user in self.participants())
+        return bool(user in [a.user for a in self.attend_set.all()])
 
     def is_checkin_period(self) -> Any:
         """Return boolean value which tell that are given user can check-in in activity or not.

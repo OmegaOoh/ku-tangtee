@@ -1,6 +1,6 @@
 import apiClient from '@/api';
 
-async function getCsrfToken() {
+export async function getCsrfToken() {
     var csrfResponse = await apiClient.get(`/activities/get-csrf-token/`);
     return csrfResponse.data.csrfToken;
 }

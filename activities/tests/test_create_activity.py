@@ -203,6 +203,25 @@ class CreateActivityTest(django.test.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertJSONEqual(response.content, {'message': 'Ensure this field has no more than 255 characters.'})
 
+    def test_valid_activity_with_location(self):
+        """Create should create a new object of Location."""
+        data = {
+            "name": "Valid Activity",
+            "detail": "This is valid activity",
+            "location": {"lat": 59.105, "lon": -9.210}
+        }
+        response, new_act = create_activity(
+            client=self.client,
+            host=self.host_user,
+            days_delta=3,
+            data=data,
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(float(new_act.locations.latitude), data['location']['lat'])
+        self.assertEqual(float(new_act.locations.longitude), data['location']['lon'])
+
     def test_valid_activity_with_images(self):
         """Create should create a new object of Attachment."""
         image_url = CAMERA_IMAGE

@@ -1,15 +1,13 @@
 """Module for handle URL /activities/<activity_id>."""
-from activities.views.util import image_loader, image_deleter, image_loader_64, edit_host_access
+from activities.views.util import image_loader, image_deleter, image_loader_64, edit_host_access, create_location
 from typing import Any
 from django.http import HttpRequest
-from django.utils import timezone
 from rest_framework import generics, permissions, mixins, response
 from django.db.models import Q
 from activities import models
 from activities.logger import logger, Action, RequestData, data_to_log
 from activities.serializer.permissions import OnlyHostCanEdit
 from activities.serializer import model_serializers
-from django.db import transaction
 
 
 class ActivityDetail(mixins.RetrieveModelMixin,
@@ -52,6 +50,11 @@ class ActivityDetail(mixins.RetrieveModelMixin,
         rep_error = self.__check_rep_score(request)
         if rep_error:
             return rep_error
+
+        # Deal with location.
+        loc_id = self.__edit_location(request)
+        if loc_id:
+            request.data['locations'] = loc_id
 
         # Update activity information
         res = super().update(request, partial=True, *args, **kwargs)
@@ -115,6 +118,25 @@ class ActivityDetail(mixins.RetrieveModelMixin,
                     "id": activity.id
                 },
             )
+        return None
+
+    def __edit_location(self, request: HttpRequest) -> int | None:
+        activity = self.get_object()
+        coordinate = request.data.get("location", {})
+
+        if coordinate:
+            location = activity.locations
+
+            if location:
+                location.latitude = coordinate.get("lat")
+                location.longitude = coordinate.get("lon")
+                location.save()
+                location_id = location.id
+            else:
+                location_id = create_location(coordinate)
+
+            return int(location_id)
+
         return None
 
     def __add_remove_attachment(self, request: HttpRequest) -> None:

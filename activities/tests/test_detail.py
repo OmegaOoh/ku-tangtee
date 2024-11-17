@@ -34,4 +34,5 @@ class DetailTest(django.test.TestCase):
         }
         _, activity = create_activity(data=data)
         response = self.client.get(urls.reverse("activities:detail", args=[activity.id]))
-        self.assertJSONEqual(response.content, ActivitiesSerializer(activity).data)
+        expected = activity_to_json(activity)
+        self.assertJSONEqual(response.content, expected)

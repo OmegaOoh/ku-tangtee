@@ -2,7 +2,7 @@ import { ref } from 'vue';
 import apiClient from '@/api';
 import { googleTokenLogin } from 'vue3-google-login';
 import { createPostRequest } from './HttpRequest';
-import { getCookie, setCookie, deleteCookie } from './CookiesReadWrite.js';
+import { getCookie } from './CookiesReadWrite.js';
 import router from '@/router';
 
 export var isAuth = ref(false);
@@ -23,12 +23,12 @@ export async function login() {
         if (isAuth.value) {
             await logout();
         }
-        const response = await createPostRequest(`auth/google-oauth2/`, {
+        await createPostRequest(`auth/google-oauth2/`, {
             access_token: logInResponse.access_token,
         });
-        setCookie('backend-token', response.data.access);
         isAuth.value = true;
         await getUserData();
+
         const profileStatus = await apiClient.get(`/profile/`);
         if (!profileStatus.data.has_profile) {
             router.push(
@@ -45,19 +45,22 @@ export async function authStatus() {
      * Check session authentication status
      * This function does not return anything.
      */
-    const token = getCookie('backend-token');
-    if (token) {
-        try {
-            await createPostRequest(`rest-auth/token/verify/`, {
-                token: token,
-            });
-            isAuth.value = true;
-            getUserData();
-        } catch (e) {
-            await logout();
-        }
-    } else {
+    const authToken = getCookie('jwt-auth');
+    const reToken = getCookie('jwt-reauth');
+    if (!reToken) {
         await logout();
+        return
+    }
+    if (!authToken && reToken) {
+        await createPostRequest('rest-auth/token/refresh/', {'Refresh': reToken})
+        isAuth.value = true;
+        getUserData();
+        return
+    }
+    if (authToken) {
+        isAuth.value = true;
+        getUserData();
+        return
     }
 }
 
@@ -74,7 +77,6 @@ export async function logout() {
     pfp.value = '';
     userId.value = '';
     userName.value = '';
-    deleteCookie('backend-token');
 }
 
 export async function getUserData() {

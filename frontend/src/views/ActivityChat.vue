@@ -1,5 +1,5 @@
 <template>
-    <div class="w-screen overflow-x-hidden">
+    <div class="h-[100vh] w-screen overflow-x-hidden">
         <div class="breadcrumbs text-lm size-fit ml-10 my-6">
             <ul>
                 <li><a @click="goHome">Home</a></li>
@@ -19,7 +19,7 @@
                     class="card-body overflow-y-auto h-[70vh] break-words"
                     @scroll="handleScroll"
                 >
-                    <li v-for="(message, index) in messages" :key="index">
+                    <li v-for="(message, index) in reversedMessages" :key="index">
                         <div
                             class="chat w-full"
                             :class="Number(message.user_id) === currentUserId ? 'chat-end' : 'chat-start'"
@@ -165,7 +165,7 @@
 <script setup>
 import apiClient from '@/api';
 import { format } from 'date-fns';
-import { watch, ref, onMounted, onBeforeUnmount, nextTick} from 'vue';
+import { watch, ref, onMounted, onBeforeUnmount, nextTick, computed} from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
     login,
@@ -206,12 +206,17 @@ const isJoined = ref(false);
 const isAtBottom = ref(true);
 const images = ref([]);
 
+let hasMoreMessage = false;
+let loadedPage = 1;
+let isLoading = false;
+
 // Element Variables
 const messageList = ref(null);
 const messageTextarea = ref(null)
 
 let last_msg = {};
 let streak = 0;
+let spam_timer = null;
 
 /**
  * Message Websocket
@@ -224,8 +229,7 @@ const connectWebSocket = () => {
      */
     let new_socket = new WebSocket(
         `${process.env.VUE_APP_BASE_URL.replace(/^http/, 'ws').replace(
-            /^https/,
-            'wss'
+            /^https/,'wss'
         )}ws/chat/${activityId.value}`
     );
     socket.value = new_socket;
@@ -233,7 +237,7 @@ const connectWebSocket = () => {
         const data = JSON.parse(event.data);
         const user_id = data.user_id;
         if (data.message) {
-            messages.value.push({
+            messages.value.unshift({
                 message: data.message,
                 timestamp: new Date(),
                 user_id: user_id,
@@ -267,10 +271,22 @@ const sendMessage = () => {
     }
 
     let msg = JSON.stringify({
-                message: trimMessage,
-                user_id: authUserId.value,
-                images: images.value,
-            })
+        message: trimMessage,
+        user_id: authUserId.value,
+        images: images.value,
+    })
+
+    if (socket.value.readyState === WebSocket.OPEN) {
+        socket.value.send(msg);
+        images.value = [];
+        newMessage.value = '';
+        nextTick(() => {adjustHeight();})
+        handleScrollToBottom(); // Scroll to bottom unconditionally
+    } else {
+        addAlert('error', 'Chat is not connected, please refresh.')
+        console.log('WebSocket is not open.');
+        return;
+    }
 
     if (msg != last_msg) {
         last_msg = msg;
@@ -283,19 +299,16 @@ const sendMessage = () => {
     if (streak >= MAX_CONSECUTIVE_SAME_MSG) {
         socket.value.close()
         addAlert('warning', 'You are spamming, BAD USER!')
+        if (spam_timer)
+            clearTimeout(spam_timer.id)
+        spam_timer = null
         return;
     }
 
-    if (socket.value.readyState === WebSocket.OPEN) {
-        socket.value.send(msg);
-        images.value = [];
-        newMessage.value = '';
-        nextTick(() => {adjustHeight();})
-        handleScrollToBottom(); // Scroll to bottom unconditionally
-    } else {
-        addAlert('error', 'Chat is not connected, please refresh.')
-        console.log('WebSocket is not open.');
+    if (!spam_timer){
+        spam_timer = setTimeout(()=> { streak= 0 },1500)
     }
+    
 };
 
 const insertNewLine = () => {
@@ -381,6 +394,7 @@ const chatSetup = async () => {
         }
         await fetchCurrentUser();
         await fetchMessages();
+        scrollToBottom();
     }
 };
 
@@ -416,18 +430,23 @@ const fetchSingleProfile = async (userId) => {
     people.value.push(participant.data);
 };
 
-const fetchMessages = async () => {
+const fetchMessages = async (page = 1) => {
     /*
-     * Get all previous messages.
-     * Return Nothing
+     * Get messages for the specified page.
+     * return Nothing
      */
-    messages.value = [];
+    isLoading = true;
     try {
-        const response = await apiClient.get(`/chat/${activityId.value}/`);
-        messages.value = response.data.results;
-        scrollToBottom();
+        const response = await apiClient.get(`/chat/${activityId.value}/?page=${page}`);
+        if (response.data.results.length > 0) {
+            messages.value.push(...response.data.results);
+            hasMoreMessage = response.data.next != null;
+            return response.data.results.length > 0;
+        }
     } catch (error) {
         console.error('Error fetching messages:', error);
+    } finally {
+        isLoading = false;
     }
 };
 
@@ -435,14 +454,13 @@ const fetchMessages = async () => {
  * Checker
  */
 
-const checkJoined = () => {
+const checkJoined = async () => {
     /*
      * Check if current user joined the activity
      * return boolean whether or not user is joined
      */
-    isJoined.value = people.value.some(
-        (element) => element['user']['id'] == authUserId.value
-    );
+    const response = await apiClient.get(`/activities/${activityId.value}/is-joined/`)
+    isJoined.value = response.data.is_joined
 };
 
 /**
@@ -510,19 +528,28 @@ const scrollButtonVisibility = (visibility) => {
     }
 };
 
-const handleScroll = () => {
+const handleScroll = async() => {
     /*
      * Handle Scrolling events in message list.
      * This function return nothing.
      */
     if (!messageList.value) {
-        return; //messageList is null return early
+        return;
     }
+
     const scrollTop = messageList.value.scrollTop;
     const clientHeight = messageList.value.clientHeight;
-    const scrollHeight = messageList.value.scrollHeight;
+    let scrollHeight = messageList.value.scrollHeight;
 
-    // Check if the user is at the bottom
+    if (scrollTop == 0 && hasMoreMessage && !isLoading) {
+
+        const prevScrollHeight = scrollHeight;
+        loadedPage++;
+        await fetchMessages(loadedPage);
+        scrollHeight = messageList.value.scrollHeight;
+        messageList.value.scrollTop = scrollHeight - prevScrollHeight + scrollTop
+    }
+
     isAtBottom.value = scrollTop + clientHeight >= scrollHeight - 10;
 };
 
@@ -577,12 +604,16 @@ const goDetail = () => {
     router.push(`/activities/${activityId.value}`);
 };
 
+const reversedMessages = computed(() => {
+        return [...messages.value].reverse();
+    }
+)
+
 /**
  * Lifecycle Hooks
  */
 
 onMounted(() => {
-    chatSetup();
     connectWebSocket();
     watch(
         authUserId,

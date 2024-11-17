@@ -30,6 +30,6 @@ export default {
     name: 'App',
     mounted() {
         authStatus();
-    },
+    }
 };
 </script>
