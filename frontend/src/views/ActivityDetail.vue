@@ -10,89 +10,204 @@
             <EditModal
                 :id="activityId"
                 :isOpen="showEditModal"
-                @close="() => {showEditModal = false}"
-                @update-success="handleEditSuccess" />
+                @close="
+                    () => {
+                        showEditModal = false;
+                    }
+                "
+                @update-success="handleEditSuccess"
+            />
 
             <CheckInCodeModal
                 v-if="showCheckInCode"
                 :id="activityId"
                 :isOpen="showCheckInCode"
-                @close = 'closeCheckInCodeModal'
+                @close="closeCheckInCodeModal"
             />
 
-            <CheckInQRCodeModal :id="activityId" :isOpen="showQRCode" @close="() => {showQRCode = false}"/>
+            <EditPermModal
+                :id="activityId"
+                :isOpen="showEditPermModal"
+                @close="
+                    () => {
+                        showEditPermModal = false;
+                    }
+                "
+                @update-success="handleEditPermSuccess"
+            />
+
+            <CheckInQRCodeModal
+                :id="activityId"
+                :isOpen="showQRCode"
+                @close="
+                    () => {
+                        showQRCode = false;
+                    }
+                "
+            />
         </div>
         <CheckInModal
             v-if="isAuth && isJoined && !isHost"
             :id="activityId"
             :isOpen="showCheckInModal"
-            @close="() => {showCheckInModal = false;}"
+            @close="
+                () => {
+                    showCheckInModal = false;
+                }
+            "
             @check-in-success="handleCheckInSuccess"
         />
 
-
-        <div class="card p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6">
+        <div
+            class="card p-6 bg-base-300 border-2 border-primary shadow-md rounded-lg m-6"
+        >
             <div class="card-body p-4">
                 <h1 class="text-4xl font-bold mb-4 ml-2 multi-line">
-                    <span>  {{ activity.name }} </span>
-                    <span v-if="isJoined && isAuth && checkedIn && !isHost" class="text-xl text-primary">
+                    <span> {{ activity.name }} </span>
+                    <span
+                        v-if="isJoined && isAuth && checkedIn && !isHost"
+                        class="text-xl text-primary"
+                    >
                         ✓
                     </span>
                 </h1>
 
                 <!--Owner action set-->
                 <div v-if="isHost && isAuth" class="flex-auto">
-                    <button @click="() => {showEditModal = true;}" class="btn btn-ghost text-accent ml-2 mr-2">Edit</button>
-
-                    <button @click="() => {showCheckInCode = true}" class="btn btn-ghost text-accent ml-2 mr-2">
+                    <button
+                        @click="
+                            () => {
+                                showEditModal = true;
+                            }
+                        "
+                        class="btn btn-ghost text-accent ml-2 mr-2"
+                    >
+                        Edit
+                    </button>
+                    <button
+                        v-if="isOwner"
+                        @click="
+                            () => {
+                                showEditPermModal = true;
+                            }
+                        "
+                        class="btn btn-ghost text-accent mx-2"
+                    >
+                        Manage participants
+                    </button>
+                    <button
+                        v-if="activity.check_in_allowed"
+                        @click="
+                            () => {
+                                showCheckInCode = true;
+                            }
+                        "
+                        class="btn btn-ghost text-accent ml-2 mr-2"
+                    >
                         Show Check-In Code
                     </button>
 
-                    <button v-if="activity.check_in_allowed" @click="() => {showQRCode = true}" class="btn btn-ghost text-accent ml-2 mr-2">
+                    <button
+                        v-if="activity.check_in_allowed"
+                        @click="
+                            () => {
+                                showQRCode = true;
+                            }
+                        "
+                        class="btn btn-ghost text-accent ml-2 mr-2"
+                    >
                         QR Code
                     </button>
 
-                    <button v-else @click="allowCheckIn" class="btn btn-ghost text-accent ml-2 mr-2">
+                    <button
+                        v-else
+                        @click="allowCheckIn"
+                        class="btn btn-ghost text-accent ml-2 mr-2"
+                    >
                         Allow Check-in
                     </button>
                 </div>
 
-                <p class="mb-2 ml-3 overflow-hidden multi-line">{{ activity.detail }}</p>
-                <p class="mb-2 ml-3"><strong>Date and Time:</strong> {{ formatTimestamp(activity.date) }}</p>
-
-                <div v-if="imageUrls.length > 0" class="flex flex-col justify-center">
-                    <span class="text-base-content text-lg ml-3 mb-2">Preview Images</span>
-                    <ImageCarousel ref="imageCarousel" carouselName="detail-carousel" :images="imagesUrl" />
+                <div
+                    v-if="imageUrls.length > 0"
+                    class="flex flex-col justify-center"
+                >
+                    <span class="text-base-content text-lg ml-3 mb-2"
+                        >Images</span
+                    >
+                    <ImageCarousel
+                        ref="imageCarousel"
+                        carouselName="detail-carousel"
+                        :images="imagesUrl"
+                    />
                 </div>
 
-                <p v-if="activity.max_people != null" class="mb-2 ml-3"><strong>Max People:</strong> {{ activity.max_people }}</p>
+                <div class="mb-2 ml-3 overflow-hidden multi-line" v-html="markdownFormatter(activity.detail)"></div>
+                
+                <div class="ml-3" v-if="activity.on_site">
+                    <strong class="text-base-content text-lg mt-2 mb-4">Location</strong>
+                    <div v-if="showMap">
+                        <MapComponent :latitude="activity.location.lat" :longitude="activity.location.lon" class="h-[30vh] w-[100%] ml-2 rounded-lg overflow-hidden"/>
+                    </div>
+                    <div v-else class="skeleton h-[30vh] w-[100%] ml-2 rounded-lg overflow-hidden"></div>
+
+                </div>
+                
+
+                <p class="mb-2 ml-3">
+                    <strong class="text-base-content text-lg"
+                        >Start Date and Time:</strong
+                    >
+                    {{ formatTimestamp(activity.date) }}
+                </p>
+                <p class="mb-2 ml-3">
+                    <strong class="text-base-content text-lg"
+                        >End Registration Date:</strong
+                    >
+                    {{ formatTimestamp(activity.end_registration_date) }}
+                </p>
+                <p class="mb-2 ml-3">
+                    <strong class="text-base-content text-lg"
+                        >End Date and Time:</strong
+                    >
+                    {{ formatTimestamp(activity.end_date) }}
+                </p>
+
+                <p v-if="activity.max_people != null" class="mb-2 ml-3">
+                    <strong>Max People:</strong> {{ activity.max_people }}
+                </p>
+                <p v-if="activity.minimum_reputation_score != null" class="mb-2 ml-3">
+                    <strong>Required Level: {{ minRepLv }}</strong> 
+                </p>
                 <p class="mb-2 ml-3"><strong>Joined People:</strong></p>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 ml-3">
                     <div
                         v-for="participant in people"
-                        :key="participant.id"
+                        :key="participant.user.id"
                         class="card bg-base-100 shadow-lg p-4 rounded-lg border-primary hover:border-2 cursor-pointer transition-all duration-75 ease-in-out"
-                        @click="$router.push('/profile/'+ participant.username)"
+                        @click="
+                            $router.push('/profile/' + participant.user.username)
+                        "
                     >
                         <div class="flex items-center space-x-4">
                             <div class="indicator">
                                 <img
-                                    v-lazy="participant.profile_picture_url"
+                                    v-lazy="participant.user.user_profile.profile_picture_url"
                                     alt="Profile Picture"
                                     class="w-12 h-12 rounded-full"
                                     @error="handleImageError"
                                 />
                                 <p
-                                    v-if="hosts.includes(participant.id)"
+                                    v-if="hosts.includes(participant.user.id)"
                                     class="indicator-item indicator-bottom indicator-center badge badge-secondary"
                                 >
                                     Host
                                 </p>
                             </div>
                             <p class="font-medium">
-                                {{ participant.first_name }}
-                                {{ participant.last_name }}
+                                {{ participant.user.first_name }}
+                                {{ participant.user.last_name }}
                             </p>
                         </div>
                     </div>
@@ -110,8 +225,18 @@
                             Chat
                         </button>
                         <button
-                            v-if="isJoined && activity.check_in_allowed && isAuth && !checkedIn && !isHost"
-                            @click="() => {showCheckInModal = true}"
+                            v-if="
+                                isJoined &&
+                                activity.check_in_allowed &&
+                                isAuth &&
+                                !checkedIn &&
+                                !isHost
+                            "
+                            @click="
+                                () => {
+                                    showCheckInModal = true;
+                                }
+                            "
                             class="btn btn-secondary mx-4"
                         >
                             Check-In
@@ -126,7 +251,10 @@
                     </div>
                     <div v-else>
                         <button
-                            v-if="canJoin"
+                            v-if="
+                                !activity.is_full &&
+                                activity.is_active
+                            "
                             id="join-button"
                             @click="joinActivity"
                             class="btn btn-primary ml-2 mr-2"
@@ -148,63 +276,84 @@
     </div>
 </template>
 
-
 <script setup>
-import { ref, watch, onMounted, computed } from "vue";
-import { format } from "date-fns";
-import { addAlert } from "@/functions/AlertManager";
-import apiClient from "@/api";
+import { ref, watch, onMounted, computed } from 'vue';
+import { format } from 'date-fns';
+import { addAlert } from '@/functions/AlertManager';
+import apiClient from '@/api';
 import {
     createDeleteRequest,
     createPostRequest,
-    createPutRequest
-} from "@/functions/HttpRequest.js";
-import { isAuth, login, userId } from "@/functions/Authentications";
-import EditModal from "@/component/EditModal.vue";
-import ImageCarousel from "@/component/ImageCarousel";
-import CheckInCodeModal from "@/component/CheckInCodeModal.vue";
-import CheckInModal from "@/component/CheckInModal.vue";
-import CheckInQRCodeModal from "@/component/CheckInQRCodeModal.vue";
-import { useRoute, useRouter } from "vue-router";
+    createPutRequest,
+} from '@/functions/HttpRequest.js';
+import { isAuth, login, userId } from '@/functions/Authentications';
+import EditModal from '@/component/EditModal.vue';
+import EditPermModal from '@/component/EditPermModal.vue';
+import ImageCarousel from '@/component/ImageCarousel';
+import CheckInCodeModal from '@/component/CheckInCodeModal.vue';
+import CheckInModal from '@/component/CheckInModal.vue';
+import CheckInQRCodeModal from '@/component/CheckInQRCodeModal.vue';
+import { useRoute, useRouter } from 'vue-router';
+import { markdownFormatter } from '@/functions/Utils';
+import MapComponent from '@/component/MapComponent.vue';
 
 const BASE_URL = (() => {
-    let url = process.env.VUE_APP_BASE_URL
-    if (url.endsWith("/")) {
+    let url = process.env.VUE_APP_BASE_URL;
+    if (url.endsWith('/')) {
         url = url.slice(0, -1);
     }
     return url;
-})()
+})();
 
 const router = useRouter();
 const route = useRoute();
 
-const activityId = ref(0)
+const activityId = ref(0);
 const activity = ref({});
 const imageUrls = ref([]);
 const showEditModal = ref(false);
+const showEditPermModal = ref(false);
 const showCheckInCode = ref(false);
 const showCheckInModal = ref(false);
 const showQRCode = ref(false);
 const people = ref([]);
 const checkedIn = ref(false);
-const canJoin = ref(true);
 const hosts = ref([]);
+const owner = ref(0);
+const minRepLv = ref(0);
+
+const showMap = computed(() => {
+    return !showEditModal.value &&
+            !showCheckInCode.value &&
+            !showQRCode.value &&
+            !showCheckInModal.value &&
+            !showEditPermModal.value
+})
 
 const fetchDetail = async () => {
     try {
         const response = await apiClient.get(`/activities/${activityId.value}`);
+        const people_res = await apiClient.get(`/activities/participant/${activityId.value}/`);
         activity.value = response.data;
-        people.value = activity.value.participant;
-        imageUrls.value = activity.value.images.map(image => ({
+        // TEST DATA REMOVE AFTER API IS SENDING THE LOCATION DATA.
+        activity.value['on_site'] = true; 
+        activity.value['location'] = {
+            lat: 13.84979,
+            lon: 100.56836
+        }
+        //////////////////////////////////////////////////////////
+        people.value = people_res.data.results;
+        imageUrls.value = activity.value.images.map((image) => ({
             id: image.id,
-            url: `${BASE_URL}${image.url}`
+            url: `${BASE_URL}${image.url}`,
         }));
-        canJoin.value = activity.value.can_join;
         hosts.value = response.data.host;
+        owner.value = response.data.owner;
+        minRepLv.value = Math.floor(response.data.minimum_reputation_score / 10)
         checkCheckedIn();
     } catch (error) {
-        console.error("Error fetching activity:", error);
-        addAlert("warning", "Activity already started or No such activity.");
+        console.error('Error fetching activity:', error);
+        addAlert('warning', 'Activity already started or No such activity.');
     }
 };
 
@@ -217,16 +366,16 @@ async function allowCheckIn() {
             `/activities/check-in/${activityId.value}/?status=open`,
             {}
         );
-        addAlert("success", response.data.message);
+        addAlert('success', response.data.message);
         showCheckInCode.value = true;
     } catch (error) {
         if (error.response && error.response.data) {
-            addAlert("error", error.response.data.message); // Show error message from backend
+            addAlert('error', error.response.data.message); // Show error message from backend
         } else {
-            console.error(error)
+            console.error(error);
             addAlert(
-                "error",
-                "An unexpected error occurred. Please try again later."
+                'error',
+                'An unexpected error occurred. Please try again later.'
             );
         }
     }
@@ -234,7 +383,9 @@ async function allowCheckIn() {
 
 const checkCheckedIn = () => {
     if (isAuth && isJoined.value) {
-        const user = people.value.find(participant => participant.id === userId.value);
+        const user = people.value.find(
+            (participant) => participant.id === userId.value
+        );
         checkedIn.value = user ? user.checked_in : false;
     } else {
         checkedIn.value = false;
@@ -242,12 +393,19 @@ const checkCheckedIn = () => {
 };
 
 const formatTimestamp = (timestamp) => {
-    return timestamp ? format(new Date(timestamp), "EEE, MMM/dd/yyyy, hh:mm a") : "No date provided";
+    return timestamp
+        ? format(new Date(timestamp), 'EEE, MMM/dd/yyyy, hh:mm a')
+        : 'No date provided';
 };
 
 const handleEditSuccess = async () => {
     await fetchDetail();
     closeEditModal();
+};
+
+const handleEditPermSuccess = async () => {
+    await fetchDetail();
+    closeEditPermModal();
 };
 
 const handleCheckInSuccess = async () => {
@@ -257,17 +415,21 @@ const handleCheckInSuccess = async () => {
 
 const closeEditModal = () => {
     showEditModal.value = false;
-}; true;
+};
+true;
 
+const closeEditPermModal = () => {
+    showEditPermModal.value = false;
+};
+true;
 
 const closeCheckInCodeModal = (allowed) => {
-    activity.value.check_in_allowed = allowed
+    activity.value.check_in_allowed = allowed;
     showCheckInCode.value = false;
 };
 
-
 const goBack = () => {
-    router.push("/");
+    router.push('/');
 };
 
 const goToChat = () => {
@@ -276,21 +438,34 @@ const goToChat = () => {
 
 const joinActivity = async () => {
     try {
-        const response = await createPostRequest(`/activities/join/${activityId.value}/`, {});
-        addAlert("success", response.data.message);
+        const response = await createPostRequest(
+            `/activities/join/${activityId.value}/`,
+            {}
+        );
+        addAlert('success', response.data.message);
         await fetchDetail();
     } catch (error) {
-        addAlert("error", error.response?.data?.message || "An unexpected error occurred. Please try again later.");
+        addAlert(
+            'error',
+            error.response?.data?.message ||
+                'An unexpected error occurred. Please try again later.'
+        );
     }
 };
 
 const leaveActivity = async () => {
     try {
-        const response = await createDeleteRequest(`/activities/join/${activityId.value}/`);
-        addAlert("success", response.data.message);
+        const response = await createDeleteRequest(
+            `/activities/join/${activityId.value}/`
+        );
+        addAlert('success', response.data.message);
         await fetchDetail();
     } catch (error) {
-        addAlert("error", error.response?.data?.message || "An unexpected error occurred. Please try again later.");
+        addAlert(
+            'error',
+            error.response?.data?.message ||
+                'An unexpected error occurred. Please try again later.'
+        );
     }
 };
 
@@ -299,29 +474,37 @@ const isHost = computed(() => {
     return isAuth && hosts.value.includes(userId.value);
 });
 
+const isOwner = computed(() => {
+    return userId.value === owner.value;
+});
+
 const isJoined = computed(() => {
-    return isAuth && people.value.some(participant => participant.id === userId.value);
+    return (
+        isAuth &&
+        people.value.some((participant) => participant.user.id === userId.value)
+    );
 });
 
 const imagesUrl = computed(() => {
-    return imageUrls.value.map(image => image.url)
-})
+    return imageUrls.value.map((image) => image.url);
+});
 
 onMounted(() => {
     activityId.value = route.params.id;
     fetchDetail();
-    watch(() => route.params.id, (newId) => {
-        activityId.value = newId;
-        fetchDetail();
-    });
-    window.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") {
+    watch(
+        () => route.params.id,
+        (newId) => {
+            activityId.value = newId;
+            fetchDetail();
+        }
+    );
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
             closeEditModal();
         }
     });
 });
-
-
 </script>
 
 <style scoped>

@@ -5,6 +5,7 @@ from django.http import HttpRequest
 from django.utils import timezone
 from rest_framework import generics, permissions, mixins, response
 from activities import models
+from activities.logger import logger, Action, RequestData, data_to_log
 from activities.serializer.permissions import OnlyHostCanEdit, OnlyHostCanGet
 from activities.serializer import model_serializers
 from . import util
@@ -16,7 +17,7 @@ class CheckInView(
 ):
     """Handle PUT req by open/close for check-in and handle POST by check user in."""
 
-    queryset = models.Activity.objects.filter(date__gte=timezone.now())
+    queryset = models.Activity.objects.filter(end_date__gte=timezone.now())
     serializer_class = model_serializers.ActivitiesSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, OnlyHostCanEdit, OnlyHostCanGet]
 
@@ -63,21 +64,25 @@ class CheckInView(
         :return: Http response object
         """
         code = request.data.get('check_in_code', 'no')
-        activity = self.get_object()
+        act = self.get_object()
 
-        if not activity.is_participated(request.user):
+        req_data = RequestData(req_user=request.user, act_id=act.id)
+
+        if not act.is_participated(request.user):
+            logger.warning(data_to_log(Action.FAIL_CHECKIN, req_data, 'Not member'))
             return response.Response(
                 {'message': "You're not member of this activity"},
                 status=403
             )
 
-        if not activity.check_in_allowed:
+        if not act.check_in_allowed:
             return response.Response(
                 {'message': 'Check-in are not allow at the moment'},
                 status=403
             )
 
-        if not activity.verified_check_in_code(code):
+        if not act.verified_check_in_code(code):
+            logger.warning(data_to_log(Action.FAIL_CHECKIN, req_data, 'Invalid code'))
             return response.Response(
                 {'message': 'Check-in code invalid'},
                 status=403
@@ -87,6 +92,10 @@ class CheckInView(
         attend.checked_in = True
         attend.save()
 
+        user_profile = request.user.profile_set.first()
+        user_profile.increase_reputation()
+
+        logger.info(data_to_log(Action.CHECKIN, req_data))
         return response.Response(
             {'message': f"You've successfully check-in to {activity.name}"}
         )
@@ -97,17 +106,26 @@ class CheckInView(
         :param request: Http request object
         :return: Http response object
         """
-        request.data.update(
-            {
-                'check_in_allowed': True,
-                'check_in_code': util.get_checkin_code()
-            }
-        )
-        super().update(request, partial=True, *args, **kwargs)
-        return response.Response({
-            'message': 'Activity check-in are open',
-            'check_in_code': request.data.get('check_in_code')
-        })
+        act = self.get_object()
+        req_data = RequestData(req_user=request.user, act_id=act.id)
+        if act.is_checkin_period():
+            request.data.update(
+                {
+                    'check_in_allowed': True,
+                    'check_in_code': util.get_checkin_code()
+                }
+            )
+            super().update(request, partial=True, *args, **kwargs)
+
+            logger.info(data_to_log(Action.OPEN_CHECKIN, req_data))
+            return response.Response({
+                'message': 'Activity check-in are open',
+                'check_in_code': request.data.get('check_in_code')
+            })
+
+        logger.warning(data_to_log(Action.FAIL_OPEN_CHECKIN, req_data, 'Not in Check-in period'))
+        return response.Response({'message': 'Check-in period is in between Start date and End date of the activity.'},
+                                 status=403)
 
     def close_check_in(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
         """Close for check-in.
@@ -115,14 +133,17 @@ class CheckInView(
         :param request: Http request object
         :return: Http response object
         """
+        act = self.get_object()
         request.data['check_in_allowed'] = False
         super().update(request, partial=True, *args, **kwargs)
+        req_data = RequestData(req_user=request.user, act_id=act.id)
+        logger.info(data_to_log(Action.CLOSE_CHECKIN, req_data))
         return response.Response({
             'message': 'Activity check-in are close'
         })
 
     def invalid_status(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
-        """Return error message when query param is invalid..
+        """Return error message when query param is invalid.
 
         :param request: Http request object
         :return: Http response object

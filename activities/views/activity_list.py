@@ -6,8 +6,9 @@ from typing import Any
 from django.http import HttpRequest
 from django.utils import timezone, dateparse
 from django.db.models import Q, QuerySet
-from rest_framework import generics, permissions, mixins, response
+from rest_framework import generics, permissions, mixins, response, status
 from activities import models
+from activities.logger import logger, Action, RequestData, data_to_log
 from channels import layers
 from asgiref import sync
 
@@ -21,7 +22,7 @@ class ActivityList(
 ):
     """Return list of available upcoming activity when GET request and create new activity when POST request."""
 
-    queryset = models.Activity.objects.filter(date__gte=timezone.now()).order_by("date")
+    queryset = models.Activity.objects.filter(end_registration_date__gte=timezone.now()).order_by("date")
     serializer_class = model_serializers.ActivitiesSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
@@ -61,38 +62,82 @@ class ActivityList(
         :param request: Http request object
         :return: Http response object
         """
-        image_urls = request.data.pop('images', [])
         res = self.create(request, *args, **kwargs)
 
-        res_dict = res.data
+        if res.status_code != status.HTTP_201_CREATED:
+            return res
 
+        res_dict = res.data
         new_act = models.Activity.objects.get(pk=res_dict.get("id"))
 
-        if image_urls:
-            if any("base64" in attachment for attachment in image_urls):
-                image_loader_64(image_urls, new_act)
-            else:
-                image_loader(image_urls, new_act)
+        self.__load_image(request, new_act)
+        self.__add_host(request, new_act)
+        self.__send_message_to_websocket(new_act)
 
-        request.user.attend_set.create(
-            activity=new_act,
-            is_host=True,
-            checked_in=True
-        )
-
-        # Send message to websocket
-        layer = layers.get_channel_layer()
-        sync.async_to_sync(layer.group_send)(
-            'activity_index', {
-                'type': "new_act",
-                'activity_id': new_act.id,
-            }
-        )
+        req_data = RequestData(req_user=request.user, act_id=new_act.id)
+        logger.info(data_to_log(Action.CREATE, req_data))
 
         return response.Response(
             {
                 "message": f"Your have successfully create activity {res_dict.get('name')}",
                 "id": res_dict.get("id")
+            }
+        )
+
+    def create(self, request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
+        """Create activity instance.
+
+        :param request: Http request object
+        :return: Http response object
+        """
+        user_profile = request.user.profile_set.first()
+        req_data = RequestData(req_user=request.user, act_id=-1)
+
+        if not user_profile:
+            logger.warning(data_to_log(Action.FAIL_CREATE, req_data, 'No profile'))
+            return response.Response(
+                {
+                    'message': 'User must have profile page before create an activity',
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        if user_profile.reputation_score < request.data.get('minimum_reputation_score', 0):
+            logger.warning(data_to_log(Action.FAIL_CREATE, req_data, 'Owner rep < Min rep'))
+            return response.Response(
+                {
+                    'message': 'Activity Minimum reputation must less then or equal to creator reputation score'
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        request.data["owner"] = request.user.id
+        return super().create(request, *args, **kwargs)
+
+    def __load_image(self, request: HttpRequest, activity: models.Activity) -> None:
+        """Load activity attachment."""
+        image_urls = request.data.pop('images', [])
+        if image_urls:
+            if any("base64" in attachment for attachment in image_urls):
+                image_loader_64(image_urls, activity)
+            else:
+                image_loader(image_urls, activity)
+
+    def __add_host(self, request: HttpRequest, activity: models.Activity) -> None:
+        """Add creator as a activity host."""
+        request.user.attend_set.create(
+            activity=activity,
+            is_host=True,
+            checked_in=True
+        )
+
+    def __send_message_to_websocket(self, activity: models.Activity) -> None:
+        """Send message to websocket."""
+        layer = layers.get_channel_layer()
+        sync.async_to_sync(layer.group_send)(
+            'activity_index', {
+                'type': "new_act",
+                'activity_id': activity.id,
             }
         )
 

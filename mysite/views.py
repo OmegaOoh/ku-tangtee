@@ -3,6 +3,7 @@ from django.http import HttpRequest
 from django.contrib.auth.models import User
 from allauth.socialaccount.models import SocialAccount
 from rest_framework import decorators, response
+from auth.serializer import UserSerializer
 
 
 @decorators.api_view(["GET"])
@@ -30,6 +31,10 @@ def get_user_data(request: HttpRequest, user_id: int) -> response.Response:  # p
     :return: Response object contain single user data or error message.
     """
     user = User.objects.get(id=user_id)
+    data = {
+        'user': UserSerializer(user).data
+    }
+    return response.Response(data)
     try:
         social_account = SocialAccount.objects.get(user=user)
         profile_picture_url = social_account.extra_data.get('picture', '')

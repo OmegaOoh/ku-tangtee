@@ -1,6 +1,8 @@
 """Django settings for mysite project."""
 
 import os
+import sys
+import logging
 from pathlib import Path
 from decouple import config
 
@@ -132,6 +134,45 @@ AUTHENTICATION_BACKENDS = (
     "allauth.account.auth_backends.AuthenticationBackend"
 )
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '%(asctime)s %(name)s [%(levelname)s] %(message)s',
+            'datefmt': '%d/%m/%Y %H:%M:%S',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'file-activities': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'activities.log',
+            'formatter': 'simple',
+        },
+        'file-profiles': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'profiles.log',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'activities': {
+            'level': "DEBUG",
+            'handlers': ['file-activities'],
+        },
+        'profiles': {
+            'level': "DEBUG",
+            'handlers': ['file-profiles'],
+        },
+    },
+}
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -189,7 +230,9 @@ REST_FRAMEWORK = {
         'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
     ),
     'DATETIME_FORMAT': "%Y-%m-%dT%H:%M:%S.%fZ", 
-    'EXCEPTION_HANDLER': 'mysite.exc_handler.custom_exception_handler'
+    'EXCEPTION_HANDLER': 'mysite.exc_handler.custom_exception_handler',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20
 }
 
 REST_AUTH = {

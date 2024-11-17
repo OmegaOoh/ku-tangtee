@@ -10,14 +10,20 @@ from activities import models
 from django.contrib.auth.models import User
 from django import urls
 from activities.serializer.model_serializers import ActivitiesSerializer
+from profiles.tests.shortcuts import create_profile
 
 
-def create_test_user(username: str = "test_user") -> User:
+def create_test_user(username: str = "test_user", with_profile=True, rep_score=0) -> User:
     """Return a test user."""
-    return User.objects.create_user(
+    new_user = User.objects.create_user(
         username=username,
-        password="password"
+        password="password",
     )
+
+    if with_profile:
+        create_profile(user=new_user, rep_score=rep_score)
+
+    return new_user
 
 
 def create_activity(
@@ -29,10 +35,17 @@ def create_activity(
     """Return response and created activity with given parameters."""
     if not host:
         host = create_test_user("host")
+    new_date = (timezone.now() + timezone.timedelta(days=days_delta)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    data_with_date = data.copy()
+    if "date" not in data_with_date:
+        data_with_date["date"] = new_date
 
-    data_with_date = data | {
-        "date": (timezone.now() + timezone.timedelta(days=days_delta)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-    }
+    if "end_date" not in data_with_date:
+        data_with_date["end_date"] = new_date
+
+    if "end_registration_date" not in data_with_date:
+        data_with_date["end_registration_date"] = new_date
+
     client.force_login(host)
     url = urls.reverse("activities:index")
     res = post_request_json_data(url, client, data_with_date)

@@ -1,4 +1,5 @@
 """Test module for chat view."""
+import json
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -14,8 +15,8 @@ class ChatMessageListTest(APITestCase):
 
     def setUp(self):
         """Create user, login user, create activity and create message."""
-        self.activity = Activity.objects.create(name="Test Activity")
         self.user = User.objects.create_user(username="testuser", password="testpass")
+        self.activity = Activity.objects.create(owner=self.user, name="Test Activity")
         self.client.login(username="testuser", password="testpass")
         self.message1 = Message.objects.create(
             activity=self.activity,
@@ -36,9 +37,9 @@ class ChatMessageListTest(APITestCase):
         # Check that the response status is 200 OK
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Check that the response data matches the messages created
-        self.assertEqual(len(response.data), 2)
-        self.assertEqual(response.data[0]['message'], self.message1.message)
-        self.assertEqual(response.data[1]['message'], self.message2.message)
+        self.assertEqual(len(response.data['results']), 2)
+        self.assertEqual(response.data['results'][0]['message'], self.message1.message)
+        self.assertEqual(response.data['results'][1]['message'], self.message2.message)
 
     def test_get_chat_messages_empty(self):
         """Test retrieval when there are no messages for the activity."""
@@ -49,7 +50,7 @@ class ChatMessageListTest(APITestCase):
         # Check that the response status is 200 OK
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Check that the response data is empty
-        self.assertEqual(response.data, [])
+        self.assertEqual(response.data['results'], [])
 
     def test_get_image_from_message(self):
         """Test getting image that comes along with message."""
@@ -66,9 +67,9 @@ class ChatMessageListTest(APITestCase):
 
         # Check that the response status is 200 OK
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data[0]['message'], self.message1.message)
-        self.assertEqual(response.data[1]['message'], self.message2.message)
-        self.assertEqual(response.data[2]['message'], message3.message)
-        self.assertEqual(response.data[2]['images'][0], chat_img_url)
+        self.assertEqual(response.data['results'][0]['message'], self.message1.message)
+        self.assertEqual(response.data['results'][1]['message'], self.message2.message)
+        self.assertEqual(response.data['results'][2]['message'], message3.message)
+        self.assertEqual(response.data['results'][2]['images'][0], chat_img_url)
         chat_img.image.delete(save=False)
         chat_img.delete()
