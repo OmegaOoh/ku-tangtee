@@ -133,13 +133,3 @@
     ```
     SITE_ID = 4 // According to previous step SITE_ID is 4
     ```
-
-## Test Google login
-
-1. Go to 'http://127.0.0.1:8000/accounts/google/login/' and click continue it's should lead you to google login. You must login with KU account.
-2. After login complete, it's should show `{"is_authen": true}` after redirect.
-
-## Test Logout
-
-1. Go to 'http://127.0.0.1:8000/accounts/logout/' and click continue.
-2. After login complete, it's should show `{"is_authen": false}` after redirect.
