@@ -1,6 +1,7 @@
 """Database Model for profile app."""
 from typing import Any
 from django.db import models
+from django.db.models import Q
 from activities.models import Activity, Attend
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
@@ -87,7 +88,7 @@ class Profile(models.Model):
         Also decrease hosts reputation when the activity is cancelled.
         """
         now = timezone.now()
-        activities = Activity.objects.filter(end_date__lt=now)
+        activities = Activity.objects.filter(Q(end_date__lt=now) | Q(is_cancelled=True))
 
         for activity in activities:
             attendees = activity.attend_set.filter(is_host=False)
