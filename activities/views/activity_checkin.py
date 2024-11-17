@@ -42,8 +42,6 @@ class CheckInView(
                 {'message': 'Check-in are not allow at the moment'},
                 status=403
             )
-            
-        print(activity.check_in_code)
 
         return response.Response(
             {

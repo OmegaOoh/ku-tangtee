@@ -36,21 +36,28 @@ class CheckinTest(django.test.TestCase):
         """Host should able to open for participant to check-in."""
         self.client.force_login(self.host)
         res = self.client.put(self.url(self.activity.id) + '?status=open')
-        res_dict = json.loads(res.content)
 
-        self.assertEqual(res_dict['message'], 'Activity check-in are open')
-        self.assertRegex(res_dict['check_in_code'], r'^[A-Z]{6}$')
+        self.assertJSONEqual(res.content, {
+            'message': 'Activity check-in are open',
+            "check_in_allowed": True
+        })
 
         self.activity.refresh_from_db()
-
         self.assertTrue(self.activity.check_in_allowed)
-        self.assertEqual(self.activity.check_in_code, res_dict['check_in_code'])
+        self.assertRegex(self.activity.check_in_code, r'^[A-Z]{6}$')
+        
+        code_res = self.client.get(self.url(self.activity.id))
+        self.assertEqual(self.activity.check_in_code, code_res.data['check_in_code'])
+        self.assertTrue(self.activity.check_in_allowed)
 
     def test_host_can_close_check_in(self):
         """Host shoud able to close for participant to check-in."""
         self.client.force_login(self.host)
         res = self.client.put(self.url(self.activity.id) + '?status=close')
-        self.assertJSONEqual(res.content, {'message': 'Activity check-in are close'})
+        self.assertJSONEqual(res.content, {
+            'message': 'Activity check-in are close',
+            "check_in_allowed": False
+        })
 
         self.activity.refresh_from_db()
 
@@ -81,16 +88,40 @@ class CheckinTest(django.test.TestCase):
         res = self.client.put(self.url(self.activity.id) + '?status=open')
         res_dict = json.loads(res.content)
 
-        self.assertEqual(res_dict['message'], 'Activity check-in are open')
-        self.assertRegex(res_dict['check_in_code'], r'^[A-Z]{6}$')
+        self.assertJSONEqual(res.content, {
+            'message': 'Activity check-in are open',
+            "check_in_allowed": True
+        })
+
         self.activity.refresh_from_db()
+
+        self.assertRegex(self.activity.check_in_code, r'^[A-Z]{6}$')
         self.assertTrue(self.activity.check_in_allowed)
-        self.assertEqual(self.activity.check_in_code, res_dict['check_in_code'])
+        
+        code_res = self.client.get(self.url(self.activity.id))
+        self.assertJSONEqual(
+            code_res.content,
+            {
+                'check_in_code': self.activity.check_in_code,
+                'check_in_allowed': True
+            }
+        )
 
         res = self.client.put(self.url(self.activity.id) + '?status=close')
-        self.assertJSONEqual(res.content, {'message': 'Activity check-in are close'})
+        self.assertJSONEqual(res.content, {
+            'message': 'Activity check-in are close',
+            'check_in_allowed': True
+        })
         self.activity.refresh_from_db()
         self.assertFalse(self.activity.check_in_allowed)
+        
+        code_res = self.client.get(self.url(self.activity.id))
+        self.assertJSONEqual(
+            code_res.content,
+            {
+                'message': 'Check-in are not allow at the moment'
+            }
+        )
 
     def test_logout_check_in(self):
         """Unauthenticated user should able to check-in."""
@@ -108,7 +139,7 @@ class CheckinTest(django.test.TestCase):
                 'check_in_code': self.activity.check_in_code
             }
         )
-        self.assertJSONEqual(res.content, {'message': "You're not member of this activity"})
+        self.assertJSONEqual(res.content, {'message': "You must be member of this activity before perform this action."})
 
     def test_check_in_close(self):
         """User should unavailable to check-in when host is close the check-in."""
@@ -183,7 +214,10 @@ class CheckinTest(django.test.TestCase):
 
         res = self.client.get(self.url(self.activity.id))
         self.assertEqual(res.status_code, 200)
-        self.assertJSONEqual(res.content, {"check_in_code": self.activity.check_in_code})
+        self.assertJSONEqual(res.content, {
+            "check_in_code": self.activity.check_in_code,
+            "check_in_allowed": True
+        })
 
     def test_host_get_check_in_code_while_close(self):
         """GET check-in code should return NULL when activity are not allow to checked in."""
