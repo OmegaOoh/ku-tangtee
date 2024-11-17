@@ -6,7 +6,7 @@ from django.utils import timezone
 from rest_framework import generics, permissions, mixins, response
 from activities import models
 from activities.logger import logger, Action, RequestData, data_to_log
-from activities.serializer.permissions import OnlyHostCanEdit, OnlyHostCanGet
+from activities.serializer.permissions import OnlyHostCanEdit, OnlyHostCanGet, MustBeMember
 from activities.serializer import model_serializers
 from . import util
 
@@ -19,7 +19,7 @@ class CheckInView(
 
     queryset = models.Activity.objects.filter(end_date__gte=timezone.now())
     serializer_class = model_serializers.ActivitiesSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, OnlyHostCanEdit, OnlyHostCanGet]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, OnlyHostCanEdit, OnlyHostCanGet, MustBeMember]
 
     def __init__(self, **kwargs: Any) -> None:
         """Set up function for handling open/close checkin."""
@@ -64,24 +64,17 @@ class CheckInView(
         :return: Http response object
         """
         code = request.data.get('check_in_code', 'no')
-        act = self.get_object()
+        activity = self.get_object()
 
-        req_data = RequestData(req_user=request.user, act_id=act.id)
+        req_data = RequestData(req_user=request.user, act_id=activity.id)
 
-        if not act.is_participated(request.user):
-            logger.warning(data_to_log(Action.FAIL_CHECKIN, req_data, 'Not member'))
-            return response.Response(
-                {'message': "You're not member of this activity"},
-                status=403
-            )
-
-        if not act.check_in_allowed:
+        if not activity.check_in_allowed:
             return response.Response(
                 {'message': 'Check-in are not allow at the moment'},
                 status=403
             )
 
-        if not act.verified_check_in_code(code):
+        if not activity.verified_check_in_code(code):
             logger.warning(data_to_log(Action.FAIL_CHECKIN, req_data, 'Invalid code'))
             return response.Response(
                 {'message': 'Check-in code invalid'},
