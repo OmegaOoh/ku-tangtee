@@ -39,7 +39,9 @@ class Profile(models.Model):
         """
         # Filter only activity that still active and user is not a host.
         return int(self.user.attend_set.filter(
-            activity__date__gte=timezone.now(),
+            activity__end_date__gte=timezone.now(),
+            activity__is_cancelled=False,
+            checked_in=False,
             is_host=False
         ).count())
 
