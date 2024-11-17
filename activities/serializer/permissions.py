@@ -42,7 +42,7 @@ class OnlyHostCanGet(permissions.BasePermission):
             return True
 
         # Edit permissions are only allowed to the host.
-        return request.user == obj.host()
+        return request.user in obj.host()
 
 
 class MustBeMember(permissions.BasePermission):
@@ -58,5 +58,5 @@ class MustBeMember(permissions.BasePermission):
         :param obj: Activity model object
         :return: boolean value that signify that user has permission to perform action or not.
         """
-        # Edit permissions are only allowed to activity member.
-        return obj.is_participated(request.user)
+        # Edit permissions are only allowed to activity member and host.
+        return obj.is_participated(request.user) or obj.is_hosts(request.user)
