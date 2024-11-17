@@ -16,7 +16,7 @@
                 <div v-if="removable" class="absolute indicator-item right-0">
                     <button
                         class="btn btn-circle btn-error hover:brightness-50 transition-all ease-in-out"
-                        @click="$emit('onRemove', index)"
+                        @click="emit('onRemove', index)"
                     >
                         <svg
                             class="swap-on fill-current"
@@ -68,7 +68,7 @@
 </template>
 
 <script setup>
-import { defineProps, ref } from 'vue';
+import { defineProps, defineEmits,ref } from 'vue';
 import ImagePreview from './ImagePreview.vue';
 
 const props = defineProps({
@@ -85,6 +85,8 @@ const props = defineProps({
         Required: false,
     },
 });
+
+const emit = defineEmits(['onRemove'])
 
 function scrollCarousel(index) {
     /**

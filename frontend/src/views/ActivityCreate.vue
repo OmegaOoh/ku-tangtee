@@ -1,5 +1,5 @@
 <template>
-    <div class="overflow-x-hidden">
+    <div class="h-[100vh] overflow-x-hidden">
         <div class="breadcrumbs text-lm size-fit my-6 mx-10">
             <ul>
                 <li><a @click="goBack">Home</a></li>
@@ -47,7 +47,7 @@
                         :images="images"
                         :removable="true"
                         carouselName="create-activity-carousel"
-                        @onRemove="(index) => images.splice(index, 1)"
+                        @onRemove="handleRemove"
                     />
                 </div>
 
@@ -55,6 +55,7 @@
                     <label class="btn btn-primary">
                         Add Image
                         <input
+                            ref="fileUpload"
                             type="file"
                             multiple
                             id="file-add"
@@ -95,7 +96,7 @@
                     <strong class="text-lg">Location</strong>
                     <div class="flex justify-center rounded-lg overflow-hidden">
                         <PickerMapComponent 
-                            class="w-[100%] h-[50vh] text-black"
+                            class="w-[100%] h-[50vh] text-black z-0"
                             @markerPlaced="handleMarkerPlace"
                             :latitude="latitude"
                             :longitude="longitude"
@@ -121,7 +122,9 @@
                         id="end-reg-date-field"
                         type="text"
                         placeholder="Select End Registration Date"
+                        :time-picker-inline = true
                         :min-date="new Date()"
+                        :max-date="maxDate"
                         :dark="isDarkTheme"
                     />
                 </div>
@@ -144,7 +147,9 @@
                         id="date-field"
                         type="text"
                         placeholder="Select Start Date"
+                        :time-picker-inline = true
                         :min-date="new Date()"
+                        :max-date="maxDate"
                         :dark="isDarkTheme"
                     />
                 </div>
@@ -167,7 +172,8 @@
                         id="end-date-field"
                         type="text"
                         placeholder="Select End Date"
-                        :min-date="new Date()"
+                        :time-picker-inline = true
+                        :min-date="minEndDate"
                         :dark="isDarkTheme"
                     />
                 </div>
@@ -217,7 +223,7 @@
 
 <script setup>
 import { userId } from '@/functions/Authentications';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { addAlert } from '@/functions/AlertManager';
 import { createPostRequest } from '@/functions/HttpRequest';
 import { isAuth, login } from '@/functions/Authentications';
@@ -242,6 +248,8 @@ const isDarkTheme = ref(false);
 const images = ref([]);
 const showMinRep = ref(false);
 const minRep = ref(0)
+
+const fileUpload = ref(null);
 
 const onSite = ref(true);
 const latitude = ref(null);
@@ -268,6 +276,7 @@ const validateInput = () => {
      * @return input validity in boolean
      */
     var result = true;
+
     const nameField = document.getElementById('name-field');
     const nameFieldError = document.getElementById('name-field-error');
     if (activityName.value.length <= 0) {
@@ -281,6 +290,7 @@ const validateInput = () => {
         if (!nameField.classList.contains('textarea-primary'))
             nameField.classList.add('textarea-primary');
     }
+
     const detailField = document.getElementById('detail-field');
     const detailFieldError = document.getElementById('detail-field-error');
     if (activityDetail.value.length <= 0) {
@@ -295,34 +305,39 @@ const validateInput = () => {
         if (!detailField.classList.contains('textarea-primary'))
             detailField.classList.add('textarea-primary');
     }
+
     const dateFieldError = document.getElementById('date-field-error');
-    if (date.value.length <= 0) {
+    if (!date.value || date.value.length <= 0) {
         dateFieldError.removeAttribute('hidden');
         result = false;
     } else {
         dateFieldError.setAttribute('hidden', 'true');
     }
+
     const endRegDateFieldError = document.getElementById(
         'end-reg-date-field-error'
     );
-    if (endRegistrationDate.value.length <= 0) {
+    if (!endRegistrationDate.value || endRegistrationDate.value.length <= 0) {
         endRegDateFieldError.removeAttribute('hidden');
         result = false;
     } else {
         endRegDateFieldError.setAttribute('hidden', 'true');
     }
+
     const endDateFieldError = document.getElementById('end-date-field-error');
-    if (endDate.value.length <= 0) {
+    if (!endDate.value || endDate.value.length <= 0) {
         endDateFieldError.removeAttribute('hidden');
         result = false;
     } else {
         endDateFieldError.setAttribute('hidden', 'true');
     }
+
     if (maxPeople.value <= 0 && showMaxPeople.value) {
         addAlert('warning', 'Max People must be positive and not zeroes.');
         maxPeople.value = 1;
         result = false;
     }
+
     if (minRep.value < 0 || minRep.value > 10){
         addAlert('warning', 'Max People must be positive and not zeroes.');
         minRep.value = 0;
@@ -330,7 +345,7 @@ const validateInput = () => {
     }
     if (
         date.value >= endDate.value ||
-        endRegistrationDate.value >= endDate.value
+        endRegistrationDate.value > endDate.value
     ) {
         addAlert(
             'warning',
@@ -430,6 +445,19 @@ const handleFileChange = (event) => {
     });
 };
 
+const handleRemove = (index) => {
+    /*
+     * Remove image and push removed image id into array.
+     * @params {int} image that wants to be removed.
+     * Return nothing.
+     */
+    images.value.splice(index, 1);
+    if (fileUpload.value) {
+        fileUpload.value.value = ''
+    }
+
+};
+
 const handleMarkerPlace = (coords) => {
     latitude.value = coords.lat;
     longitude.value = coords.lon;
@@ -484,7 +512,6 @@ const postCreateActivity = async () => {
                 }
             }
         }
-        console.log(data);
         const response = await createPostRequest(`/activities/`, data);
         addAlert('success', response.data.message);
         router.push(`/activities/${response.data.id}`);
@@ -500,6 +527,9 @@ const postCreateActivity = async () => {
         }
     }
 };
+
+const minEndDate = computed(() => {if (date.value) return new Date(date.value); return new Date})
+const maxDate = computed(() => { if (endDate.value) return new Date(endDate.value); return null})
 
 onMounted(() => {
     isDarkTheme.value = window.matchMedia(

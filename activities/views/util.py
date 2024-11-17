@@ -18,6 +18,25 @@ CHECKIN_CODE_LEN = 6
 
 
 @decorators.api_view(['get'])
+def check_is_joined(request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
+    """Check does current user are participating activity or not.
+
+    :param request: HttpRequest object.
+    :return: Json file with a key "is-joined" and boolean value which tell does user participant in activity or not
+    """
+    if not request.user.is_authenticated:
+        return response.Response(
+            {'is_joined': False}
+        )
+
+    activity = get_object_or_404(models.Activity, id=kwargs.get('id'))
+
+    return response.Response(
+        {'is_joined': activity.is_participated(request.user)}
+    )
+
+
+@decorators.api_view(['get'])
 def csrf_token_view(request: HttpRequest) -> response.Response:  # pragma: no cover
     """Return csrf token."""
     csrf_token = get_token(request)
