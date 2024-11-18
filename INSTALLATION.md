@@ -1,51 +1,69 @@
 # Installation Guide
 
-Download the code to a local directory.    
-(One possible method is using ```git clone https://github.com/OmegaOoh/ku-tangtee.git```).  
-       
-Once done, do the following in the directory where you placed the project files. (Initially, "ku-tangtee")
-1. Create python virtual environment
+Follow these steps to set up **KU TangTee** project on your local machine.
+
+### 1. Download the Code 
+    
+Clone the repository to your local directory using Git:
 
    ```bash
-   python -m venv .venv
+   git clone https://github.com/OmegaOoh/ku-tangtee.git
    ```
 
-2. Install python package
+### 2. Set Up a Python Virtual Environment
+Navigate to the project directory:
 
-   For macOS run these command before follow below instruction
+```bash
+cd frontend
+```
+Create a Python virtual environment:
+```bash
+python -m venv .venv
+```
+### 3. Install Required Python Packages
 
-   Install [brew](https://brew.sh) then
+   **macOS**
+
+Before proceeding, install [Homebrew](https://brew.sh) if you haven't already, then run:
+
 
    ```bash
    brew install mysql-client pkg-config
    ```
 
-   For window / Linux user run just this command
+   **Windows/Linux**
+
+Run the following command to install the required packages:
 
    ```bash
    pip install -r requirements.txt
    ```
 
-3. [Install](https://nodejs.org/en/download/package-manager) node.js (May have to restart your device afterward)
+### 4. Install Node.js
+Download and install Node.js from the [Node.js website](https://nodejs.org/en/download/package-manager). You may need to restart your device afterward.
 
-4. Get into frontend directory (`\ku-tangtee\frontend`)
+### 5. Set Up Frontend Variables
+Navigate to the Frontend Directory (`\ku-tangtee\frontend`):
 
    ```bash
    cd frontend
    ```
+Then, follow the instructions in the [setup variable guide](./frontend/README.md#setup-variable).
 
-5. [Setup](./frontend/README.md#setup-variable) frontend variable
+### 6. Install & Set Up MySQL
+Follow the instructions in the [MySQL installation and setup guide](./database_guide.md).
 
-6. [Install & Set up](./database_guide.md) MySQL
-
-7. Navigate back to the root directory (`\ku-tangtee`)
+### 7. Migrate Django Database
+Navigate Back to the Root Directory (`\ku-tangtee`):
    ```bash
    cd ..
    ```
-8. Migrate Django database
+
+Then, run the following command to apply database migrations:
 
    ```bash
    python manage.py migrate
    ```
 
-9. [Setup](./google_credentials_guide.md) Google oauth
+### 8. Set Up Google OAuth
+Follow the instructions in the [Google credentials guide](./google_credentials_guide.md).
