@@ -1,6 +1,7 @@
 """Database Model for profile app."""
 from typing import Any
 from django.db import models
+from django.db.models import Q
 from activities.models import Activity, Attend
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
@@ -38,7 +39,9 @@ class Profile(models.Model):
         """
         # Filter only activity that still active and user is not a host.
         return int(self.user.attend_set.filter(
-            activity__date__gte=timezone.now(),
+            activity__end_date__gte=timezone.now(),
+            activity__is_cancelled=False,
+            checked_in=False,
             is_host=False
         ).count())
 
@@ -80,17 +83,31 @@ class Profile(models.Model):
 
     @classmethod
     def check_missed_check_ins(cls) -> None:
-        """Check for users who missed check-ins and decrease their reputation."""
+        """Check for check-in status for the ended activities.
+
+        Check for users who missed check-ins and decrease their reputation.
+        Check if there is at least an attendee who check-in, if not, decrease hosts reputation.
+        Also decrease hosts reputation when the activity is cancelled.
+        """
         now = timezone.now()
-        activities = Activity.objects.filter(end_date__lt=now)
+        activities = Activity.objects.filter(Q(end_date__lt=now) | Q(is_cancelled=True))
 
         for activity in activities:
             attendees = activity.attend_set.filter(is_host=False)
+            hosts = activity.attend_set.filter(is_host=True)
 
-            for attendee in attendees:
-                profile = cls.objects.get(user=attendee.user)
-                if not attendee.checked_in and not attendee.rep_decrease:
-                    profile.decrease_reputation(attendee)
+            # deduct attendee point when not check-in
+            if not activity.is_cancelled:
+                for attendee in attendees:
+                    profile = cls.objects.get(user=attendee.user)
+                    if not attendee.checked_in and not attendee.rep_decrease:
+                        profile.decrease_reputation(attendee)
+
+            # deduct host point when no attendee check-in or the activity is cancelled
+            if (attendees.filter(checked_in=True).count() <= 0 < attendees.count()) or activity.is_cancelled:
+                for host in hosts:
+                    profile = cls.objects.get(user=host.user)
+                    profile.decrease_reputation(host)
 
     @classmethod
     def has_profile(cls, user: User) -> Any:
