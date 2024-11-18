@@ -10,7 +10,6 @@ from rest_framework import generics, permissions, mixins, response, status
 from activities import models
 from activities.logger import logger, Action, RequestData, data_to_log
 from channels import layers
-from asgiref import sync
 
 from activities.serializer import model_serializers
 
@@ -72,7 +71,6 @@ class ActivityList(
 
         self.__load_image(request, new_act)
         self.__add_host(request, new_act)
-        self.__send_message_to_websocket(new_act)
 
         req_data = RequestData(req_user=request.user, act_id=new_act.id)
         logger.info(data_to_log(Action.CREATE, req_data))
@@ -141,16 +139,6 @@ class ActivityList(
         """Create a location object of the activity."""
         coordinate = request.data.pop('location', {'lat': 0, 'lon': 0})
         return create_location(coordinate)
-
-    def __send_message_to_websocket(self, activity: models.Activity) -> None:
-        """Send message to websocket."""
-        layer = layers.get_channel_layer()
-        sync.async_to_sync(layer.group_send)(
-            'activity_index', {
-                'type': "new_act",
-                'activity_id': activity.id,
-            }
-        )
 
     def __parse_date(self, date_param: str) -> list[int] | None:
 
