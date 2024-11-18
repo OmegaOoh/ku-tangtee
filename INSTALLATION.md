@@ -1,5 +1,9 @@
 # Installation Guide
 
+Download the code to a local directory.    
+(One possible method is using ```git clone https://github.com/OmegaOoh/ku-tangtee.git```).  
+       
+Once done, do the following in the directory where you placed the project files. (Initially, "ku-tangtee")
 1. Create python virtual environment
 
    ```bash
@@ -8,7 +12,7 @@
 
 2. Install python package
 
-   For MacOS run these command before follow below instruction
+   For macOS run these command before follow below instruction
 
    Install [brew](https://brew.sh) then
 
@@ -22,28 +26,32 @@
    pip install -r requirements.txt
    ```
 
-3. Install nodejs follows [instruction](https://nodejs.org/en/download/package-manager)
+3. [Install](https://nodejs.org/en/download/package-manager) node.js (May have to restart your device afterward)
 
-4. Get into frontend directory
+4. Get into frontend directory (`/ku-tangtee/frontend`)
 
    ```bash
    cd frontend
    ```
 
-5. install js package
+5. Install js package
 
    ``` bash
    npm install
    ```
 
-6. setup [frontend variable](./frontend/README.md#setup-variable)
+6. [Setup](./frontend/README.md#setup-variable) frontend variable
 
-7. Follow MySQL [installation & set up guide](./database_guide.md)
+7. [Install & Set up](./database_guide.md) MySQL
 
-8. Migrate Django database
+8. Navigate back to the root directory (`/ku-tangtee`)
+   ```bash
+   cd ..
+   ```
+9. Migrate Django database
 
    ```bash
    python manage.py migrate
    ```
 
-9. Setup google oauth by follow [Google oauth guide](./google_credentials_guide.md)
+10. [Setup](./google_credentials_guide.md) Google oauth
