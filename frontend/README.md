@@ -9,6 +9,10 @@
 
 ## Project setup
 
+In frontend directory (`\ku-tangtee\frontend`)
+
+### Install js package
+
 ```sh
 npm install
 ```

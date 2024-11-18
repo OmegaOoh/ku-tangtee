@@ -28,30 +28,24 @@ Once done, do the following in the directory where you placed the project files.
 
 3. [Install](https://nodejs.org/en/download/package-manager) node.js (May have to restart your device afterward)
 
-4. Get into frontend directory (`/ku-tangtee/frontend`)
+4. Get into frontend directory (`\ku-tangtee\frontend`)
 
    ```bash
    cd frontend
    ```
 
-5. Install js package
+5. [Setup](./frontend/README.md#setup-variable) frontend variable
 
-   ``` bash
-   npm install
-   ```
+6. [Install & Set up](./database_guide.md) MySQL
 
-6. [Setup](./frontend/README.md#setup-variable) frontend variable
-
-7. [Install & Set up](./database_guide.md) MySQL
-
-8. Navigate back to the root directory (`/ku-tangtee`)
+7. Navigate back to the root directory (`\ku-tangtee`)
    ```bash
    cd ..
    ```
-9. Migrate Django database
+8. Migrate Django database
 
    ```bash
    python manage.py migrate
    ```
 
-10. [Setup](./google_credentials_guide.md) Google oauth
+9. [Setup](./google_credentials_guide.md) Google oauth
