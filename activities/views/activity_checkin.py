@@ -85,6 +85,14 @@ class CheckInView(
             )
 
         attend = activity.attend_set.get(user=request.user)
+
+        if attend.checked_in:
+            logger.warning(data_to_log(Action.FAIL_CHECKIN, req_data, "Already check-in"))
+            return response.Response(
+                {'message': f"You've already check-in to this {activity.name}"},
+                status=403
+            )
+
         attend.checked_in = True
         attend.save()
 
