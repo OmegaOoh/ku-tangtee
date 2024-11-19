@@ -168,6 +168,7 @@ import { format } from 'date-fns';
 import { watch, ref, onMounted, onBeforeUnmount, nextTick, computed} from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
+    authStatus,
     login,
     isAuth,
     userId as authUserId,
@@ -222,11 +223,19 @@ let spam_timer = null;
  * Message Websocket
  */
 
-const connectWebSocket = () => {
+const connectWebSocket = async() => {
     /*
      * Connect to websocket to observe the change of index.
      * Return Nothing
      */
+
+    await authStatus(); // Make sure that user is valid to backend
+
+    if (!isAuth.value) {
+        addAlert('warning', "You're logged out")
+        return;
+    }
+    
     let new_socket = new WebSocket(
         `${process.env.VUE_APP_BASE_URL.replace(/^http/, 'ws').replace(
             /^https/,'wss'
