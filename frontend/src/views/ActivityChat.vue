@@ -11,7 +11,7 @@
         </div>
         <div
             v-if="isAuth & isJoined"
-            class="card bg-base-300 mx-10 border-2 border-primary"
+            class="card bg-base-300 mx-10 border-2 border-primary overflow-hidden"
         >
             <div class="relative flex flex-col h-[65vh]">
                 <ul
