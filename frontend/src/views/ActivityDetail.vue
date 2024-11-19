@@ -439,7 +439,7 @@ const fetchDetail = async () => {
             response.data.minimum_reputation_score / 10
         );
         isCancelled.value = response.data.is_cancelled;
-        checkCheckedIn();
+        // checkCheckedIn();
         fetchIsJoined();
     } catch (error) {
         console.error('Error fetching activity:', error);
@@ -452,6 +452,8 @@ const fetchIsJoined = async () => {
         `/activities/${activityId.value}/is-joined/`
     );
     isJoined.value = response.data.is_joined;
+    checkedIn.value = response.data.is_checked_in;
+    
 };
 
 const fetchParticipant = async (page = 1) => {
@@ -460,8 +462,6 @@ const fetchParticipant = async (page = 1) => {
         `/activities/participant/${activityId.value}/`,
         { params }
     );
-    console.log("Fetch participant here")
-    console.log(response.data.results)
     people.value = response.data.results;
     participantCount = response.data.count;
     haveNext.value = response.data.next != null;
@@ -494,19 +494,6 @@ const allowCheckIn = async () => {
                 'An unexpected error occurred. Please try again later.'
             );
         }
-    }
-};
-
-const checkCheckedIn = () => {
-    console.log("check check-in here")
-    console.log(people.value)
-    if (isAuth && isJoined.value) {
-        const user = people.value.find(
-            (participant) => participant.user.id === userId.value
-        );
-        checkedIn.value = user ? user.checked_in : false;
-    } else {
-        checkedIn.value = false;
     }
 };
 
@@ -637,7 +624,6 @@ watch(
 watch(userId, (newUserId) => {
     if (newUserId) {
         fetchIsJoined();
-        checkCheckedIn();
     }
 });
 
