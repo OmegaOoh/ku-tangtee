@@ -158,7 +158,7 @@ class CheckinTest(django.test.TestCase):
         self.assertFalse(self.attendee.attend_set.get(activity=self.activity).checked_in)
 
         status_res = self.client.get(urls.reverse("activities:is-joined", args=[self.activity.id]))
-        self.assertJSONEqual(status_res.content, {'is_joined': Tr, 'is_checked_in': False})
+        self.assertJSONEqual(status_res.content, {'is_joined': True, 'is_checked_in': False})
 
     def test_wrong_check_in_code(self):
         """User should not check-in if check-in code are not match."""
