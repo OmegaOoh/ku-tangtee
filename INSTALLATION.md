@@ -1,14 +1,15 @@
 # Installation Guide
 
+
 Follow these steps to set up **KU TangTee** project on your local machine.
 
 ### 1. Download the Code 
     
 Clone the repository to your local directory using Git:
 
-   ```bash
-   git clone https://github.com/OmegaOoh/ku-tangtee.git
-   ```
+```bash
+git clone https://github.com/OmegaOoh/ku-tangtee.git
+```
 
 ### 2. Set Up a Python Virtual Environment
 Navigate to the project directory:
@@ -16,13 +17,16 @@ Navigate to the project directory:
 ```bash
 cd frontend
 ```
+
 Create a Python virtual environment:
+
 ```bash
 python -m venv .venv
 ```
+
 ### 3. Install Required Python Packages
 
-   **macOS**
+**macOS**
 
 Before proceeding, install [Homebrew](https://brew.sh) if you haven't already, then run:
 
@@ -31,7 +35,7 @@ Before proceeding, install [Homebrew](https://brew.sh) if you haven't already, t
    brew install mysql-client pkg-config
    ```
 
-   **Windows/Linux**
+**Windows/Linux**
 
 Run the following command to install the required packages:
 
@@ -55,6 +59,7 @@ Follow the instructions in the [MySQL installation and setup guide](./database_g
 
 ### 7. Migrate Django Database
 Navigate Back to the Root Directory (`\ku-tangtee`):
+
    ```bash
    cd ..
    ```
