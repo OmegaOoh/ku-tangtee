@@ -66,6 +66,13 @@ class JoinLeaveView(
         :return: Http response object
         """
         tobe_del = self.get_serializer().get_attend(self.kwargs.get('pk'), request.user.id)
+
+        if tobe_del.checked_in:
+            return response.Response(
+                {'message': "You can't leave activity after already checked in."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         self.perform_destroy(tobe_del)
         act = tobe_del.activity
         req_data = RequestData(req_user=request.user, act_id=act.id)
