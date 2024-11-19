@@ -186,6 +186,9 @@ class CheckinTest(django.test.TestCase):
         user_profile = self.attendee.profile_set.first()
         rep_before = user_profile.reputation_score
 
+        host_profile = self.attendee.profile_set.first()
+        host_rep = host_profile.reputation_score
+
         res = self.client.post(
             self.url(self.activity.id),
             data={
@@ -197,12 +200,13 @@ class CheckinTest(django.test.TestCase):
         self.assertJSONEqual(res.content, {'message': f"You've successfully check-in to {self.activity.name}"})
         self.assertTrue(self.attendee.attend_set.get(activity=self.activity).checked_in)
         self.assertEqual(rep_before + 1, user_profile.reputation_score)
+        self.assertEqual(host_rep, host_profile.reputation_score)
 
         status_res = self.client.get(urls.reverse("activities:is-joined", args=[self.activity.id]))
         self.assertJSONEqual(status_res.content, {'is_joined': True, 'is_checked_in': True})
 
     def test_decrease_reputation_for_missed_check_in(self):
-        """Test that user's reputation decreases when they miss a check-in."""
+        """Test that user's reputation decreases when check-in is missing."""
         self.open()
         self.activity.end_date = timezone.now() - timezone.timedelta(days=1)
         self.activity.date = timezone.now() - timezone.timedelta(days=2)
@@ -211,12 +215,21 @@ class CheckinTest(django.test.TestCase):
         # Call the method to check for missed check-ins
         Profile.check_missed_check_ins()
 
+        # attendee point deducted because not check-in
         user_profile = self.attendee.profile_set.first()
         self.assertEqual(user_profile.reputation_score,
                          max(0, user_profile.reputation_score - Profile.CHECK_IN_REPUTATION_DECREASE))
 
         attendee_record = Attend.objects.get(user=self.attendee, activity=self.activity)
         self.assertTrue(attendee_record.rep_decrease)
+
+        # host point deducted because no attendee check-in
+        host_profile = self.host.profile_set.first()
+        self.assertEqual(host_profile.reputation_score,
+                         max(0, host_profile.reputation_score - Profile.CHECK_IN_REPUTATION_DECREASE))
+
+        host_record = Attend.objects.get(user=self.host, activity=self.activity)
+        self.assertTrue(host_record.rep_decrease)
 
     def test_host_get_check_in_code(self):
         """Host should able to get check-in code."""
