@@ -7,9 +7,11 @@ export function addAlert(type, content) {
      * Add Alert into alerts array.
      * this function return nothing.
      */
-    alerts.value.push({ type, content, isVisible: true });
+    alerts.value.push({ type, content, isVisible: false }); // Create obj
+    const index = alerts.value.length() - 1;
+    alerts.value[index].isVisible = true;
     setTimeout(() => {
-        hideAlert(0);
+        hideAlert(index);
     }, 3000);
 }
 
