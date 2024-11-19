@@ -460,6 +460,8 @@ const fetchParticipant = async (page = 1) => {
         `/activities/participant/${activityId.value}/`,
         { params }
     );
+    console.log("Fetch participant here")
+    console.log(response.data.results)
     people.value = response.data.results;
     participantCount = response.data.count;
     haveNext.value = response.data.next != null;
@@ -496,9 +498,11 @@ const allowCheckIn = async () => {
 };
 
 const checkCheckedIn = () => {
+    console.log("check check-in here")
+    console.log(people.value)
     if (isAuth && isJoined.value) {
         const user = people.value.find(
-            (participant) => participant.id === userId.value
+            (participant) => participant.user.id === userId.value
         );
         checkedIn.value = user ? user.checked_in : false;
     } else {

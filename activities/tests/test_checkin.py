@@ -140,6 +140,9 @@ class CheckinTest(django.test.TestCase):
         )
         self.assertJSONEqual(res.content, {'message': "You must be member of this activity before perform this action."})
 
+        status_res = self.client.get(urls.reverse("activities:is-joined", args=[self.activity.id]))
+        self.assertJSONEqual(status_res.content, {'is_joined': False, 'is_checked_in': False})
+
     def test_check_in_close(self):
         """User should unavailable to check-in when host is close the check-in."""
         self.open()
@@ -154,6 +157,9 @@ class CheckinTest(django.test.TestCase):
         self.assertJSONEqual(res.content, {'message': 'Check-in are not allow at the moment'})
         self.assertFalse(self.attendee.attend_set.get(activity=self.activity).checked_in)
 
+        status_res = self.client.get(urls.reverse("activities:is-joined", args=[self.activity.id]))
+        self.assertJSONEqual(status_res.content, {'is_joined': True, 'is_checked_in': False})
+
     def test_wrong_check_in_code(self):
         """User should not check-in if check-in code are not match."""
         self.open()
@@ -167,6 +173,9 @@ class CheckinTest(django.test.TestCase):
         )
         self.assertJSONEqual(res.content, {'message': 'Check-in code invalid'})
         self.assertFalse(self.attendee.attend_set.get(activity=self.activity).checked_in)
+
+        status_res = self.client.get(urls.reverse("activities:is-joined", args=[self.activity.id]))
+        self.assertJSONEqual(status_res.content, {'is_joined': True, 'is_checked_in': False})
 
     def test_complete_check_in(self):
         """Test success check-in."""
@@ -188,6 +197,9 @@ class CheckinTest(django.test.TestCase):
         self.assertJSONEqual(res.content, {'message': f"You've successfully check-in to {self.activity.name}"})
         self.assertTrue(self.attendee.attend_set.get(activity=self.activity).checked_in)
         self.assertEqual(rep_before + 1, user_profile.reputation_score)
+
+        status_res = self.client.get(urls.reverse("activities:is-joined", args=[self.activity.id]))
+        self.assertJSONEqual(status_res.content, {'is_joined': True, 'is_checked_in': True})
 
     def test_decrease_reputation_for_missed_check_in(self):
         """Test that user's reputation decreases when they miss a check-in."""

@@ -113,13 +113,38 @@ class Activity(models.Model):
         """
         return [a.user for a in self.attend_set.filter(is_host=False)]
 
+    def user_status(self, user: User) -> dict[str, bool]:
+        """Return dict contain status of user in each activity.
+
+        :param user: User model instance
+        :return: Dict contain user status in each activity.
+        """
+        if not self.is_participated(user):
+            return {
+                'is_joined': False,
+                'is_checked_in': False
+            }
+
+        return {
+            'is_joined': True,
+            'is_checked_in': self.is_checked_in(user)
+        }
+
     def is_participated(self, user: User) -> bool:
         """Return boolean value which tell that are given user are participate in activity or not.
 
         :param user: User model instance
-        :return: Boolean value that tell user are participated in activity or not.
+        :return: Boolean value which tell user are participated in activity or not.
         """
         return bool(user in [a.user for a in self.attend_set.all()])
+
+    def is_checked_in(self, user: User) -> bool:
+        """Return boolean value which tell that are given user are already checked-in activity or not.
+
+        :param user: User model instance
+        :return: Boolean value which tell user are participated are already checked-in activity or not.
+        """
+        return self.attend_set.get(user=user).checked_in
 
     def is_checkin_period(self) -> Any:
         """Return boolean value which tell that are given user can check-in in activity or not.
