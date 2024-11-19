@@ -144,7 +144,7 @@ class Activity(models.Model):
         :param user: User model instance
         :return: Boolean value which tell user are participated are already checked-in activity or not.
         """
-        return self.attend_set.get(user=user).checked_in
+        return bool(self.attend_set.get(user=user).checked_in)
 
     def is_checkin_period(self) -> Any:
         """Return boolean value which tell that are given user can check-in in activity or not.
