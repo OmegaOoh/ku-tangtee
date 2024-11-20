@@ -67,7 +67,7 @@
                 <h1 class="text-4xl font-bold mb-4 ml-2 multi-line">
                     <span> {{ activity.name }} </span>
                     <span
-                        v-if="isJoined && isAuth && checkedIn && !isHost"
+                        v-if="isJoined && isAuth && isCheckedIn && !isHost"
                         class="text-xl text-primary"
                     >
                         ✓
@@ -400,7 +400,7 @@ const showCheckInCode = ref(false);
 const showCheckInModal = ref(false);
 const showQRCode = ref(false);
 const people = ref([]);
-const checkedIn = ref(false);
+const isCheckedIn = ref(false);
 const hosts = ref([]);
 const owner = ref(0);
 const minRepLv = ref(0);
@@ -500,10 +500,11 @@ const checkCheckedIn = () => {
         const user = people.value.find(
             (participant) => participant.id === userId.value
         );
-        checkedIn.value = user ? user.checked_in : false;
+        isCheckedIn.value = user ? user.checked_in : false;
     } else {
-        checkedIn.value = false;
+        isCheckedIn.value = false;
     }
+    console.log('isCheckedin?: ', isCheckedIn.value)
 };
 
 const checkDatePassed = (timestamp) => {
