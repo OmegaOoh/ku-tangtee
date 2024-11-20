@@ -1,12 +1,14 @@
 """Module for redirect user to authentication page."""
 
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from rest_framework_simplejwt.views import TokenRefreshView
 from dj_rest_auth.registration.views import SocialLoginView
-from rest_framework import generics, mixins, response
+from rest_framework import generics, mixins, response, status
 from .serializer import UserSerializer
 from django.contrib.auth.models import User
 from django.http import HttpRequest
 from typing import Any
+from mysite.settings import REST_AUTH
 
 
 class GoogleLogin(SocialLoginView):
@@ -31,3 +33,28 @@ class UserDetail(
         :return: HttpResponse object
         """
         return self.retrieve(request, *args, **kwargs)
+
+
+class CustomTokenRefreshView(TokenRefreshView):
+
+    def post(self, request, *args, **kwargs):
+        # Get the refresh token from cookies
+        refresh_token = request.COOKIES.get(REST_AUTH['JWT_AUTH_REFRESH_COOKIE'])
+        if refresh_token:
+            data = {'refresh': refresh_token}
+            serializer = self.get_serializer(data=data)
+            print(serializer)
+            serializer.is_valid(raise_exception=True)
+            # Set new access token in cookies
+            res = response.Response(serializer.validated_data, status=status.HTTP_200_OK)
+            new_access_token = serializer.validated_data['access']
+            res.set_cookie(
+                REST_AUTH['JWT_AUTH_COOKIE'],
+                new_access_token,
+                httponly=True,
+                secure=True,
+                samesite='Lax'
+            )
+            return res
+        else:
+            return response.Response({'error': 'Refresh token not found'}, status=status.HTTP_401_UNAUTHORIZED)

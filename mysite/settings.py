@@ -195,7 +195,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Javascript Frontend
 CORS_ALLOWED_ORIGINS = config('ALLOWED_CSRF', cast=str, default="http://127.0.0.1:8080, http://localhost:8080").replace(' ', '').split(',')
-CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_CREDENTIALS = True
@@ -212,8 +211,8 @@ CORS_ALLOW_HEADERS = [
 CSRF_TRUSTED_ORIGINS = config('ALLOWED_CSRF', cast=str, default="http://127.0.0.1:8080, http://localhost:8080").replace(' ', '').split(',')
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SAMESITE = "None"
-SESSION_COOKIE_SAMESITE = "None"
+CSRF_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SAMESITE = "Lax"
 
 
 # Rest Framework
@@ -230,7 +229,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
 
@@ -239,14 +238,15 @@ REST_AUTH = {
     'USE_JWT': True,
     'JWT_AUTH_COOKIE': 'jwt-auth',
     'JWT_AUTH_REFRESH_COOKIE': 'jwt-reauth',
-    'JWT_AUTH_HTTPONLY': False,
+    'JWT_AUTH_HTTPONLY': True,
+    'JWT_AUTH_SECURE': True,
 }
 
 # Django Channels
 ASGI_APPLICATION = 'mysite.asgi.application'
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"  # TODO Change this to redis before production
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
     }
 }
 

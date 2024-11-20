@@ -2,7 +2,6 @@ import { ref } from 'vue';
 import apiClient from '@/api';
 import { googleTokenLogin } from 'vue3-google-login';
 import { createPostRequest } from './HttpRequest';
-import { getCookie } from './CookiesReadWrite.js';
 import router from '@/router';
 
 export var isAuth = ref(false);
@@ -45,22 +44,13 @@ export async function authStatus() {
      * Check session authentication status
      * This function does not return anything.
      */
-    const authToken = getCookie('jwt-auth');
-    const reToken = getCookie('jwt-reauth');
-    if (!reToken) {
-        await logout();
-        return
-    }
-    if (!authToken && reToken) {
-        await createPostRequest('rest-auth/token/refresh/', {'Refresh': reToken})
+
+    try {
+        await createPostRequest('auth/token/refresh/', {})
         isAuth.value = true;
         getUserData();
-        return
-    }
-    if (authToken) {
-        isAuth.value = true;
-        getUserData();
-        return
+    } catch(e) {
+        logout();
     }
 }
 
