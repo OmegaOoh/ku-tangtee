@@ -43,7 +43,6 @@ class CustomTokenRefreshView(TokenRefreshView):
         if refresh_token:
             data = {'refresh': refresh_token}
             serializer = self.get_serializer(data=data)
-            print(serializer)
             serializer.is_valid(raise_exception=True)
             # Set new access token in cookies
             res = response.Response(serializer.validated_data, status=status.HTTP_200_OK)
