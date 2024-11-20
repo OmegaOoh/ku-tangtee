@@ -1,11 +1,13 @@
 <template>
-    <div role="alert" class="fade" :class="alertClass" v-if="isVisible">
-        <component
-            :is="alertIcon"
-            class="h-6 w-6 shrink-0 stroke-current"
-        ></component>
-        <span class="line-clamp-3">{{ content }}</span>
-    </div>
+    <transition name="fade">
+        <div role="alert" class="bg-opacity-80" :class="alertClass" v-if="isVisible">
+            <component
+                :is="alertIcon"
+                class="h-6 w-6 shrink-0 stroke-current"
+            ></component>
+            <span class="line-clamp-3">{{ content }}</span>
+        </div>
+    </transition>
 </template>
 
 <script setup>
