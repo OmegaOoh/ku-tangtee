@@ -504,7 +504,6 @@ const checkCheckedIn = () => {
     } else {
         isCheckedIn.value = false;
     }
-    console.log('isCheckedin?: ', isCheckedIn.value)
 };
 
 const checkDatePassed = (timestamp) => {
