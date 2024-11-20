@@ -1,5 +1,5 @@
 <template>
-    <div role="alert" class="fade" :class="alertClass" v-if="isVisible">
+    <div role="alert" :class="alertClass" v-if="isVisible">
         <component
             :is="alertIcon"
             class="h-6 w-6 shrink-0 stroke-current"
