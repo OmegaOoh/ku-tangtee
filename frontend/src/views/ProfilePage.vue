@@ -283,6 +283,7 @@ const fetchUserData = async () => {
     const response = await apiClient.get(
         `/auth/user/${route.params.username}/`
     );
+    await apiClient.get(`/profile/check-missing/`);
     user.value = response.data;
     nickname.value = user.value.user_profile.nick_name;
     pronoun.value = user.value.user_profile.pronoun;
