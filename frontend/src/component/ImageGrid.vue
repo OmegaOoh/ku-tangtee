@@ -8,7 +8,7 @@
         >
             <img
                 v-if="imageSrc"
-                :src="imageSrc"
+                v-lazy="imageSrc"
                 class="object-cover w-full h-full"
                 @click="openModal(imageSrc)"
             />
