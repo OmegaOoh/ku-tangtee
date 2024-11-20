@@ -93,7 +93,7 @@
                         componentSize="h-[15vh] w-1/12"
                         :images="images"
                         :removable="true"
-                        @onRemove="(index) => images.splice(index, 1)"
+                        @onRemove="handleRemove"
                     />
                 </div>
                 <div class="flex justify-between items-center my-3 mx-3">
@@ -105,6 +105,7 @@
                         >
                             +
                             <input
+                                ref="fileUpload"
                                 type="file"
                                 multiple
                                 id="file-add"
@@ -214,6 +215,7 @@ let isLoading = false;
 // Element Variables
 const messageList = ref(null);
 const messageTextarea = ref(null)
+const fileUpload = ref(null)
 
 let last_msg = {};
 let streak = 0;
@@ -391,6 +393,19 @@ const handleFileChange = (event) => {
             }
         });
     }
+};
+
+const handleRemove = (index) => {
+    /*
+     * Remove image and push removed image id into array.
+     * @params {int} image that wants to be removed.
+     * Return nothing.
+     */
+    images.value.splice(index, 1);
+    if (fileUpload.value) {
+        fileUpload.value.value = ''
+    }
+
 };
 
 const chatSetup = async () => {
