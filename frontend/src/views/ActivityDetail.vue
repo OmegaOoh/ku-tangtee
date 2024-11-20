@@ -322,7 +322,7 @@
                             @click="leaveActivity"
                             class="btn btn-accent mx-4"
                             :class="
-                                checkDatePassed(activity.end_registration_date)
+                                checkDatePassed(activity.end_registration_date) || isCheckedIn
                                     ? 'btn-disabled disabled'
                                     : 'btn-accent'
                             "
