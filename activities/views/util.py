@@ -18,21 +18,27 @@ CHECKIN_CODE_LEN = 6
 
 
 @decorators.api_view(['get'])
-def check_is_joined(request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
-    """Check does current user are participating activity or not.
+def check_user_status(request: HttpRequest, *args: Any, **kwargs: Any) -> response.Response:
+    """Return user status on give activity.
 
     :param request: HttpRequest object.
-    :return: Json file with a key "is-joined" and boolean value which tell does user participant in activity or not
+    :return: Json file with a key "is-joined" and boolean value
+            which tell does user participant in activity or not
+            also with key "is_checked_in" which tell does user
+            already checked-in or not
     """
     if not request.user.is_authenticated:
         return response.Response(
-            {'is_joined': False}
+            {
+                'is_joined': False,
+                'is_checked_in': False
+            }
         )
 
     activity = get_object_or_404(models.Activity, id=kwargs.get('id'))
 
     return response.Response(
-        {'is_joined': activity.is_participated(request.user)}
+        activity.user_status(request.user)
     )
 
 
@@ -180,14 +186,3 @@ def create_location(coor: dict[str, float]) -> int | None:
         return int(location.id)
 
     return None
-
-
-def get_checkin_code() -> str:
-    """Random 6 capital character.
-
-    :return: string of random 6 character.
-    """
-    # choose from all lowercase letter
-    letters = string.ascii_uppercase
-    result_str = ''.join(random.choice(letters) for i in range(CHECKIN_CODE_LEN))
-    return result_str

@@ -239,15 +239,15 @@ class JoinTest(django.test.TestCase):
         # Check unauthenticated user
         self.client.logout()
         res = self.client.get(f'/activities/{act.id}/is-joined/')
-        self.assertJSONEqual(res.content, {'is_joined': False})
+        self.assertJSONEqual(res.content, {'is_joined': False, 'is_checked_in': False})
 
         # Check authenticated user that not join yet
         attendee = create_test_user('join user')
         self.client.force_login(attendee)
         res = self.client.get(f'/activities/{act.id}/is-joined/')
-        self.assertJSONEqual(res.content, {'is_joined': False})
+        self.assertJSONEqual(res.content, {'is_joined': False, 'is_checked_in': False})
 
         # Check user that already join
         client_join_activity(client=self.client, user=attendee, activity=act)
         res = self.client.get(f'/activities/{act.id}/is-joined/')
-        self.assertJSONEqual(res.content, {'is_joined': True})
+        self.assertJSONEqual(res.content, {'is_joined': True, 'is_checked_in': False})

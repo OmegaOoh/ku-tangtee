@@ -47,7 +47,7 @@ const updateUrl = async () => {
 
 const fetchCheckInCode = async () => {
     try {
-        const response = await apiClient.get(`/activities/${props.id}`);
+        const response = await apiClient.get(`/activities/check-in/${props.id}`);
         return response.data.check_in_code;
     } catch (error) {
         console.error('Error fetching activity:', error);

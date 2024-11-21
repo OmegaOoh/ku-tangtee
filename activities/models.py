@@ -1,9 +1,24 @@
 """Database Model for activities app."""
+import string
+import random
 from typing import Any, Optional
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
+
+CHECKIN_CODE_LEN = 6
+
+
+def get_checkin_code() -> str:
+    """Random 6 capital character.
+
+    :return: string of random 6 character.
+    """
+    # choose from all lowercase letter
+    letters = string.ascii_uppercase
+    result_str = ''.join(random.choice(letters) for i in range(CHECKIN_CODE_LEN))
+    return result_str
 
 
 def get_end_registration_date() -> Any:
@@ -49,6 +64,12 @@ class Activity(models.Model):
     )
     is_cancelled = models.BooleanField(default=False)
 
+    def update_check_in_code(self) -> str:
+        """Regenerate activity check-in code."""
+        self.check_in_code = get_checkin_code()
+        self.save()
+        return self.check_in_code
+
     def __str__(self) -> Any:
         """Return Activity Name as string representative.
 
@@ -92,13 +113,38 @@ class Activity(models.Model):
         """
         return [a.user for a in self.attend_set.filter(is_host=False)]
 
+    def user_status(self, user: User) -> dict[str, bool]:
+        """Return dict contain status of user in each activity.
+
+        :param user: User model instance
+        :return: Dict contain user status in each activity.
+        """
+        if not self.is_participated(user):
+            return {
+                'is_joined': False,
+                'is_checked_in': False
+            }
+
+        return {
+            'is_joined': True,
+            'is_checked_in': self.is_checked_in(user)
+        }
+
     def is_participated(self, user: User) -> bool:
         """Return boolean value which tell that are given user are participate in activity or not.
 
         :param user: User model instance
-        :return: Boolean value that tell user are participated in activity or not.
+        :return: Boolean value which tell user are participated in activity or not.
         """
         return bool(user in [a.user for a in self.attend_set.all()])
+
+    def is_checked_in(self, user: User) -> bool:
+        """Return boolean value which tell that are given user are already checked-in activity or not.
+
+        :param user: User model instance
+        :return: Boolean value which tell user are participated are already checked-in activity or not.
+        """
+        return bool(self.attend_set.get(user=user).checked_in)
 
     def is_checkin_period(self) -> Any:
         """Return boolean value which tell that are given user can check-in in activity or not.

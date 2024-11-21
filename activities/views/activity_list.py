@@ -21,13 +21,15 @@ class ActivityList(
 ):
     """Return list of available upcoming activity when GET request and create new activity when POST request."""
 
-    queryset = models.Activity.objects.filter(end_registration_date__gte=timezone.now(), is_cancelled=False).order_by("date")
+    queryset = models.Activity.objects.filter(is_cancelled=False).order_by("date")
     serializer_class = model_serializers.ActivitiesSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self) -> QuerySet:
         """Activity index view returns a list of all the activities according to query parameters."""
         queryset = super().get_queryset()
+
+        queryset = queryset.filter(end_registration_date__gte=timezone.now())
 
         keyword = self.request.GET.get("keyword")
         if keyword:
