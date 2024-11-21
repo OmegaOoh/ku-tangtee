@@ -47,7 +47,7 @@
                                     Level: {{ reputationLevel }}
                                 </p>
                                 <progress
-                                    class="progress progress-primary w-full"
+                                    class="progress progress-primary w-full bg-base-200"
                                     :value="reputationProgress"
                                     max="10"
                                 ></progress>
@@ -55,7 +55,7 @@
                                     Progress: {{ reputationProgress }} / 10
                                 </p>
                                 <progress
-                                    class="progress progress-warning w-full"
+                                    class="progress progress-warning w-full bg-base-200"
                                     :value="concurrentAct"
                                     :max="joinLimit"
                                 ></progress>
@@ -311,7 +311,6 @@ const fetchJoinedActivities = async () => {
         `/activities/get-recently/${user.value.id}?byDate=True`
     );
     joinedActivity.value = response.data;
-    console.log(joinedActivity.value);
 };
 
 const fetchHostedActivities = async () => {
@@ -323,7 +322,6 @@ const fetchHostedActivities = async () => {
         `/activities/get-recently/${user.value.id}?byDate=True&isHost=True`
     );
     hostedActivity.value = response.data;
-    console.log(hostedActivity.value);
 };
 
 const onUserChange = (newUsername, oldUsername) => {
