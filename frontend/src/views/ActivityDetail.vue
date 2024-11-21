@@ -443,7 +443,8 @@ const fetchDetail = async () => {
         fetchIsJoined();
     } catch (error) {
         console.error('Error fetching activity:', error);
-        addAlert('warning', 'Activity already started or No such activity.');
+        router.push('/not-found')
+        addAlert('warning', 'Activity Not Found');
     }
 };
 
