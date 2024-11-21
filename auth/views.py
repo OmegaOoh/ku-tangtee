@@ -36,7 +36,7 @@ class UserDetail(
 
 
 class CustomTokenRefreshView(TokenRefreshView):
-
+    """Views to refresh authentication using cookies token."""
     def post(self, request, *args, **kwargs):
         # Get the refresh token from cookies
         refresh_token = request.COOKIES.get(REST_AUTH['JWT_AUTH_REFRESH_COOKIE'])
