@@ -123,22 +123,40 @@ import {
     userName,
 } from '@/functions/Authentications';
 import apiClient from '@/api';
+import { addAlert } from '@/functions/AlertManager';
 
 const activities = ref([]);
 const hosted = ref([]);
 
 const getRecentActivity = async () => {
-    const response = await apiClient.get(
-        `/activities/get-recently/${userId.value}/?records=5`
-    );
-    activities.value = response.data;
+    try {
+        const response = await apiClient.get(
+            `/activities/get-recently/${userId.value}/?records=5`
+        );
+        activities.value = response.data;
+    } catch (error) {
+            if (error.request) {
+                addAlert('error', 'Error Connecting to Server')
+            } else {
+                addAlert('error', error.message)
+            }
+        }
 };
 
 const getRecentHostActivity = async () => {
-    const response = await apiClient.get(
+    try{
+        const response = await apiClient.get(
         `/activities/get-recently/${userId.value}?isHost=True&records=5`
-    )
-    hosted.value = response.data
+        )
+        hosted.value = response.data
+    } catch (error) {
+        if (error.request) {
+            addAlert('error', 'Error Connecting to Server')
+        } else {
+            addAlert('error', error.message)
+        }
+    }
+
 }
 
 onMounted(() => {
