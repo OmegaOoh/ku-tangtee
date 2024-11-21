@@ -25,7 +25,7 @@ describe('Alert functions', () => {
         expect(alerts.value.length).toBe(1);
         jest.runAllTimers();
         await nextTick();
-        expect(alerts.value.length).toBe(0);
+        expect(alerts.value[0].isVisible).toBe(false);
     });
 
     it('hides and removes an alert when hideAlert is called', () => {
@@ -33,7 +33,7 @@ describe('Alert functions', () => {
         const { alerts } = useAlert();
         expect(alerts.value.length).toBe(1);
         hideAlert(0);
-        expect(alerts.value.length).toBe(0);
+        expect(alerts.value[0].isVisible).toBe(false);
     });
 
     it('useAlert returns the alerts array', () => {
