@@ -61,7 +61,7 @@
     ```
 
 ## Configure environments.
-1. In [sample.env](./sample.env)
+1. In [sample.env](./backend/sample.env)
     ```
     # MySQL configuration
     DATABASE_NAME=myDB

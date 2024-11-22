@@ -61,15 +61,18 @@
 
 ## Set up social application on Django admin.
 
-1. Create super user.
+1. Change into backend directory.   
+   `cd backend`
+
+2. Create super user.
    `python manage.py create superuser`
 
-2. Run server.
+3. Run server.
    `python manage.py runserver`
 
-3. Go to admin page by go to `http://127.0.0.1:8000/admin/`
+4. Go to admin page by go to `http://127.0.0.1:8000/admin/`
 
-4. Add new site. by fill
+5. Add new site. by fill
 
     Domain name: `http://127.0.0.1:8000`
 
@@ -79,15 +82,15 @@
 
     ![add site](./google_oauth_guide_pic/Add%20site.png)
 
-5. Add social application, by select Google as a Provider, leave Provider ID blank, fill name. Get client ID and Secret key from google credentials that we've just created
+6. Add social application, by select Google as a Provider, leave Provider ID blank, fill name. Get client ID and Secret key from google credentials that we've just created
 
     ![add sociall app](./google_oauth_guide_pic/Add%20social%20app.png)
 
-6. scroll down then add site to social app, then click save.
+7. scroll down then add site to social app, then click save.
 
     ![Add site to social app](./google_oauth_guide_pic/Add%20site%20to%20social%20app.png)
 
-7. Get site_id from database
+8. Get site_id from database
 
     - Access mysql shell
 
@@ -128,7 +131,7 @@
         In this case SITE_ID is 4
 
 
-8. In your .env file, there is a row `SITE_ID`. Edit it to match with your SITE_ID.
+9. In your backend.env file, there is a row `SITE_ID`. Edit it to match with your SITE_ID.
 
     ```
     SITE_ID = 4 // According to previous step SITE_ID is 4
