@@ -39,6 +39,9 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-cov pytest-django
       
+      - name: Chage to backend directory
+        run: cd backend
+
       - name: Run Migrations
         run: python manage.py migrate
 
@@ -46,7 +49,6 @@ jobs:
         run: |
           pytest --cov --cov-report=xml  # Already use .coveragerc
 
-      
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
