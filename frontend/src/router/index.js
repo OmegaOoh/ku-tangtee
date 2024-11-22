@@ -5,6 +5,7 @@ import ActivityCreate from '@/views/ActivityCreate.vue';
 import ActivityChat from '@/views/ActivityChat.vue';
 import ProfileCreate from '@/views/ProfileCreate.vue';
 import ProfilePage from '@/views/ProfilePage.vue';
+import NotFound from '@/views/PageNotFound.vue'
 
 // Just like  urls.py
 const routes = [
@@ -37,6 +38,11 @@ const routes = [
         path: '/profile/:username',
         name: 'ProfilePage',
         component: ProfilePage,
+    },
+    {
+        path: '/:pathMatch(.*)*',
+        name: 'NotfoundPage',
+        component: NotFound,
     },
 ];
 

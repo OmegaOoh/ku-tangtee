@@ -34,7 +34,7 @@
                 <div
                     v-for="participant in people"
                     :key="participant.user.id"
-                    class="card bg-base-100 shadow-lg p-4 rounded-lg border-primary hover:border-2 cursor-pointer transition-all duration-75 ease-in-out"
+                    class="card bg-base-100 shadow-lg p-4 rounded-lg border-2 border-base-100 hover:border-primary cursor-pointer transition-all duration-75 ease-in-out"
                 >
                     <div class="flex items-center space-x-4">
                         <!-- Profile Picture Container -->

@@ -11,7 +11,7 @@
         </div>
         <div
             v-if="isAuth & isJoined"
-            class="card bg-base-300 mx-10 border-2 border-primary"
+            class="card bg-base-300 mx-10 border-2 border-primary overflow-hidden"
         >
             <div class="relative flex flex-col h-[65vh]">
                 <ul
@@ -93,7 +93,7 @@
                         componentSize="h-[15vh] w-1/12"
                         :images="images"
                         :removable="true"
-                        @onRemove="(index) => images.splice(index, 1)"
+                        @onRemove="handleRemove"
                     />
                 </div>
                 <div class="flex justify-between items-center my-3 mx-3">
@@ -105,6 +105,7 @@
                         >
                             +
                             <input
+                                ref="fileUpload"
                                 type="file"
                                 multiple
                                 id="file-add"
@@ -168,6 +169,7 @@ import { format } from 'date-fns';
 import { watch, ref, onMounted, onBeforeUnmount, nextTick, computed} from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
+    authStatus,
     login,
     isAuth,
     userId as authUserId,
@@ -213,6 +215,7 @@ let isLoading = false;
 // Element Variables
 const messageList = ref(null);
 const messageTextarea = ref(null)
+const fileUpload = ref(null)
 
 let last_msg = {};
 let streak = 0;
@@ -222,11 +225,19 @@ let spam_timer = null;
  * Message Websocket
  */
 
-const connectWebSocket = () => {
+const connectWebSocket = async() => {
     /*
      * Connect to websocket to observe the change of index.
      * Return Nothing
      */
+
+    await authStatus(); // Make sure that user is valid to backend
+
+    if (!isAuth.value) {
+        addAlert('warning', "You're logged out")
+        return;
+    }
+    
     let new_socket = new WebSocket(
         `${process.env.VUE_APP_BASE_URL.replace(/^http/, 'ws').replace(
             /^https/,'wss'
@@ -382,6 +393,19 @@ const handleFileChange = (event) => {
             }
         });
     }
+};
+
+const handleRemove = (index) => {
+    /*
+     * Remove image and push removed image id into array.
+     * @params {int} image that wants to be removed.
+     * Return nothing.
+     */
+    images.value.splice(index, 1);
+    if (fileUpload.value) {
+        fileUpload.value.value = ''
+    }
+
 };
 
 const chatSetup = async () => {

@@ -68,7 +68,7 @@
                 <h1 class="text-4xl font-bold mb-4 ml-2 multi-line">
                     <span> {{ activity.name }} </span>
                     <span
-                        v-if="isJoined && isAuth && checkedIn && !isHost"
+                        v-if="isJoined && isAuth && isCheckedIn && !isHost"
                         class="text-xl text-primary"
                     >
                         ✓
@@ -304,7 +304,7 @@
                                     isJoined &&
                                     activity.check_in_allowed &&
                                     isAuth &&
-                                    !checkedIn &&
+                                    !isCheckedIn &&
                                     !isHost
                                 "
                                 @click="
@@ -323,7 +323,7 @@
                             @click="leaveActivity"
                             class="btn btn-accent mx-4"
                             :class="
-                                checkDatePassed(activity.end_registration_date)
+                                checkDatePassed(activity.end_registration_date) || isCheckedIn
                                     ? 'btn-disabled disabled'
                                     : 'btn-accent'
                             "
@@ -401,7 +401,7 @@ const showCheckInCode = ref(false);
 const showCheckInModal = ref(false);
 const showQRCode = ref(false);
 const people = ref([]);
-const checkedIn = ref(false);
+const isCheckedIn = ref(false);
 const hosts = ref([]);
 const owner = ref(0);
 const minRepLv = ref(0);
@@ -443,7 +443,8 @@ const fetchDetail = async () => {
         fetchIsJoined();
     } catch (error) {
         console.error('Error fetching activity:', error);
-        addAlert('warning', 'Activity already started or No such activity.');
+        router.push('/not-found')
+        addAlert('warning', 'Activity Not Found');
     }
 };
 
@@ -452,7 +453,7 @@ const fetchIsJoined = async () => {
         `/activities/${activityId.value}/is-joined/`
     );
     isJoined.value = response.data.is_joined;
-    checkedIn.value = response.data.is_checked_in;
+    isCheckedIn.value = response.data.is_checked_in;
 };
 
 const fetchParticipant = async (page = 1) => {

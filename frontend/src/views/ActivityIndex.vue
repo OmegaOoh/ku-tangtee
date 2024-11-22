@@ -1,19 +1,5 @@
 <template>
     <div class="h-[100vh] overflow-x-hidden" @scroll.passive="handleScroll">
-        <div
-            class="fixed top-16 left-0 right-0 flex justify-center z-10"
-            style="padding: 1%"
-        >
-            <div
-                id="reload"
-                class="translate-y-[-100%] transition-all duration-300 ease-in-out transform-gpu"
-                hidden
-            >
-                <button class="btn btn-accent size-fit text-xl" @click="reload">
-                    ↻ Refresh
-                </button>
-            </div>
-        </div>
         <h1 class="text-4xl font-bold mb-4 flex justify-center my-6">
             Activities List
         </h1>
@@ -305,17 +291,6 @@ const fetchActivities = async (page = 1, reset = false) => {
     }
 };
 
-const reload = () => {
-    fetchActivities(1, true);
-    const reloadButton = document.getElementById('reload');
-    if (reloadButton) {
-        if (!reloadButton.hasAttribute('hidden'))
-            setTimeout(reloadButton.setAttribute('hidden', ''), 300);
-        reloadButton.classList.remove('translate-y-0');
-        reloadButton.classList.add('translate-y-[-100%]');
-    }
-};
-
 const handleScroll = ({
     target: { scrollTop, clientHeight, scrollHeight },
 }) => {
@@ -340,41 +315,6 @@ const viewActivity = (activityId) => {
     router.push(`/activities/${activityId}`);
 };
 
-/**
- * Websocket
- */
-
-const setupSocket = () => {
-    /*
-     * Connect to websocket to observe the change of index.
-     */
-    const new_socket = new WebSocket(
-        `${process.env.VUE_APP_BASE_URL.replace(/^http/, 'ws').replace(
-            /^https/,
-            'wss'
-        )}ws/index/`
-    );
-    socket.value = new_socket;
-
-    socket.value.onmessage = (event) => {
-        try {
-            var parsedData = JSON.parse(event.data);
-            if (parsedData['type'] === 'new_act') {
-                // Show reload button
-                const reloadButton = document.getElementById('reload');
-                if (reloadButton) {
-                    reloadButton.removeAttribute('hidden');
-                    reloadButton.classList.remove('translate-y-[-100%]');
-                    reloadButton.classList.add('translate-y-0');
-                }
-            }
-        } catch (error) {
-            console.error('Parsing Error: ', error);
-        } finally {
-            isLoading.value = false;
-        }
-    };
-};
 
 /**
  * Utils
@@ -436,7 +376,6 @@ const formatTime = (timestamp) => {
 
 onMounted(() => {
     fetchActivities();
-    setupSocket();
     isDarkTheme.value = window.matchMedia(
         '(prefers-color-scheme: dark)'
     ).matches;

@@ -1,8 +1,7 @@
 import { ref } from 'vue';
 import apiClient from '@/api';
 import { googleTokenLogin } from 'vue3-google-login';
-import { createPostRequest } from './HttpRequest';
-import { getCookie } from './CookiesReadWrite.js';
+import { createPostRequest, getCsrfToken } from './HttpRequest';
 import router from '@/router';
 
 export var isAuth = ref(false);
@@ -45,22 +44,20 @@ export async function authStatus() {
      * Check session authentication status
      * This function does not return anything.
      */
-    const authToken = getCookie('jwt-auth');
-    const reToken = getCookie('jwt-reauth');
-    if (!reToken) {
-        await logout();
-        return
-    }
-    if (!authToken && reToken) {
-        await createPostRequest('rest-auth/token/refresh/', {'Refresh': reToken})
+
+    try {
+        const csrfToken = await getCsrfToken();
+        await apiClient.post(
+            'auth/token/refresh/',
+            {},
+            {
+                headers: { 'X-CSRFToken': csrfToken },
+            }
+        );
         isAuth.value = true;
         getUserData();
-        return
-    }
-    if (authToken) {
-        isAuth.value = true;
-        getUserData();
-        return
+    } catch(e) {
+        logout();
     }
 }
 
@@ -69,7 +66,6 @@ export async function logout() {
      * Logout user from the system.
      * this function return nothing.
      */
-    await createPostRequest(`rest-auth/logout/`, {});
     isAuth.value = false;
     fName.value = '';
     lName.value = '';
@@ -77,6 +73,7 @@ export async function logout() {
     pfp.value = '';
     userId.value = '';
     userName.value = '';
+    await createPostRequest(`rest-auth/logout/`, {});
 }
 
 export async function getUserData() {
