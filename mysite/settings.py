@@ -93,9 +93,15 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+DB_ENGINE = {
+    'mysql': 'django.db.backends.mysql',
+    'tidb': 'django_tidb'
+}
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        # 'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': DB_ENGINE.get(config('DATABASE_ENGINE', cast=str, default='mysql')),
         'NAME': config('DATABASE_NAME', default='myDB', cast=str),
         'USER': config('DATABASE_USER', default='root', cast=str),
         'PASSWORD': config('DATABASE_PASSWORD', default='password', cast=str),
