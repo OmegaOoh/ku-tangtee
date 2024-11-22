@@ -8,6 +8,7 @@ omit =
     */__pycache__/*, # Ignore Python cache
     manage.py ,    # Exclude manage.py (Django entry point)
     .github/*,    # Exclude github directory
+    auth/*,
 
 [report]
 # Report additional information on missing lines
