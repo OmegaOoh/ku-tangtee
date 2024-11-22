@@ -1,49 +1,74 @@
 # Installation Guide
 
-1. Create python virtual environment
 
-   ```bash
-   python -m venv .venv
-   ```
+Follow these steps to set up **KU TangTee** project on your local machine.
 
-2. Install python package
+### 1. Download the Code 
+    
+Clone the repository to your local directory using Git:
 
-   For MacOS run these command before follow below instruction
+```bash
+git clone https://github.com/OmegaOoh/ku-tangtee.git
+```
 
-   Install [brew](https://brew.sh) then
+### 2. Set Up a Python Virtual Environment
+Navigate to the project directory:
+
+```bash
+cd frontend
+```
+
+Create a Python virtual environment:
+
+```bash
+python -m venv .venv
+```
+
+### 3. Install Required Python Packages
+
+**macOS**
+
+Before proceeding, install [Homebrew](https://brew.sh) if you haven't already, then run:
+
 
    ```bash
    brew install mysql-client pkg-config
    ```
 
-   For window / Linux user run just this command
+**Windows/Linux**
+
+Run the following command to install the required packages:
 
    ```bash
    pip install -r requirements.txt
    ```
 
-3. Install nodejs follows [instruction](https://nodejs.org/en/download/package-manager)
+### 4. Install Node.js
+Download and install Node.js from the [Node.js website](https://nodejs.org/en/download/package-manager). You may need to restart your device afterward.
 
-4. Get into frontend directory
+### 5. Set Up Frontend Variables
+Navigate to the Frontend Directory (`\ku-tangtee\frontend`):
 
    ```bash
    cd frontend
    ```
+Then, follow the instructions in the [setup variable guide](./frontend/README.md#setup-variable).
 
-5. install js package
+### 6. Install & Set Up MySQL
+Follow the instructions in the [MySQL installation and setup guide](./database_guide.md).
 
-   ``` bash
-   npm install
+### 7. Migrate Django Database
+Navigate Back to the Root Directory (`\ku-tangtee`):
+
+   ```bash
+   cd ..
    ```
 
-6. setup [frontend variable](./frontend/README.md#setup-variable)
-
-7. Follow MySQL [installation & set up guide](./database_guide.md)
-
-8. Migrate Django database
+Then, run the following command to apply database migrations:
 
    ```bash
    python manage.py migrate
    ```
 
-9. Setup google oauth by follow [Google oauth guide](./google_credentials_guide.md)
+### 8. Set Up Google OAuth
+Follow the instructions in the [Google credentials guide](./google_credentials_guide.md).
