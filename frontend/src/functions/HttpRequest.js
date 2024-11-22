@@ -17,9 +17,14 @@ export async function createPostRequest(path, data) {
             headers: { 'X-CSRFToken': csrfToken },
         });
     } catch (error) {
-        if (error.request) {
+        if (error.response.status == 401) {
+            return; // Do nothing
+        }
+        else if (error.request) {
+            console.log(error.request);
             addAlert('error', "Error Connecting to server")
         } else {
+            console.log(error)
             addAlert("error", "Unexpected Error")
         }
     }
