@@ -35,24 +35,25 @@ jobs:
 
       - name: Install dependencies
         run: |
+          cd backend
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest pytest-cov pytest-django
 
-      - name: Chage to backend directory
-        run: cd backend
-
       - name: Run Migrations
-        run: python manage.py migrate
+        run: |
+          cd backend
+          python manage.py migrate
 
       - name: Run tests with coverage
         run: |
+          cd backend
           pytest --cov --cov-report=xml  # Already use .coveragerc
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          file: ./coverage.xml
+          file: ./backend/coverage.xml
           flags: unittests
           name: codecov-umbrella
         env:

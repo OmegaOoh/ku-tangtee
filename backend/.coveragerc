@@ -1,0 +1,29 @@
+[run]
+# Exclude files or directories from the coverage run
+omit = 
+    frontend/*,   # Exclude the frontend folder
+    */migrations/*,  # Django migrations
+    */env/*,      # Exclude virtual environment
+    */venv/*,     # Exclude virtual environment
+    */__pycache__/*, # Ignore Python cache
+    manage.py ,    # Exclude manage.py (Django entry point)
+    .github/*,    # Exclude github directory
+    auth/*,
+
+[report]
+# Report additional information on missing lines
+show_missing = True
+
+# Exclude lines based on patterns
+exclude_lines = 
+    # Don't cover the standard Python '__main__' idiom
+    if __name__ == '__main__':
+    
+    # Exclude pass statements
+    pass
+
+    # No cover statement
+    pragma: no cover
+
+    # Ignore __str__  method
+    def __str__\(.*\):
