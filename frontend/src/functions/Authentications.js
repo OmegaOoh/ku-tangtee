@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import apiClient from '@/api';
 import { googleTokenLogin } from 'vue3-google-login';
-import { createPostRequest } from './HttpRequest';
+import { createPostRequest, getCsrfToken } from './HttpRequest';
 import router from '@/router';
 
 export var isAuth = ref(false);
@@ -46,7 +46,14 @@ export async function authStatus() {
      */
 
     try {
-        await createPostRequest('auth/token/refresh/', {})
+        const csrfToken = await getCsrfToken();
+        await apiClient.post(
+            'auth/token/refresh/',
+            {},
+            {
+                headers: { 'X-CSRFToken': csrfToken },
+            }
+        );
         isAuth.value = true;
         getUserData();
     } catch(e) {
@@ -59,7 +66,6 @@ export async function logout() {
      * Logout user from the system.
      * this function return nothing.
      */
-    await createPostRequest(`rest-auth/logout/`, {});
     isAuth.value = false;
     fName.value = '';
     lName.value = '';
@@ -67,6 +73,7 @@ export async function logout() {
     pfp.value = '';
     userId.value = '';
     userName.value = '';
+    await createPostRequest(`rest-auth/logout/`, {});
 }
 
 export async function getUserData() {
