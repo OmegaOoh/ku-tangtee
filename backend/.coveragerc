@@ -9,7 +9,7 @@ omit =
     manage.py ,    # Exclude manage.py (Django entry point)
     .github/*,    # Exclude github directory
     auth/*,
-    */settings.py/*
+    */settings.py
 
 [report]
 # Report additional information on missing lines
