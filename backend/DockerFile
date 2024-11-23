@@ -1,12 +1,8 @@
+# This docker file used only for testing the build functionality
 FROM python:3.11-slim-buster
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    build-essential \
-    pkg-config
-
 WORKDIR /app
-COPY . .
+COPY ./backend .
 RUN pip install -r requirements.txt
 
 
