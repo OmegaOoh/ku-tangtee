@@ -274,6 +274,7 @@ REST_AUTH = {
     'JWT_AUTH_REFRESH_COOKIE': 'jwt-reauth',
     'JWT_AUTH_HTTPONLY': True,
     'JWT_AUTH_SECURE': True,
+    'JWT_AUTH_SAMESITE': 'None'
 }
 
 # Django Channels
