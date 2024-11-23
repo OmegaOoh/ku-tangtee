@@ -245,8 +245,8 @@ CORS_ALLOW_HEADERS = [
 CSRF_TRUSTED_ORIGINS = config('ALLOWED_CSRF', cast=str, default="http://127.0.0.1:8080, http://localhost:8080").replace(' ', '').split(',')
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SAMESITE = "Lax"
-SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SAMESITE = "None"
 
 
 # Rest Framework
