@@ -241,7 +241,7 @@ const connectWebSocket = async() => {
     let new_socket = new WebSocket(
         `${process.env.VUE_APP_BASE_URL.replace(/^http/, 'ws').replace(
             /^https/,'wss'
-        )}ws/chat/${activityId.value}`
+        )}/ws/chat/${activityId.value}`
     );
     socket.value = new_socket;
     socket.value.onmessage = (event) => {
