@@ -4,6 +4,8 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic.base import RedirectView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -14,7 +16,8 @@ urlpatterns = [
     path("auth/", include('auth.urls')),
     path("profile/", include("profiles.urls")),
     path("profile-pic/", views.profile_picture_view),
-    path("get-user/<int:user_id>/", views.get_user_data)
+    path("get-user/<int:user_id>/", views.get_user_data),
+    path('', RedirectView.as_view(url='activities/'))
 ]
 
 if settings.DEBUG:
