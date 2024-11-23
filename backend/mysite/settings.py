@@ -107,14 +107,18 @@ DATABASES = {
         'PASSWORD': config('DATABASE_PASSWORD', default='password', cast=str),
         'HOST': config('DATABASE_HOST', default='localhost', cast=str),
         'PORT': config('DATABASE_PORT', default='3306', cast=str),
-        'OPTIONS': {
+        
+    }
+}
+
+REQUIRE_SSL = config('REQUIRE_SSL', default=False, cast=bool)
+
+if REQUIRE_SSL:
+    DATABASES['default']['OPTIONS'] = {
             'ssl': {
                 'ca': config('PATH_TO_CA', default="/etc/ssl/cert.pem", cast=str)
             },
         }
-    }
-}
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
