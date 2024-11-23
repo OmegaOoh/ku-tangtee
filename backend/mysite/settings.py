@@ -107,6 +107,11 @@ DATABASES = {
         'PASSWORD': config('DATABASE_PASSWORD', default='password', cast=str),
         'HOST': config('DATABASE_HOST', default='localhost', cast=str),
         'PORT': config('DATABASE_PORT', default='3306', cast=str),
+        'OPTIONS': {
+            'ssl': {
+                'ca': config('PATH_TO_CA', default="/etc/ssl/cert.pem", cast=str)
+            },
+        }
     }
 }
 
