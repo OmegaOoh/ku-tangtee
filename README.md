@@ -14,7 +14,21 @@ The document regarding the development of this project can be found in the [wiki
 
 Application needed to BOTH frontend and backend (two separate instances)
 
-1. Backend Server
+1. Activate Virtual Environment
+
+      **macOS/Linux**
+
+      ```bash
+      source .venv/bin/activate
+      ```
+   
+      **Windows**
+
+      ```bash
+      .venv\Scripts\activate
+      ```
+
+2. Backend Server
    1. Navigate to backend directory of the app (`\ku-tangtee\backend`)
    2. Run in Terminal
 
@@ -22,7 +36,7 @@ Application needed to BOTH frontend and backend (two separate instances)
       python manage.py runserver
       ```
 
-2. Frontend Server
+3. Frontend Server
    1. Navigate to frontend directory of the app (`\ku-tangtee\frontend`)
    2. Run in Terminal
 
@@ -30,4 +44,10 @@ Application needed to BOTH frontend and backend (two separate instances)
       npm run serve
       ```
 
-3. Connect to site (Default Host is `127.0.0.1:8080`)
+4. Connect to site (Default Host is `127.0.0.1:8080`)
+
+5. To stop the server, press CTRL-C in the terminal window. Then deactivate Virtual Environment:
+
+      ``` bash
+      deactivate
+      ```

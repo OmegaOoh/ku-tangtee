@@ -19,6 +19,20 @@ Create a Python virtual environment:
 python -m venv .venv
 ```
 
+Activate the virtual environment:
+
+**macOS/Linux**
+
+```bash
+source .venv/bin/activate
+```
+
+**Windows**
+
+```bash
+.venv\Scripts\activate
+```
+
 ### 3. Install Required Python Packages
 
 **macOS**
