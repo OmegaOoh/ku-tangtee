@@ -15,7 +15,7 @@ The document regarding the development of this project can be found in the [wiki
 Application needed to BOTH frontend and backend (two separate instances)
 
 1. Backend Server
-   1. At the root directory of the app (`\ku-tangtee`)
+   1. Navigate to backend directory of the app (`\ku-tangtee\backend`)
    2. Run in Terminal
 
       ```bash
@@ -23,7 +23,7 @@ Application needed to BOTH frontend and backend (two separate instances)
       ```
 
 2. Frontend Server
-   1. Go Inside frontend directory of the app (`\ku-tangtee\frontend`)
+   1. Navigate to frontend directory of the app (`\ku-tangtee\frontend`)
    2. Run in Terminal
 
       ``` bash
