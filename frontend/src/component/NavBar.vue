@@ -76,7 +76,7 @@
                             :to="`/activities/${activity.activity_id}`"
                             class="w-full"
                         >
-                            <p class="w-full h-fit text-ellipsis overflow-hidden">
+                            <p class="w-full h-fit text-ellipsis overflow-hidden line-ellipsis">
                                 {{ activity.name }}
                             </p>
                         </router-link>
@@ -94,7 +94,7 @@
                             :to="`/activities/${activity.activity_id}`"
                             class="w-full"
                         >
-                            <p class="w-full h-fit text-ellipsis overflow-hidden">
+                            <p class="w-full h-fit text-ellipsis overflow-hidden line-ellipsis">
                                 {{ activity.name }}
                             </p>
                         </router-link>
