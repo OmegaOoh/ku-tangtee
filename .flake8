@@ -18,6 +18,7 @@ exclude =
     */settings.py # Ignore Django settings
     */__init__.py # Ignore __init__ file
     */constants.py # Ignore constant file
+    */asgi.py # Ignore asgi.py for specific reason
 
 
 per-file-ignores =
