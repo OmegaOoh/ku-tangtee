@@ -172,7 +172,7 @@
 
                 <p class="mt-2 ml-3">
                     <strong class="text-base-content text-lg"
-                        >Close Registration:</strong
+                        >Registration closes on:</strong
                     >
                     {{ formatTimestamp(activity.end_registration_date) }}
                 </p>
@@ -288,7 +288,7 @@
                 <div class="ml-4">
                     <div v-if="!isAuth">
                         <button class="btn btn-accent" @click="login">
-                            Please Login before join
+                            Please Login before joining
                         </button>
                     </div>
                     <div
