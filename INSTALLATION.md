@@ -13,6 +13,12 @@ git clone https://github.com/OmegaOoh/ku-tangtee.git
 
 ### 2. Set Up a Python Virtual Environment
 
+Navigate to the project directory:
+
+```bash
+cd ku-tangtee
+```
+
 Create a Python virtual environment:
 
 ```bash
