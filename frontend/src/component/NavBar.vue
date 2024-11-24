@@ -66,7 +66,7 @@
             <ul class="menu bg-base-200 text-base-content w-80 p-4">
                 <!-- Sidebar content here -->
                 <template v-if="activities.length > 0">
-                    <li class="text-primary font-semibold mb-2"> Recently Joins </li>
+                    <li class="text-primary font-semibold mb-2"> Recently Joined </li>
                     <li
                         v-for="(activity, index) in activities"
                         :key="index"
@@ -84,7 +84,7 @@
                     <div class="divider w-full"></div>
                 </template>
                 <template v-if="hosted.length > 0">
-                    <li class="text-primary font-semibold mb-2"> Recently Hosts </li>
+                    <li class="text-primary font-semibold mb-2"> Recently Hosted </li>
                     <li
                         v-for="(activity, index) in hosted"
                         :key="index"

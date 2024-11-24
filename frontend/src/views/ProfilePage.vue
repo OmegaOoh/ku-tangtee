@@ -164,13 +164,13 @@
                             @click="selectedTab = 'joined'"
                             :class="{ 'tab-active': selectedTab === 'joined' }"
                             class="tab tab-bordered w-1/2"
-                            >Joined Activity</a
+                            >Joined Activities</a
                         >
                         <a
                             @click="selectedTab = 'hosted'"
                             :class="{ 'tab-active': selectedTab === 'hosted' }"
                             class="tab tab-bordered w-1/2"
-                            >Hosted Activity</a
+                            >Hosted Activities</a
                         >
                     </div>
                 </div>
