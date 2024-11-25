@@ -281,6 +281,7 @@ const validateInput = () => {
 
     const nameField = document.getElementById('name-field');
     const nameFieldError = document.getElementById('name-field-error');
+    activityName.value = activityName.value.trim();
     if (activityName.value.length <= 0) {
         nameField.classList.remove('input-primary');
         nameField.classList.add('input-error');
@@ -295,6 +296,7 @@ const validateInput = () => {
 
     const detailField = document.getElementById('detail-field');
     const detailFieldError = document.getElementById('detail-field-error');
+    activityDetail.value = activityDetail.value.trim();
     if (activityDetail.value.length <= 0) {
         detailField.classList.remove('textarea-primary');
         detailField.classList.add('input-error');
@@ -341,7 +343,7 @@ const validateInput = () => {
     }
 
     if (minRep.value < 0 || minRep.value > 10){
-        addAlert('warning', 'Max People must be positive and not zeroes.');
+        addAlert('warning', 'Max People must be positive and not zeroes and less than or equal to 10');
         minRep.value = 0;
         result = false;
     }

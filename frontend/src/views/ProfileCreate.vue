@@ -264,7 +264,7 @@ const validateInput = () => {
      * @return true if all input were valid.
      */
     var validInput = true;
-
+    kuGen.value = kuGen.value.trim()
     if (kuGen.value == null || kuGen.value == '') {
         kuGenError(true);
         validInput = false;
@@ -289,6 +289,7 @@ const validateInput = () => {
         }
     }
     const component = document.getElementById('faculty-field');
+    faculty.value = faculty.value.trim()
     if (faculty.value == '') {
         validInput = false;
         component.classList.remove('input-primary');
