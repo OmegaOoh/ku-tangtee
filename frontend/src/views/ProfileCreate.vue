@@ -333,6 +333,7 @@ const submitProfile = async () => {
      * Function to submit data from form to the backend
      * This function return nothing
      */
+    if (isProcessing.value) return;
     isProcessing.value = true;
     if (!validateInput()) {
         isProcessing.value = false;
@@ -356,7 +357,7 @@ const submitProfile = async () => {
         'success',
         'Your profile has been created successfully! Welcome to KU Tangtee!'
     );
-    isProcessing.value = true;
+    isProcessing.value = false;
 };
 
 onMounted(async () => {

@@ -472,6 +472,7 @@ const postCreateActivity = async () => {
     /*
      * Attempt to create activity.
      */
+    if (isProcessing.value) return;
     isProcessing.value = true;
     if (!validateInput()) {
         isProcessing.value = false;
