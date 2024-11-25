@@ -26,6 +26,7 @@
                                 v-if="isFilterOpen"
                                 class="right-0 absolute dropdown-content bg-base-200 rounded-box w-fit z-[1] p-4 shadow"
                             >
+                                <p class="mb-1 font-semibold">Filter Activity Start Date</p>
                                 <VueDatePicker
                                     v-model="dateRange"
                                     id="date-field"
@@ -36,12 +37,12 @@
                                     :dark="isDarkTheme"
                                     range
                                     :partial-range="false"
-                                    class="mb-3"
+                                    class="mb-3 ml-2"
 
                                 />
-                                <div class="flex flex-row justify-between">
+                                <div class="flex flex-row justify-even">
                                     <label
-                                        class="cursor-pointer flex flex-col items-center mr-3"
+                                        class="cursor-pointer flex flex-col items-center mr-2"
                                     >
                                         <input
                                             type="checkbox"
@@ -113,7 +114,7 @@
                                         <span>Fr</span>
                                     </label>
                                     <label
-                                        class="cursor-pointer flex flex-col items-center mr-3"
+                                        class="cursor-pointer flex flex-col items-center"
                                     >
                                         <input
                                             type="checkbox"

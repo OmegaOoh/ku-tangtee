@@ -181,7 +181,7 @@
                         >
                             Back
                         </button>
-                        <button class="btn btn-primary" @click="submitProfile">
+                        <button class="btn" :class="isProcessing ? 'btn-disabled' : 'btn-primary'" @click="submitProfile">
                             Submit
                         </button>
                     </div>
@@ -220,6 +220,7 @@ const bio = ref('');
 const kuGen = ref('');
 const faculty = ref('');
 const major = ref('');
+const isProcessing = ref(false);
 let watchUserId = null;
 
 const scrollCarousel = (index) => {
@@ -332,23 +333,30 @@ const submitProfile = async () => {
      * Function to submit data from form to the backend
      * This function return nothing
      */
+    isProcessing.value = true;
     if (!validateInput()) {
+        isProcessing.value = false;
         return;
     }
-    await createPostRequest(`/profile/`, {
-        user: userId.value,
-        nick_name: nickname.value,
-        pronoun: pronoun.value,
-        ku_generation: kuGen.value,
-        faculty: faculty.value,
-        major: major.value,
-        about_me: bio.value,
-    });
+    const response = await createPostRequest(`/profile/`, {
+                                user: userId.value,
+                                nick_name: nickname.value,
+                                pronoun: pronoun.value,
+                                ku_generation: kuGen.value,
+                                faculty: faculty.value,
+                                major: major.value,
+                                about_me: bio.value,
+                            });
+    if (!response) {
+        isProcessing.value = false;
+        return;
+    }
     goNext();
     addAlert(
         'success',
         'Your profile has been created successfully! Welcome to KU Tangtee!'
     );
+    isProcessing.value = true;
 };
 
 onMounted(async () => {

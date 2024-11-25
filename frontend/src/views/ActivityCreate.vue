@@ -210,7 +210,8 @@
                     </button>
                     <button
                         v-else
-                        class="btn btn-primary sm:my-0 my-6"
+                        class="btn sm:my-0 my-6"
+                        :class="isProcessing ? 'btn-disabled' : 'btn-primary'"
                         @click="postCreateActivity"
                     >
                         Create Activity
@@ -248,6 +249,7 @@ const isDarkTheme = ref(false);
 const images = ref([]);
 const showMinRep = ref(false);
 const minRep = ref(0)
+const isProcessing = ref(false);
 
 const fileUpload = ref(null);
 
@@ -470,62 +472,53 @@ const postCreateActivity = async () => {
     /*
      * Attempt to create activity.
      */
+    isProcessing.value = true;
     if (!validateInput()) {
+        isProcessing.value = false;
         return;
     }
-    try {
-        // Construct data to create POST request
-        const dateObj = new Date(date.value);
-        const endRegDateObj = new Date(endRegistrationDate.value);
-        const endDateObj = new Date(endDate.value);
-        const formattedDate = dateObj.toISOString();
-        const formattedEndRegDate = endRegDateObj.toISOString();
-        const formattedEndDate = endDateObj.toISOString();
+    // Construct data to create POST request
+    const dateObj = new Date(date.value);
+    const endRegDateObj = new Date(endRegistrationDate.value);
+    const endDateObj = new Date(endDate.value);
+    const formattedDate = dateObj.toISOString();
+    const formattedEndRegDate = endRegDateObj.toISOString();
+    const formattedEndDate = endDateObj.toISOString();
 
-        if (!showMaxPeople.value) {
-            maxPeople.value = null;
-        }
-        let data = {
-            name: activityName.value,
-            detail: activityDetail.value,
-            date: formattedDate,
-            end_registration_date: formattedEndRegDate,
-            end_date: formattedEndDate,
-            max_people: maxPeople.value || null,
-            images: images.value,
-            owner: userId.value,
-            minimum_reputation_score: minRep.value * 10
-        };
+    if (!showMaxPeople.value) {
+        maxPeople.value = null;
+    }
+    let data = {
+        name: activityName.value,
+        detail: activityDetail.value,
+        date: formattedDate,
+        end_registration_date: formattedEndRegDate,
+        end_date: formattedEndDate,
+        max_people: maxPeople.value || null,
+        images: images.value,
+        owner: userId.value,
+        minimum_reputation_score: minRep.value * 10
+    };
 
-        if (!onSite.value) {
-            data = {
-                ...data,
-                onsite: false,
-            }
-        } else {
-            data = {
-                ...data,
-                onsite: true,
-                location: {
-                    lat: latitude.value,
-                    lon: longitude.value
-                }
-            }
+    if (!onSite.value) {
+        data = {
+            ...data,
+            onsite: false,
         }
-        const response = await createPostRequest(`/activities/`, data);
-        addAlert('success', response.data.message);
-        router.push(`/activities/${response.data.id}`);
-    } catch (error) {
-        if (error.response && error.response.data) {
-            addAlert('error', error.response.data.message); // Show error message from backend
-        } else {
-            console.error(error);
-            addAlert(
-                'error',
-                'An unexpected error occurred. Please try again later.'
-            );
+    } else {
+        data = {
+            ...data,
+            onsite: true,
+            location: {
+                lat: latitude.value,
+                lon: longitude.value
+            }
         }
     }
+    const response = await createPostRequest(`/activities/`, data);
+    isProcessing.value = false;
+    addAlert('success', response.data.message);
+    router.push(`/activities/${response.data.id}`);
 };
 
 const minEndDate = computed(() => {if (date.value) return new Date(date.value); return new Date})
