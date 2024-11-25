@@ -17,7 +17,7 @@ export async function createPostRequest(path, data) {
             headers: { 'X-CSRFToken': csrfToken },
         });
     } catch (error) {
-        if (error.response) {
+        if (error.response && (error.response.data.message || error.response.message)) {
             if (error.response.data) {
                 addAlert("error", error.response.data.message);
             } else {

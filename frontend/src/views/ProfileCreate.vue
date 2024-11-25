@@ -264,7 +264,6 @@ const validateInput = () => {
      * @return true if all input were valid.
      */
     var validInput = true;
-    kuGen.value = kuGen.value.trim()
     if (kuGen.value == null || kuGen.value == '') {
         kuGenError(true);
         validInput = false;
@@ -281,7 +280,7 @@ const validateInput = () => {
             addAlert(
                 'warning',
                 'Your KU Generation must be less than or equal to ' +
-                    this.getMaxKuGeneration()
+                    getMaxKuGeneration()
             );
             validInput = false;
         } else {
@@ -353,28 +352,29 @@ const submitProfile = async () => {
         isProcessing.value = false;
         return;
     }
+    isProcessing.value = false;
     goNext();
     addAlert(
         'success',
         'Your profile has been created successfully! Welcome to KU Tangtee!'
     );
-    isProcessing.value = false;
+    
 };
 
 onMounted(async () => {
     const profileResponse = await apiClient.get(`profile/`);
     if (profileResponse.data.has_profile) {
         addAlert('info', 'You already has the profile.');
-        this.goNext();
+        goNext();
     }
     watchUserId = watch(userId, (newUserId) => {
         if (!isAuth.value) {
-            this.goNext();
+            goNext();
             addAlert('warning', "You didn't log in");
         }
         if (newUserId) {
             addAlert('info', 'You already has the profile.');
-            this.goNext();
+            goNext();
         }
     });
 });
