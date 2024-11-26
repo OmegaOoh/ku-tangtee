@@ -90,48 +90,24 @@
 
     ![Add site to social app](./google_oauth_guide_pic/Add%20site%20to%20social%20app.png)
 
-8. Get site_id from database
+8. How to get SITE_ID
 
-    - Access mysql shell
-
-        - MacOS
-
-            run ```mysql -u root -p```
-
-            Then enter you root password.
-
-        - Window 
-
-            Run MySQL Command Line Client application
-
-    - Use database that you use for running the app
-    
-        ``` sql
-        USE myDB; -- If your database name is myDB
+    - Run 
         ```
-        ``` sql
-        SELECT * FROM django_site;
+        python manage.py shell
         ```
 
-    - It's will show table with couple record. Look for 127.0.0.1:8000.
-
-        For an example
-
-        ```
-        mysql> SELECT * FROM django_site;
-        +----+-----------------------+-----------------------+
-        | id | domain                | name                  |
-        +----+-----------------------+-----------------------+
-        |  3 | example.com           | example.com           |
-        |  4 | http://127.0.0.1:8000 | http://127.0.0.1:8000 |
-        +----+-----------------------+-----------------------+
-        2 rows in set (0.00 sec)
+    - Under shell, enter this script
+        ```py
+            >>> from django.contrib.sites import 
+            >>> models.Site.objects.get(name="<Site display name that you have set before>").id
+            4
         ```
 
-        In this case SITE_ID is 4
+    - In this case SITE_ID is 4
 
 
-9. In your backend.env file, there is a row `SITE_ID`. Edit it to match with your SITE_ID.
+9. In your backend.env file, there is a variable `SITE_ID`. Edit it to match with your SITE_ID.
 
     ```
     SITE_ID = 4 // According to previous step SITE_ID is 4
