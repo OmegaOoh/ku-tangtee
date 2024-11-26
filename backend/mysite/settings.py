@@ -4,6 +4,7 @@ import os
 from datetime import timedelta
 from pathlib import Path
 from decouple import config
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -93,32 +94,25 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DB_ENGINE = {
-    'mysql': 'django.db.backends.mysql',
-    'tidb': 'django_tidb'
-}
+USE_URL = config('USE_URL', default=True, cast=bool)
 
-DATABASES = {
+if USE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=config('DATABASE_URL', default=True, cast=str)
+        )
+    }
+else:
+    DATABASES = {
     'default': {
-        # 'ENGINE': 'django.db.backends.mysql',
-        'ENGINE': DB_ENGINE.get(config('DATABASE_ENGINE', cast=str, default='mysql')),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': config('DATABASE_NAME', default='myDB', cast=str),
-        'USER': config('DATABASE_USER', default='root', cast=str),
+        'USER': config('DATABASE_USER', default='postgres', cast=str),
         'PASSWORD': config('DATABASE_PASSWORD', default='password', cast=str),
         'HOST': config('DATABASE_HOST', default='localhost', cast=str),
-        'PORT': config('DATABASE_PORT', default='3306', cast=str),
-        
+        'PORT': config('DATABASE_PORT', default='5432', cast=str),
     }
 }
-
-REQUIRE_SSL = config('REQUIRE_SSL', default=False, cast=bool)
-
-if REQUIRE_SSL:
-    DATABASES['default']['OPTIONS'] = {
-            'ssl': {
-                'ca': config('PATH_TO_CA', default="/etc/ssl/cert.pem", cast=str)
-            },
-        }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -226,8 +220,8 @@ CORS_ALLOW_HEADERS = [
 CSRF_TRUSTED_ORIGINS = config('ALLOWED_CSRF', cast=str, default="http://127.0.0.1:8080, http://localhost:8080").replace(' ', '').split(',')
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SAMESITE = "Lax"
-SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SAMESITE = "None"
 
 
 # Rest Framework
@@ -255,6 +249,7 @@ REST_AUTH = {
     'JWT_AUTH_REFRESH_COOKIE': 'jwt-reauth',
     'JWT_AUTH_HTTPONLY': True,
     'JWT_AUTH_SECURE': True,
+    'JWT_AUTH_SAMESITE': 'None'
 }
 
 # Django Channels
