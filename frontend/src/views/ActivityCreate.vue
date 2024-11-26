@@ -520,6 +520,7 @@ const postCreateActivity = async () => {
     }
     const response = await createPostRequest(`/activities/`, data);
     isProcessing.value = false;
+    if (!response) return;
     addAlert('success', response.data.message);
     router.push(`/activities/${response.data.id}`);
 };

@@ -215,13 +215,14 @@
             <div class="flex justify-between items-center my-2">
                 <button
                     v-if="isOwner"
-                    class="btn btn-error hover:brightness-50"
+                    class="btn "
+                    :class="isProcessing ? 'btn-disabled' : 'btn-error hover:brightness-50'"
                     @click="cancelActivity"
                 >
                     Cancel Activity
                 </button>
                 <div class="ml-auto">
-                    <button class="btn btn-accent" @click="postUpdate">
+                    <button class="btn btn-accent" :class="isProcessing ? 'btn-disabled' : 'btn-accent'" @click="postUpdate">
                         Update Activity
                     </button>
                 </div>
@@ -296,7 +297,8 @@ const remove_attachment = ref([]);
 const isDarkTheme = ref(false);
 const showMinRep = ref(false);
 const minRep = ref(0);
-const isCancelled = ref(false);
+
+const isProcessing = ref(false);
 
 const fileUpload = ref(null);
 
@@ -323,7 +325,6 @@ const fetchDetail = async () => {
         maxPeople.value = activity.value.max_people || activity.value.people;
         showMaxPeople.value = maxPeople.value > 1;
         people.value = activity.value.participant;
-        isCancelled.value = response.data.is_cancelled;
     } catch (error) {
         console.error('Error fetching activity:', error);
     }
@@ -433,96 +434,76 @@ const postUpdate = async () => {
      * Attempt to update activity information.
      * This function does not return anything.
      */
-
+    isProcessing.value = true;
     if (!validateInput()) {
+        isProcessing.value = false;
         return;
     }
-    try {
-        // Construct data to create POST request
-        if (!showMaxPeople.value) {
-            maxPeople.value = null;
-        }
-        new_images.value = images.value
-            .filter((image) => image.id === -1)
-            .map((image) => image.url);
-        let data = {
-            name: activityName.value,
-            detail: activityDetail.value,
-            date: date.value,
-            end_registration_date: endRegistrationDate.value,
-            end_date: endDate.value,
-            max_people: maxPeople.value || null,
-            new_images: new_images.value,
-            remove_attachments: remove_attachment.value,
-            owner: owner.value,
-            minimum_reputation_score: minRep.value * 10,
-            is_cancelled: isCancelled.value,
-        };
-
-        if (!activity.value.on_site) {
-            data = {
-                ...data,
-                on_site: false,
-            };
-        } else {
-            data = {
-                ...data,
-                on_site: true,
-                location: {
-                    lat: activity.value.location.lat,
-                    lon: activity.value.location.lon,
-                },
-            };
-        }
-        const response = await createPutRequest(
-            `/activities/${props.id}/`,
-            data
-        );
-        new_images.value = [];
-        remove_attachment.value = [];
-        addAlert('success', response.data.message);
-        emit('update-success');
-        await fetchDetail();
-    } catch (error) {
-        console.error(error);
-        if (error.response && error.response.data) {
-            addAlert('error', error.response.data.message); // Show error message from backend
-        } else {
-            addAlert(
-                'error',
-                'An unexpected error occurred. Please try again later.'
-            );
-        }
+    // Construct data to create POST request
+    if (!showMaxPeople.value) {
+        maxPeople.value = null;
     }
+    new_images.value = images.value
+        .filter((image) => image.id === -1)
+        .map((image) => image.url);
+    let data = {
+        name: activityName.value,
+        detail: activityDetail.value,
+        date: date.value,
+        end_registration_date: endRegistrationDate.value,
+        end_date: endDate.value,
+        max_people: maxPeople.value || null,
+        new_images: new_images.value,
+        remove_attachments: remove_attachment.value,
+        owner: owner.value,
+        minimum_reputation_score: minRep.value * 10,
+        is_cancelled: false,
+    };
+
+    if (!activity.value.on_site) {
+        data = {
+            ...data,
+            on_site: false,
+        };
+    } else {
+        data = {
+            ...data,
+            on_site: true,
+            location: {
+                lat: activity.value.location.lat,
+                lon: activity.value.location.lon,
+            },
+        };
+    }
+    const response = await createPutRequest(
+        `/activities/${props.id}/`,
+        data
+    );
+    isProcessing.value = false;
+    if (!response) return;
+    new_images.value = [];
+    remove_attachment.value = [];
+    addAlert('success', response.data.message);
+    emit('update-success');
+    await fetchDetail();
 };
 const cancelActivity = async () => {
     /*
      * Attempt to cancel activity.
      * This function does not return anything.
      */
-    try {
-        isCancelled.value = true;
-        let data = {
-            is_cancelled: isCancelled.value,
-        };
-        const response = await createPutRequest(
-            `/activities/${props.id}/`,
-            data
-        );
-        addAlert('success', response.data.message);
-        emit('update-success');
-        await fetchDetail();
-    } catch (error) {
-        console.error(error);
-        if (error.response && error.response.data) {
-            addAlert('error', error.response.data.message);
-        } else {
-            addAlert(
-                'error',
-                'An unexpected error occurred. Please try again later.'
-            );
-        }
+    isProcessing.value = true;
+    const response = await createPutRequest(
+        `/activities/${props.id}/`,
+        { is_cancelled: true }
+    );
+    if (!response) {
+        isProcessing.value = false;
+        return; // Failed
     }
+    addAlert('success', response.data.message);
+    emit('update-success');
+    await fetchDetail();
 };
 const formatActivityDate = (date) => {
     /*

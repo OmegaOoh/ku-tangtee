@@ -557,19 +557,12 @@ const joinActivity = async () => {
 };
 
 const leaveActivity = async () => {
-    try {
-        const response = await createDeleteRequest(
-            `/activities/join/${activityId.value}/`
-        );
-        addAlert('success', response.data.message);
-        await fetchDetail();
-    } catch (error) {
-        addAlert(
-            'error',
-            error.response?.data?.message ||
-                'An unexpected error occurred. Please try again later.'
-        );
-    }
+    const response = await createDeleteRequest(
+        `/activities/join/${activityId.value}/`
+    );
+    if (!response) return;
+    addAlert('success', response.data.message);
+    await fetchDetail();
 };
 
 // Computed properties

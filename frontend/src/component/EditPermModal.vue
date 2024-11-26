@@ -118,7 +118,7 @@
                 </div>
             </div>
             <div class="flex justify-end">
-                <button class="btn btn-accent" @click="postUpdate">
+                <button class="btn" :class="isProcessing ? 'btn-disabled' : 'btn-accent'" @click="postUpdate">
                     Update Permission
                 </button>
             </div>
@@ -160,6 +160,7 @@ const searchKeyword = ref('');
 const detail = ref('');
 const owner = ref(0);
 const isDarkTheme = ref(false);
+const isProcessing = ref(false);
 
 const props = defineProps({
     id: {
@@ -195,37 +196,29 @@ const postUpdate = async () => {
      * Attempt to update activity information.
      * This function does not return anything.
      */
-    try {
-        // Construct data to create POST request
-        const data = {
-            remove_host: removeHost.value,
-            grant_host: grantHost.value,
-            attendee_to_remove: kickedParticipant.value,
-            owner: owner.value,
-            detail: detail.value,
-            name: name.value,
-        };
-        const response = await createPutRequest(
-            `/activities/${props.id}/`,
-            data
-        );
-        removeHost.value = [];
-        grantHost.value = [];
-        kickedParticipant.value = [];
-        addAlert('success', response.data.message);
-        emit('update-success');
-        await fetchDetail();
-    } catch (error) {
-        console.error(error);
-        if (error.response && error.response.data) {
-            addAlert('error', error.response.data.message); // Show error message from backend
-        } else {
-            addAlert(
-                'error',
-                'An unexpected error occurred. Please try again later.'
-            );
-        }
+    isProcessing.value = true;
+    // Construct data to create POST request
+    const data = {
+        remove_host: removeHost.value,
+        grant_host: grantHost.value,
+        attendee_to_remove: kickedParticipant.value,
+        detail: detail.value,
+        name: name.value,
+    };
+    const response = await createPutRequest(
+        `/activities/${props.id}/`,
+        data
+    );
+    isProcessing.value = false;
+    if (!response) {
+        return; // Failed
     }
+    addAlert('success', response.data.message);
+    emit('update-success');
+    await fetchDetail();
+    removeHost.value = [];
+    grantHost.value = [];
+    kickedParticipant.value = [];
 };
 const fetchProfile = async () => {
     /*

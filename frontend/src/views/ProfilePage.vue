@@ -149,7 +149,8 @@
 
                             <div v-if="editMode">
                                 <button
-                                    class="btn btn-secondary rounded-md absolute top-2 right-2 w-fit h-fit py-1"
+                                    class="btn rounded-md absolute top-2 right-2 w-fit h-fit py-1"
+                                    :class="isProcessing ? 'btn-disabled' : 'btn-secondary'"
                                     @click="submitData"
                                 >
                                     Save
@@ -266,6 +267,8 @@ const reputationLevel = ref(0);
 const reputationProgress = ref(0);
 const joinLimit = ref(0);
 const concurrentAct = ref(0);
+
+const isProcessing = ref(false);
 
 // Computed Properties
 const isOwner = computed(() => {
@@ -400,10 +403,12 @@ const getMaxKuGeneration = () => {
  */
 
 const submitData = async () => {
+    isProcessing.value = true;
     if (!validateInput()) {
+        isProcessing.value = false;
         return; // Invalid input return early
     }
-    await createPutRequest(`/profile/${user.value.username}/`, {
+    const response = await createPutRequest(`/profile/${user.value.username}/`, {
         nick_name: nickname.value,
         pronoun: pronoun.value,
         ku_generation: kuGen.value,
@@ -411,6 +416,8 @@ const submitData = async () => {
         major: major.value,
         about_me: bio.value,
     });
+    isProcessing.value = false;
+    if (!response) return;
     addAlert('success', 'Your Profile has been edited successfully!');
     editMode.value = false;
 };
