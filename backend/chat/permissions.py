@@ -1,3 +1,4 @@
+"""Permission module for chat."""
 from typing import Any
 from django.http import HttpRequest
 from rest_framework import permissions, generics
