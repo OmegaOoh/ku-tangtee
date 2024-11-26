@@ -8,7 +8,6 @@ from activities import models
 from activities.logger import logger, Action, RequestData, data_to_log
 from activities.serializer.permissions import OnlyHostCanEdit, OnlyHostCanGet, MustBeMember
 from activities.serializer import model_serializers
-from . import util
 
 
 class CheckInView(
