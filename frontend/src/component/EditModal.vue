@@ -338,6 +338,7 @@ const validateInput = () => {
     var result = true;
     const nameField = document.getElementById('name-field');
     const nameFieldError = document.getElementById('name-field-error');
+    activityName.value = activityName.value.trim();
     if (activityName.value.length <= 0) {
         nameField.classList.remove('input-primary');
         nameField.classList.add('input-error');
@@ -350,9 +351,9 @@ const validateInput = () => {
         if (!nameField.classList.contains('textarea-primary'))
             nameField.classList.add('textarea-primary');
     }
-
     const detailField = document.getElementById('detail-field');
     const detailFieldError = document.getElementById('detail-field-error');
+    activityDetail.value = activityDetail.value.trim();
     if (activityDetail.value.length <= 0) {
         detailField.classList.remove('textarea-primary');
         detailField.classList.add('input-error');
