@@ -45,14 +45,14 @@ export async function createPutRequest(path, data) {
             headers: { 'X-CSRFToken': csrfToken },
         });
     } catch (error) {
-        if (error.response) {
+        if (error.response && (error.response.data.message || error.response.message)) {
             if (error.response.data) {
                 addAlert("error", error.response.data.message);
             } else {
                 addAlert('error', error.response.message);
             }
         }
-        else  if (error.request) {
+        else if (error.request) {
             addAlert('error', "Error Connecting to server")
         } else {
             addAlert("error", "Unexpected Error")
@@ -71,7 +71,7 @@ export async function createDeleteRequest(path) {
             headers: { 'X-CSRFToken': csrfToken },
         });
     } catch (error) {
-        if (error.response) {
+        if (error.response && (error.response.data.message || error.response.message)) {
             if (error.response.data) {
                 addAlert("error", error.response.data.message);
             } else {

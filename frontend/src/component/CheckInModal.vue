@@ -86,36 +86,16 @@ const checkInCode = ref('');
 
 const postCheckIn = async () => {
     if (validateCheckInCode()) {
-        try {
-            const response = await createPostRequest(
-                `/activities/check-in/${props.id}/`,
-                {
-                    check_in_code: checkInCode.value,
-                }
-            );
-            addAlert('success', response.data.message);
-            emit('check-in-success');
-        } catch (error) {
-            if (error.response && error.response.data) {
-                if (error.response.data.message == 'Check-in code invalid') {
-                    const checkInCodeField = document.getElementById(
-                        'check-in-code-fields'
-                    );
-                    const invalidCodeError =
-                        document.getElementById('invalid-code');
-                    checkInCodeField.classList.remove('input-primary');
-                    checkInCodeField.classList.add('input-error');
-                    invalidCodeError.removeAttribute('hidden');
-                } else {
-                    addAlert('error', error.response.data.message); // Show error message from backend
-                }
-            } else {
-                addAlert(
-                    'error',
-                    'An unexpected error occurred. Please try again later.'
-                );
+        const response = await createPostRequest(
+            `/activities/check-in/${props.id}/`,
+            {
+                check_in_code: checkInCode.value,
             }
-        }
+        );
+        if (!response) return; // Failed
+        addAlert('success', response.data.message);
+        emit('check-in-success');
+        
     }
 };
 
