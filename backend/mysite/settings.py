@@ -94,50 +94,26 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# DB_ENGINE = {
-#     'mysql': 'django.db.backends.mysql',
-#     'tidb': 'django_tidb'
-# }
+DATA_BASE_URL = config('DATABASE_URL', cast=str, default=None)
 
-# DATABASES = {
-#     'default': {
-#         # 'ENGINE': 'django.db.backends.mysql',
-#         'ENGINE': DB_ENGINE.get(config('DATABASE_ENGINE', cast=str, default='mysql')),
-#         'NAME': config('DATABASE_NAME', default='myDB', cast=str),
-#         'USER': config('DATABASE_USER', default='root', cast=str),
-#         'PASSWORD': config('DATABASE_PASSWORD', default='password', cast=str),
-#         'HOST': config('DATABASE_HOST', default='localhost', cast=str),
-#         'PORT': config('DATABASE_PORT', default='3306', cast=str),
-        
-#     }
-# }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': config('DATABASE_NAME', default='myDB', cast=str),
-#         'USER': config('DATABASE_USER', default='root', cast=str),
-#         'PASSWORD': config('DATABASE_PASSWORD', default='password', cast=str),
-#         'HOST': config('DATABASE_HOST', default='localhost', cast=str),
-#         'PORT': config('DATABASE_PORT', default='3306', cast=str),
-#     }
-# }
-
-DATABASES = {
-    'default': dj_database_url.config(
-        # Replace this value with your local database's connection string.
-        default=config('DATABASE_URL', cast=str)
-    )
+if DATA_BASE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(
+            # Replace this value with your local database's connection string.
+            default=DATA_BASE_URL
+        )
+    }
+else:
+    DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': config('DATABASE_NAME', default='myDB', cast=str),
+        'USER': config('DATABASE_USER', default='root', cast=str),
+        'PASSWORD': config('DATABASE_PASSWORD', default='password', cast=str),
+        'HOST': config('DATABASE_HOST', default='localhost', cast=str),
+        'PORT': config('DATABASE_PORT', default='5432', cast=str),
+    }
 }
-
-# REQUIRE_SSL = config('REQUIRE_SSL', default=False, cast=bool)
-
-# if REQUIRE_SSL:
-#     DATABASES['default']['OPTIONS'] = {
-#             'ssl': {
-#                 'ca': config('PATH_TO_CA', default="/etc/ssl/cert.pem", cast=str)
-#             },
-#         }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
