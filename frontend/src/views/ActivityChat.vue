@@ -460,6 +460,9 @@ const fetchMessages = async (page = 1) => {
      * return Nothing
      */
     isLoading = true;
+    if (page == 1 && messages.value.length > 0) {
+        messages.value = [] // Clear message when try to load page 1 again
+    }
     try {
         const response = await apiClient.get(`/chat/${activityId.value}/?page=${page}`);
         if (response.data.results.length > 0) {
@@ -545,6 +548,7 @@ const scrollButtonVisibility = (visibility) => {
      * this function return nothing
      */
     const button = document.getElementById('bottom-button');
+    if (!button) return; // Button is not loaded yet, return early
     if (visibility) {
         button.classList.remove('opacity-0');
     } else if (!button.classList.contains('opacity-0')) {
