@@ -96,7 +96,7 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 
 DATA_BASE_URL = config('DATABASE_URL', cast=str, default=None)
 
-if DATA_BASE_URL:
+if DATA_BASE_URL == "":
     DATABASES = {
         'default': dj_database_url.config(
             # Replace this value with your local database's connection string.
