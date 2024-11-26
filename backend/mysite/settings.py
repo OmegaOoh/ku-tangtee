@@ -94,13 +94,12 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATA_BASE_URL = config('DATABASE_URL', cast=str, default=None)
+USE_URL = config('USE_URL', default=True, cast=bool)
 
-if DATA_BASE_URL != "":
+if USE_URL:
     DATABASES = {
         'default': dj_database_url.config(
-            # Replace this value with your local database's connection string.
-            default=DATA_BASE_URL
+            default=config('DATABASE_URL', default=True, cast=str)
         )
     }
 else:

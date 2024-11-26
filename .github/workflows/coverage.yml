@@ -13,6 +13,7 @@ env:
   DATABASE_HOST: 127.0.0.1
   DATABASE_PASSWORD: mju7MJU&
   DJANGO_SETTINGS_MODULE: mysite.settings
+  USE_URL: False
 
 jobs:
   test:
