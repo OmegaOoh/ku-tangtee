@@ -95,6 +95,7 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 USE_URL = config('USE_URL', default=True, cast=bool)
+print("USE_URL:", USE_URL)
 
 if USE_URL:
     DATABASES = {
