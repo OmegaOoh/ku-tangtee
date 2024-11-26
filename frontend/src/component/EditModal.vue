@@ -215,14 +215,14 @@
             <div class="flex justify-between items-center my-2">
                 <button
                     v-if="isOwner"
-                    class="btn "
+                    class="btn"
                     :class="isProcessing ? 'btn-disabled' : 'btn-error hover:brightness-50'"
                     @click="cancelActivity"
                 >
                     Cancel Activity
                 </button>
                 <div class="ml-auto">
-                    <button class="btn btn-accent" :class="isProcessing ? 'btn-disabled' : 'btn-accent'" @click="postUpdate">
+                    <button class="btn" :class="isProcessing ? 'btn-disabled' : 'btn-accent'" @click="postUpdate">
                         Update Activity
                     </button>
                 </div>
@@ -498,8 +498,8 @@ const cancelActivity = async () => {
         `/activities/${props.id}/`,
         { is_cancelled: true }
     );
+    isProcessing.value = false;
     if (!response) {
-        isProcessing.value = false;
         return; // Failed
     }
     addAlert('success', response.data.message);
