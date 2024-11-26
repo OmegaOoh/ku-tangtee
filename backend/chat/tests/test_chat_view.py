@@ -30,6 +30,7 @@ class ChatMessageListTest(APITestCase):
             message="This is another test message."
         )
         self.url = reverse('chat_message_list', args=[self.activity.id])
+        self.client.login(username="testuser", password="testpass")
 
     def test_get_chat_messages(self):
         """Test the retrieval of chat messages for an activity."""
