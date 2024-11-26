@@ -21,6 +21,6 @@ class IsUserInActivity(permissions.BasePermission):
         activity_id = view.kwargs.get('activity_id')
         try:
             activity = Activity.objects.get(id=activity_id)
-            return bool(request.user in [a.user for a in activity.attend_set.all()])
+            return activity.attend_set.filter(user=request.user).exists()
         except Activity.DoesNotExist:
             return False
