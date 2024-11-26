@@ -477,24 +477,13 @@ const allowCheckIn = async () => {
     /*
      * Attempt to join activity.
      */
-    try {
-        const response = await createPutRequest(
-            `/activities/check-in/${activityId.value}/?status=open`,
-            {}
-        );
-        addAlert('success', response.data.message);
-        showCheckInCode.value = true;
-    } catch (error) {
-        if (error.response && error.response.data) {
-            addAlert('error', error.response.data.message); // Show error message from backend
-        } else {
-            console.error(error);
-            addAlert(
-                'error',
-                'An unexpected error occurred. Please try again later.'
-            );
-        }
-    }
+    const response = await createPutRequest(
+        `/activities/check-in/${activityId.value}/?status=open`,
+        {}
+    );
+    if (!response) return;
+    addAlert('success', response.data.message);
+    showCheckInCode.value = true;
 };
 
 const checkDatePassed = (timestamp) => {
@@ -558,20 +547,13 @@ const goToChat = () => {
 };
 
 const joinActivity = async () => {
-    try {
-        const response = await createPostRequest(
-            `/activities/join/${activityId.value}/`,
-            {}
-        );
-        addAlert('success', response.data.message);
-        await fetchDetail();
-    } catch (error) {
-        addAlert(
-            'error',
-            error.response?.data?.message ||
-                'An unexpected error occurred. Please try again later.'
-        );
-    }
+    const response = await createPostRequest(
+        `/activities/join/${activityId.value}/`,
+        {}
+    );
+    if (!response) return; // Failed!
+    addAlert('success', response.data.message);
+    await fetchDetail();
 };
 
 const leaveActivity = async () => {
