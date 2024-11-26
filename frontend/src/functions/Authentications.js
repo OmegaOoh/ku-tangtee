@@ -3,6 +3,7 @@ import apiClient from '@/api';
 import { googleTokenLogin } from 'vue3-google-login';
 import { createPostRequest, getCsrfToken } from './HttpRequest';
 import router from '@/router';
+import { addAlert } from './AlertManager';
 
 export var isAuth = ref(false);
 export var fName = ref('');
@@ -74,6 +75,25 @@ export async function logout() {
     userId.value = '';
     userName.value = '';
     await createPostRequest(`rest-auth/logout/`, {});
+    const csrfToken = await getCsrfToken();
+    try {
+        await apiClient.post(
+            'rest-auth/logout/',
+            {},
+            {
+                headers: { 'X-CSRFToken': csrfToken },
+            }
+        );
+    } catch(error) {
+        if (error.response.status === 403) {
+            return; // Do nothing this is fine
+        } else if (error.response.data.message) {
+            addAlert('error', error.response.data.message);
+        } else {
+            addAlert('error', 'Unexpected Error.')
+        }
+    }
+
 }
 
 export async function getUserData() {

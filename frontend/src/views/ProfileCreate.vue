@@ -181,7 +181,7 @@
                         >
                             Back
                         </button>
-                        <button class="btn btn-primary" @click="submitProfile">
+                        <button class="btn" :class="isProcessing ? 'btn-disabled' : 'btn-primary'" @click="submitProfile">
                             Submit
                         </button>
                     </div>
@@ -220,6 +220,7 @@ const bio = ref('');
 const kuGen = ref('');
 const faculty = ref('');
 const major = ref('');
+const isProcessing = ref(false);
 let watchUserId = null;
 
 const scrollCarousel = (index) => {
@@ -263,7 +264,6 @@ const validateInput = () => {
      * @return true if all input were valid.
      */
     var validInput = true;
-
     if (kuGen.value == null || kuGen.value == '') {
         kuGenError(true);
         validInput = false;
@@ -280,7 +280,7 @@ const validateInput = () => {
             addAlert(
                 'warning',
                 'Your KU Generation must be less than or equal to ' +
-                    this.getMaxKuGeneration()
+                    getMaxKuGeneration()
             );
             validInput = false;
         } else {
@@ -288,6 +288,7 @@ const validateInput = () => {
         }
     }
     const component = document.getElementById('faculty-field');
+    faculty.value = faculty.value.trim()
     if (faculty.value == '') {
         validInput = false;
         component.classList.remove('input-primary');
@@ -332,39 +333,48 @@ const submitProfile = async () => {
      * Function to submit data from form to the backend
      * This function return nothing
      */
+    if (isProcessing.value) return;
+    isProcessing.value = true;
     if (!validateInput()) {
+        isProcessing.value = false;
         return;
     }
-    await createPostRequest(`/profile/`, {
-        user: userId.value,
-        nick_name: nickname.value,
-        pronoun: pronoun.value,
-        ku_generation: kuGen.value,
-        faculty: faculty.value,
-        major: major.value,
-        about_me: bio.value,
-    });
+    const response = await createPostRequest(`/profile/`, {
+                                user: userId.value,
+                                nick_name: nickname.value,
+                                pronoun: pronoun.value,
+                                ku_generation: kuGen.value,
+                                faculty: faculty.value,
+                                major: major.value,
+                                about_me: bio.value,
+                            });
+    if (!response) {
+        isProcessing.value = false;
+        return;
+    }
+    isProcessing.value = false;
     goNext();
     addAlert(
         'success',
         'Your profile has been created successfully! Welcome to KU Tangtee!'
     );
+    
 };
 
 onMounted(async () => {
     const profileResponse = await apiClient.get(`profile/`);
     if (profileResponse.data.has_profile) {
         addAlert('info', 'You already has the profile.');
-        this.goNext();
+        goNext();
     }
     watchUserId = watch(userId, (newUserId) => {
         if (!isAuth.value) {
-            this.goNext();
+            goNext();
             addAlert('warning', "You didn't log in");
         }
         if (newUserId) {
             addAlert('info', 'You already has the profile.');
-            this.goNext();
+            goNext();
         }
     });
 });

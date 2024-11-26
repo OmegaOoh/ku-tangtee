@@ -21,10 +21,12 @@
                             >
                                 filter
                             </button>
+                            <!--Filter Box-->
                             <div
                                 v-if="isFilterOpen"
                                 class="right-0 absolute dropdown-content bg-base-200 rounded-box w-fit z-[1] p-4 shadow"
                             >
+                                <p class="mb-1 font-semibold">Filter Activity Start Date</p>
                                 <VueDatePicker
                                     v-model="dateRange"
                                     id="date-field"
@@ -35,11 +37,12 @@
                                     :dark="isDarkTheme"
                                     range
                                     :partial-range="false"
-                                    class="mb-3"
+                                    class="mb-3 ml-2"
+
                                 />
-                                <div class="flex flex-row justify-between">
+                                <div class="flex flex-row justify-even">
                                     <label
-                                        class="cursor-pointer flex flex-col items-center mr-3"
+                                        class="cursor-pointer flex flex-col items-center mr-2"
                                     >
                                         <input
                                             type="checkbox"
@@ -111,7 +114,7 @@
                                         <span>Fr</span>
                                     </label>
                                     <label
-                                        class="cursor-pointer flex flex-col items-center mr-3"
+                                        class="cursor-pointer flex flex-col items-center"
                                     >
                                         <input
                                             type="checkbox"
@@ -236,8 +239,6 @@ const activities = ref([]);
 const isDarkTheme = ref(false);
 const searchKeyword = ref('');
 const socket = ref(null);
-const startDate = ref(null);
-const endDate = ref(null);
 const dateRange = ref(null);
 const selectedDay = ref([1, 2, 3, 4, 5, 6, 7]);
 const isFilterOpen = ref(false);
@@ -263,13 +264,11 @@ const fetchActivities = async (page = 1, reset = false) => {
         if (searchKeyword.value) {
             params.keyword = searchKeyword.value;
         }
-        if (startDate.value) {
-            params.start_date = format(startDate.value, 'yyyy-MM-dd');
+        if (dateRange.value) {
+            params.start_date = format(dateRange.value[1], 'yyyy-MM-dd');
+            params.end_date = format(dateRange.value[1], 'yyyy-MM-dd');
         }
-        if (endDate.value) {
-            params.end_date = format(endDate.value, 'yyyy-MM-dd');
-        }
-        if (selectedDay.value) {
+        if (selectedDay.value && selectedDay.value.length != 7) {
             params.day = selectedDay.value.toString();
         }
         response = await apiClient.get('/activities/', { params });
