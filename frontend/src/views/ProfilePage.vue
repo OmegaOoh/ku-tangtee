@@ -435,7 +435,7 @@ onMounted(async () => {
         fetchHostedActivities();
         fetchJoinedActivities();
     } catch (e) {
-        router.push('/');
+        router.push('/not-found');
         addAlert('error', 'The profile does not exists.');
     }
 });
