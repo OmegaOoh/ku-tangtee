@@ -15,13 +15,27 @@ git clone https://github.com/OmegaOoh/ku-tangtee.git
 Navigate to the project directory:
 
 ```bash
-cd frontend
+cd ku-tangtee
 ```
 
 Create a Python virtual environment:
 
 ```bash
 python -m venv .venv
+```
+
+Activate the virtual environment:
+
+**macOS/Linux**
+
+```bash
+source .venv/bin/activate
+```
+
+**Windows**
+
+```bash
+.venv\Scripts\activate
 ```
 
 ### 3. Install Required Python Packages
@@ -62,10 +76,10 @@ Follow the instructions in the [PostgreSQL installation and setup guide](./datab
 
 ### 7. Migrate Django Database
 
-Navigate Back to the Root Directory (`\ku-tangtee`):
+Navigate to the Backend Directory (`\ku-tangtee\backend`):
 
    ```bash
-   cd ..
+   cd ..\backend
    ```
 
 Then, run the following command to apply database migrations:
