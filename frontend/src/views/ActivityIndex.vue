@@ -12,6 +12,7 @@
                         @keydown.enter="fetchActivities(1, true)"
                         class="input input-bordered gap-2 rounded-r-none"
                         placeholder="Search"
+                        :maxlength="250"
                     />
                     <div>
                         <div class="relative">
