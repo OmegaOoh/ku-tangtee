@@ -8,6 +8,10 @@ Web applications powered by Django and VueJS to gather people for events or acti
 
 The document regarding the development of this project can be found in the [wiki](../../wiki)
 
+## End to End tests
+
+* [End to end test](https://github.com/Thanawas-Sirilertsathit/E2E-for-KU-Tangtee)
+
 ## How to run
 
 **Prerequisite**: Install the app by following [Installation Guide](INSTALLATION.md)
