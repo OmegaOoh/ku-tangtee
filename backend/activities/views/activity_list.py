@@ -28,9 +28,11 @@ class ActivityList(
         """Activity index view returns a list of all the activities according to query parameters."""
         queryset = super().get_queryset()
 
-        usertz = 0
+        offset = 0
         if (self.request.headers.get('tzoffset')):
-            usertz = timedelta(minutes=int(self.request.headers.get('tzoffset')))
+            offset = int(self.request.headers.get('tzoffset'))
+
+        usertz = timedelta(minutes=offset)
 
         queryset = queryset.filter(end_registration_date__gte=timezone.now())
 
