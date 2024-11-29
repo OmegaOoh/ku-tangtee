@@ -1,79 +1,24 @@
-# MySQL installation & set up guide
+# PostgreSQL set up guide
 
-## Install MySQL
-1. Follow [this](https://dev.mysql.com/downloads/mysql/) link.
-2. Select you operating system.
-3. Download installer file.
-4. Run the installer file.
-5. Follow installer instruction.
-6. Enter a password for root user when installer prompt.
+## Using free online hosting database
+1. Go to [render.com](https://render.com)
+2. Create account and login
+3. Go to [Create database instance](https://dashboard.render.com/new/database)
+4. Fill information about database
+5. Under Plan Options choose **Free** 
 
-## Set up a database
-1. ### **MacOS/Linux**
-
-    Login to MySQL terminal as a root user.
-
+    _Note:_  free tier database on [render.com](https://render.com) will reset every 30 days
+6. Click **Create Database**
+7. Wait until service is ready
+8. Go to [Render Dashboard](https://dashboard.render.com)
+9. Select database that you have created before
+10. Select Connect > External then copy External Database URL
+11. Go to [environment file](backend/sample.env)
+12. Set environment variable
     ```
-    mysql -u root -p
-    ```
-
-    After execute command, enter root password that you've set before in installer. 
-
-    If mysql command not found run this command to add mysql to PATH.
-
-    ```
-    export PATH=/usr/local/mysql/bin:$PATH
+    USE_URL=TRUE
+    DATABASE_URL=<External Database URL that you have copy before>
     ```
 
-    Then try to login into mysql with root user again.
-
-
-    ### **Window**
-
-    Run MySQL Command Line Client application
-
-
-2. Inside MySQL terminal, create a database for storing a data.
-
-    ```sql
-    CREATE DATABASE myDB;
-    ```
-
-    myDB can be any valid database name.
-
-## (Optional) Create a user to access database instead of root.
-1. Create user.
-
-    ```sql
-    CREATE USER 'user'@'localhost' IDENTIFIED BY 'password';
-    ```
-
-    user can be any valid username. password will be a key to identify this user
-
-2. Grant necessary privileges to user on database.
-
-    ```sql
-    GRANT ALL PRIVILEGES ON *.* TO 'user'@'localhost';
-    ```
-
-    ```sql
-    FLUSH PRIVILEGES;
-    ```
-
-## Configure environments.
-1. In [sample.env](./backend/sample.env)
-    ```
-    # MySQL configuration
-    DATABASE_NAME=myDB
-    DATABASE_USER=root
-    DATABASE_PASSWORD=password
-    DATABASE_HOST=localhost
-    DATABASE_PORT=3306
-    ```
-    Replace myDB with name of database that you has created before.
-
-    Replace root with username if you have created a new user.
-
-    Replace password with root password, or user password if you have created a new user.
 
 

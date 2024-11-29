@@ -1,16 +1,10 @@
 """Module for handle URL /activities/<activity_id>."""
-from activities.views.util import image_loader, image_deleter, image_loader_64, edit_host_access
 from typing import Any
 from django.http import HttpRequest
-from django.utils import timezone
-from rest_framework import generics, permissions, mixins, response
+from rest_framework import generics, mixins, response
 from django.db.models import Q
 from activities import models
-from activities.serializer.permissions import OnlyHostCanEdit
 from activities.serializer import model_serializers
-from django.db import transaction
-from auth import serializer
-from django.shortcuts import get_object_or_404
 from django.db.models.query import QuerySet
 
 

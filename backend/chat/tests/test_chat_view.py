@@ -3,7 +3,7 @@ import time
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from activities.models import Activity
+from activities.models import Activity, Attend
 from django.contrib.auth.models import User
 from chat.models import Message, Attachment
 from chat.tests.shortcuts import image_loader
@@ -17,6 +17,7 @@ class ChatMessageListTest(APITestCase):
         """Create user, login user, create activity and create message."""
         self.user = User.objects.create_user(username="testuser", password="testpass")
         self.activity = Activity.objects.create(owner=self.user, name="Test Activity")
+        Attend.objects.create(user=self.user, activity=self.activity)
         self.client.login(username="testuser", password="testpass")
         self.message1 = Message.objects.create(
             activity=self.activity,

@@ -9,7 +9,6 @@ from django.db.models import Q, QuerySet
 from rest_framework import generics, permissions, mixins, response, status
 from activities import models
 from activities.logger import logger, Action, RequestData, data_to_log
-from channels import layers
 
 from activities.serializer import model_serializers
 

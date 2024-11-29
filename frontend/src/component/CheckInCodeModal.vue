@@ -91,18 +91,14 @@ async function closeCheckIn() {
     /**
      * Make check-in unavailable.
      */
-    try {
-        await createPutRequest(
-            `/activities/check-in/${props.id}/?status=close`,
-            {}
-        );
-        addAlert('warning', 'Check in closed');
-        check_in_allowed.value = false;
-        closeModal();
-    } catch (error) {
-        console.error('Error fetching activity:', error);
-        addAlert('warning', 'Activity already started or No such activity.');
-    }
+    const response = await createPutRequest(
+        `/activities/check-in/${props.id}/?status=close`,
+        {}
+    );
+    if (!response) return; // Not Success
+    addAlert('warning', 'Check in closed');
+    check_in_allowed.value = false;
+    closeModal();
 }
 
 const closeModal = () => {
