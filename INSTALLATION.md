@@ -12,16 +12,31 @@ git clone https://github.com/OmegaOoh/ku-tangtee.git
 ```
 
 ### 2. Set Up a Python Virtual Environment
+
 Navigate to the project directory:
 
 ```bash
-cd frontend
+cd ku-tangtee
 ```
 
 Create a Python virtual environment:
 
 ```bash
 python -m venv .venv
+```
+
+Activate the virtual environment:
+
+**macOS/Linux**
+
+```bash
+source .venv/bin/activate
+```
+
+**Windows**
+
+```bash
+.venv\Scripts\activate
 ```
 
 ### 3. Install Required Python Packages
@@ -58,10 +73,10 @@ Then, follow the instructions in the [setup variable guide](./frontend/README.md
 Follow the instructions in the [MySQL installation and setup guide](./database_guide.md).
 
 ### 7. Migrate Django Database
-Navigate Back to the Root Directory (`\ku-tangtee`):
+Navigate to the Backend Directory (`\ku-tangtee\backend`):
 
    ```bash
-   cd ..
+   cd ..\backend
    ```
 
 Then, run the following command to apply database migrations:
