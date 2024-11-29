@@ -28,7 +28,9 @@ class ActivityList(
         """Activity index view returns a list of all the activities according to query parameters."""
         queryset = super().get_queryset()
 
-        usertz = timedelta(minutes=int(self.request.headers.get('tzoffset')))
+        usertz = 0
+        if (self.request.headers.get('tzoffset')):
+            usertz = timedelta(minutes=int(self.request.headers.get('tzoffset')))
 
         queryset = queryset.filter(end_registration_date__gte=timezone.now())
 
@@ -37,8 +39,11 @@ class ActivityList(
             queryset = queryset.filter(Q(name__iregex=rf'{keyword}') | Q(detail__iregex=rf'{keyword}'))
 
         queryset = queryset.annotate(
-            modified_date=ExpressionWrapper(F('date') - usertz,
-            output_field=DateTimeField()))
+            modified_date=ExpressionWrapper(
+                F('date') - usertz,
+                output_field=DateTimeField()
+            )
+        )
         day = self.__parse_date(self.request.GET.get("day"))
         if day:
             queryset = queryset.filter(modified_date__week_day__in=day)
