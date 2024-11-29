@@ -52,13 +52,14 @@ class ActivityList(
 
         if self.request.query_params.get("start_date"):
             start_date = dateparse.parse_datetime(self.request.query_params.get("start_date"))
-            print('start_date', start_date)
-            queryset = queryset.filter(modified_date__gte=start_date)
+            if start_date:
+                queryset = queryset.filter(modified_date__gte=start_date)
 
         if self.request.query_params.get("end_date"):
             end_date = dateparse.parse_datetime(self.request.query_params.get("end_date"))
-            end_date = end_date.replace(hour=23, minute=59, second=59)
-            queryset = queryset.filter(modified_date__lte=end_date)
+            if end_date:
+                end_date = end_date.replace(hour=23, minute=59, second=59)
+                queryset = queryset.filter(modified_date__lte=end_date)
 
         return queryset
 
