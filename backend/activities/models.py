@@ -66,7 +66,7 @@ class Activity(models.Model):
 
     class Meta:
         """Meta Class of Activity Model."""
-        
+
         unique_together = ['owner', 'name', 'detail', 'date', 'end_date']
 
     def update_check_in_code(self) -> str:
