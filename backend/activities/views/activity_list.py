@@ -5,7 +5,7 @@ from activities.views.util import image_loader, image_loader_64, create_location
 from typing import Any
 from django.http import HttpRequest
 from django.utils import timezone, dateparse
-from django.db.models import Q, QuerySet
+from django.db.models import Q, QuerySet, ExpressionWrapper, F, DateTimeField
 from rest_framework import generics, permissions, mixins, response, status
 from activities import models
 from activities.logger import logger, Action, RequestData, data_to_log
@@ -28,27 +28,30 @@ class ActivityList(
         """Activity index view returns a list of all the activities according to query parameters."""
         queryset = super().get_queryset()
 
+        usertz = timedelta(minutes=int(self.request.headers.get('tzoffset')))
+
         queryset = queryset.filter(end_registration_date__gte=timezone.now())
 
         keyword = self.request.GET.get("keyword")
         if keyword:
             queryset = queryset.filter(Q(name__iregex=rf'{keyword}') | Q(detail__iregex=rf'{keyword}'))
 
+        queryset = queryset.annotate(
+            modified_date=ExpressionWrapper(F('date') - usertz,
+            output_field=DateTimeField()))
         day = self.__parse_date(self.request.GET.get("day"))
         if day:
-            queryset = queryset.filter(date__week_day__in=day)
+            queryset = queryset.filter(modified_date__week_day__in=day)
 
-        try:
-            start_date = dateparse.parse_date(self.request.query_params.get("start_date"))
-            queryset = queryset.filter(date__gte=start_date)
-        except (ValueError, TypeError):
-            pass
+        if self.request.query_params.get("start_date"):
+            start_date = dateparse.parse_datetime(self.request.query_params.get("start_date"))
+            print('start_date', start_date)
+            queryset = queryset.filter(modified_date__gte=start_date)
 
-        try:
-            end_date = dateparse.parse_date(self.request.query_params.get("end_date")) + timedelta(days=1)
-            queryset = queryset.filter(date__lte=end_date)
-        except (ValueError, TypeError):
-            pass
+        if self.request.query_params.get("end_date"):
+            end_date = dateparse.parse_datetime(self.request.query_params.get("end_date"))
+            end_date = end_date.replace(hour=23, minute=59, second=59)
+            queryset = queryset.filter(modified_date__lte=end_date)
 
         return queryset
 
