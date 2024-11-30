@@ -1,19 +1,15 @@
 """Module on test activity editing."""
 import json
+
 import django.test
-from datetime import datetime
-from activities.tests.constants import SCHOOL_EXPECTED, SCHOOL_IMAGE, CAMERA_IMAGE, CAMERA_EXPECTED
-from django import urls
 from activities import models
-from .shortcuts import (
-    activity_to_json,
-    time_formatter,
-    create_activity,
-    create_test_user,
-    put_request_json_data,
-    client_join_activity
-)
-from django.utils import timezone
+from activities.tests.constants import (CAMERA_EXPECTED, CAMERA_IMAGE,
+                                        SCHOOL_EXPECTED, SCHOOL_IMAGE)
+from django import urls
+
+from .shortcuts import (activity_to_json, client_join_activity,
+                        create_activity, create_test_user,
+                        put_request_json_data, time_formatter)
 
 
 class EditActivityTest(django.test.TestCase):

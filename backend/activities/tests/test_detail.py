@@ -1,9 +1,9 @@
 """Module to test on detail page of activities app."""
-import json
 import django.test
-from django import urls
-from .shortcuts import create_activity, activity_to_json
 from activities.serializer.model_serializers import ActivitiesSerializer
+from django import urls
+
+from .shortcuts import activity_to_json, create_activity
 
 
 class DetailTest(django.test.TestCase):

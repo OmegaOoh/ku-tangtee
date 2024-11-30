@@ -1,15 +1,15 @@
 """Module for handle URL /profile."""
 from typing import Any
-from django.http import HttpRequest
-from django.db.models import QuerySet
-from django.contrib.auth import models as auth_models
-from django.shortcuts import get_object_or_404
-from rest_framework import generics, permissions, mixins, response, status
-from profiles import models
-from profiles.logger import logger, Action, RequestData, data_to_log
 
+from django.contrib.auth import models as auth_models
+from django.db.models import QuerySet
+from django.http import HttpRequest
+from django.shortcuts import get_object_or_404
+from profiles import models
+from profiles.logger import Action, RequestData, data_to_log, logger
 from profiles.serializer import model_serializers
 from profiles.serializer.permissions import OnlyOwnerCanEdit
+from rest_framework import generics, mixins, permissions, response, status
 
 
 class ProfileDetail(

@@ -1,7 +1,8 @@
 """Test for profile model of activities app."""
 import django.test
-from .shortcuts import create_profile, create_test_user
+
 from ..models import Profile
+from .shortcuts import create_profile, create_test_user
 
 
 class TestActivityModel(django.test.TestCase):

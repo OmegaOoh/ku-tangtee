@@ -1,9 +1,8 @@
 """Test for Join function."""
 import django.test
 from django import urls
-from .shortcuts import create_activity, create_test_user, client_join_activity
-from activities import models
-import json
+
+from .shortcuts import client_join_activity, create_activity, create_test_user
 
 
 class JoinTest(django.test.TestCase):

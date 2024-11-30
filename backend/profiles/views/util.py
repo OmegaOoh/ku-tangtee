@@ -1,7 +1,7 @@
 """Utility module for profile model."""
+from django.http import HttpRequest
 from profiles import models
 from rest_framework import decorators
-from django.http import HttpRequest
 from rest_framework.response import Response
 
 

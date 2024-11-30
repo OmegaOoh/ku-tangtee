@@ -1,7 +1,8 @@
 """Custom exception handler."""
-from rest_framework.views import exception_handler
-from rest_framework import response, exceptions
 from typing import Any
+
+from rest_framework import exceptions, response
+from rest_framework.views import exception_handler
 
 
 def custom_exception_handler(exc: exceptions.APIException, context: Any) -> response.Response:

@@ -2,8 +2,8 @@
 import logging
 from dataclasses import dataclass
 from enum import Enum
-from django.contrib.auth.models import User
 
+from django.contrib.auth.models import User
 
 logger = logging.getLogger('activities')
 

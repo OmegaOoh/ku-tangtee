@@ -1,10 +1,11 @@
 """Module contain serializer class relate to User model."""
-from rest_framework import serializers
-from django.contrib.auth.models import User
+from typing import Any
+
 from allauth.socialaccount.models import SocialAccount
+from django.contrib.auth.models import User
 from profiles.models import Profile
 from profiles.serializer.model_serializers import ProfilesSerializer
-from typing import Any
+from rest_framework import serializers
 
 
 class UserSerializer(serializers.ModelSerializer):

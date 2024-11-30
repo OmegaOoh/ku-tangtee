@@ -1,7 +1,9 @@
 """Module for serializing data before responding to a request."""
-from rest_framework import serializers
-from .models import Message, Attachment
 from typing import Any
+
+from rest_framework import serializers
+
+from .models import Attachment, Message
 
 
 class MessageSerializer(serializers.ModelSerializer):

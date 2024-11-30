@@ -1,9 +1,9 @@
 """Module to test on profile detail page."""
-import json
 import django.test
 from django import urls
-from .shortcuts import create_profile, create_test_user
 from profiles.serializer.model_serializers import ProfilesSerializer
+
+from .shortcuts import create_profile, create_test_user
 
 
 class DetailTest(django.test.TestCase):

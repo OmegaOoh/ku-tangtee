@@ -1,13 +1,14 @@
 """Shortcuts function for testing profile app."""
 import io
-import sys
 import json
-from django.http import HttpResponse
-import django.test
+import sys
 from typing import Tuple
-from profiles import models
-from django.contrib.auth.models import User
+
+import django.test
 from django import urls
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+from profiles import models
 
 
 def create_test_user(username: str = "test_user") -> User:

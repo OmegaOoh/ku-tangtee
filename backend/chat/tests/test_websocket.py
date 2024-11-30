@@ -1,13 +1,14 @@
 """Test module for chat websocket."""
 import django.test
-from channels.testing import WebsocketCommunicator
-from django.contrib.auth import get_user_model
 from activities.models import Activity, Attend
-from chat.models import Attachment, Message
-from mysite.asgi import application
-from django.utils import timezone
+from activities.tests.constants import (BASE64_IMAGE, CAMERA_EXPECTED_CHAT,
+                                        CAMERA_IMAGE)
 from asgiref.sync import async_to_sync, sync_to_async
-from activities.tests.constants import CAMERA_EXPECTED_CHAT, CAMERA_IMAGE, BASE64_IMAGE
+from channels.testing import WebsocketCommunicator
+from chat.models import Attachment, Message
+from django.contrib.auth import get_user_model
+from django.utils import timezone
+from mysite.asgi import application
 
 User = get_user_model()
 

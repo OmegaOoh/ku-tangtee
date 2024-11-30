@@ -1,11 +1,12 @@
 """Database Model for activities app."""
-import string
 import random
+import string
 from typing import Any, Optional
-from django.db import models
-from django.utils import timezone
+
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
+from django.db import models
+from django.utils import timezone
 
 CHECKIN_CODE_LEN = 6
 

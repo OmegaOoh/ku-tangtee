@@ -1,15 +1,16 @@
 """Shortcuts function for testing activities app."""
 import io
-import sys
 import json
+import sys
 from datetime import datetime, timedelta
-from django.http import HttpResponse
+
 import django.test
-from django.utils import timezone
 from activities import models
-from django.contrib.auth.models import User
-from django import urls
 from activities.serializer.model_serializers import ActivitiesSerializer
+from django import urls
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+from django.utils import timezone
 from profiles.tests.shortcuts import create_profile
 
 

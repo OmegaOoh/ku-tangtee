@@ -1,10 +1,14 @@
 """Module on test activity owner access granting and removing."""
 import json
+
 import django.test
 from django import urls
 from django.utils import timezone
-from .shortcuts import client_join_activity, create_activity, create_test_user, put_request_json_data, activity_to_json
+
 from .. import models
+from .shortcuts import (activity_to_json, client_join_activity,
+                        create_activity, create_test_user,
+                        put_request_json_data)
 
 
 class GrantRemoveHostTest(django.test.TestCase):

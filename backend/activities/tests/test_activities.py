@@ -1,7 +1,8 @@
 """Test for activity model of activities app."""
 import django.test
-from .shortcuts import create_activity, create_test_user, client_join_activity
+
 from ..models import Attend
+from .shortcuts import client_join_activity, create_activity, create_test_user
 
 
 class TestActivityModel(django.test.TestCase):
