@@ -1,16 +1,17 @@
 """Module for handle URL /activities."""
 import re
 from datetime import timedelta
-from activities.views.util import image_loader, image_loader_64, create_location
 from typing import Any
-from django.http import HttpRequest
-from django.utils import timezone, dateparse
-from django.db.models import Q, QuerySet
-from rest_framework import generics, permissions, mixins, response, status
-from activities import models
-from activities.logger import logger, Action, RequestData, data_to_log
 
+from activities import models
+from activities.logger import Action, RequestData, data_to_log, logger
 from activities.serializer import model_serializers
+from activities.views.util import (create_location, image_loader,
+                                   image_loader_64)
+from django.db.models import Q, QuerySet
+from django.http import HttpRequest
+from django.utils import dateparse, timezone
+from rest_framework import generics, mixins, permissions, response, status
 
 
 class ActivityList(

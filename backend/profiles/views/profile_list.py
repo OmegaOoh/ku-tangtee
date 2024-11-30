@@ -1,12 +1,12 @@
 """Module for handle URL /profile."""
 from typing import Any
-from django.http import HttpRequest
-from django.db.models import QuerySet
-from rest_framework import generics, permissions, mixins, response, status
-from profiles import models
-from profiles.logger import logger, Action, RequestData, data_to_log
 
+from django.db.models import QuerySet
+from django.http import HttpRequest
+from profiles import models
+from profiles.logger import Action, RequestData, data_to_log, logger
 from profiles.serializer import model_serializers
+from rest_framework import generics, mixins, permissions, response, status
 
 
 class ProfileList(

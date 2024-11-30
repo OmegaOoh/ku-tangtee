@@ -1,9 +1,9 @@
 """Views for activities app, handle html request."""
-from django.http import HttpRequest
-from django.contrib.auth.models import User
 from allauth.socialaccount.models import SocialAccount
-from rest_framework import decorators, response
 from auth.serializer import UserSerializer
+from django.contrib.auth.models import User
+from django.http import HttpRequest
+from rest_framework import decorators, response
 
 
 @decorators.api_view(["GET"])

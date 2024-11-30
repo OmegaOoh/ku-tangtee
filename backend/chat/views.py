@@ -1,9 +1,10 @@
 """View modules for Chat message."""
-from rest_framework import generics
-from .models import Message
-from .serializers import MessageSerializer
 from django.db.models import QuerySet
+from rest_framework import generics
+
+from .models import Message
 from .permissions import IsUserInActivity
+from .serializers import MessageSerializer
 
 
 class ChatMessageList(generics.ListAPIView):

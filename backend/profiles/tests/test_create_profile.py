@@ -1,5 +1,6 @@
 """Module to test on profile creation handler."""
 import django.test
+
 from .shortcuts import create_profile, create_test_user
 
 

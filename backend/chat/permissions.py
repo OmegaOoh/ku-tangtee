@@ -1,8 +1,9 @@
 """Permission module for chat."""
 from typing import Any
-from django.http import HttpRequest
-from rest_framework import permissions, generics
+
 from activities.models import Activity
+from django.http import HttpRequest
+from rest_framework import generics, permissions
 
 
 class IsUserInActivity(permissions.BasePermission):

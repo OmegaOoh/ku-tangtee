@@ -1,13 +1,14 @@
 """Test module for chat view."""
 import time
+
+from activities.models import Activity, Attend
+from activities.tests.constants import SCHOOL_IMAGE
+from chat.models import Attachment, Message
+from chat.tests.shortcuts import image_loader
+from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from activities.models import Activity, Attend
-from django.contrib.auth.models import User
-from chat.models import Message, Attachment
-from chat.tests.shortcuts import image_loader
-from activities.tests.constants import SCHOOL_IMAGE
 
 
 class ChatMessageListTest(APITestCase):

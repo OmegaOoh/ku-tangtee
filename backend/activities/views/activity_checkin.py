@@ -1,13 +1,15 @@
 """Module for handle URL /activities/<activity_id>."""
 
 from typing import Any
+
+from activities import models
+from activities.logger import Action, RequestData, data_to_log, logger
+from activities.serializer import model_serializers
+from activities.serializer.permissions import (MustBeMember, OnlyHostCanEdit,
+                                               OnlyHostCanGet)
 from django.http import HttpRequest
 from django.utils import timezone
-from rest_framework import generics, permissions, mixins, response
-from activities import models
-from activities.logger import logger, Action, RequestData, data_to_log
-from activities.serializer.permissions import OnlyHostCanEdit, OnlyHostCanGet, MustBeMember
-from activities.serializer import model_serializers
+from rest_framework import generics, mixins, permissions, response
 
 
 class CheckInView(

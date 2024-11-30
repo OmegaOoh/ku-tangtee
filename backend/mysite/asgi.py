@@ -15,7 +15,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
 
 django_asgi_app = get_asgi_application()
 
-from channels import routing, auth
+from channels import auth, routing
 from chat import routing as chat_routing
 
 application = routing.ProtocolTypeRouter({

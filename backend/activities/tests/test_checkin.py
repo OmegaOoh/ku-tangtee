@@ -1,12 +1,11 @@
 """Test module for check-in behaviour."""
 import django.test
-from .shortcuts import create_activity, create_test_user, client_join_activity
-from ..models import Attend
 from django import urls
 from django.utils import timezone
 from profiles.models import Profile
-import re
-import json
+
+from ..models import Attend
+from .shortcuts import client_join_activity, create_activity, create_test_user
 
 
 class CheckinTest(django.test.TestCase):

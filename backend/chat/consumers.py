@@ -1,14 +1,16 @@
 """Module contains websocket consumers implementation."""
-import json
 import base64
+import json
 import uuid
-import requests
-from django.core.files.base import ContentFile
 from typing import Any, Dict
-from channels.generic.websocket import AsyncWebsocketConsumer
-from channels import exceptions
-from asgiref import sync
+
+import requests
 from activities import models as act_models
+from asgiref import sync
+from channels import exceptions
+from channels.generic.websocket import AsyncWebsocketConsumer
+from django.core.files.base import ContentFile
+
 from . import models as chat_models
 
 

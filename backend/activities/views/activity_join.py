@@ -1,10 +1,11 @@
 """Module for handle URL /activities/join/<activity_id>/."""
 from typing import Any
-from django.http import HttpRequest
-from rest_framework import generics, permissions, mixins, response, status
+
 from activities import models
-from activities.logger import logger, Action, RequestData, data_to_log
+from activities.logger import Action, RequestData, data_to_log, logger
 from activities.serializer import model_serializers
+from django.http import HttpRequest
+from rest_framework import generics, mixins, permissions, response, status
 
 
 class JoinLeaveView(

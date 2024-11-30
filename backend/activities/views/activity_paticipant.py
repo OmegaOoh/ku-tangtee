@@ -1,11 +1,12 @@
 """Module for handle URL /activities/<activity_id>."""
 from typing import Any
-from django.http import HttpRequest
-from rest_framework import generics, mixins, response
-from django.db.models import Q
+
 from activities import models
 from activities.serializer import model_serializers
+from django.db.models import Q
 from django.db.models.query import QuerySet
+from django.http import HttpRequest
+from rest_framework import generics, mixins, response
 
 
 class ParticipantList(mixins.ListModelMixin,

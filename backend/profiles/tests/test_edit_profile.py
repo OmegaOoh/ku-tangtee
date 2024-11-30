@@ -1,9 +1,10 @@
 """Module on test profile editing."""
 import json
+
 import django.test
 from django import urls
-from profiles import models
-from .shortcuts import create_test_user, create_profile, put_request_json_data
+
+from .shortcuts import create_profile, create_test_user, put_request_json_data
 
 
 class EditActivityTest(django.test.TestCase):

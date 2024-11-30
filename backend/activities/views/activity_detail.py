@@ -1,13 +1,16 @@
 """Module for handle URL /activities/<activity_id>."""
-from activities.views.util import image_loader, image_deleter, image_loader_64, edit_host_access, create_location
 from typing import Any
-from django.http import HttpRequest
-from rest_framework import generics, permissions, mixins, response
-from django.db.models import Q
+
 from activities import models
-from activities.logger import logger, Action, RequestData, data_to_log
-from activities.serializer.permissions import OnlyHostCanEdit
+from activities.logger import Action, RequestData, data_to_log, logger
 from activities.serializer import model_serializers
+from activities.serializer.permissions import OnlyHostCanEdit
+from activities.views.util import (create_location, edit_host_access,
+                                   image_deleter, image_loader,
+                                   image_loader_64)
+from django.db.models import Q
+from django.http import HttpRequest
+from rest_framework import generics, mixins, permissions, response
 
 
 class ActivityDetail(mixins.RetrieveModelMixin,

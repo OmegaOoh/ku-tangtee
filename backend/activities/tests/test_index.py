@@ -1,8 +1,11 @@
 """Module to test on index page of activities app."""
 import json
+
 import django.test
 from django import urls
-from .shortcuts import create_activity, activity_to_json, create_test_user, convert_day_num, date_from_now
+
+from .shortcuts import (activity_to_json, convert_day_num, create_activity,
+                        create_test_user, date_from_now)
 
 
 class IndexTest(django.test.TestCase):

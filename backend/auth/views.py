@@ -1,14 +1,16 @@
 """Module for redirect user to authentication page."""
 
+from typing import Any
+
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
-from rest_framework_simplejwt.views import TokenRefreshView
 from dj_rest_auth.registration.views import SocialLoginView
-from rest_framework import generics, mixins, response, status
-from .serializer import UserSerializer
 from django.contrib.auth.models import User
 from django.http import HttpRequest
-from typing import Any
 from mysite.settings import REST_AUTH
+from rest_framework import generics, mixins, response, status
+from rest_framework_simplejwt.views import TokenRefreshView
+
+from .serializer import UserSerializer
 
 
 class GoogleLogin(SocialLoginView):

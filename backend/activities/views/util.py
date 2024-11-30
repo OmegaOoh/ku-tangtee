@@ -1,18 +1,17 @@
 """Utility module."""
+import base64
+import uuid
 from typing import Any
+
+import requests
+from activities import models
+from activities.logger import Action, RequestData, data_to_log, logger
+from django.contrib.auth import models as auth_models
+from django.core.files.base import ContentFile
 from django.http import HttpRequest
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
-from django.contrib.auth import models as auth_models
-import requests
-import base64
-import uuid
-from django.core.files.base import ContentFile
-from activities import models
-from activities.logger import logger, Action, RequestData, data_to_log
 from rest_framework import decorators, response
-import random
-import string
 
 CHECKIN_CODE_LEN = 6
 
