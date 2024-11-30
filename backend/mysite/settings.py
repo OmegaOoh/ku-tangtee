@@ -215,7 +215,8 @@ CORS_ALLOW_HEADERS = [
     "user-agent",
     "x-csrftoken",
     "x-requested-with",
-    "x-xsrf-token"]
+    "x-xsrf-token",
+    "tzoffset"]
 
 # CSRF Config
 CSRF_TRUSTED_ORIGINS = config('ALLOWED_CSRF', cast=str, default="http://127.0.0.1:8080, http://localhost:8080").replace(' ', '').split(',')

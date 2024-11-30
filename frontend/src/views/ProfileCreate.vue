@@ -348,11 +348,8 @@ const submitProfile = async () => {
                                 major: major.value,
                                 about_me: bio.value,
                             });
-    if (!response) {
-        isProcessing.value = false;
-        return;
-    }
     isProcessing.value = false;
+    if (!response) return;
     goNext();
     addAlert(
         'success',

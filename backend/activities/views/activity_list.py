@@ -29,27 +29,38 @@ class ActivityList(
         """Activity index view returns a list of all the activities according to query parameters."""
         queryset = super().get_queryset()
 
+        offset = 0
+        if (self.request.headers.get('tzoffset')):
+            offset = int(self.request.headers.get('tzoffset'))
+
+        usertz = timedelta(minutes=offset)
+
         queryset = queryset.filter(end_registration_date__gte=timezone.now())
 
         keyword = self.request.GET.get("keyword")
         if keyword:
             queryset = queryset.filter(Q(name__iregex=rf'{keyword}') | Q(detail__iregex=rf'{keyword}'))
 
+        queryset = queryset.annotate(
+            modified_date=ExpressionWrapper(
+                F('date') - usertz,
+                output_field=DateTimeField()
+            )
+        )
         day = self.__parse_date(self.request.GET.get("day"))
         if day:
-            queryset = queryset.filter(date__week_day__in=day)
+            queryset = queryset.filter(modified_date__week_day__in=day)
 
-        try:
-            start_date = dateparse.parse_date(self.request.query_params.get("start_date"))
-            queryset = queryset.filter(date__gte=start_date)
-        except (ValueError, TypeError):
-            pass
+        if self.request.query_params.get("start_date"):
+            start_date = dateparse.parse_datetime(self.request.query_params.get("start_date"))
+            if start_date:
+                queryset = queryset.filter(modified_date__gte=start_date)
 
-        try:
-            end_date = dateparse.parse_date(self.request.query_params.get("end_date")) + timedelta(days=1)
-            queryset = queryset.filter(date__lte=end_date)
-        except (ValueError, TypeError):
-            pass
+        if self.request.query_params.get("end_date"):
+            end_date = dateparse.parse_datetime(self.request.query_params.get("end_date"))
+            if end_date:
+                end_date = end_date.replace(hour=23, minute=59, second=59)
+                queryset = queryset.filter(modified_date__lte=end_date)
 
         return queryset
 

@@ -99,7 +99,7 @@
 
     - Under shell, enter this script
         ```py
-            >>> from django.contrib.sites import 
+            >>> from django.contrib.sites import models
             >>> models.Site.objects.get(name="<Site display name that you have set before>").id
             4
         ```

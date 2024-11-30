@@ -10,7 +10,7 @@ class Message(models.Model):
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    activity = models.ForeignKey(Activity, on_delete=models.RESTRICT)
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
 
     class Meta:
         """Meta class for Message models."""

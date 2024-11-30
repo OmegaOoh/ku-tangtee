@@ -12,6 +12,7 @@
                         @keydown.enter="fetchActivities(1, true)"
                         class="input input-bordered gap-2 rounded-r-none"
                         placeholder="Search"
+                        :maxlength="250"
                     />
                     <div>
                         <div class="relative">
@@ -37,6 +38,7 @@
                                     :dark="isDarkTheme"
                                     range
                                     :partial-range="false"
+                                    :enable-time-picker="false"
                                     class="mb-3 ml-2"
 
                                 />
@@ -265,13 +267,14 @@ const fetchActivities = async (page = 1, reset = false) => {
             params.keyword = searchKeyword.value;
         }
         if (dateRange.value) {
-            params.start_date = format(dateRange.value[1], 'yyyy-MM-dd');
+            params.start_date = format(dateRange.value[0], 'yyyy-MM-dd');
             params.end_date = format(dateRange.value[1], 'yyyy-MM-dd');
         }
         if (selectedDay.value && selectedDay.value.length != 7) {
             params.day = selectedDay.value.toString();
         }
-        response = await apiClient.get('/activities/', { params });
+        const currentDate = new Date()
+        response = await apiClient.get('/activities/', { params, headers: {tzoffset: currentDate.getTimezoneOffset()} });
         if (reset) {
             activities.value = [];
             noNextPage.value = false;

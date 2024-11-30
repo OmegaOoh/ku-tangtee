@@ -65,6 +65,11 @@ class Activity(models.Model):
     )
     is_cancelled = models.BooleanField(default=False)
 
+    class Meta:
+        """Meta Class of Activity Model."""
+
+        unique_together = ['owner', 'name', 'detail', 'date', 'end_date']
+
     def update_check_in_code(self) -> str:
         """Regenerate activity check-in code."""
         self.check_in_code = get_checkin_code()
